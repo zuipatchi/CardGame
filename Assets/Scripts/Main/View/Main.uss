@@ -17,4 +17,5 @@
     right: 0;
     flex-direction: row;
     justify-content: center;
+    overflow: visible;
 }
