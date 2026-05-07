@@ -104,9 +104,10 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 | `Authenticating` | UGS 初期化・認証中 |
 | `BrowsingRooms` | ルーム一覧表示中（ボタン有効） |
 | `CreatingRoom` | ルーム作成中 |
-| `WaitingForPlayer` | 相手待ち（ホスト側） |
 | `JoiningRoom` | ルーム参加中 |
+| `WaitingForPlayer` | 相手待ち（ホスト側） |
 | `Starting` | Main シーンへ遷移中 |
+| `Ready` | 全員準備完了、遷移待ち |
 | `TimedOut` | タイムアウト（リトライ確認中） |
 | `Error` | エラー発生 |
 
