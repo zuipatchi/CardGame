@@ -157,11 +157,42 @@ Assets/Scripts/<Scene>/<Feature>/
 
 ```
 Assets/AddressableAssets/
+  ├── Card/        Card.uxml（カードテンプレート）
   ├── Icon/        SVG アイコン
+  ├── Image/       CardBack.png（カード裏面画像）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
 ```
 
 - `SoundStore` が BGM クリップをロード
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
+- `CardStore` がカードテンプレート（VisualTreeAsset）と裏面画像（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
+
+---
+
+## Main シーン（カードゲーム盤面）
+
+### カードシステム
+
+```
+CardData          [Serializable] クラス。id / name / cost / atk / def
+CardDatabase      ScriptableObject。List<CardData> をインスペクターで編集、Dictionary でルックアップ
+CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
+```
+
+### ビューコンポーネント
+
+```
+CardView          VisualElement サブクラス。Card.uxml をクローンしてデータをバインド
+                  FlipAsync() で DOTween による裏返しアニメーション
+HandView          VisualElement サブクラス。手札を扇状に表示
+                  各カードをボトムセンター軸に最大 ±20° 回転 + 放物線アーク
+DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き）
+```
+
+### MainPresenter の初期化フロー
+
+1. `CardStore.Loaded` を await してアセットロード完了を待つ
+2. `CardDatabase.AllCards` を Fisher-Yates シャッフル
+3. 先頭 5 枚を `HandView`（画面下部中央）、残りを `DeckView`（右下）として配置
