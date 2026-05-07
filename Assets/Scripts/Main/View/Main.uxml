@@ -2,5 +2,6 @@
     <Style src="Main.uss" />
     <ui:VisualElement class="main-root">
         <ui:VisualElement name="DeckArea" class="main-deck-area" />
+        <ui:VisualElement name="HandArea" class="main-hand-area" />
     </ui:VisualElement>
 </ui:UXML>

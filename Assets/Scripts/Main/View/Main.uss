@@ -9,3 +9,12 @@
     right: 32px;
     bottom: 32px;
 }
+
+.main-hand-area {
+    position: absolute;
+    bottom: 32px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+}

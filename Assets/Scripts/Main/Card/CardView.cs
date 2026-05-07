@@ -13,7 +13,6 @@ namespace Main.Card
         private readonly VisualElement _backFace;
         private readonly Label _costLabel;
         private readonly Label _nameLabel;
-        private readonly Label _effectLabel;
         private readonly Label _atkLabel;
         private readonly Label _defLabel;
         public bool IsFaceDown { get; private set; }
@@ -26,7 +25,6 @@ namespace Main.Card
             _backFace = this.Q<VisualElement>("BackFace");
             _costLabel = this.Q<Label>("CostLabel");
             _nameLabel = this.Q<Label>("NameLabel");
-            _effectLabel = this.Q<Label>("EffectLabel");
             _atkLabel = this.Q<Label>("AtkLabel");
             _defLabel = this.Q<Label>("DefLabel");
 
@@ -95,7 +93,6 @@ namespace Main.Card
         {
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
-            _effectLabel.text = data.EffectText;
             _atkLabel.text = $"ATK {data.Attack}";
             _defLabel.text = $"DEF {data.Defense}";
         }

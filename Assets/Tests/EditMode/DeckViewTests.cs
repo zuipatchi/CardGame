@@ -10,7 +10,7 @@ namespace Tests.EditMode
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
         private static CardData MakeCard(string id) =>
-            new CardData(id, id, 1, "テスト", 0, 0);
+            new CardData(id, id, 1, 0, 0);
 
         [Test]
         public void 渡した枚数分のCardViewが生成される()

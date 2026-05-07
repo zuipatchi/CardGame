@@ -18,7 +18,7 @@ namespace Tests.EditMode
         {
             CardDatabase db = CreateDatabase(new[]
             {
-                new CardData("fire_001", "ファイアボール", 3, "3ダメージ", 0, 0),
+                new CardData("fire_001", "ファイアボール", 3, 0, 0),
             });
 
             bool found = db.TryGet("fire_001", out CardData result);
@@ -42,7 +42,7 @@ namespace Tests.EditMode
         {
             CardDatabase db = CreateDatabase(new[]
             {
-                new CardData("ice_001", "アイスランス", 2, "2ダメージ", 0, 0),
+                new CardData("ice_001", "アイスランス", 2, 0, 0),
             });
 
             CardData result = db["ice_001"];
@@ -55,8 +55,8 @@ namespace Tests.EditMode
         {
             CardDatabase db = CreateDatabase(new[]
             {
-                new CardData("fire_001", "ファイアボール", 3, "3ダメージ", 0, 0),
-                new CardData("shield_001", "シールド", 1, "防御力+2", 0, 2),
+                new CardData("fire_001", "ファイアボール", 3, 0, 0),
+                new CardData("shield_001", "シールド", 1, 0, 2),
             });
 
             db.TryGet("fire_001", out CardData r1);

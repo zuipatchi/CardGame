@@ -12,6 +12,8 @@ namespace Main
 {
     public sealed class MainPresenter : MonoBehaviour, IStartable
     {
+        private const int InitialHandSize = 5;
+
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
 
@@ -33,16 +35,33 @@ namespace Main
             {
                 await _cardStore.Loaded;
 
-                VisualElement deckArea = GetComponent<UIDocument>()
-                    .rootVisualElement
-                    .Q<VisualElement>("DeckArea");
+                VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+                VisualElement deckArea = root.Q<VisualElement>("DeckArea");
+                VisualElement handArea = root.Q<VisualElement>("HandArea");
 
-                CardData[] deckCards = _cardDatabase.AllCards.ToArray();
+                CardData[] shuffled = Shuffle(_cardDatabase.AllCards.ToArray());
+                int handSize = Mathf.Min(InitialHandSize, shuffled.Length);
+                CardData[] handCards = shuffled.Take(handSize).ToArray();
+                CardData[] deckCards = shuffled.Skip(handSize).ToArray();
+
+                HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack);
+                handArea.Add(handView);
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
             }
             catch (OperationCanceledException) { }
+        }
+
+        private static CardData[] Shuffle(CardData[] cards)
+        {
+            for (int i = cards.Length - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                (cards[i], cards[j]) = (cards[j], cards[i]);
+            }
+
+            return cards;
         }
     }
 }
