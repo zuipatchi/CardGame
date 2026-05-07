@@ -84,9 +84,10 @@
   <Project Path="Unity.Services.Core.Configuration.Editor.csproj" />
   <Project Path="Unity.Services.Core.Configuration.csproj" />
   <Project Path="Unity.Multiplayer.Center.Common.csproj" />
-  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="DOTween.Modules.csproj" />
   <Project Path="Unity.Services.Core.Environments.Internal.csproj" />
   <Project Path="Unity.InputSystem.ForUI.csproj" />
+  <Project Path="Main.csproj" />
   <Project Path="R3.Unity.Editor.csproj" />
   <Project Path="Unity.Services.Core.Scheduler.csproj" />
   <Project Path="Unity.AI.Navigation.csproj" />
@@ -114,7 +115,6 @@
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Services.Authentication.Editor.Shared.csproj" />
-  <Project Path="Main.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Unity.Services.Core.Registration.csproj" />
   <Project Path="Title.csproj" />

@@ -1,0 +1,16 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="Card.uss" />
+    <ui:VisualElement name="CardRoot" class="game-card">
+        <ui:VisualElement name="FrontFace" class="game-card__face">
+            <ui:Label name="CostLabel" class="game-card__cost" />
+            <ui:Label name="NameLabel" class="game-card__name" />
+            <ui:VisualElement class="game-card__divider" />
+            <ui:Label name="EffectLabel" class="game-card__effect" />
+            <ui:VisualElement class="game-card__stats">
+                <ui:Label name="AtkLabel" class="game-card__stat" />
+                <ui:Label name="DefLabel" class="game-card__stat" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="BackFace" class="game-card__face game-card__back" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -21,6 +21,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3811412f7661ec640a60eb192332f10c
+    m_Address: Image/CardBack
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7069e5405f74953428aab1c2dae935a4
     m_Address: Sound/BGM/CatInPalmBeach
     m_ReadOnly: 0
@@ -44,6 +49,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e5d36d0e1ccf9d242ab44ec7e23f651c
+    m_Address: Card/CardTemplate
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ff539d642a1a86d4aac70aba745fb6cb
     m_Address: Icon/sliders
