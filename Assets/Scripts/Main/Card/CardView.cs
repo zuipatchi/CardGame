@@ -15,6 +15,7 @@ namespace Main.Card
         private readonly Label _nameLabel;
         private readonly Label _atkLabel;
         private readonly Label _defLabel;
+        private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false)
@@ -43,6 +44,23 @@ namespace Main.Card
                 _frontFace.style.display = DisplayStyle.None;
                 _backFace.style.display = DisplayStyle.Flex;
             }
+        }
+
+        public void AttachDragManipulator(CardDragManipulator manipulator)
+        {
+            _dragManipulator = manipulator;
+            this.AddManipulator(manipulator);
+        }
+
+        public void RemoveDragManipulator()
+        {
+            if (_dragManipulator == null)
+            {
+                return;
+            }
+
+            this.RemoveManipulator(_dragManipulator);
+            _dragManipulator = null;
         }
 
         public void SetBackImage(Texture2D texture)

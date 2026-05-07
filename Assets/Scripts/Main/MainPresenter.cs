@@ -36,16 +36,27 @@ namespace Main
                 await _cardStore.Loaded;
 
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+                VisualElement mainRoot = root.Q<VisualElement>("MainRoot");
                 VisualElement deckArea = root.Q<VisualElement>("DeckArea");
                 VisualElement handArea = root.Q<VisualElement>("HandArea");
+                VisualElement fieldArea = root.Q<VisualElement>("FieldArea");
+
+                VisualElement dragLayer = new VisualElement();
+                dragLayer.AddToClassList("main-drag-layer");
+                dragLayer.pickingMode = PickingMode.Ignore;
+                mainRoot.Add(dragLayer);
 
                 CardData[] shuffled = Shuffle(_cardDatabase.AllCards.ToArray());
                 int handSize = Mathf.Min(InitialHandSize, shuffled.Length);
                 CardData[] handCards = shuffled.Take(handSize).ToArray();
                 CardData[] deckCards = shuffled.Skip(handSize).ToArray();
 
-                HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack);
+                FieldView fieldView = new FieldView();
+                fieldArea.Add(fieldView);
+
+                HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, dragLayer);
                 handArea.Add(handView);
+                handView.OnCardDropped = (card, worldPos) => fieldView.TryPlace(card, worldPos);
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);

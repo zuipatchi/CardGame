@@ -4,6 +4,15 @@
     position: absolute;
 }
 
+.main-field-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 300px;
+    overflow: visible;
+}
+
 .main-deck-area {
     position: absolute;
     right: 32px;
@@ -18,4 +27,30 @@
     flex-direction: row;
     justify-content: center;
     overflow: visible;
+}
+
+.main-drag-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow: visible;
+}
+
+.field-view {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.12);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.03);
 }

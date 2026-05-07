@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -5,9 +6,23 @@ namespace Main.Card
 {
     public sealed class CardDragManipulator : PointerManipulator
     {
+        public Func<Vector2, bool> OnDrop;
+
+        private readonly VisualElement _dragLayer;
+        private VisualElement _originalParent;
+        private int _originalIndex;
+        private StyleLength _originalLeft;
+        private StyleLength _originalBottom;
+        private StyleRotate _originalRotate;
+        private StyleScale _originalScale;
         private Vector2 _startPointerPosition;
         private Vector2 _startElementPosition;
         private bool _isDragging;
+
+        public CardDragManipulator(VisualElement dragLayer)
+        {
+            _dragLayer = dragLayer;
+        }
 
         protected override void RegisterCallbacksOnTarget()
         {
@@ -29,11 +44,23 @@ namespace Main.Card
         {
             _isDragging = true;
             _startPointerPosition = evt.position;
-            // worldBound で現在の画面上の位置を記録してから Absolute に切り替える
             _startElementPosition = target.worldBound.position;
+
+            _originalParent = target.parent;
+            _originalIndex = _originalParent.IndexOf(target);
+            _originalLeft = target.style.left;
+            _originalBottom = target.style.bottom;
+            _originalRotate = target.style.rotate;
+            _originalScale = target.style.scale;
+
+            _dragLayer.Add(target);
             target.style.position = Position.Absolute;
             target.style.left = _startElementPosition.x;
             target.style.top = _startElementPosition.y;
+            target.style.bottom = StyleKeyword.Null;
+            target.style.rotate = new Rotate(0);
+            target.style.scale = new Scale(Vector3.one);
+
             target.CapturePointer(evt.pointerId);
             evt.StopPropagation();
         }
@@ -59,12 +86,34 @@ namespace Main.Card
 
             _isDragging = false;
             target.ReleasePointer(evt.pointerId);
+
+            bool placed = OnDrop?.Invoke(evt.position) ?? false;
+            if (!placed)
+            {
+                SnapBack();
+            }
+
             evt.StopPropagation();
         }
 
         private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
         {
-            _isDragging = false;
+            if (_isDragging)
+            {
+                _isDragging = false;
+                SnapBack();
+            }
+        }
+
+        private void SnapBack()
+        {
+            _originalParent.Insert(_originalIndex, target);
+            target.style.position = Position.Absolute;
+            target.style.left = _originalLeft;
+            target.style.top = StyleKeyword.Null;
+            target.style.bottom = _originalBottom;
+            target.style.rotate = _originalRotate;
+            target.style.scale = _originalScale;
         }
     }
 }

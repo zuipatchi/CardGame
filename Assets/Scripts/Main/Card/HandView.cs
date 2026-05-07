@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,7 +15,9 @@ namespace Main.Card
         private const float HoverScaleTarget = 1.2f;
         private const float HoverDuration = 0.15f;
 
-        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
+        public Func<CardView, Vector2, bool> OnCardDropped;
+
+        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null)
         {
             style.overflow = Overflow.Visible;
 
@@ -51,6 +54,11 @@ namespace Main.Card
 
                 card.RegisterCallback<PointerEnterEvent>(_ =>
                 {
+                    if (capturedCard.parent != this)
+                    {
+                        return;
+                    }
+
                     tweens[index]?.Kill();
                     capturedCard.BringToFront();
                     tweens[index] = DOTween.To(
@@ -63,8 +71,13 @@ namespace Main.Card
 
                 card.RegisterCallback<PointerLeaveEvent>(_ =>
                 {
+                    if (capturedCard.parent != this)
+                    {
+                        return;
+                    }
+
                     tweens[index]?.Kill();
-                    Insert(index, capturedCard);
+                    Insert(Math.Min(index, childCount - 1), capturedCard);
                     tweens[index] = DOTween.To(
                         () => capturedCard.style.scale.value.value.x,
                         s => capturedCard.style.scale = new Scale(new Vector3(s, s, 1f)),
@@ -72,6 +85,19 @@ namespace Main.Card
                         HoverDuration
                     ).SetEase(Ease.OutQuad);
                 });
+
+                if (dragLayer != null)
+                {
+                    card.RegisterCallback<PointerDownEvent>(_ =>
+                    {
+                        tweens[index]?.Kill();
+                        tweens[index] = null;
+                    });
+
+                    CardDragManipulator manipulator = new CardDragManipulator(dragLayer);
+                    manipulator.OnDrop = worldPos => OnCardDropped?.Invoke(capturedCard, worldPos) ?? false;
+                    card.AttachDragManipulator(manipulator);
+                }
 
                 Add(card);
             }
