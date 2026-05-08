@@ -2,28 +2,30 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    -unity-background-scale-mode: scale-and-crop;
 }
 
 .main-battle-area {
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
-    bottom: 240px;
+    top: 100px;
+    bottom: 144px;
     flex-direction: column;
+    gap: 32px;
     overflow: visible;
 }
 
 .main-opponent-field-area {
     flex-grow: 1;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .main-player-field-area {
     flex-grow: 1;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .main-deck-area {
@@ -58,13 +60,13 @@
 
 .main-hand-area {
     position: absolute;
-    bottom: 32px;
+    bottom: 0;
     left: 0;
     right: 0;
     flex-direction: row;
     justify-content: center;
     overflow: visible;
-    scale: 0.75 0.75;
+    scale: 0.6 0.6;
     transform-origin: center bottom;
 }
 

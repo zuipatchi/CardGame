@@ -45,6 +45,8 @@ namespace Main
                 VisualElement opponentFieldArea = root.Q<VisualElement>("OpponentFieldArea");
                 VisualElement playerFieldArea = root.Q<VisualElement>("PlayerFieldArea");
 
+                mainRoot.style.backgroundImage = new StyleBackground(_cardStore.BattleField);
+
                 VisualElement dragLayer = new VisualElement();
                 dragLayer.AddToClassList("main-drag-layer");
                 dragLayer.pickingMode = PickingMode.Ignore;

@@ -14,12 +14,15 @@ namespace Main.Card
 
         private readonly string _cardTemplateAddressable = "Card/CardTemplate";
         private readonly string _cardBackAddressable = "Image/CardBack";
+        private readonly string _battleFieldAddressable = "Image/BattleField";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
+        public Texture2D BattleField => _battleField;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
+        private Texture2D _battleField;
 
         public void Start()
         {
@@ -32,6 +35,7 @@ namespace Main.Card
             {
                 _cardTemplate = await Addressables.LoadAssetAsync<VisualTreeAsset>(_cardTemplateAddressable).ToUniTask();
                 _cardBack = await Addressables.LoadAssetAsync<Texture2D>(_cardBackAddressable).ToUniTask();
+                _battleField = await Addressables.LoadAssetAsync<Texture2D>(_battleFieldAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)
