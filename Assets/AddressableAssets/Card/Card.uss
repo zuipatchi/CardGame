@@ -43,16 +43,12 @@
 
 .game-card__name {
     flex-grow: 1;
-    font-size: 14px;
+    font-size: 12px;
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
     -unity-text-align: middle-center;
     background-image: url("../Image/NamePlate.png");
     -unity-background-scale-mode: stretch-to-fill;
-    padding-left: 6px;
-    padding-right: 6px;
-    padding-top: 3px;
-    padding-bottom: 3px;
 }
 
 .game-card__image {

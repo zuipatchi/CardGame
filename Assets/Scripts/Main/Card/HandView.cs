@@ -13,7 +13,7 @@ namespace Main.Card
         private const float CardSpacing = 100f;
         private const float MaxAngleDeg = 20f;
         private const float ArcLiftMax = 20f;
-        private const float HoverScaleTarget = 1.2f;
+        private const float HoverScaleTarget = 1.5f;
         private const float HoverDuration = 0.15f;
         private const float RelayoutDuration = 0.2f;
 
@@ -22,7 +22,7 @@ namespace Main.Card
         private readonly List<CardView> _cards = new List<CardView>();
         private readonly List<Tween> _scaleTweens = new List<Tween>();
 
-        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null)
+        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true)
         {
             style.overflow = Overflow.Visible;
             style.height = CardHeight + ArcLiftMax;
@@ -34,7 +34,7 @@ namespace Main.Card
 
             foreach (CardData data in cards)
             {
-                CardView card = new CardView(cardTemplate, data, backImage);
+                CardView card = new CardView(cardTemplate, data, backImage, faceDown);
                 card.style.position = Position.Absolute;
                 card.style.scale = new Scale(Vector3.one);
                 card.style.transformOrigin = new TransformOrigin(
@@ -47,7 +47,10 @@ namespace Main.Card
             }
 
             ApplyPositions(animate: false);
-            RegisterCallbacks(dragLayer);
+            if (interactive)
+            {
+                RegisterCallbacks(dragLayer);
+            }
         }
 
         private void ApplyPositions(bool animate)

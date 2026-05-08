@@ -6,6 +6,8 @@
             <ui:VisualElement name="PlayerFieldArea" class="main-player-field-area" />
         </ui:VisualElement>
         <ui:VisualElement name="DeckArea" class="main-deck-area" />
+        <ui:VisualElement name="OpponentDeckArea" class="main-opponent-deck-area" />
+        <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="HandArea" class="main-hand-area" />
     </ui:VisualElement>
 </ui:UXML>

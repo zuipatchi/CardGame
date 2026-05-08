@@ -38,6 +38,8 @@ namespace Main
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 VisualElement mainRoot = root.Q<VisualElement>("MainRoot");
                 VisualElement deckArea = root.Q<VisualElement>("DeckArea");
+                VisualElement opponentDeckArea = root.Q<VisualElement>("OpponentDeckArea");
+                VisualElement opponentHandArea = root.Q<VisualElement>("OpponentHandArea");
                 VisualElement handArea = root.Q<VisualElement>("HandArea");
                 VisualElement opponentFieldArea = root.Q<VisualElement>("OpponentFieldArea");
                 VisualElement playerFieldArea = root.Q<VisualElement>("PlayerFieldArea");
@@ -58,12 +60,18 @@ namespace Main
                 FieldView playerFieldView = new FieldView();
                 playerFieldArea.Add(playerFieldView);
 
+                HandView opponentHandView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, faceDown: true, interactive: false);
+                opponentHandArea.Add(opponentHandView);
+
                 HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, dragLayer);
                 handArea.Add(handView);
                 handView.OnCardDropped = (card, worldPos) => playerFieldView.TryPlace(card, worldPos);
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
+
+                DeckView opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
+                opponentDeckArea.Add(opponentDeckView);
             }
             catch (OperationCanceledException) { }
         }

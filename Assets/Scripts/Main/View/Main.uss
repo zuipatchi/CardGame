@@ -34,6 +34,28 @@
     transform-origin: right bottom;
 }
 
+.main-opponent-hand-area {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    overflow: visible;
+    scale: 0.75 0.75;
+    rotate: 180deg;
+    transform-origin: center top;
+}
+
+.main-opponent-deck-area {
+    position: absolute;
+    left: 32px;
+    top: 32px;
+    scale: 0.6 0.6;
+    rotate: 180deg;
+    transform-origin: center center;
+}
+
 .main-hand-area {
     position: absolute;
     bottom: 32px;
