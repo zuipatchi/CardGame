@@ -159,7 +159,7 @@ Assets/Scripts/<Scene>/<Feature>/
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
   ├── Icon/        SVG アイコン
-  ├── Image/       CardBack.png（カード裏面画像）
+  ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
 ```
