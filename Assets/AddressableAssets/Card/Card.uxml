@@ -11,7 +11,10 @@
                 <ui:Label name="NameLabel" class="game-card__name" />
             </ui:VisualElement>
             <ui:VisualElement class="game-card__stats">
-                <ui:Label name="AtkLabel" class="game-card__stat" />
+                <ui:VisualElement class="game-card__atk-area">
+                    <ui:VisualElement class="game-card__attack-icon" />
+                    <ui:Label name="AtkLabel" class="game-card__atk" />
+                </ui:VisualElement>
                 <ui:Label name="DefLabel" class="game-card__stat" />
             </ui:VisualElement>
         </ui:VisualElement>

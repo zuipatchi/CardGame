@@ -92,10 +92,41 @@
 .game-card__stats {
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 
 .game-card__stat {
     font-size: 12px;
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
+}
+
+.game-card__atk-area {
+    position: relative;
+    width: 36px;
+    height: 36px;
+}
+
+.game-card__attack-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../Icon/AttackIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.game-card__atk {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
 }

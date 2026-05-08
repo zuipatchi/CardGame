@@ -113,7 +113,7 @@ namespace Main.Card
         {
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
-            _atkLabel.text = $"ATK {data.Attack}";
+            _atkLabel.text = data.Attack.ToString();
             _defLabel.text = $"DEF {data.Defense}";
 
             if (data.Image != null)
