@@ -13,6 +13,7 @@ namespace Main
     public sealed class MainPresenter : MonoBehaviour, IStartable
     {
         private const int InitialHandSize = 5;
+        private const float DrawStagger = 0.12f;
 
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
@@ -63,7 +64,7 @@ namespace Main
                 HandView opponentHandView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, faceDown: true, interactive: false);
                 opponentHandArea.Add(opponentHandView);
 
-                HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, dragLayer);
+                HandView handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
                 handArea.Add(handView);
                 handView.OnCardDropped = (card, worldPos) => playerFieldView.TryPlace(card, worldPos);
 
@@ -72,6 +73,16 @@ namespace Main
 
                 DeckView opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 opponentDeckArea.Add(opponentDeckView);
+
+                CancellationToken ct = destroyCancellationToken;
+                await UniTask.NextFrame(ct);
+
+                UniTask[] drawTasks = new UniTask[handCards.Length];
+                for (int i = 0; i < handCards.Length; i++)
+                {
+                    drawTasks[i] = handView.AddCardAnimatedAsync(handCards[i], deckView.worldBound, i * DrawStagger, ct);
+                }
+                await UniTask.WhenAll(drawTasks);
             }
             catch (OperationCanceledException) { }
         }
