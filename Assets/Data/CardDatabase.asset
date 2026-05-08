@@ -16,36 +16,36 @@ MonoBehaviour:
   - _id: 001
     _cardName: "\u3071\u3063\u3061"
     _cost: 1
-    _effectText: "\u5149\u308A\u8F1D\u304F\u3071\u3063\u3061"
     _attack: 2
     _defense: 1
+    _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
   - _id: 002
     _cardName: "\u3061\u3063\u3071"
     _cost: 2
-    _effectText: "\u3071\u3063\u3061\u306E\u5206\u8EAB"
     _attack: 1
     _defense: 2
+    _image: {fileID: 0}
   - _id: 003
     _cardName: "\u3061\u3063\u3071"
     _cost: 2
-    _effectText: "\u3071\u3063\u3061\u306E\u5206\u8EAB"
     _attack: 1
     _defense: 2
+    _image: {fileID: 0}
   - _id: 004
     _cardName: "\u3061\u3063\u3071"
     _cost: 2
-    _effectText: "\u3071\u3063\u3061\u306E\u5206\u8EAB"
     _attack: 1
     _defense: 2
+    _image: {fileID: 0}
   - _id: 004
     _cardName: "\u3061\u3063\u3071"
     _cost: 2
-    _effectText: "\u3071\u3063\u3061\u306E\u5206\u8EAB"
     _attack: 1
     _defense: 2
+    _image: {fileID: 0}
   - _id: 004
     _cardName: "\u3061\u3063\u3071"
     _cost: 2
-    _effectText: "\u3071\u3063\u3061\u306E\u5206\u8EAB"
     _attack: 1
     _defense: 2
+    _image: {fileID: 0}

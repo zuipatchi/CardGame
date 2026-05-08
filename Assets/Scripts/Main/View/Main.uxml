@@ -1,7 +1,10 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="Main.uss" />
     <ui:VisualElement name="MainRoot" class="main-root">
-        <ui:VisualElement name="FieldArea" class="main-field-area" />
+        <ui:VisualElement name="BattleArea" class="main-battle-area">
+            <ui:VisualElement name="OpponentFieldArea" class="main-opponent-field-area" />
+            <ui:VisualElement name="PlayerFieldArea" class="main-player-field-area" />
+        </ui:VisualElement>
         <ui:VisualElement name="DeckArea" class="main-deck-area" />
         <ui:VisualElement name="HandArea" class="main-hand-area" />
     </ui:VisualElement>

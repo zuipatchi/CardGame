@@ -11,6 +11,7 @@ namespace Main.Card
         private readonly VisualElement _cardRoot;
         private readonly VisualElement _frontFace;
         private readonly VisualElement _backFace;
+        private readonly VisualElement _imageArea;
         private readonly Label _costLabel;
         private readonly Label _nameLabel;
         private readonly Label _atkLabel;
@@ -24,6 +25,7 @@ namespace Main.Card
             _cardRoot = this.Q<VisualElement>("CardRoot");
             _frontFace = this.Q<VisualElement>("FrontFace");
             _backFace = this.Q<VisualElement>("BackFace");
+            _imageArea = this.Q<VisualElement>("ImageArea");
             _costLabel = this.Q<Label>("CostLabel");
             _nameLabel = this.Q<Label>("NameLabel");
             _atkLabel = this.Q<Label>("AtkLabel");
@@ -113,6 +115,11 @@ namespace Main.Card
             _nameLabel.text = data.CardName;
             _atkLabel.text = $"ATK {data.Attack}";
             _defLabel.text = $"DEF {data.Defense}";
+
+            if (data.Image != null)
+            {
+                _imageArea.style.backgroundImage = new StyleBackground(data.Image);
+            }
         }
     }
 }

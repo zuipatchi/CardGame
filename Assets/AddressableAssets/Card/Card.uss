@@ -18,10 +18,10 @@
 
 .game-card__face {
     flex-grow: 1;
-    padding-top: 16px;
-    padding-right: 16px;
-    padding-bottom: 16px;
-    padding-left: 16px;
+    padding-top: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    padding-left: 8px;
 }
 
 .game-card__back {
@@ -29,24 +29,43 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
-.game-card__cost {
-    font-size: 12px;
-    color: rgb(180, 180, 210);
+.game-card__header {
+    flex-direction: row;
+    align-items: center;
     margin-bottom: 8px;
 }
 
+.game-card__cost {
+    font-size: 12px;
+    color: rgb(180, 180, 210);
+    margin-right: 6px;
+}
+
 .game-card__name {
-    font-size: 16px;
+    flex-grow: 1;
+    font-size: 14px;
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
     -unity-text-align: middle-center;
-    margin-bottom: 8px;
     background-image: url("../Image/NamePlate.png");
     -unity-background-scale-mode: stretch-to-fill;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.game-card__image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    -unity-background-scale-mode: scale-to-fill;
 }
 
 .game-card__stats {

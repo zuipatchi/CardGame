@@ -39,7 +39,8 @@ namespace Main
                 VisualElement mainRoot = root.Q<VisualElement>("MainRoot");
                 VisualElement deckArea = root.Q<VisualElement>("DeckArea");
                 VisualElement handArea = root.Q<VisualElement>("HandArea");
-                VisualElement fieldArea = root.Q<VisualElement>("FieldArea");
+                VisualElement opponentFieldArea = root.Q<VisualElement>("OpponentFieldArea");
+                VisualElement playerFieldArea = root.Q<VisualElement>("PlayerFieldArea");
 
                 VisualElement dragLayer = new VisualElement();
                 dragLayer.AddToClassList("main-drag-layer");
@@ -51,12 +52,15 @@ namespace Main
                 CardData[] handCards = shuffled.Take(handSize).ToArray();
                 CardData[] deckCards = shuffled.Skip(handSize).ToArray();
 
-                FieldView fieldView = new FieldView();
-                fieldArea.Add(fieldView);
+                FieldView opponentFieldView = new FieldView();
+                opponentFieldArea.Add(opponentFieldView);
+
+                FieldView playerFieldView = new FieldView();
+                playerFieldArea.Add(playerFieldView);
 
                 HandView handView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, dragLayer);
                 handArea.Add(handView);
-                handView.OnCardDropped = (card, worldPos) => fieldView.TryPlace(card, worldPos);
+                handView.OnCardDropped = (card, worldPos) => playerFieldView.TryPlace(card, worldPos);
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
