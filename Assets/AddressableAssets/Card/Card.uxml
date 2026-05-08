@@ -4,7 +4,10 @@
         <ui:VisualElement name="ImageArea" class="game-card__image" />
         <ui:VisualElement name="FrontFace" class="game-card__face">
             <ui:VisualElement class="game-card__header">
-                <ui:Label name="CostLabel" class="game-card__cost" />
+                <ui:VisualElement class="game-card__cost-area">
+                    <ui:VisualElement class="game-card__heart-icon" />
+                    <ui:Label name="CostLabel" class="game-card__cost" />
+                </ui:VisualElement>
                 <ui:Label name="NameLabel" class="game-card__name" />
             </ui:VisualElement>
             <ui:VisualElement class="game-card__stats">

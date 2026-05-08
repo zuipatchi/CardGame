@@ -82,23 +82,40 @@
 .deck-count-badge-container {
     position: absolute;
     left: 0;
-    top: 0;
     width: 160px;
-    height: 220px;
+    bottom: 100%;
+    margin-bottom: 8px;
     align-items: center;
-    justify-content: center;
+}
+
+.deck-count-badge {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.deck-count-heart-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 .deck-count-label {
-    font-size: 64px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
     color: white;
     -unity-font-style: bold;
-    background-color: rgba(0, 0, 0, 0.65);
-    border-radius: 12px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 20px;
-    padding-right: 20px;
+    -unity-text-align: middle-center;
 }
 
 .field-view {

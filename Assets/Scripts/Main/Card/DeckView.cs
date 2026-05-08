@@ -31,9 +31,19 @@ namespace Main.Card
 
             VisualElement badgeContainer = new VisualElement();
             badgeContainer.AddToClassList("deck-count-badge-container");
+
+            VisualElement badge = new VisualElement();
+            badge.AddToClassList("deck-count-badge");
+
+            VisualElement heartIcon = new VisualElement();
+            heartIcon.AddToClassList("deck-count-heart-icon");
+            badge.Add(heartIcon);
+
             Label countLabel = new Label(cards.Length.ToString());
             countLabel.AddToClassList("deck-count-label");
-            badgeContainer.Add(countLabel);
+            badge.Add(countLabel);
+
+            badgeContainer.Add(badge);
             Add(badgeContainer);
         }
     }
