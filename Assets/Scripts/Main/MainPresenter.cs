@@ -63,7 +63,7 @@ namespace Main
                 FieldView playerFieldView = new FieldView();
                 playerFieldArea.Add(playerFieldView);
 
-                HandView opponentHandView = new HandView(_cardStore.CardTemplate, handCards, _cardStore.CardBack, faceDown: true, interactive: false);
+                HandView opponentHandView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer, faceDown: true, interactive: false);
                 opponentHandArea.Add(opponentHandView);
 
                 HandView handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
@@ -79,10 +79,13 @@ namespace Main
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
 
-                UniTask[] drawTasks = new UniTask[handCards.Length];
+                Rect deckWorldRect = deckView.worldBound;
+                Rect opponentDeckWorldRect = opponentDeckView.worldBound;
+                UniTask[] drawTasks = new UniTask[handCards.Length * 2];
                 for (int i = 0; i < handCards.Length; i++)
                 {
-                    drawTasks[i] = handView.AddCardAnimatedAsync(handCards[i], deckView.worldBound, i * DrawStagger, ct);
+                    drawTasks[i] = handView.AddCardAnimatedAsync(handCards[i], deckWorldRect, i * DrawStagger, ct);
+                    drawTasks[handCards.Length + i] = opponentHandView.AddCardAnimatedAsync(handCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
                 }
                 await UniTask.WhenAll(drawTasks);
             }

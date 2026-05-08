@@ -79,6 +79,28 @@
     overflow: visible;
 }
 
+.deck-count-badge-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 160px;
+    height: 220px;
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-count-label {
+    font-size: 64px;
+    color: white;
+    -unity-font-style: bold;
+    background-color: rgba(0, 0, 0, 0.65);
+    border-radius: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 .field-view {
     position: absolute;
     left: 0;

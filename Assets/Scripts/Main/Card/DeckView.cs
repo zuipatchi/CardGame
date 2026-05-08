@@ -7,6 +7,8 @@ namespace Main.Card
     {
         private const float StackOffsetX = 3f;
         private const float StackOffsetY = -3f;
+        private const float CardWidth = 160f;
+        private const float CardHeight = 220f;
 
         public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
         {
@@ -23,9 +25,16 @@ namespace Main.Card
 
             if (cards.Length > 0)
             {
-                style.width = 160 + (cards.Length - 1) * StackOffsetX;
-                style.height = 220 + (cards.Length - 1) * Mathf.Abs(StackOffsetY);
+                style.width = CardWidth + (cards.Length - 1) * StackOffsetX;
+                style.height = CardHeight + (cards.Length - 1) * Mathf.Abs(StackOffsetY);
             }
+
+            VisualElement badgeContainer = new VisualElement();
+            badgeContainer.AddToClassList("deck-count-badge-container");
+            Label countLabel = new Label(cards.Length.ToString());
+            countLabel.AddToClassList("deck-count-label");
+            badgeContainer.Add(countLabel);
+            Add(badgeContainer);
         }
     }
 }

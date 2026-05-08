@@ -105,10 +105,10 @@ namespace Main.Card
             _scaleTweens.Add(null);
             Add(card);
             ApplyPositions(animate: true);
-            await card.FlipAsync(ct);
 
             if (_interactive)
             {
+                await card.FlipAsync(ct);
                 RegisterCardCallbacks(card);
             }
         }
