@@ -196,9 +196,11 @@ HandView          VisualElement サブクラス。手札を扇状に表示（60%
                   ドロップ成功後に残りカードを DOTween でアニメーションしながら詰める
                   faceDown: true で裏向き表示、interactive: false でホバー・ドラッグ無効化（相手手札用）
                   AddCardAnimatedAsync() でデッキ位置から手札へのドロー演出（飛翔→フリップ）
+                  interactive: false のときフリップをスキップ（相手手札は裏向きのまま）
 FieldView         VisualElement サブクラス。横長フィールドエリア（最大 5 枚、中央寄せ）
                   配置済みカードはドラッグ不可
 DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き、60% スケール）
+                  デッキ中央に残り枚数を角丸バッジ（64px 太字）で表示
 CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のドラッグ実装
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
 ```
@@ -233,7 +235,9 @@ HandArea          （画面下端・60% スケール）
 1. `CardStore.Loaded` を await してアセットロード完了を待つ
 2. DragLayer（全画面オーバーレイ、PickingMode.Ignore）を生成して MainRoot の最後尾に追加
 3. `CardDatabase.AllCards` を Fisher-Yates シャッフル
-4. 相手 `HandView`（裏向き・非インタラクティブ）・自分 `HandView`（空）・各 `DeckView`・各 `FieldView` を配置
+4. 相手・自分ともに空の `HandView`・各 `DeckView`・各 `FieldView` を配置
 5. `HandView.OnCardDropped → playerFieldView.TryPlace` でドロップ配置を接続
 6. `UniTask.NextFrame` でレイアウト確定を待つ
-7. 手札 5 枚を 0.12 秒ずつずらして `AddCardAnimatedAsync` を並走（デッキ位置から飛翔→フリップ）
+7. 自分・相手ともに 5 枚を 0.12 秒ずつずらして `AddCardAnimatedAsync` を並走
+   - 自分：デッキ位置から飛翔→フリップ（表向き）
+   - 相手：相手デッキ位置から飛翔→裏向きのまま手札へ収まる
