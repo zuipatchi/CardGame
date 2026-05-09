@@ -200,7 +200,9 @@ HandView          VisualElement サブクラス。手札を扇状に表示（60%
                   ドロップ成功後に残りカードを DOTween でアニメーションしながら詰める
                   faceDown: true で裏向き表示、interactive: false でホバー・ドラッグ無効化（相手手札用）
                   AddCardAnimatedAsync() でデッキ位置から手札へのドロー演出（飛翔→フリップ）
+                  AddCardBackAsync() でフィールドから手札へ戻す飛翔アニメーション（戻るボタン用）
                   interactive: false のときフリップをスキップ（相手手札は裏向きのまま）
+                  内部状態は HandCardEntry { Card, ScaleTween } の単一リストで管理（並列リスト廃止）
 FieldView         VisualElement サブクラス。横長フィールドエリア（最大 5 枚、中央寄せ）
                   配置済みカードはドラッグ不可。TryGetCardAt() でワールド座標からカードを取得
 DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き、60% スケール）
@@ -210,8 +212,9 @@ CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のド
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
 AttackArrowManipulator  PointerManipulator サブクラス。フィールドカードに装着する攻撃矢印マニピュレーター
                         PointerDown で ArrowView を DragLayer に追加、Move で先端を更新、Up/CaptureOut で削除
+                        Func<bool> CanStart で開始可否を判定（false なら矢印を出さない）
                         Func<Vector2, bool> OnAttackTarget でドロップ座標を通知（true = 矢印を残す）
-                        ClearArrow() で矢印を手動削除（デッキ攻撃 Resolve 後に呼ぶ）
+                        ClearArrow() で矢印を手動削除
 ArrowView            VisualElement サブクラス。Painter2D で攻撃矢印を描画（ベジェ曲線＋矢印先端）
                      StartPoint / EndPoint を更新するたびに再描画。PickingMode.Ignore で操作を透過
 GraveyardView        VisualElement サブクラス。破壊されたカードを積み重ねで表示（表向き・60% スケール）
@@ -245,6 +248,9 @@ BattleArea              （top: 100px〜bottom: 144px）
 DeckArea                （右下・60% スケール）
 GraveyardArea           （左下・60% スケール）
 HandArea                （画面下端・60% スケール）
+ActionButtonsArea       （右下・bottom: 210px・アクションステージ中のみ表示）
+  ├── OkButton          （緑・処理フェーズへ進む）
+  └── BackButton        （茶・直前の操作を取り消す）
 ```
 
 ### MainPresenter の初期化フロー
@@ -254,12 +260,30 @@ HandArea                （画面下端・60% スケール）
 3. `CardDatabase.AllCards` を Fisher-Yates シャッフル
 4. 相手・自分ともに空の `HandView`・各 `DeckView`・各 `FieldView`・各 `GraveyardView` を配置
 5. `HandView.OnCardDropped → playerFieldView.TryPlace` でドロップ配置を接続
-   - 配置成功時に `AttackArrowManipulator` をアタッチし `GameModel.DoAction(PlayCardAction)` を呼ぶ
+   - 配置成功時に `AttackArrowManipulator` をアタッチし `StageAction(PlayCardAction)` を呼ぶ
+   - ステージ中は新たなドロップをブロック（`_stagedAction != null` ガード）
 6. `GameModel.OnResolve` に `HandleResolve` を接続（攻撃処理・勝利判定を担当）
+7. OK/戻るボタンに `ConfirmAction` / `CancelAction` を接続
 8. `UniTask.NextFrame` でレイアウト確定を待つ
 9. 自分・相手ともに 5 枚を 0.12 秒ずつずらして `AddCardAnimatedAsync` を並走
    - 自分：デッキ位置から飛翔→フリップ（表向き）
    - 相手：相手デッキ位置から飛翔→裏向きのまま手札へ収まる
+
+### アクションステージング（MainPresenter）
+
+カード配置・攻撃はステージングを経て確定する。
+
+```
+プレイヤーが操作（ドロップ）
+  → StageAction(actor, action) でステージ
+  → OK/戻るボタンが出現
+  → OK → ConfirmAction() → GameModel.DoAction() → 処理フェーズ
+  → 戻る → CancelAction() → 視覚的に元に戻す
+```
+
+- `PlayCardAction` ステージ中に戻る: カードを `AddCardBackAsync()` で手札へ飛翔させて返す
+- `AttackAction` / `DeckAttackAction` ステージ中に戻る: `ClearArrow()` で矢印を消す
+- 攻撃矢印は同時に1本のみ（`CanStart` コールバックで制御）。攻撃ステージ中に別カードをドラッグすると既存矢印を消して新矢印を開始
 
 ### ゲームロジック（GameModel）
 
@@ -283,5 +307,7 @@ PendingAction     アクションの種別を表す基底クラス
 - `AttackAction`: attacker.ATK >= target.DEF → target を FieldView から除去し、相手 GraveyardView へ移動
 - `DeckAttackAction`: attacker.ATK 枚分を DeckView.RemoveFromTop() で除去。Count == 0 で勝利
 
-**デッキ攻撃の矢印挙動:**
-- ドロップ時に矢印を残し、Resolve 後に `AttackArrowManipulator.ClearArrow()` で削除
+**矢印挙動:**
+- フィールド攻撃・デッキ攻撃ともにステージ中は矢印を表示
+- フィールド攻撃: OK 確定時に `ClearArrow()` で削除
+- デッキ攻撃: Resolve 後に `HandleResolve` 内で `ClearArrow()` で削除
