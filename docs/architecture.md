@@ -204,6 +204,11 @@ DeckView          VisualElement サブクラス。デッキを積み重ねで表
                   デッキ上方に HeartIcon.png + 残り枚数を重ねた 80×80px バッジを表示
 CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のドラッグ実装
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
+AttackArrowManipulator  PointerManipulator サブクラス。フィールドカードに装着する攻撃矢印マニピュレーター
+                        PointerDown で ArrowView を DragLayer に追加、Move で先端を更新、Up/CaptureOut で削除
+                        Action<Vector2> OnAttackTarget コールバックでドロップ座標を通知
+ArrowView            VisualElement サブクラス。Painter2D で攻撃矢印を描画（ベジェ曲線＋矢印先端）
+                     StartPoint / EndPoint を更新するたびに再描画。PickingMode.Ignore で操作を透過
 ```
 
 ### フィールドレイアウト

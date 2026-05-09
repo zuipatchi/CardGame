@@ -35,6 +35,7 @@
   - カードコスト表示：HeartIcon にコスト数字を重ねたバッジ
   - 攻撃力表示：AttackIcon に攻撃力数字を重ねたバッジ
   - デッキ残り枚数：HeartIcon に枚数を重ねたバッジをデッキ上方に表示
+  - 攻撃矢印：フィールドカードをドラッグするとベジェ曲線の矢印を表示（ドロップ位置を OnAttackTarget で通知）
 
 ## 使用 Package
 - Addressables
