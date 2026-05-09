@@ -68,7 +68,15 @@ namespace Main
 
                 HandView handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
                 handArea.Add(handView);
-                handView.OnCardDropped = (card, worldPos) => playerFieldView.TryPlace(card, worldPos);
+                handView.OnCardDropped = (card, worldPos) =>
+                {
+                    bool placed = playerFieldView.TryPlace(card, worldPos);
+                    if (placed)
+                    {
+                        card.AddManipulator(new AttackArrowManipulator(dragLayer));
+                    }
+                    return placed;
+                };
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
