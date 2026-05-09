@@ -29,17 +29,16 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
-.game-card__header {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 8px;
+.game-card__info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 }
 
 .game-card__cost-area {
     position: relative;
     width: 30px;
     height: 30px;
-    margin-right: 6px;
 }
 
 .game-card__heart-icon {
@@ -67,13 +66,16 @@
 }
 
 .game-card__name {
-    flex-grow: 1;
+    align-self: stretch;
     font-size: 12px;
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
     -unity-text-align: middle-center;
     background-image: url("../Image/NamePlate.png");
     -unity-background-scale-mode: stretch-to-fill;
+    height: 24px;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .game-card__image {
@@ -89,10 +91,8 @@
     -unity-background-scale-mode: scale-to-fill;
 }
 
-.game-card__stats {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+.game-card__hidden {
+    display: none;
 }
 
 .game-card__stat {

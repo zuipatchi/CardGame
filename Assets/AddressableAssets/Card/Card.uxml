@@ -3,20 +3,18 @@
     <ui:VisualElement name="CardRoot" class="game-card">
         <ui:VisualElement name="ImageArea" class="game-card__image" />
         <ui:VisualElement name="FrontFace" class="game-card__face">
-            <ui:VisualElement class="game-card__header">
+            <ui:VisualElement class="game-card__info">
+                <ui:Label name="NameLabel" class="game-card__name" />
                 <ui:VisualElement class="game-card__cost-area">
                     <ui:VisualElement class="game-card__heart-icon" />
                     <ui:Label name="CostLabel" class="game-card__cost" />
                 </ui:VisualElement>
-                <ui:Label name="NameLabel" class="game-card__name" />
-            </ui:VisualElement>
-            <ui:VisualElement class="game-card__stats">
                 <ui:VisualElement class="game-card__atk-area">
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />
                 </ui:VisualElement>
-                <ui:Label name="DefLabel" class="game-card__stat" />
             </ui:VisualElement>
+            <ui:Label name="DefLabel" class="game-card__stat game-card__hidden" />
         </ui:VisualElement>
         <ui:VisualElement name="BackFace" class="game-card__face game-card__back" />
     </ui:VisualElement>
