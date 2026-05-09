@@ -1,4 +1,5 @@
 using Main.Card;
+using Main.Game;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -13,6 +14,7 @@ namespace Main.Injector
         {
             builder.RegisterInstance(_cardDatabase);
             builder.RegisterEntryPoint<CardStore>().AsSelf();
+            builder.Register<GameModel>(Lifetime.Scoped);
             builder.RegisterComponentInHierarchy<MainPresenter>().AsSelf().AsImplementedInterfaces();
         }
     }

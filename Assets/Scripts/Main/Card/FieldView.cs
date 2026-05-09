@@ -16,6 +16,24 @@ namespace Main.Card
             AddToClassList("field-view");
         }
 
+        public CardView TryGetCardAt(Vector2 worldPos)
+        {
+            foreach (CardView card in _cards)
+            {
+                if (card.worldBound.Contains(worldPos))
+                {
+                    return card;
+                }
+            }
+            return null;
+        }
+
+        public void RemoveCard(CardView card)
+        {
+            _cards.Remove(card);
+            card.RemoveFromHierarchy();
+        }
+
         public bool TryPlace(CardView card, Vector2 worldPos)
         {
             if (IsFull || !worldBound.Contains(worldPos))

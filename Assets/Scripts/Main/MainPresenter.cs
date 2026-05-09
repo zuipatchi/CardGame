@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
+using Main.Game;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -17,12 +19,19 @@ namespace Main
 
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
+        private GameModel _gameModel;
+
+        private FieldView _playerFieldView;
+        private FieldView _opponentFieldView;
+        private DeckView _opponentDeckView;
+        private readonly Dictionary<CardView, AttackArrowManipulator> _attackManipulators = new Dictionary<CardView, AttackArrowManipulator>();
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase)
+        public void Construct(CardStore cardStore, CardDatabase cardDatabase, GameModel gameModel)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
+            _gameModel = gameModel;
         }
 
         void IStartable.Start()
@@ -57,11 +66,11 @@ namespace Main
                 CardData[] handCards = shuffled.Take(handSize).ToArray();
                 CardData[] deckCards = shuffled.Skip(handSize).ToArray();
 
-                FieldView opponentFieldView = new FieldView();
-                opponentFieldArea.Add(opponentFieldView);
+                _opponentFieldView = new FieldView();
+                opponentFieldArea.Add(_opponentFieldView);
 
-                FieldView playerFieldView = new FieldView();
-                playerFieldArea.Add(playerFieldView);
+                _playerFieldView = new FieldView();
+                playerFieldArea.Add(_playerFieldView);
 
                 HandView opponentHandView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer, faceDown: true, interactive: false);
                 opponentHandArea.Add(opponentHandView);
@@ -70,25 +79,31 @@ namespace Main
                 handArea.Add(handView);
                 handView.OnCardDropped = (card, worldPos) =>
                 {
-                    bool placed = playerFieldView.TryPlace(card, worldPos);
+                    bool placed = _playerFieldView.TryPlace(card, worldPos);
                     if (placed)
                     {
-                        card.AddManipulator(new AttackArrowManipulator(dragLayer));
+                        AttackArrowManipulator manipulator = new AttackArrowManipulator(dragLayer);
+                        manipulator.OnAttackTarget = (pos) => OnAttackTarget(card, pos);
+                        card.AddManipulator(manipulator);
+                        _attackManipulators[card] = manipulator;
+                        _gameModel.DoAction(card, new PlayCardAction());
                     }
                     return placed;
                 };
 
+                _gameModel.OnResolve += HandleResolve;
+
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
 
-                DeckView opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
-                opponentDeckArea.Add(opponentDeckView);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
+                opponentDeckArea.Add(_opponentDeckView);
 
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
 
                 Rect deckWorldRect = deckView.worldBound;
-                Rect opponentDeckWorldRect = opponentDeckView.worldBound;
+                Rect opponentDeckWorldRect = _opponentDeckView.worldBound;
                 UniTask[] drawTasks = new UniTask[handCards.Length * 2];
                 for (int i = 0; i < handCards.Length; i++)
                 {
@@ -98,6 +113,55 @@ namespace Main
                 await UniTask.WhenAll(drawTasks);
             }
             catch (OperationCanceledException) { }
+        }
+
+        private bool OnAttackTarget(CardView attacker, Vector2 worldPos)
+        {
+            CardView fieldTarget = _opponentFieldView.TryGetCardAt(worldPos);
+            if (fieldTarget != null)
+            {
+                _gameModel.DoAction(attacker, new AttackAction(fieldTarget));
+                return false;
+            }
+
+            if (_opponentDeckView.worldBound.Contains(worldPos))
+            {
+                _gameModel.DoAction(attacker, new DeckAttackAction(_opponentDeckView));
+                return true;
+            }
+
+            return false;
+        }
+
+        private void HandleResolve(CardView card, PendingAction action)
+        {
+            if (action is AttackAction attack)
+            {
+                if (card.Data.Attack >= attack.Target.Data.Defense)
+                {
+                    _opponentFieldView.RemoveCard(attack.Target);
+                }
+                return;
+            }
+
+            if (action is DeckAttackAction deckAttack)
+            {
+                if (_attackManipulators.TryGetValue(card, out AttackArrowManipulator manipulator))
+                {
+                    manipulator.ClearArrow();
+                    _attackManipulators.Remove(card);
+                }
+                deckAttack.Target.RemoveFromTop(card.Data.Attack);
+                if (deckAttack.Target.Count == 0)
+                {
+                    OnWin();
+                }
+            }
+        }
+
+        private void OnWin()
+        {
+            Debug.Log("You Win!");
         }
 
         private static CardData[] Shuffle(CardData[] cards)

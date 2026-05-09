@@ -6,7 +6,7 @@ namespace Main.Card
 {
     public sealed class AttackArrowManipulator : PointerManipulator
     {
-        public Action<Vector2> OnAttackTarget;
+        public Func<Vector2, bool> OnAttackTarget;
 
         private readonly VisualElement _dragLayer;
         private ArrowView _arrowView;
@@ -63,8 +63,11 @@ namespace Main.Card
 
             _isDragging = false;
             target.ReleasePointer(evt.pointerId);
-            RemoveArrow();
-            OnAttackTarget?.Invoke(evt.position);
+            bool keepArrow = OnAttackTarget?.Invoke(evt.position) ?? false;
+            if (!keepArrow)
+            {
+                RemoveArrow();
+            }
             evt.StopPropagation();
         }
 
@@ -75,6 +78,11 @@ namespace Main.Card
                 _isDragging = false;
                 RemoveArrow();
             }
+        }
+
+        public void ClearArrow()
+        {
+            RemoveArrow();
         }
 
         private void RemoveArrow()

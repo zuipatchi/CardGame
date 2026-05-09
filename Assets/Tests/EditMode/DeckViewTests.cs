@@ -12,55 +12,60 @@ namespace Tests.EditMode
         private static CardData MakeCard(string id) =>
             new CardData(id, id, 1, 0, 0);
 
+        private static VisualTreeAsset LoadTemplate() =>
+            AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+
         [Test]
         public void 渡した枚数分のCardViewが生成される()
         {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
             CardData[] cards = { MakeCard("a"), MakeCard("b"), MakeCard("c") };
 
-            DeckView deck = new DeckView(template, cards);
+            DeckView deck = new DeckView(LoadTemplate(), cards);
 
-            Assert.AreEqual(3, deck.childCount);
+            Assert.AreEqual(3, deck.Count);
         }
 
         [Test]
-        public void 枚数0のとき子要素が空になる()
+        public void 枚数0のとき管理カード数が0になる()
         {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            DeckView deck = new DeckView(LoadTemplate(), System.Array.Empty<CardData>());
 
-            DeckView deck = new DeckView(template, System.Array.Empty<CardData>());
-
-            Assert.AreEqual(0, deck.childCount);
+            Assert.AreEqual(0, deck.Count);
         }
 
         [Test]
         public void 各カードがAbsoluteで配置される()
         {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
             CardData[] cards = { MakeCard("a"), MakeCard("b") };
 
-            DeckView deck = new DeckView(template, cards);
+            DeckView deck = new DeckView(LoadTemplate(), cards);
 
             foreach (VisualElement child in deck.Children())
             {
-                Assert.AreEqual(Position.Absolute, child.style.position.value);
+                if (child is CardView cardView)
+                {
+                    Assert.AreEqual(Position.Absolute, cardView.style.position.value);
+                }
             }
         }
 
         [Test]
         public void カードが裏向きで生成される()
         {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
             CardData[] cards = { MakeCard("a"), MakeCard("b") };
 
-            DeckView deck = new DeckView(template, cards);
+            DeckView deck = new DeckView(LoadTemplate(), cards);
 
+            int checkedCount = 0;
             foreach (VisualElement child in deck.Children())
             {
-                CardView cardView = child as CardView;
-                Assert.IsNotNull(cardView);
-                Assert.IsTrue(cardView.IsFaceDown);
+                if (child is CardView cardView)
+                {
+                    Assert.IsTrue(cardView.IsFaceDown);
+                    checkedCount++;
+                }
             }
+            Assert.AreEqual(cards.Length, checkedCount);
         }
     }
 }

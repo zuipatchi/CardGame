@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,6 +11,11 @@ namespace Main.Card
         private const float CardWidth = 160f;
         private const float CardHeight = 220f;
 
+        private readonly List<CardView> _deckCards = new List<CardView>();
+        private readonly Label _countLabel;
+
+        public int Count => _deckCards.Count;
+
         public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
         {
             style.position = Position.Relative;
@@ -20,14 +26,11 @@ namespace Main.Card
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;
+                _deckCards.Add(card);
                 Add(card);
             }
 
-            if (cards.Length > 0)
-            {
-                style.width = CardWidth + (cards.Length - 1) * StackOffsetX;
-                style.height = CardHeight + (cards.Length - 1) * Mathf.Abs(StackOffsetY);
-            }
+            UpdateSize();
 
             VisualElement badgeContainer = new VisualElement();
             badgeContainer.AddToClassList("deck-count-badge-container");
@@ -39,12 +42,32 @@ namespace Main.Card
             heartIcon.AddToClassList("deck-count-heart-icon");
             badge.Add(heartIcon);
 
-            Label countLabel = new Label(cards.Length.ToString());
-            countLabel.AddToClassList("deck-count-label");
-            badge.Add(countLabel);
+            _countLabel = new Label(cards.Length.ToString());
+            _countLabel.AddToClassList("deck-count-label");
+            badge.Add(_countLabel);
 
             badgeContainer.Add(badge);
             Add(badgeContainer);
+        }
+
+        public void RemoveFromTop(int count)
+        {
+            int toRemove = Mathf.Min(count, _deckCards.Count);
+            for (int i = 0; i < toRemove; i++)
+            {
+                CardView top = _deckCards[_deckCards.Count - 1];
+                _deckCards.RemoveAt(_deckCards.Count - 1);
+                top.RemoveFromHierarchy();
+            }
+            _countLabel.text = _deckCards.Count.ToString();
+            UpdateSize();
+        }
+
+        private void UpdateSize()
+        {
+            int count = _deckCards.Count;
+            style.width = count > 1 ? CardWidth + (count - 1) * StackOffsetX : CardWidth;
+            style.height = count > 1 ? CardHeight + (count - 1) * Mathf.Abs(StackOffsetY) : CardHeight;
         }
     }
 }

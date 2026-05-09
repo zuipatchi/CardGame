@@ -18,9 +18,12 @@ namespace Main.Card
         private readonly Label _defLabel;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
+        public CardData Data { get; }
+        public CardState State { get; private set; }
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false)
         {
+            Data = data;
             template.CloneTree(this);
             _cardRoot = this.Q<VisualElement>("CardRoot");
             _frontFace = this.Q<VisualElement>("FrontFace");
@@ -63,6 +66,13 @@ namespace Main.Card
 
             this.RemoveManipulator(_dragManipulator);
             _dragManipulator = null;
+        }
+
+        public void SetState(CardState state)
+        {
+            State = state;
+            _cardRoot.EnableInClassList("game-card--ready", state == CardState.Ready);
+            _cardRoot.EnableInClassList("game-card--resolve", state == CardState.Resolve);
         }
 
         public void SetBackImage(Texture2D texture)
@@ -114,7 +124,7 @@ namespace Main.Card
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
             _atkLabel.text = data.Attack.ToString();
-            _defLabel.text = $"DEF {data.Defense}";
+            _defLabel.text = data.Defense.ToString();
 
             if (data.Image != null)
             {
