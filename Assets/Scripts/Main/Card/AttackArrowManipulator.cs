@@ -7,6 +7,7 @@ namespace Main.Card
     public sealed class AttackArrowManipulator : PointerManipulator
     {
         public Func<Vector2, bool> OnAttackTarget;
+        public Func<bool> CanStart;
 
         private readonly VisualElement _dragLayer;
         private ArrowView _arrowView;
@@ -35,6 +36,11 @@ namespace Main.Card
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            if (CanStart != null && !CanStart())
+            {
+                return;
+            }
+
             _isDragging = true;
             _arrowView = new ArrowView();
             _arrowView.StartPoint = target.worldBound.center;

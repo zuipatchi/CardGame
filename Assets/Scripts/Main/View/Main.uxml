@@ -11,5 +11,9 @@
         <ui:VisualElement name="OpponentGraveyardArea" class="main-opponent-graveyard-area" />
         <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="HandArea" class="main-hand-area" />
+        <ui:VisualElement name="ActionButtonsArea" class="main-action-buttons-area">
+            <ui:Button name="OkButton" text="OK" class="action-button action-button--ok" />
+            <ui:Button name="BackButton" text="戻る" class="action-button action-button--back" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -21,12 +21,17 @@ namespace Main
         private CardDatabase _cardDatabase;
         private GameModel _gameModel;
 
+        private HandView _handView;
         private FieldView _playerFieldView;
         private FieldView _opponentFieldView;
         private DeckView _opponentDeckView;
         private GraveyardView _playerGraveyardView;
         private GraveyardView _opponentGraveyardView;
+        private VisualElement _actionButtonsArea;
         private readonly Dictionary<CardView, AttackArrowManipulator> _attackManipulators = new Dictionary<CardView, AttackArrowManipulator>();
+
+        private CardView _stagingCard;
+        private PendingAction _stagedAction;
 
         [Inject]
         public void Construct(CardStore cardStore, CardDatabase cardDatabase, GameModel gameModel)
@@ -79,23 +84,44 @@ namespace Main
                 HandView opponentHandView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer, faceDown: true, interactive: false);
                 opponentHandArea.Add(opponentHandView);
 
-                HandView handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
-                handArea.Add(handView);
-                handView.OnCardDropped = (card, worldPos) =>
+                _handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
+                handArea.Add(_handView);
+                _handView.OnCardDropped = (card, worldPos) =>
                 {
+                    if (_stagedAction != null)
+                    {
+                        return false;
+                    }
+
                     bool placed = _playerFieldView.TryPlace(card, worldPos);
                     if (placed)
                     {
                         AttackArrowManipulator manipulator = new AttackArrowManipulator(dragLayer);
+                        manipulator.CanStart = () =>
+                        {
+                            if (_stagedAction is AttackAction || _stagedAction is DeckAttackAction)
+                            {
+                                CancelAction();
+                            }
+
+                            return _stagedAction == null;
+                        };
                         manipulator.OnAttackTarget = (pos) => OnAttackTarget(card, pos);
                         card.AddManipulator(manipulator);
                         _attackManipulators[card] = manipulator;
-                        _gameModel.DoAction(card, new PlayCardAction());
+                        StageAction(card, new PlayCardAction());
                     }
+
                     return placed;
                 };
 
                 _gameModel.OnResolve += HandleResolve;
+
+                _actionButtonsArea = root.Q<VisualElement>("ActionButtonsArea");
+                Button okButton = root.Q<Button>("OkButton");
+                Button backButton = root.Q<Button>("BackButton");
+                okButton.clicked += ConfirmAction;
+                backButton.clicked += CancelAction;
 
                 DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 deckArea.Add(deckView);
@@ -117,7 +143,7 @@ namespace Main
                 UniTask[] drawTasks = new UniTask[handCards.Length * 2];
                 for (int i = 0; i < handCards.Length; i++)
                 {
-                    drawTasks[i] = handView.AddCardAnimatedAsync(handCards[i], deckWorldRect, i * DrawStagger, ct);
+                    drawTasks[i] = _handView.AddCardAnimatedAsync(handCards[i], deckWorldRect, i * DrawStagger, ct);
                     drawTasks[handCards.Length + i] = opponentHandView.AddCardAnimatedAsync(handCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
                 }
                 await UniTask.WhenAll(drawTasks);
@@ -127,20 +153,88 @@ namespace Main
 
         private bool OnAttackTarget(CardView attacker, Vector2 worldPos)
         {
+            if (_stagedAction != null)
+            {
+                return false;
+            }
+
             CardView fieldTarget = _opponentFieldView.TryGetCardAt(worldPos);
             if (fieldTarget != null)
             {
-                _gameModel.DoAction(attacker, new AttackAction(fieldTarget));
-                return false;
+                StageAction(attacker, new AttackAction(fieldTarget));
+                return true;
             }
 
             if (_opponentDeckView.worldBound.Contains(worldPos))
             {
-                _gameModel.DoAction(attacker, new DeckAttackAction(_opponentDeckView));
+                StageAction(attacker, new DeckAttackAction(_opponentDeckView));
                 return true;
             }
 
             return false;
+        }
+
+        private void StageAction(CardView actor, PendingAction action)
+        {
+            _stagingCard = actor;
+            _stagedAction = action;
+            _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
+        }
+
+        private void ConfirmAction()
+        {
+            if (_stagedAction == null)
+            {
+                return;
+            }
+
+            CardView actor = _stagingCard;
+            PendingAction action = _stagedAction;
+            ClearStagedAction();
+
+            if (action is AttackAction && _attackManipulators.TryGetValue(actor, out AttackArrowManipulator attackManipulator))
+            {
+                attackManipulator.ClearArrow();
+            }
+
+            _gameModel.DoAction(actor, action);
+        }
+
+        private void CancelAction()
+        {
+            if (_stagedAction == null)
+            {
+                return;
+            }
+
+            if (_stagedAction is PlayCardAction)
+            {
+                Rect cardRect = _stagingCard.worldBound;
+                _playerFieldView.RemoveCard(_stagingCard);
+                if (_attackManipulators.TryGetValue(_stagingCard, out AttackArrowManipulator m))
+                {
+                    _stagingCard.RemoveManipulator(m);
+                    _attackManipulators.Remove(_stagingCard);
+                }
+
+                _handView.AddCardBackAsync(_stagingCard, cardRect, destroyCancellationToken).Forget();
+            }
+            else if (_stagedAction is AttackAction || _stagedAction is DeckAttackAction)
+            {
+                if (_attackManipulators.TryGetValue(_stagingCard, out AttackArrowManipulator m))
+                {
+                    m.ClearArrow();
+                }
+            }
+
+            ClearStagedAction();
+        }
+
+        private void ClearStagedAction()
+        {
+            _stagingCard = null;
+            _stagedAction = null;
+            _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
         }
 
         private void HandleResolve(CardView card, PendingAction action)

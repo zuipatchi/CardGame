@@ -116,6 +116,55 @@ namespace Main.Card
             }
         }
 
+        public async UniTask AddCardBackAsync(CardView card, Rect fromWorldRect, CancellationToken ct = default)
+        {
+            card.style.position = Position.Absolute;
+            card.style.left = fromWorldRect.x;
+            card.style.top = fromWorldRect.y;
+            card.style.rotate = new Rotate(0);
+            card.style.scale = new Scale(Vector3.one);
+            card.style.marginLeft = StyleKeyword.Null;
+            card.style.marginRight = StyleKeyword.Null;
+            _dragLayer.Add(card);
+
+            Rect handRect = worldBound;
+            float targetLeft = handRect.center.x - CardWidth / 2f;
+            float targetTop = handRect.yMin;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence flySeq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, FlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, FlyDuration).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() =>
+            {
+                flySeq.Kill();
+                tcs.TrySetCanceled();
+            });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                _dragLayer.Remove(card);
+                return;
+            }
+
+            _dragLayer.Remove(card);
+            SetupCardInHand(card);
+            _entries.Add(new HandCardEntry { Card = card });
+            Add(card);
+            ApplyPositions(animate: true);
+
+            if (_interactive)
+            {
+                RegisterCardCallbacks(card);
+            }
+        }
+
         private static void SetupCardInHand(CardView card)
         {
             card.style.position = Position.Absolute;

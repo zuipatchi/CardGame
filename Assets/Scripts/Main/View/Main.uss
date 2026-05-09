@@ -151,6 +151,44 @@
     -unity-text-align: middle-center;
 }
 
+.main-action-buttons-area {
+    position: absolute;
+    right: 32px;
+    bottom: 210px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    display: none;
+}
+
+.main-action-buttons-area--visible {
+    display: flex;
+}
+
+.action-button {
+    width: 96px;
+    height: 44px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: white;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.action-button--ok {
+    background-color: rgba(50, 160, 80, 0.9);
+}
+
+.action-button--back {
+    background-color: rgba(160, 80, 50, 0.9);
+}
+
 .field-view {
     position: absolute;
     left: 0;
