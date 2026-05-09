@@ -11,6 +11,8 @@ namespace Main.Card
 
         public bool IsFull => _cards.Count >= MaxCards;
 
+        public IReadOnlyList<CardView> Cards => _cards;
+
         public FieldView()
         {
             AddToClassList("field-view");

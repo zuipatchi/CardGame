@@ -15,6 +15,7 @@ namespace Main.Injector
             builder.RegisterInstance(_cardDatabase);
             builder.RegisterEntryPoint<CardStore>().AsSelf();
             builder.Register<GameModel>(Lifetime.Scoped);
+            builder.Register<CpuAgent>(Lifetime.Scoped);
             builder.RegisterComponentInHierarchy<MainPresenter>().AsSelf().AsImplementedInterfaces();
         }
     }

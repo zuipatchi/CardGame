@@ -116,6 +116,35 @@ namespace Main.Card
             }
         }
 
+        public IReadOnlyList<CardView> Cards
+        {
+            get
+            {
+                List<CardView> result = new List<CardView>(_entries.Count);
+                foreach (HandCardEntry entry in _entries)
+                {
+                    result.Add(entry.Card);
+                }
+                return result;
+            }
+        }
+
+        public void RemoveCard(CardView card)
+        {
+            int idx = IndexOf(card);
+            if (idx < 0)
+            {
+                return;
+            }
+
+            HandCardEntry entry = _entries[idx];
+            entry.ScaleTween?.Kill();
+            DOTween.Kill(card);
+            _entries.RemoveAt(idx);
+            card.RemoveFromHierarchy();
+            ApplyPositions(animate: true);
+        }
+
         public async UniTask AddCardBackAsync(CardView card, Rect fromWorldRect, CancellationToken ct = default)
         {
             card.style.position = Position.Absolute;

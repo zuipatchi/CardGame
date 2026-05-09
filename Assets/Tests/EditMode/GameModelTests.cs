@@ -35,7 +35,7 @@ namespace Tests.EditMode
             GameModel model = new GameModel();
             CardView card = CreateCard();
 
-            model.DoAction(card, new PlayCardAction());
+            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
 
             Assert.AreEqual(CardState.Ready, card.State);
         }
@@ -47,8 +47,8 @@ namespace Tests.EditMode
             CardView card1 = CreateCard();
             CardView card2 = CreateCard();
 
-            model.DoAction(card1, new PlayCardAction());
-            model.DoAction(card2, new PlayCardAction());
+            model.DoAction(card1, new PlayCardAction()).GetAwaiter().GetResult();
+            model.DoAction(card2, new PlayCardAction()).GetAwaiter().GetResult();
 
             Assert.AreEqual(CardState.Normal, card1.State);
             Assert.AreEqual(CardState.Ready, card2.State);
@@ -61,9 +61,9 @@ namespace Tests.EditMode
             CardView card = CreateCard();
 
             Assert.IsTrue(model.IsLocalTurn);
-            model.DoAction(card, new PlayCardAction());
+            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
             Assert.IsFalse(model.IsLocalTurn);
-            model.DoAction(card, new PlayCardAction());
+            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
             Assert.IsTrue(model.IsLocalTurn);
         }
 
@@ -82,10 +82,10 @@ namespace Tests.EditMode
             };
 
             PlayCardAction action1 = new PlayCardAction();
-            model.DoAction(card1, action1);
+            model.DoAction(card1, action1).GetAwaiter().GetResult();
             Assert.IsNull(resolvedCard);
 
-            model.DoAction(card2, new PlayCardAction());
+            model.DoAction(card2, new PlayCardAction()).GetAwaiter().GetResult();
             Assert.AreEqual(card1, resolvedCard);
             Assert.AreEqual(action1, resolvedAction);
         }
@@ -99,8 +99,8 @@ namespace Tests.EditMode
             PendingAction resolvedAction = null;
             model.OnResolve += (_, a) => resolvedAction = a;
 
-            model.DoAction(attacker, new AttackAction(target));
-            model.DoAction(target, new PlayCardAction());
+            model.DoAction(attacker, new AttackAction(target)).GetAwaiter().GetResult();
+            model.DoAction(target, new PlayCardAction()).GetAwaiter().GetResult();
 
             Assert.IsInstanceOf<AttackAction>(resolvedAction);
             Assert.AreEqual(target, ((AttackAction)resolvedAction).Target);
@@ -115,8 +115,8 @@ namespace Tests.EditMode
             PendingAction resolvedAction = null;
             model.OnResolve += (_, a) => resolvedAction = a;
 
-            model.DoAction(attacker, new DeckAttackAction(deck));
-            model.DoAction(CreateCard(), new PlayCardAction());
+            model.DoAction(attacker, new DeckAttackAction(deck)).GetAwaiter().GetResult();
+            model.DoAction(CreateCard(), new PlayCardAction()).GetAwaiter().GetResult();
 
             Assert.IsInstanceOf<DeckAttackAction>(resolvedAction);
             Assert.AreEqual(deck, ((DeckAttackAction)resolvedAction).Target);

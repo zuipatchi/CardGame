@@ -189,6 +189,33 @@
     background-color: rgba(160, 80, 50, 0.9);
 }
 
+.resolve-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.resolve-label {
+    font-size: 100px;
+    -unity-font-style: bold;
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
 .field-view {
     position: absolute;
     left: 0;

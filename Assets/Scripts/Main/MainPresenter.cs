@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Main.Card;
 using Main.Game;
 using UnityEngine;
@@ -20,25 +21,34 @@ namespace Main
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
         private GameModel _gameModel;
+        private CpuAgent _cpuAgent;
 
         private HandView _handView;
+        private HandView _opponentHandView;
         private FieldView _playerFieldView;
         private FieldView _opponentFieldView;
+        private DeckView _playerDeckView;
         private DeckView _opponentDeckView;
         private GraveyardView _playerGraveyardView;
         private GraveyardView _opponentGraveyardView;
         private VisualElement _actionButtonsArea;
         private readonly Dictionary<CardView, AttackArrowManipulator> _attackManipulators = new Dictionary<CardView, AttackArrowManipulator>();
+        private readonly Dictionary<CardView, ArrowView> _pendingArrows = new Dictionary<CardView, ArrowView>();
+        private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
+        private VisualElement _dragLayer;
 
         private CardView _stagingCard;
         private PendingAction _stagedAction;
+        private bool _isGameOver;
+        private bool _isAnimating;
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase, GameModel gameModel)
+        public void Construct(CardStore cardStore, CardDatabase cardDatabase, GameModel gameModel, CpuAgent cpuAgent)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _gameModel = gameModel;
+            _cpuAgent = cpuAgent;
         }
 
         void IStartable.Start()
@@ -65,15 +75,22 @@ namespace Main
 
                 mainRoot.style.backgroundImage = new StyleBackground(_cardStore.BattleField);
 
-                VisualElement dragLayer = new VisualElement();
-                dragLayer.AddToClassList("main-drag-layer");
-                dragLayer.pickingMode = PickingMode.Ignore;
-                mainRoot.Add(dragLayer);
+                _dragLayer = new VisualElement();
+                _dragLayer.AddToClassList("main-drag-layer");
+                _dragLayer.pickingMode = PickingMode.Ignore;
+                mainRoot.Add(_dragLayer);
+                VisualElement dragLayer = _dragLayer;
 
-                CardData[] shuffled = Shuffle(_cardDatabase.AllCards.ToArray());
-                int handSize = Mathf.Min(InitialHandSize, shuffled.Length);
-                CardData[] handCards = shuffled.Take(handSize).ToArray();
-                CardData[] deckCards = shuffled.Skip(handSize).ToArray();
+                CardData[] allCards = _cardDatabase.AllCards.ToArray();
+                int handSize = Mathf.Min(InitialHandSize, allCards.Length);
+
+                CardData[] playerShuffled = Shuffle((CardData[])allCards.Clone());
+                CardData[] playerHandCards = playerShuffled.Take(handSize).ToArray();
+                CardData[] playerDeckCards = playerShuffled.Skip(handSize).ToArray();
+
+                CardData[] cpuShuffled = Shuffle((CardData[])allCards.Clone());
+                CardData[] cpuHandCards = cpuShuffled.Take(handSize).ToArray();
+                CardData[] cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
 
                 _opponentFieldView = new FieldView();
                 opponentFieldArea.Add(_opponentFieldView);
@@ -81,14 +98,14 @@ namespace Main
                 _playerFieldView = new FieldView();
                 playerFieldArea.Add(_playerFieldView);
 
-                HandView opponentHandView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer, faceDown: true, interactive: false);
-                opponentHandArea.Add(opponentHandView);
+                _opponentHandView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer, faceDown: true, interactive: false);
+                opponentHandArea.Add(_opponentHandView);
 
                 _handView = new HandView(_cardStore.CardTemplate, new CardData[0], _cardStore.CardBack, dragLayer);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = (card, worldPos) =>
                 {
-                    if (_stagedAction != null)
+                    if (_stagedAction != null || !_gameModel.IsLocalTurn || _isGameOver || _isAnimating)
                     {
                         return false;
                     }
@@ -99,6 +116,11 @@ namespace Main
                         AttackArrowManipulator manipulator = new AttackArrowManipulator(dragLayer);
                         manipulator.CanStart = () =>
                         {
+                            if (!_gameModel.IsLocalTurn || _isGameOver || _isAnimating)
+                            {
+                                return false;
+                            }
+
                             if (_stagedAction is AttackAction || _stagedAction is DeckAttackAction)
                             {
                                 CancelAction();
@@ -115,7 +137,20 @@ namespace Main
                     return placed;
                 };
 
-                _gameModel.OnResolve += HandleResolve;
+                VisualElement resolveOverlay = new VisualElement();
+                resolveOverlay.AddToClassList("resolve-overlay");
+                resolveOverlay.pickingMode = PickingMode.Ignore;
+                resolveOverlay.style.display = DisplayStyle.None;
+                Label resolveLabel = new Label("Resolve");
+                resolveLabel.pickingMode = PickingMode.Ignore;
+                resolveLabel.AddToClassList("resolve-label");
+                resolveOverlay.Add(resolveLabel);
+                mainRoot.Add(resolveOverlay);
+
+                _gameModel.OnResolveAsync = HandleResolveAsync;
+                _gameModel.OnTurnChanged += OnTurnChanged;
+                _gameModel.OnResolvePhaseStart += () =>
+                    PlayResolveAnimationAsync(resolveOverlay, resolveLabel, destroyCancellationToken).Forget();
 
                 _actionButtonsArea = root.Q<VisualElement>("ActionButtonsArea");
                 Button okButton = root.Q<Button>("OkButton");
@@ -123,10 +158,10 @@ namespace Main
                 okButton.clicked += ConfirmAction;
                 backButton.clicked += CancelAction;
 
-                DeckView deckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
-                deckArea.Add(deckView);
+                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
+                deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 _playerGraveyardView = new GraveyardView();
@@ -138,15 +173,44 @@ namespace Main
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
 
-                Rect deckWorldRect = deckView.worldBound;
+                Rect deckWorldRect = _playerDeckView.worldBound;
                 Rect opponentDeckWorldRect = _opponentDeckView.worldBound;
-                UniTask[] drawTasks = new UniTask[handCards.Length * 2];
-                for (int i = 0; i < handCards.Length; i++)
+                UniTask[] drawTasks = new UniTask[handSize * 2];
+                for (int i = 0; i < handSize; i++)
                 {
-                    drawTasks[i] = _handView.AddCardAnimatedAsync(handCards[i], deckWorldRect, i * DrawStagger, ct);
-                    drawTasks[handCards.Length + i] = opponentHandView.AddCardAnimatedAsync(handCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
+                    drawTasks[i] = _handView.AddCardAnimatedAsync(playerHandCards[i], deckWorldRect, i * DrawStagger, ct);
+                    drawTasks[handSize + i] = _opponentHandView.AddCardAnimatedAsync(cpuHandCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
                 }
                 await UniTask.WhenAll(drawTasks);
+
+                foreach (CardView cpuCard in _opponentHandView.Cards)
+                {
+                    _cpuCards.Add(cpuCard);
+                }
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        private void OnTurnChanged(bool isLocalTurn)
+        {
+            if (!isLocalTurn && !_isGameOver)
+            {
+                ProcessCpuTurnAsync(destroyCancellationToken).Forget();
+            }
+        }
+
+        private async UniTaskVoid ProcessCpuTurnAsync(CancellationToken ct)
+        {
+            try
+            {
+                await _cpuAgent.TakeTurnAsync(
+                    _opponentHandView,
+                    _opponentFieldView,
+                    _playerFieldView,
+                    _playerDeckView,
+                    _dragLayer,
+                    _pendingArrows,
+                    ct);
             }
             catch (OperationCanceledException) { }
         }
@@ -181,7 +245,7 @@ namespace Main
             _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
         }
 
-        private void ConfirmAction()
+        private async void ConfirmAction()
         {
             if (_stagedAction == null)
             {
@@ -192,12 +256,15 @@ namespace Main
             PendingAction action = _stagedAction;
             ClearStagedAction();
 
-            if (action is AttackAction && _attackManipulators.TryGetValue(actor, out AttackArrowManipulator attackManipulator))
+            _isAnimating = true;
+            try
             {
-                attackManipulator.ClearArrow();
+                await _gameModel.DoAction(actor, action);
             }
-
-            _gameModel.DoAction(actor, action);
+            finally
+            {
+                _isAnimating = false;
+            }
         }
 
         private void CancelAction()
@@ -237,36 +304,124 @@ namespace Main
             _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
         }
 
-        private void HandleResolve(CardView card, PendingAction action)
+        private async UniTask HandleResolveAsync(CardView card, PendingAction action)
         {
             if (action is AttackAction attack)
             {
+                ClearArrow(card);
+                await PlayAttackAnimationAsync(card, attack.Target.worldBound, destroyCancellationToken);
                 if (card.Data.Attack >= attack.Target.Data.Defense)
                 {
-                    _opponentFieldView.RemoveCard(attack.Target);
-                    _opponentGraveyardView.AddCard(attack.Target);
+                    if (_cpuCards.Contains(attack.Target))
+                    {
+                        _opponentFieldView.RemoveCard(attack.Target);
+                        _opponentGraveyardView.AddCard(attack.Target);
+                    }
+                    else
+                    {
+                        _playerFieldView.RemoveCard(attack.Target);
+                        _playerGraveyardView.AddCard(attack.Target);
+                        _attackManipulators.Remove(attack.Target);
+                    }
                 }
                 return;
             }
 
             if (action is DeckAttackAction deckAttack)
             {
-                if (_attackManipulators.TryGetValue(card, out AttackArrowManipulator manipulator))
-                {
-                    manipulator.ClearArrow();
-                    _attackManipulators.Remove(card);
-                }
+                ClearArrow(card);
+                await PlayAttackAnimationAsync(card, deckAttack.Target.worldBound, destroyCancellationToken);
                 deckAttack.Target.RemoveFromTop(card.Data.Attack);
                 if (deckAttack.Target.Count == 0)
                 {
-                    OnWin();
+                    _isGameOver = true;
+                    OnGameEnd(deckAttack.Target == _playerDeckView);
                 }
             }
         }
 
-        private void OnWin()
+        private void ClearArrow(CardView card)
         {
-            Debug.Log("You Win!");
+            if (_attackManipulators.TryGetValue(card, out AttackArrowManipulator manipulator))
+            {
+                manipulator.ClearArrow();
+            }
+
+            if (_pendingArrows.TryGetValue(card, out ArrowView arrow))
+            {
+                arrow.RemoveFromHierarchy();
+                _pendingArrows.Remove(card);
+            }
+        }
+
+        private void OnGameEnd(bool cpuWins)
+        {
+            Debug.Log(cpuWins ? "CPU の勝ち！" : "あなたの勝ち！");
+        }
+
+        private static async UniTask PlayAttackAnimationAsync(CardView attacker, Rect targetRect, CancellationToken ct)
+        {
+            Rect attackerRect = attacker.worldBound;
+            Vector2 delta = targetRect.center - attackerRect.center;
+            Vector2 rushTarget = delta * 0.6f;
+
+            float progress = 0f;
+
+            void ApplyOffset(float t)
+            {
+                Vector2 pos = rushTarget * t;
+                attacker.style.translate = new StyleTranslate(new Translate(new Length(pos.x), new Length(pos.y)));
+            }
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => progress, v => { progress = v; ApplyOffset(v); }, 1f, 0.12f).SetEase(Ease.OutQuad))
+                .AppendInterval(0.05f)
+                .Append(DOTween.To(() => progress, v => { progress = v; ApplyOffset(v); }, 0f, 0.2f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() =>
+            {
+                seq.Kill();
+                tcs.TrySetCanceled();
+            });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            attacker.style.translate = StyleKeyword.Null;
+        }
+
+        private async UniTaskVoid PlayResolveAnimationAsync(VisualElement overlay, Label label, CancellationToken ct)
+        {
+            overlay.style.display = DisplayStyle.Flex;
+            overlay.style.opacity = 0f;
+            label.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 1f, 0.25f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, 0.25f).SetEase(Ease.OutBack))
+                .AppendInterval(0.4f)
+                .Append(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 0f, 0.3f).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() =>
+            {
+                seq.Kill();
+                tcs.TrySetCanceled();
+            });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            overlay.style.display = DisplayStyle.None;
         }
 
         private static CardData[] Shuffle(CardData[] cards)
