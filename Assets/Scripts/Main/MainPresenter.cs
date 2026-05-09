@@ -24,6 +24,8 @@ namespace Main
         private FieldView _playerFieldView;
         private FieldView _opponentFieldView;
         private DeckView _opponentDeckView;
+        private GraveyardView _playerGraveyardView;
+        private GraveyardView _opponentGraveyardView;
         private readonly Dictionary<CardView, AttackArrowManipulator> _attackManipulators = new Dictionary<CardView, AttackArrowManipulator>();
 
         [Inject]
@@ -48,7 +50,9 @@ namespace Main
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 VisualElement mainRoot = root.Q<VisualElement>("MainRoot");
                 VisualElement deckArea = root.Q<VisualElement>("DeckArea");
+                VisualElement graveyardArea = root.Q<VisualElement>("GraveyardArea");
                 VisualElement opponentDeckArea = root.Q<VisualElement>("OpponentDeckArea");
+                VisualElement opponentGraveyardArea = root.Q<VisualElement>("OpponentGraveyardArea");
                 VisualElement opponentHandArea = root.Q<VisualElement>("OpponentHandArea");
                 VisualElement handArea = root.Q<VisualElement>("HandArea");
                 VisualElement opponentFieldArea = root.Q<VisualElement>("OpponentFieldArea");
@@ -99,6 +103,12 @@ namespace Main
                 _opponentDeckView = new DeckView(_cardStore.CardTemplate, deckCards, _cardStore.CardBack);
                 opponentDeckArea.Add(_opponentDeckView);
 
+                _playerGraveyardView = new GraveyardView();
+                graveyardArea.Add(_playerGraveyardView);
+
+                _opponentGraveyardView = new GraveyardView();
+                opponentGraveyardArea.Add(_opponentGraveyardView);
+
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
 
@@ -140,6 +150,7 @@ namespace Main
                 if (card.Data.Attack >= attack.Target.Data.Defense)
                 {
                     _opponentFieldView.RemoveCard(attack.Target);
+                    _opponentGraveyardView.AddCard(attack.Target);
                 }
                 return;
             }

@@ -70,6 +70,39 @@
     transform-origin: center bottom;
 }
 
+.graveyard-view {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(160, 100, 50, 0.7);
+    border-right-color: rgba(160, 100, 50, 0.7);
+    border-top-color: rgba(160, 100, 50, 0.7);
+    border-bottom-color: rgba(160, 100, 50, 0.7);
+    background-color: rgba(40, 20, 10, 0.55);
+}
+
+.main-graveyard-area {
+    position: absolute;
+    left: 32px;
+    bottom: 32px;
+    scale: 0.6 0.6;
+    transform-origin: left bottom;
+}
+
+.main-opponent-graveyard-area {
+    position: absolute;
+    right: 32px;
+    top: 32px;
+    scale: 0.6 0.6;
+    rotate: 180deg;
+    transform-origin: center center;
+}
+
 .main-drag-layer {
     position: absolute;
     left: 0;
