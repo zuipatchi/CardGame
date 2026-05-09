@@ -20,14 +20,19 @@ namespace Main.Card
         private const float RelayoutDuration = 0.2f;
         private const float FlyDuration = 0.3f;
 
+        private struct HandCardEntry
+        {
+            public CardView Card;
+            public Tween ScaleTween;
+        }
+
         public Func<CardView, Vector2, bool> OnCardDropped;
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
         private readonly VisualElement _dragLayer;
         private readonly bool _interactive;
-        private readonly List<CardView> _cards = new List<CardView>();
-        private readonly List<Tween> _scaleTweens = new List<Tween>();
+        private readonly List<HandCardEntry> _entries = new List<HandCardEntry>();
 
         public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true)
         {
@@ -48,8 +53,7 @@ namespace Main.Card
             {
                 CardView card = new CardView(cardTemplate, data, backImage, faceDown);
                 SetupCardInHand(card);
-                _cards.Add(card);
-                _scaleTweens.Add(null);
+                _entries.Add(new HandCardEntry { Card = card });
                 Add(card);
             }
 
@@ -101,8 +105,7 @@ namespace Main.Card
 
             _dragLayer.Remove(card);
             SetupCardInHand(card);
-            _cards.Add(card);
-            _scaleTweens.Add(null);
+            _entries.Add(new HandCardEntry { Card = card });
             Add(card);
             ApplyPositions(animate: true);
 
@@ -128,7 +131,7 @@ namespace Main.Card
 
         private void ApplyPositions(bool animate)
         {
-            int count = _cards.Count;
+            int count = _entries.Count;
             style.width = count > 0 ? (count - 1) * CardSpacing + CardWidth : 0;
 
             float centerIndex = (count - 1) / 2f;
@@ -139,7 +142,7 @@ namespace Main.Card
                 float targetBottom = (1f - relativePos * relativePos) * ArcLiftMax;
                 float targetAngle = relativePos * MaxAngleDeg;
 
-                CardView card = _cards[i];
+                CardView card = _entries[i].Card;
                 if (!animate)
                 {
                     card.style.left = targetLeft;
@@ -160,9 +163,9 @@ namespace Main.Card
 
         private void RegisterCallbacks()
         {
-            foreach (CardView card in _cards)
+            foreach (HandCardEntry entry in _entries)
             {
-                RegisterCardCallbacks(card);
+                RegisterCardCallbacks(entry.Card);
             }
         }
 
@@ -177,20 +180,22 @@ namespace Main.Card
                     return;
                 }
 
-                int idx = _cards.IndexOf(capturedCard);
+                int idx = IndexOf(capturedCard);
                 if (idx < 0)
                 {
                     return;
                 }
 
-                _scaleTweens[idx]?.Kill();
+                HandCardEntry entry = _entries[idx];
+                entry.ScaleTween?.Kill();
                 capturedCard.BringToFront();
-                _scaleTweens[idx] = DOTween.To(
+                entry.ScaleTween = DOTween.To(
                     () => capturedCard.style.scale.value.value.x,
                     s => capturedCard.style.scale = new Scale(new Vector3(s, s, 1f)),
                     HoverScaleTarget,
                     HoverDuration
                 ).SetEase(Ease.OutQuad);
+                _entries[idx] = entry;
             });
 
             capturedCard.RegisterCallback<PointerLeaveEvent>(_ =>
@@ -200,20 +205,22 @@ namespace Main.Card
                     return;
                 }
 
-                int idx = _cards.IndexOf(capturedCard);
+                int idx = IndexOf(capturedCard);
                 if (idx < 0)
                 {
                     return;
                 }
 
-                _scaleTweens[idx]?.Kill();
+                HandCardEntry entry = _entries[idx];
+                entry.ScaleTween?.Kill();
                 Insert(Math.Min(idx, childCount - 1), capturedCard);
-                _scaleTweens[idx] = DOTween.To(
+                entry.ScaleTween = DOTween.To(
                     () => capturedCard.style.scale.value.value.x,
                     s => capturedCard.style.scale = new Scale(new Vector3(s, s, 1f)),
                     1f,
                     HoverDuration
                 ).SetEase(Ease.OutQuad);
+                _entries[idx] = entry;
             });
 
             if (_dragLayer == null)
@@ -223,11 +230,13 @@ namespace Main.Card
 
             capturedCard.RegisterCallback<PointerDownEvent>(_ =>
             {
-                int idx = _cards.IndexOf(capturedCard);
+                int idx = IndexOf(capturedCard);
                 if (idx >= 0)
                 {
-                    _scaleTweens[idx]?.Kill();
-                    _scaleTweens[idx] = null;
+                    HandCardEntry entry = _entries[idx];
+                    entry.ScaleTween?.Kill();
+                    entry.ScaleTween = null;
+                    _entries[idx] = entry;
                 }
             });
 
@@ -237,12 +246,11 @@ namespace Main.Card
                 bool placed = OnCardDropped?.Invoke(capturedCard, worldPos) ?? false;
                 if (placed)
                 {
-                    int idx = _cards.IndexOf(capturedCard);
+                    int idx = IndexOf(capturedCard);
                     if (idx >= 0)
                     {
-                        _scaleTweens[idx]?.Kill();
-                        _scaleTweens.RemoveAt(idx);
-                        _cards.RemoveAt(idx);
+                        _entries[idx].ScaleTween?.Kill();
+                        _entries.RemoveAt(idx);
                     }
 
                     ApplyPositions(animate: true);
@@ -251,6 +259,19 @@ namespace Main.Card
                 return placed;
             };
             capturedCard.AttachDragManipulator(manipulator);
+        }
+
+        private int IndexOf(CardView card)
+        {
+            for (int i = 0; i < _entries.Count; i++)
+            {
+                if (_entries[i].Card == card)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
     }
 }
