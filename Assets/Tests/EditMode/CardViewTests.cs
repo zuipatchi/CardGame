@@ -40,7 +40,7 @@ namespace Tests.EditMode
             CardView view = new CardView(template, data);
 
             Assert.AreEqual("4", view.Q<Label>("AtkLabel").text);
-            Assert.AreEqual("DEF 3", view.Q<Label>("DefLabel").text);
+            Assert.AreEqual("3", view.Q<Label>("DefLabel").text);
         }
     }
 }

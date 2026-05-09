@@ -13,8 +13,11 @@
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />
                 </ui:VisualElement>
+                <ui:VisualElement class="game-card__def-area">
+                    <ui:VisualElement class="game-card__shield-icon" />
+                    <ui:Label name="DefLabel" class="game-card__def" />
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label name="DefLabel" class="game-card__stat game-card__hidden" />
         </ui:VisualElement>
         <ui:VisualElement name="BackFace" class="game-card__face game-card__back" />
     </ui:VisualElement>
