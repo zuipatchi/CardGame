@@ -50,6 +50,21 @@ namespace Main.Card
             Add(badgeContainer);
         }
 
+        public CardData DrawTop()
+        {
+            if (_deckCards.Count == 0)
+            {
+                return null;
+            }
+
+            CardView top = _deckCards[_deckCards.Count - 1];
+            _deckCards.RemoveAt(_deckCards.Count - 1);
+            top.RemoveFromHierarchy();
+            _countLabel.text = _deckCards.Count.ToString();
+            UpdateSize();
+            return top.Data;
+        }
+
         public void RemoveFromTop(int count)
         {
             int toRemove = Mathf.Min(count, _deckCards.Count);

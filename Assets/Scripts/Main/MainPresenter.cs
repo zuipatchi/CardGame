@@ -421,9 +421,27 @@ namespace Main
             label.RemoveFromClassList("turn-announcement-label--enemy");
             label.AddToClassList(isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy");
 
+            DeckView sourceDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
+            HandView targetHand = isLocalTurn ? _handView : _opponentHandView;
+            Rect deckWorldRect = sourceDeck.worldBound;
+            CardData drawn = sourceDeck.DrawTop();
+
             try
             {
-                await PlayTurnAnnouncementAsync(overlay, label, ct);
+                UniTask announcementTask = PlayTurnAnnouncementAsync(overlay, label, ct);
+                UniTask drawTask = drawn != null
+                    ? targetHand.AddCardAnimatedAsync(drawn, deckWorldRect, 0f, ct)
+                    : UniTask.CompletedTask;
+                await UniTask.WhenAll(announcementTask, drawTask);
+
+                if (!isLocalTurn && drawn != null)
+                {
+                    IReadOnlyList<CardView> opponentCards = _opponentHandView.Cards;
+                    if (opponentCards.Count > 0)
+                    {
+                        _cpuCards.Add(opponentCards[opponentCards.Count - 1]);
+                    }
+                }
             }
             finally
             {
