@@ -9,8 +9,9 @@ namespace Main.Game
     {
         public event Action<CardView, PendingAction> OnResolve;
         public event Action<bool> OnTurnChanged;
-        public event Action OnResolvePhaseStart;
+        public Func<UniTask> OnResolvePhaseStartAsync;
         public Func<CardView, PendingAction, UniTask> OnResolveAsync;
+        public Func<bool, UniTask> OnTurnStartAsync;
 
         public bool IsLocalTurn { get; private set; } = true;
 
@@ -24,7 +25,9 @@ namespace Main.Game
             actor.SetState(CardState.Ready);
             _readyCards.Add((actor, action));
 
-            OnResolvePhaseStart?.Invoke();
+            UniTask resolveOverlayTask = OnResolvePhaseStartAsync != null
+                ? OnResolvePhaseStartAsync.Invoke()
+                : UniTask.CompletedTask;
 
             foreach ((CardView card, PendingAction act) in toResolve)
             {
@@ -37,7 +40,13 @@ namespace Main.Game
                 card.SetState(CardState.Normal);
             }
 
+            await resolveOverlayTask;
+
             IsLocalTurn = !IsLocalTurn;
+            if (OnTurnStartAsync != null)
+            {
+                await OnTurnStartAsync.Invoke(IsLocalTurn);
+            }
             OnTurnChanged?.Invoke(IsLocalTurn);
         }
     }

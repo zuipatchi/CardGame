@@ -29,9 +29,9 @@ namespace Main.Card
             VisualElement badge = new VisualElement();
             badge.AddToClassList("deck-count-badge");
 
-            VisualElement heartIcon = new VisualElement();
-            heartIcon.AddToClassList("deck-count-heart-icon");
-            badge.Add(heartIcon);
+            VisualElement graveIcon = new VisualElement();
+            graveIcon.AddToClassList("graveyard-count-icon");
+            badge.Add(graveIcon);
 
             _countLabel = new Label("0");
             _countLabel.AddToClassList("deck-count-label");

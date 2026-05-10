@@ -137,6 +137,16 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
+.graveyard-count-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/GraveIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .deck-count-label {
     position: absolute;
     left: 0;
@@ -155,9 +165,11 @@
     position: absolute;
     right: 32px;
     bottom: 210px;
-    flex-direction: column;
-    gap: 8px;
-    align-items: stretch;
+    width: 386px;
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+    justify-content: flex-end;
     display: none;
 }
 
@@ -166,15 +178,22 @@
 }
 
 .action-button {
-    width: 96px;
-    height: 44px;
+    width: 192px;
+    height: 88px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
-    font-size: 20px;
-    -unity-font-style: bold;
-    color: white;
     border-left-width: 0;
     border-right-width: 0;
     border-top-width: 0;
@@ -182,11 +201,58 @@
 }
 
 .action-button--ok {
-    background-color: rgba(50, 160, 80, 0.9);
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/AddressableAssets/Image/OKButtn.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
 }
 
 .action-button--back {
-    background-color: rgba(160, 80, 50, 0.9);
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/AddressableAssets/Image/ReturnButtn.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.turn-announcement-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.turn-announcement-label {
+    font-size: 80px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.turn-announcement-label--player {
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
+}
+
+.turn-announcement-label--enemy {
+    color: rgb(230, 80, 80);
+    background-color: rgba(50, 0, 0, 0.65);
 }
 
 .resolve-overlay {

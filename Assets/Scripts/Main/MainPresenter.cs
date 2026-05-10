@@ -147,10 +147,21 @@ namespace Main
                 resolveOverlay.Add(resolveLabel);
                 mainRoot.Add(resolveOverlay);
 
+                VisualElement turnOverlay = new VisualElement();
+                turnOverlay.AddToClassList("turn-announcement-overlay");
+                turnOverlay.pickingMode = PickingMode.Ignore;
+                turnOverlay.style.display = DisplayStyle.None;
+                Label turnLabel = new Label();
+                turnLabel.pickingMode = PickingMode.Ignore;
+                turnLabel.AddToClassList("turn-announcement-label");
+                turnOverlay.Add(turnLabel);
+                mainRoot.Add(turnOverlay);
+
                 _gameModel.OnResolveAsync = HandleResolveAsync;
                 _gameModel.OnTurnChanged += OnTurnChanged;
-                _gameModel.OnResolvePhaseStart += () =>
-                    PlayResolveAnimationAsync(resolveOverlay, resolveLabel, destroyCancellationToken).Forget();
+                _gameModel.OnTurnStartAsync = (isLocalTurn) => HandleTurnStartAsync(turnOverlay, turnLabel, isLocalTurn, destroyCancellationToken);
+                _gameModel.OnResolvePhaseStartAsync = () =>
+                    PlayResolveAnimationAsync(resolveOverlay, resolveLabel, destroyCancellationToken);
 
                 _actionButtonsArea = root.Q<VisualElement>("ActionButtonsArea");
                 Button okButton = root.Q<Button>("OkButton");
@@ -187,6 +198,8 @@ namespace Main
                 {
                     _cpuCards.Add(cpuCard);
                 }
+
+                await HandleTurnStartAsync(turnOverlay, turnLabel, true, ct);
             }
             catch (OperationCanceledException) { }
         }
@@ -395,7 +408,59 @@ namespace Main
             attacker.style.translate = StyleKeyword.Null;
         }
 
-        private async UniTaskVoid PlayResolveAnimationAsync(VisualElement overlay, Label label, CancellationToken ct)
+        private async UniTask HandleTurnStartAsync(VisualElement overlay, Label label, bool isLocalTurn, CancellationToken ct)
+        {
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            _isAnimating = true;
+            label.text = isLocalTurn ? "YOUR TURN" : "ENEMY TURN";
+            label.RemoveFromClassList("turn-announcement-label--player");
+            label.RemoveFromClassList("turn-announcement-label--enemy");
+            label.AddToClassList(isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy");
+
+            try
+            {
+                await PlayTurnAnnouncementAsync(overlay, label, ct);
+            }
+            finally
+            {
+                _isAnimating = false;
+            }
+        }
+
+        private static async UniTask PlayTurnAnnouncementAsync(VisualElement overlay, Label label, CancellationToken ct)
+        {
+            overlay.style.display = DisplayStyle.Flex;
+            overlay.style.opacity = 0f;
+            label.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 1f, 0.25f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, 0.25f).SetEase(Ease.OutBack))
+                .AppendInterval(0.5f)
+                .Append(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 0f, 0.3f).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() =>
+            {
+                seq.Kill();
+                tcs.TrySetCanceled();
+            });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            overlay.style.display = DisplayStyle.None;
+        }
+
+        private static async UniTask PlayResolveAnimationAsync(VisualElement overlay, Label label, CancellationToken ct)
         {
             overlay.style.display = DisplayStyle.Flex;
             overlay.style.opacity = 0f;
