@@ -256,11 +256,11 @@ BattleArea
 OpponentHandArea        （画面上部・180° 反転・裏向き・非インタラクティブ）
 OpponentDeckArea        （左上・60% スケール・180° 反転）
 OpponentGraveyardArea   （右上・60% スケール・180° 反転）
-OpponentCharacterArea   （右上・60% スケール・180° 反転）CharacterSlotView
+OpponentCharacterArea   （右上・90% スケール・180° 反転・BattleArea 上半分に縦中央揃え）CharacterSlotView
 BattleArea              （top: 100px〜bottom: 144px）
   ├── OpponentFieldArea（上半分）
   └── PlayerFieldArea  （下半分）
-PlayerCharacterArea     （左下・60% スケール）CharacterSlotView
+PlayerCharacterArea     （左下・90% スケール・BattleArea 下半分に縦中央揃え）CharacterSlotView
 DeckArea                （右下・60% スケール）
 GraveyardArea           （左下・60% スケール）
 HandArea                （画面下端・60% スケール）
