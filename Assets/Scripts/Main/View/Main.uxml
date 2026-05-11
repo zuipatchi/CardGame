@@ -2,8 +2,10 @@
     <Style src="Main.uss" />
     <ui:VisualElement name="MainRoot" class="main-root">
         <ui:VisualElement name="BattleArea" class="main-battle-area">
+            <ui:VisualElement name="OpponentCharacterArea" class="main-opponent-character-area" />
             <ui:VisualElement name="OpponentFieldArea" class="main-opponent-field-area" />
             <ui:VisualElement name="PlayerFieldArea" class="main-player-field-area" />
+            <ui:VisualElement name="PlayerCharacterArea" class="main-player-character-area" />
         </ui:VisualElement>
         <ui:VisualElement name="DeckArea" class="main-deck-area" />
         <ui:VisualElement name="GraveyardArea" class="main-graveyard-area" />
@@ -12,6 +14,7 @@
         <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="HandArea" class="main-hand-area" />
         <ui:VisualElement name="ActionButtonsArea" class="main-action-buttons-area">
+            <ui:Button name="PassButton" class="action-button action-button--pass" />
             <ui:Button name="BackButton" class="action-button action-button--back" />
             <ui:Button name="OkButton" class="action-button action-button--ok" />
         </ui:VisualElement>

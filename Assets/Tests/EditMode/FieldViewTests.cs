@@ -12,7 +12,7 @@ namespace Tests.EditMode
         private static CardView MakeCard()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CardData("c1", "カード", 1, 1, 1));
+            return new CardView(template, new EventCardData("e1", "テスト", 0));
         }
 
         [Test]

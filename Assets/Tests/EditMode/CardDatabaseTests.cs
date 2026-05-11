@@ -6,7 +6,7 @@ namespace Tests.EditMode
 {
     public class CardDatabaseTests
     {
-        private CardDatabase CreateDatabase(CardData[] cards)
+        private static CardDatabase CreateDatabase(CardData[] cards)
         {
             CardDatabase db = ScriptableObject.CreateInstance<CardDatabase>();
             db.Initialize(cards);
@@ -16,9 +16,9 @@ namespace Tests.EditMode
         [Test]
         public void 登録したIDでCardDataを取得できる()
         {
-            CardDatabase db = CreateDatabase(new[]
+            CardDatabase db = CreateDatabase(new CardData[]
             {
-                new CardData("fire_001", "ファイアボール", 3, 0, 0),
+                new EventCardData("fire_001", "ファイアボール", 3),
             });
 
             bool found = db.TryGet("fire_001", out CardData result);
@@ -40,9 +40,9 @@ namespace Tests.EditMode
         [Test]
         public void インデクサで登録済みカードを取得できる()
         {
-            CardDatabase db = CreateDatabase(new[]
+            CardDatabase db = CreateDatabase(new CardData[]
             {
-                new CardData("ice_001", "アイスランス", 2, 0, 0),
+                new EventCardData("ice_001", "アイスランス", 1),
             });
 
             CardData result = db["ice_001"];
@@ -53,10 +53,10 @@ namespace Tests.EditMode
         [Test]
         public void 複数カードをそれぞれIDで取得できる()
         {
-            CardDatabase db = CreateDatabase(new[]
+            CardDatabase db = CreateDatabase(new CardData[]
             {
-                new CardData("fire_001", "ファイアボール", 3, 0, 0),
-                new CardData("shield_001", "シールド", 1, 0, 2),
+                new EventCardData("fire_001", "ファイアボール", 3),
+                new EventCardData("shield_001", "シールド", 2),
             });
 
             db.TryGet("fire_001", out CardData r1);

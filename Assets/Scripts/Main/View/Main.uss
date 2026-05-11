@@ -70,6 +70,7 @@
     transform-origin: center bottom;
 }
 
+.deck-view,
 .graveyard-view {
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
@@ -88,19 +89,52 @@
 
 .main-graveyard-area {
     position: absolute;
+    right: 165px;
+    bottom: 32px;
+    scale: 0.6 0.6;
+    transform-origin: right bottom;
+}
+
+.main-opponent-graveyard-area {
+    position: absolute;
+    left: 165px;
+    top: 32px;
+    scale: 0.6 0.6;
+    rotate: 180deg;
+    transform-origin: center center;
+}
+
+.main-player-character-area {
+    position: absolute;
     left: 32px;
     bottom: 32px;
     scale: 0.6 0.6;
     transform-origin: left bottom;
 }
 
-.main-opponent-graveyard-area {
+.main-opponent-character-area {
     position: absolute;
     right: 32px;
     top: 32px;
     scale: 0.6 0.6;
     rotate: 180deg;
     transform-origin: center center;
+}
+
+.character-slot-view {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgba(100, 200, 100, 0.7);
+    border-right-color: rgba(100, 200, 100, 0.7);
+    border-top-color: rgba(100, 200, 100, 0.7);
+    border-bottom-color: rgba(100, 200, 100, 0.7);
+    background-color: rgba(20, 60, 20, 0.45);
 }
 
 .main-drag-layer {
@@ -200,6 +234,16 @@
     border-bottom-width: 0;
 }
 
+.action-button--pass {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/AddressableAssets/Image/PassButton.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
 .action-button--ok {
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/OKButtn.png");
@@ -253,6 +297,16 @@
 .turn-announcement-label--enemy {
     color: rgb(230, 80, 80);
     background-color: rgba(50, 0, 0, 0.65);
+}
+
+.turn-announcement-label--skill {
+    color: rgb(255, 210, 60);
+    background-color: rgba(50, 35, 0, 0.65);
+}
+
+.turn-announcement-label--fight {
+    color: rgb(255, 80, 40);
+    background-color: rgba(60, 10, 0, 0.65);
 }
 
 .resolve-overlay {

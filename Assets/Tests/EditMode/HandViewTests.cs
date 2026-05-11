@@ -15,11 +15,11 @@ namespace Tests.EditMode
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
             CardData[] cards =
             {
-                new CardData("c1", "カード1", 1, 1, 1),
-                new CardData("c2", "カード2", 2, 2, 2),
-                new CardData("c3", "カード3", 3, 3, 3),
-                new CardData("c4", "カード4", 4, 4, 4),
-                new CardData("c5", "カード5", 5, 5, 5),
+                new EventCardData("e1", "テスト", 0),
+                new EventCardData("e2", "テスト", 0),
+                new EventCardData("e3", "テスト", 0),
+                new EventCardData("e4", "テスト", 0),
+                new EventCardData("e5", "テスト", 0),
             };
 
             HandView view = new HandView(template, cards);

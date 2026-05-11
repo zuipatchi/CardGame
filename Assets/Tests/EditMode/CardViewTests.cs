@@ -13,7 +13,7 @@ namespace Tests.EditMode
         public void カード名が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CardData data = new CardData("fire_001", "ファイアボール", 3, 0, 0);
+            EventCardData data = new EventCardData("e1", "ファイアボール", 3);
 
             CardView view = new CardView(template, data);
 
@@ -24,7 +24,7 @@ namespace Tests.EditMode
         public void コストが正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CardData data = new CardData("ice_001", "アイスランス", 2, 0, 0);
+            EventCardData data = new EventCardData("e1", "アイスランス", 2);
 
             CardView view = new CardView(template, data);
 
@@ -32,14 +32,24 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 攻撃力と防御力が正しくバインドされる()
+        public void スキルカードの攻撃力が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CardData data = new CardData("dragon_001", "ドラゴン", 5, 4, 3);
+            SkillCardData data = new SkillCardData("s1", "ファイア", 1, damage: 4);
 
             CardView view = new CardView(template, data);
 
             Assert.AreEqual("4", view.Q<Label>("AtkLabel").text);
+        }
+
+        [Test]
+        public void キャラカードの防御力が正しくバインドされる()
+        {
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, defense: 3);
+
+            CardView view = new CardView(template, data);
+
             Assert.AreEqual("3", view.Q<Label>("DefLabel").text);
         }
     }

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 183235da6d61c3540821208446056ffd, type: 3}
+  m_Name: CharacterCard
+  m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
+  _cards:
+  - _id: C001
+    _cardName: "\u3071\u3063\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
+    _stats: []
+    _defense: 1
+  - _id: C002
+    _cardName: "\u3071\u3063\u3061\u30C9\u30E9\u30B4\u30F3"
+    _cost: 3
+    _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
+    _stats: []
+    _defense: 3
+  - _id: C003
+    _cardName: "\u30B4\u30D6\u30EA\u30F3\u3071\u3063\u3061"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
+    _stats: []
+    _defense: 2

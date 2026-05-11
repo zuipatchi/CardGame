@@ -18,6 +18,7 @@ namespace Main.Card
 
         public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
         {
+            AddToClassList("deck-view");
             style.position = Position.Relative;
 
             for (int i = 0; i < cards.Length; i++)

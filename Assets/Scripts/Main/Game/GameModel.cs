@@ -1,53 +1,55 @@
-using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Main.Card;
 
 namespace Main.Game
 {
     public sealed class GameModel
     {
-        public event Action<CardView, PendingAction> OnResolve;
-        public event Action<bool> OnTurnChanged;
-        public Func<UniTask> OnResolvePhaseStartAsync;
-        public Func<CardView, PendingAction, UniTask> OnResolveAsync;
-        public Func<bool, UniTask> OnTurnStartAsync;
-
+        public TurnPhase Phase { get; private set; } = TurnPhase.Draw;
         public bool IsLocalTurn { get; private set; } = true;
 
-        private readonly List<(CardView card, PendingAction action)> _readyCards = new List<(CardView card, PendingAction action)>();
+        // 準備フェーズでローカルプレイヤーが行動する番か
+        public bool IsLocalPreparationTurn { get; private set; }
 
-        public async UniTask DoAction(CardView actor, PendingAction action)
+        private readonly List<(CardView Card, ReadyAction Action)> _readyQueue =
+            new List<(CardView Card, ReadyAction Action)>();
+        private int _consecutivePasses;
+
+        public IReadOnlyList<(CardView Card, ReadyAction Action)> ReadyQueue => _readyQueue;
+
+        public void BeginPreparation()
         {
-            List<(CardView card, PendingAction action)> toResolve = new List<(CardView card, PendingAction action)>(_readyCards);
-            _readyCards.Clear();
+            Phase = TurnPhase.Preparation;
+            IsLocalPreparationTurn = IsLocalTurn;
+            _consecutivePasses = 0;
+        }
 
-            actor.SetState(CardState.Ready);
-            _readyCards.Add((actor, action));
+        public void ReadyCard(CardView card)
+        {
+            _consecutivePasses = 0;
+            card.SetState(CardState.Ready);
+            _readyQueue.Add((card, new ReadyAction()));
+            IsLocalPreparationTurn = !IsLocalPreparationTurn;
+        }
 
-            UniTask resolveOverlayTask = OnResolvePhaseStartAsync != null
-                ? OnResolvePhaseStartAsync.Invoke()
-                : UniTask.CompletedTask;
+        // 2連続パスで true を返す（準備フェーズ終了）
+        public bool Pass()
+        {
+            _consecutivePasses++;
+            IsLocalPreparationTurn = !IsLocalPreparationTurn;
+            return _consecutivePasses >= 2;
+        }
 
-            foreach ((CardView card, PendingAction act) in toResolve)
-            {
-                card.SetState(CardState.Resolve);
-                if (OnResolveAsync != null)
-                {
-                    await OnResolveAsync.Invoke(card, act);
-                }
-                OnResolve?.Invoke(card, act);
-                card.SetState(CardState.Normal);
-            }
+        public void BeginResolution() { Phase = TurnPhase.Resolution; }
+        public void BeginPreBattle() { Phase = TurnPhase.PreBattle; }
+        public void BeginBattle() { Phase = TurnPhase.Battle; }
 
-            await resolveOverlayTask;
-
+        public void EndTurn()
+        {
+            _readyQueue.Clear();
             IsLocalTurn = !IsLocalTurn;
-            if (OnTurnStartAsync != null)
-            {
-                await OnTurnStartAsync.Invoke(IsLocalTurn);
-            }
-            OnTurnChanged?.Invoke(IsLocalTurn);
+            Phase = TurnPhase.Draw;
+            _consecutivePasses = 0;
         }
     }
 }

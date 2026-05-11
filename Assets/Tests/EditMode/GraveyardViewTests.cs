@@ -9,11 +9,11 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardData MakeCard(string id) =>
-            new CardData(id, id, 1, 1, 1);
-
         private static VisualTreeAsset LoadTemplate() =>
             AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+
+        private static CardView MakeCardView() =>
+            new CardView(LoadTemplate(), new EventCardData("e1", "テスト", 0));
 
         [Test]
         public void 初期状態のCountは0()
@@ -26,11 +26,9 @@ namespace Tests.EditMode
         [Test]
         public void AddCardでCountが増える()
         {
-            VisualTreeAsset template = LoadTemplate();
             GraveyardView graveyard = new GraveyardView();
-            CardView card = new CardView(template, MakeCard("a"));
 
-            graveyard.AddCard(card);
+            graveyard.AddCard(MakeCardView());
 
             Assert.AreEqual(1, graveyard.Count);
         }
@@ -38,12 +36,11 @@ namespace Tests.EditMode
         [Test]
         public void 複数カードを追加できる()
         {
-            VisualTreeAsset template = LoadTemplate();
             GraveyardView graveyard = new GraveyardView();
 
-            graveyard.AddCard(new CardView(template, MakeCard("a")));
-            graveyard.AddCard(new CardView(template, MakeCard("b")));
-            graveyard.AddCard(new CardView(template, MakeCard("c")));
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
 
             Assert.AreEqual(3, graveyard.Count);
         }
@@ -51,9 +48,8 @@ namespace Tests.EditMode
         [Test]
         public void AddCard後にカードがGraveyardViewの子になる()
         {
-            VisualTreeAsset template = LoadTemplate();
             GraveyardView graveyard = new GraveyardView();
-            CardView card = new CardView(template, MakeCard("a"));
+            CardView card = MakeCardView();
 
             graveyard.AddCard(card);
 

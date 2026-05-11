@@ -14,6 +14,8 @@ namespace Main.Card
         private readonly VisualElement _imageArea;
         private readonly Label _costLabel;
         private readonly Label _nameLabel;
+        private readonly VisualElement _atkArea;
+        private readonly VisualElement _defArea;
         private readonly Label _atkLabel;
         private readonly Label _defLabel;
         private CardDragManipulator _dragManipulator;
@@ -31,6 +33,8 @@ namespace Main.Card
             _imageArea = this.Q<VisualElement>("ImageArea");
             _costLabel = this.Q<Label>("CostLabel");
             _nameLabel = this.Q<Label>("NameLabel");
+            _atkArea = this.Q<VisualElement>(className: "game-card__atk-area");
+            _defArea = this.Q<VisualElement>(className: "game-card__def-area");
             _atkLabel = this.Q<Label>("AtkLabel");
             _defLabel = this.Q<Label>("DefLabel");
 
@@ -125,6 +129,11 @@ namespace Main.Card
             _nameLabel.text = data.CardName;
             _atkLabel.text = data.Attack.ToString();
             _defLabel.text = data.Defense.ToString();
+
+            _atkArea.style.display = data is CharacterCardData or EventCardData
+                ? DisplayStyle.None : DisplayStyle.Flex;
+            _defArea.style.display = data is SkillCardData or EventCardData
+                ? DisplayStyle.None : DisplayStyle.Flex;
 
             if (data.Image != null)
             {

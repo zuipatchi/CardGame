@@ -9,8 +9,7 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardData MakeCard(string id) =>
-            new CardData(id, id, 1, 0, 0);
+        private static CardData MakeCard() => new EventCardData("e1", "テスト", 0);
 
         private static VisualTreeAsset LoadTemplate() =>
             AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
@@ -18,7 +17,7 @@ namespace Tests.EditMode
         [Test]
         public void 渡した枚数分のCardViewが生成される()
         {
-            CardData[] cards = { MakeCard("a"), MakeCard("b"), MakeCard("c") };
+            CardData[] cards = { MakeCard(), MakeCard(), MakeCard() };
 
             DeckView deck = new DeckView(LoadTemplate(), cards);
 
@@ -36,7 +35,7 @@ namespace Tests.EditMode
         [Test]
         public void 各カードがAbsoluteで配置される()
         {
-            CardData[] cards = { MakeCard("a"), MakeCard("b") };
+            CardData[] cards = { MakeCard(), MakeCard() };
 
             DeckView deck = new DeckView(LoadTemplate(), cards);
 
@@ -52,7 +51,7 @@ namespace Tests.EditMode
         [Test]
         public void カードが裏向きで生成される()
         {
-            CardData[] cards = { MakeCard("a"), MakeCard("b") };
+            CardData[] cards = { MakeCard(), MakeCard() };
 
             DeckView deck = new DeckView(LoadTemplate(), cards);
 

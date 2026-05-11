@@ -10,136 +10,132 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private VisualTreeAsset LoadTemplate() =>
-            AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-
-        private CardView CreateCard(int attack = 1, int defense = 1)
+        private static CardView MakeCard(bool isSkill = false)
         {
-            CardData data = new CardData("test", "テスト", 1, attack, defense);
-            return new CardView(LoadTemplate(), data);
-        }
-
-        private DeckView CreateDeck(int cardCount)
-        {
-            CardData[] cards = new CardData[cardCount];
-            for (int i = 0; i < cardCount; i++)
-            {
-                cards[i] = new CardData($"d{i}", "カード", 1, 1, 1);
-            }
-            return new DeckView(LoadTemplate(), cards);
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CardData data = isSkill
+                ? (CardData)new SkillCardData("s1", "ファイア", 1, damage: 3)
+                : new CharacterCardData("c1", "戦士", 2, defense: 5);
+            return new CardView(template, data);
         }
 
         [Test]
-        public void DoAction_アクション後にカードがReady状態になる()
+        public void BeginPreparation_IsLocalTurnがtrueならIsLocalPreparationTurnもtrue()
         {
             GameModel model = new GameModel();
-            CardView card = CreateCard();
 
-            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
+            model.BeginPreparation();
+
+            Assert.IsTrue(model.IsLocalPreparationTurn);
+        }
+
+        [Test]
+        public void ReadyCard_ReadyQueueにカードが追加される()
+        {
+            GameModel model = new GameModel();
+            model.BeginPreparation();
+            CardView card = MakeCard();
+
+            model.ReadyCard(card);
+
+            Assert.AreEqual(1, model.ReadyQueue.Count);
+            Assert.AreEqual(card, model.ReadyQueue[0].Card);
+        }
+
+        [Test]
+        public void ReadyCard_カードがReady状態になる()
+        {
+            GameModel model = new GameModel();
+            model.BeginPreparation();
+            CardView card = MakeCard();
+
+            model.ReadyCard(card);
 
             Assert.AreEqual(CardState.Ready, card.State);
         }
 
         [Test]
-        public void DoAction_次のアクションで以前のReadyカードがNormalに戻る()
+        public void ReadyCard_IsLocalPreparationTurnが反転する()
         {
             GameModel model = new GameModel();
-            CardView card1 = CreateCard();
-            CardView card2 = CreateCard();
+            model.BeginPreparation();
+            bool before = model.IsLocalPreparationTurn;
 
-            model.DoAction(card1, new PlayCardAction()).GetAwaiter().GetResult();
-            model.DoAction(card2, new PlayCardAction()).GetAwaiter().GetResult();
+            model.ReadyCard(MakeCard());
 
-            Assert.AreEqual(CardState.Normal, card1.State);
-            Assert.AreEqual(CardState.Ready, card2.State);
+            Assert.AreEqual(!before, model.IsLocalPreparationTurn);
         }
 
         [Test]
-        public void DoAction_アクション後にターンが切り替わる()
+        public void Pass_1回パスしても準備フェーズは終わらない()
         {
             GameModel model = new GameModel();
-            CardView card = CreateCard();
+            model.BeginPreparation();
 
+            bool ended = model.Pass();
+
+            Assert.IsFalse(ended);
+        }
+
+        [Test]
+        public void Pass_2連続パスで準備フェーズが終わる()
+        {
+            GameModel model = new GameModel();
+            model.BeginPreparation();
+
+            model.Pass();
+            bool ended = model.Pass();
+
+            Assert.IsTrue(ended);
+        }
+
+        [Test]
+        public void Pass_カードをReadyにすると連続パスカウントがリセットされる()
+        {
+            GameModel model = new GameModel();
+            model.BeginPreparation();
+
+            model.Pass(); // 1回パス
+            model.ReadyCard(MakeCard()); // Ready → カウントリセット
+            model.Pass(); // 再び1回パス
+
+            bool ended = model.Pass(); // 2回目のパス（通算では3回目）
+
+            Assert.IsTrue(ended);
+        }
+
+        [Test]
+        public void EndTurn_IsLocalTurnが反転する()
+        {
+            GameModel model = new GameModel();
             Assert.IsTrue(model.IsLocalTurn);
-            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
+
+            model.EndTurn();
+
             Assert.IsFalse(model.IsLocalTurn);
-            model.DoAction(card, new PlayCardAction()).GetAwaiter().GetResult();
-            Assert.IsTrue(model.IsLocalTurn);
         }
 
         [Test]
-        public void DoAction_OnResolveイベントが以前のReadyカードで発火する()
+        public void EndTurn_ReadyQueueがクリアされる()
         {
             GameModel model = new GameModel();
-            CardView card1 = CreateCard();
-            CardView card2 = CreateCard();
-            CardView resolvedCard = null;
-            PendingAction resolvedAction = null;
-            model.OnResolve += (c, a) =>
-            {
-                resolvedCard = c;
-                resolvedAction = a;
-            };
+            model.BeginPreparation();
+            model.ReadyCard(MakeCard());
 
-            PlayCardAction action1 = new PlayCardAction();
-            model.DoAction(card1, action1).GetAwaiter().GetResult();
-            Assert.IsNull(resolvedCard);
+            model.EndTurn();
 
-            model.DoAction(card2, new PlayCardAction()).GetAwaiter().GetResult();
-            Assert.AreEqual(card1, resolvedCard);
-            Assert.AreEqual(action1, resolvedAction);
+            Assert.AreEqual(0, model.ReadyQueue.Count);
         }
 
         [Test]
-        public void DoAction_攻撃アクションでOnResolveにAttackActionが渡される()
+        public void BeginPreparation_IsLocalTurnがfalseならIsLocalPreparationTurnもfalse()
         {
             GameModel model = new GameModel();
-            CardView attacker = CreateCard(attack: 3, defense: 1);
-            CardView target = CreateCard(attack: 1, defense: 2);
-            PendingAction resolvedAction = null;
-            model.OnResolve += (_, a) => resolvedAction = a;
+            model.EndTurn(); // IsLocalTurn = false
 
-            model.DoAction(attacker, new AttackAction(target)).GetAwaiter().GetResult();
-            model.DoAction(target, new PlayCardAction()).GetAwaiter().GetResult();
+            model.BeginPreparation();
 
-            Assert.IsInstanceOf<AttackAction>(resolvedAction);
-            Assert.AreEqual(target, ((AttackAction)resolvedAction).Target);
-        }
-
-        [Test]
-        public void DoAction_デッキ攻撃アクションでOnResolveにDeckAttackActionが渡される()
-        {
-            GameModel model = new GameModel();
-            CardView attacker = CreateCard(attack: 2, defense: 1);
-            DeckView deck = CreateDeck(5);
-            PendingAction resolvedAction = null;
-            model.OnResolve += (_, a) => resolvedAction = a;
-
-            model.DoAction(attacker, new DeckAttackAction(deck)).GetAwaiter().GetResult();
-            model.DoAction(CreateCard(), new PlayCardAction()).GetAwaiter().GetResult();
-
-            Assert.IsInstanceOf<DeckAttackAction>(resolvedAction);
-            Assert.AreEqual(deck, ((DeckAttackAction)resolvedAction).Target);
-        }
-
-        [Test]
-        public void DeckView_RemoveFromTop_指定枚数だけカードが減る()
-        {
-            DeckView deck = CreateDeck(5);
-
-            deck.RemoveFromTop(2);
-
-            Assert.AreEqual(3, deck.Count);
-        }
-
-        [Test]
-        public void DeckView_RemoveFromTop_残枚数を超えて指定しても0以下にならない()
-        {
-            DeckView deck = CreateDeck(3);
-
-            deck.RemoveFromTop(10);
-
-            Assert.AreEqual(0, deck.Count);
+            Assert.IsFalse(model.IsLocalPreparationTurn);
         }
     }
 }
