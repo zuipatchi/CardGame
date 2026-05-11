@@ -65,9 +65,17 @@ Unity 6 (6000.3.11f1) で開発するマルチプレイヤーカードゲーム�
 | セッション保持（Common） | [Assets/Scripts/Common/GameSession/GameSessionModel.cs](Assets/Scripts/Common/GameSession/GameSessionModel.cs) |
 | マッチングサービス | [Assets/Scripts/Matching/MatchingService.cs](Assets/Scripts/Matching/MatchingService.cs) |
 | マッチング DI 登録 | [Assets/Scripts/Matching/Injector/MatchingLifetimeScope.cs](Assets/Scripts/Matching/Injector/MatchingLifetimeScope.cs) |
-| カードデータ定義 | [Assets/Scripts/Main/Card/CardData.cs](Assets/Scripts/Main/Card/CardData.cs) |
+| カードデータ基底 | [Assets/Scripts/Main/Card/CardData.cs](Assets/Scripts/Main/Card/CardData.cs) |
+| キャラカードデータ | [Assets/Scripts/Main/Card/CharacterCardData.cs](Assets/Scripts/Main/Card/CharacterCardData.cs) |
+| 技カードデータ | [Assets/Scripts/Main/Card/SkillCardData.cs](Assets/Scripts/Main/Card/SkillCardData.cs) |
+| イベントカードデータ | [Assets/Scripts/Main/Card/EventCardData.cs](Assets/Scripts/Main/Card/EventCardData.cs) |
+| カードSO基底 | [Assets/Scripts/Main/Card/CardSO.cs](Assets/Scripts/Main/Card/CardSO.cs) |
+| キャラカードSO | [Assets/Scripts/Main/Card/CharacterCardSO.cs](Assets/Scripts/Main/Card/CharacterCardSO.cs) |
+| 技カードSO | [Assets/Scripts/Main/Card/SkillCardSO.cs](Assets/Scripts/Main/Card/SkillCardSO.cs) |
+| イベントカードSO | [Assets/Scripts/Main/Card/EventCardSO.cs](Assets/Scripts/Main/Card/EventCardSO.cs) |
 | カードDB（ScriptableObject） | [Assets/Scripts/Main/Card/CardDatabase.cs](Assets/Scripts/Main/Card/CardDatabase.cs) |
 | カード UI | [Assets/Scripts/Main/Card/CardView.cs](Assets/Scripts/Main/Card/CardView.cs) |
+| キャラスロット UI | [Assets/Scripts/Main/Card/CharacterSlotView.cs](Assets/Scripts/Main/Card/CharacterSlotView.cs) |
 | 手札 UI | [Assets/Scripts/Main/Card/HandView.cs](Assets/Scripts/Main/Card/HandView.cs) |
 | フィールド UI | [Assets/Scripts/Main/Card/FieldView.cs](Assets/Scripts/Main/Card/FieldView.cs) |
 | デッキ UI | [Assets/Scripts/Main/Card/DeckView.cs](Assets/Scripts/Main/Card/DeckView.cs) |
@@ -78,6 +86,7 @@ Unity 6 (6000.3.11f1) で開発するマルチプレイヤーカードゲーム�
 | カードアセットロード | [Assets/Scripts/Main/Card/CardStore.cs](Assets/Scripts/Main/Card/CardStore.cs) |
 | カード状態 | [Assets/Scripts/Main/Card/CardState.cs](Assets/Scripts/Main/Card/CardState.cs) |
 | ゲームロジック | [Assets/Scripts/Main/Game/GameModel.cs](Assets/Scripts/Main/Game/GameModel.cs) |
+| ターンフェーズ定義 | [Assets/Scripts/Main/Game/TurnPhase.cs](Assets/Scripts/Main/Game/TurnPhase.cs) |
 | アクション定義 | [Assets/Scripts/Main/Game/PendingAction.cs](Assets/Scripts/Main/Game/PendingAction.cs) |
 | CPU エージェント | [Assets/Scripts/Main/Game/CpuAgent.cs](Assets/Scripts/Main/Game/CpuAgent.cs) |
 | Main DI 登録 | [Assets/Scripts/Main/Injector/MainLifetimeScope.cs](Assets/Scripts/Main/Injector/MainLifetimeScope.cs) |
