@@ -44,6 +44,10 @@ namespace Main
         private Label _turnLabel;
         private VisualElement _resolveOverlay;
         private Label _resolveLabel;
+        private VisualElement _playerAtkCounterOverlay;
+        private Label _playerAtkCounterLabel;
+        private VisualElement _opponentAtkCounterOverlay;
+        private Label _opponentAtkCounterLabel;
         private VisualElement _dragLayer;
 
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
@@ -121,6 +125,26 @@ namespace Main
 
                 _playerFieldView = new FieldView();
                 playerFieldArea.Add(_playerFieldView);
+
+                _playerAtkCounterOverlay = new VisualElement();
+                _playerAtkCounterOverlay.AddToClassList("atk-counter-overlay");
+                _playerAtkCounterOverlay.pickingMode = PickingMode.Ignore;
+                _playerAtkCounterOverlay.style.display = DisplayStyle.None;
+                _playerAtkCounterLabel = new Label("0");
+                _playerAtkCounterLabel.pickingMode = PickingMode.Ignore;
+                _playerAtkCounterLabel.AddToClassList("atk-counter-label");
+                _playerAtkCounterOverlay.Add(_playerAtkCounterLabel);
+                _playerFieldView.Add(_playerAtkCounterOverlay);
+
+                _opponentAtkCounterOverlay = new VisualElement();
+                _opponentAtkCounterOverlay.AddToClassList("atk-counter-overlay");
+                _opponentAtkCounterOverlay.pickingMode = PickingMode.Ignore;
+                _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
+                _opponentAtkCounterLabel = new Label("0");
+                _opponentAtkCounterLabel.pickingMode = PickingMode.Ignore;
+                _opponentAtkCounterLabel.AddToClassList("atk-counter-label");
+                _opponentAtkCounterOverlay.Add(_opponentAtkCounterLabel);
+                _opponentFieldView.Add(_opponentAtkCounterOverlay);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
@@ -493,18 +517,18 @@ namespace Main
 
             // 両者の技カードを同時に表向き
             UniTask[] flipTasks = new UniTask[playerSkill.Count + opponentSkill.Count];
-            int idx = 0;
+            int flipIdx = 0;
             foreach (CardView c in playerSkill)
             {
-                flipTasks[idx++] = c.FlipAsync(ct);
+                flipTasks[flipIdx++] = c.FlipAsync(ct);
             }
             foreach (CardView c in opponentSkill)
             {
-                flipTasks[idx++] = c.FlipAsync(ct);
+                flipTasks[flipIdx++] = c.FlipAsync(ct);
             }
             await UniTask.WhenAll(flipTasks);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
             // ダメージ計算（ATK合計 - 相手DEF）
             int playerATK = playerSkill.Sum(c => c.Data.Attack);
@@ -512,6 +536,16 @@ namespace Main
             int damageToOpponent = Mathf.Max(0, playerATK - _opponentCharacterSlot.Defense);
             int damageToPlayer = Mathf.Max(0, opponentATK - _playerCharacterSlot.Defense);
 
+            // アニメーション①: ATKカウンター（両者同時）
+            await PlayAtkCounterAsync(playerATK, opponentATK, ct);
+
+            // アニメーション②: 技カードが相手デッキへ飛翔（両者同時）
+            await UniTask.WhenAll(
+                PlaySkillCardsAttackAsync(playerSkill, _playerFieldView, _opponentDeckView, ct),
+                PlaySkillCardsAttackAsync(opponentSkill, _opponentFieldView, _playerDeckView, ct)
+            );
+
+            // ダメージ適用
             if (damageToOpponent > 0)
             {
                 _opponentDeckView.RemoveFromTop(damageToOpponent);
@@ -525,18 +559,25 @@ namespace Main
             if (_opponentDeckView.Count == 0 || _playerDeckView.Count == 0)
             {
                 _isGameOver = true;
-                OnGameEnd(_opponentDeckView.Count == 0);
+                bool bothZero = _opponentDeckView.Count == 0 && _playerDeckView.Count == 0;
+                OnGameEnd(bothZero ? (bool?)null : _opponentDeckView.Count == 0);
             }
 
             // 全技カードを墓地へ
             foreach (CardView c in playerSkill)
             {
-                _playerFieldView.RemoveCard(c);
+                if (c.parent != null)
+                {
+                    c.RemoveFromHierarchy();
+                }
                 _playerGraveyardView.AddCard(c);
             }
             foreach (CardView c in opponentSkill)
             {
-                _opponentFieldView.RemoveCard(c);
+                if (c.parent != null)
+                {
+                    c.RemoveFromHierarchy();
+                }
                 _opponentGraveyardView.AddCard(c);
             }
         }
@@ -710,9 +751,10 @@ namespace Main
             _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
         }
 
-        private void OnGameEnd(bool playerWins)
+        private void OnGameEnd(bool? playerWins)
         {
-            Debug.Log(playerWins ? "あなたの勝ち！" : "CPU の勝ち！");
+            string message = playerWins == null ? "引き分け！" : playerWins.Value ? "あなたの勝ち！" : "CPU の勝ち！";
+            Debug.Log(message);
         }
 
         private async UniTask PlayTurnAnnouncementAsync(bool isLocalTurn, CancellationToken ct)
@@ -769,6 +811,151 @@ namespace Main
             catch (OperationCanceledException) { }
 
             _resolveOverlay.style.display = DisplayStyle.None;
+        }
+
+        private async UniTask PlayAtkCounterAsync(int playerAtk, int opponentAtk, CancellationToken ct)
+        {
+            const float countDuration = 0.8f;
+            const float holdDuration = 0.3f;
+            const float fadeDuration = 0.3f;
+
+            _playerAtkCounterOverlay.BringToFront();
+            _opponentAtkCounterOverlay.BringToFront();
+            _playerAtkCounterLabel.text = "0";
+            _opponentAtkCounterLabel.text = "0";
+            _playerAtkCounterOverlay.style.display = DisplayStyle.Flex;
+            _opponentAtkCounterOverlay.style.display = DisplayStyle.Flex;
+            _playerAtkCounterOverlay.style.opacity = 0f;
+            _opponentAtkCounterOverlay.style.opacity = 0f;
+
+            float playerVal = 0f;
+            float opponentVal = 0f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
+                .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
+                .Join(DOTween.To(() => playerVal, v => { playerVal = v; _playerAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)playerAtk, countDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => opponentVal, v => { opponentVal = v; _opponentAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)opponentAtk, countDuration).SetEase(Ease.OutQuad))
+                .AppendInterval(holdDuration)
+                .Append(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
+                .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            _playerAtkCounterOverlay.style.display = DisplayStyle.None;
+            _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
+        }
+
+        private async UniTask PlaySkillCardsAttackAsync(
+            List<CardView> cards, FieldView field, DeckView targetDeck, CancellationToken ct)
+        {
+            if (cards.Count == 0)
+            {
+                return;
+            }
+
+            const float windupDuration = 0.15f;
+            const float windupDistance = 50f;
+            const float flyDuration = 0.65f;
+            const float stagger = 0.12f;
+            const float knockbackDist = 35f;
+            const float knockbackDuration = 0.15f;
+
+            List<Rect> rects = cards.Select(c => c.worldBound).ToList();
+            foreach (CardView c in cards)
+            {
+                field.RemoveCard(c);
+            }
+
+            Vector2 toCenter = targetDeck.worldBound.center;
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CardView card = cards[i];
+                Rect rect = rects[i];
+                card.style.position = Position.Absolute;
+                card.style.left = rect.center.x - CardWidth / 2f;
+                card.style.top = rect.center.y - CardHeight / 2f;
+                card.style.width = StyleKeyword.Null;
+                card.style.height = StyleKeyword.Null;
+                card.style.rotate = new Rotate(new Angle(0f, AngleUnit.Degree));
+                card.style.scale = new Scale(Vector3.one);
+                card.style.transformOrigin = StyleKeyword.Null;
+                card.style.marginLeft = StyleKeyword.Null;
+                card.style.marginRight = StyleKeyword.Null;
+                _dragLayer.Add(card);
+            }
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence masterSeq = DOTween.Sequence();
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CardView card = cards[i];
+                Vector2 fromCenter = rects[i].center;
+                Vector2 dir = (toCenter - fromCenter).normalized;
+                float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+
+                Vector2 windupCenter = fromCenter - dir * windupDistance;
+                float windupLeft = windupCenter.x - CardWidth / 2f;
+                float windupTop = windupCenter.y - CardHeight / 2f;
+                float targetLeft = toCenter.x - CardWidth / 2f;
+                float targetTop = toCenter.y - CardHeight / 2f;
+                float rotAngle = 0f;
+
+                // Phase 1: 予備動作（後退 + デッキ方向を向く）
+                Sequence cardSeq = DOTween.Sequence()
+                    .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, windupDuration).SetEase(Ease.OutSine))
+                    .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, windupDuration).SetEase(Ease.OutSine))
+                    .Join(DOTween.To(() => rotAngle, v =>
+                    {
+                        rotAngle = v;
+                        card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
+                    }, facingAngle, windupDuration).SetEase(Ease.OutSine));
+
+                // Phase 2: 直線突撃
+                cardSeq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
+                cardSeq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
+
+                // Phase 3: ノックバック（着弾後に跳ね返る）
+                float kbT = 0f;
+                Vector2 kbEnd = toCenter - dir * knockbackDist;
+                cardSeq.Append(DOTween.To(() => kbT, v =>
+                {
+                    kbT = v;
+                    Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
+                    card.style.left = pos.x - CardWidth / 2f;
+                    card.style.top = pos.y - CardHeight / 2f;
+                }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
+
+                // 両サイドの1枚目は同時、以降はずらす
+                masterSeq.Insert(stagger * i, cardSeq);
+            }
+
+            masterSeq.OnComplete(() => tcs.TrySetResult());
+            ct.Register(() => { masterSeq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            foreach (CardView card in cards)
+            {
+                if (card.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(card);
+                }
+            }
         }
 
         private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct)
