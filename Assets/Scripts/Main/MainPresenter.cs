@@ -852,7 +852,6 @@ namespace Main
             const float windupDuration = 0.15f;
             const float windupDistance = 50f;
             const float flyDuration = 0.65f;
-            const float stagger = 0.12f;
             const float knockbackDist = 35f;
             const float knockbackDuration = 0.15f;
 
@@ -923,8 +922,7 @@ namespace Main
                     card.style.top = pos.y - CardHeight / 2f;
                 }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
 
-                // 両サイドの1枚目は同時、以降はずらす
-                masterSeq.Insert(stagger * i, cardSeq);
+                masterSeq.Append(cardSeq);
             }
 
             masterSeq.OnComplete(() => tcs.TrySetResult());
