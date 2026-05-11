@@ -226,21 +226,17 @@ namespace Main
         {
             try
             {
-                bool isLocalTurn = true;
                 while (!_isGameOver)
                 {
-                    await RunTurnAsync(isLocalTurn, ct);
-                    if (!_isGameOver)
-                    {
-                        isLocalTurn = !isLocalTurn;
-                    }
+                    await RunTurnAsync(ct);
                 }
             }
             catch (OperationCanceledException) { }
         }
 
-        private async UniTask RunTurnAsync(bool isLocalTurn, CancellationToken ct)
+        private async UniTask RunTurnAsync(CancellationToken ct)
         {
+            bool isLocalTurn = _gameModel.IsLocalTurn;
             await RunDrawPhaseAsync(isLocalTurn, ct);
             if (_isGameOver)
             {
@@ -368,7 +364,7 @@ namespace Main
             _prepInputTcs = new UniTaskCompletionSource<CardView>();
             _stagedPrepCard = null;
             ShowActionButtons();
-            UpdatePrepButtons();
+            UpdateStagedButtons(_stagedPrepCard != null);
 
             try
             {
@@ -384,7 +380,7 @@ namespace Main
 
         private async UniTask RunResolutionPhaseAsync(CancellationToken ct)
         {
-            IReadOnlyList<(CardView Card, ReadyAction Action)> queue = _gameModel.ReadyQueue;
+            IReadOnlyList<CardView> queue = _gameModel.ReadyQueue;
             if (queue.Count == 0)
             {
                 return;
@@ -394,7 +390,7 @@ namespace Main
 
             for (int i = queue.Count - 1; i >= 0; i--)
             {
-                CardView card = queue[i].Card;
+                CardView card = queue[i];
                 card.SetState(CardState.Resolve);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
@@ -468,7 +464,7 @@ namespace Main
             _preBattleInputTcs = new UniTaskCompletionSource<CardView>();
             _stagedPreBattleCard = null;
             ShowActionButtons();
-            UpdatePreBattleButtons();
+            UpdateStagedButtons(_stagedPreBattleCard != null);
 
             try
             {
@@ -616,7 +612,7 @@ namespace Main
                 }
 
                 _stagedPrepCard = card;
-                UpdatePrepButtons();
+                UpdateStagedButtons(_stagedPrepCard != null);
                 return true;
             }
 
@@ -632,7 +628,7 @@ namespace Main
                 {
                     _stagedPreBattleCard = card;
                     card.FlipAsync(destroyCancellationToken).Forget();
-                    UpdatePreBattleButtons();
+                    UpdateStagedButtons(_stagedPreBattleCard != null);
                 }
                 return placed;
             }
@@ -684,7 +680,7 @@ namespace Main
 
                     _handView.AddCardBackAsync(_stagedPrepCard, rect, destroyCancellationToken).Forget();
                     _stagedPrepCard = null;
-                    UpdatePrepButtons();
+                    UpdateStagedButtons(_stagedPrepCard != null);
                     return;
                 }
 
@@ -703,7 +699,7 @@ namespace Main
                     _stagedPreBattleCard = null;
                     card.FlipAsync(destroyCancellationToken).Forget();
                     _handView.AddCardBackAsync(card, rect, destroyCancellationToken).Forget();
-                    UpdatePreBattleButtons();
+                    UpdateStagedButtons(_stagedPreBattleCard != null);
                 }
             }
         }
@@ -724,18 +720,8 @@ namespace Main
 
         // ─── UI ヘルパー ─────────────────────────────────────────────────
 
-        private void UpdatePreBattleButtons()
+        private void UpdateStagedButtons(bool hasStaged)
         {
-            bool hasStaged = _stagedPreBattleCard != null;
-            _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
-            _backButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
-            _okButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
-        }
-
-        // 準備フェーズ待機中の表示：カードなし→パスのみ、カードあり→OK＋戻る
-        private void UpdatePrepButtons()
-        {
-            bool hasStaged = _stagedPrepCard != null;
             _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
             _backButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
             _okButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
@@ -769,6 +755,7 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--player");
             _turnLabel.RemoveFromClassList("turn-announcement-label--enemy");
             _turnLabel.RemoveFromClassList("turn-announcement-label--skill");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
             _turnLabel.AddToClassList(labelClass);
 
             _turnOverlay.style.display = DisplayStyle.Flex;

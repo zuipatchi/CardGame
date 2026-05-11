@@ -39,7 +39,7 @@ namespace Tests.EditMode
             model.ReadyCard(card);
 
             Assert.AreEqual(1, model.ReadyQueue.Count);
-            Assert.AreEqual(card, model.ReadyQueue[0].Card);
+            Assert.AreEqual(card, model.ReadyQueue[0]);
         }
 
         [Test]

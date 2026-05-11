@@ -11,11 +11,10 @@ namespace Main.Game
         // 準備フェーズでローカルプレイヤーが行動する番か
         public bool IsLocalPreparationTurn { get; private set; }
 
-        private readonly List<(CardView Card, ReadyAction Action)> _readyQueue =
-            new List<(CardView Card, ReadyAction Action)>();
+        private readonly List<CardView> _readyQueue = new List<CardView>();
         private int _consecutivePasses;
 
-        public IReadOnlyList<(CardView Card, ReadyAction Action)> ReadyQueue => _readyQueue;
+        public IReadOnlyList<CardView> ReadyQueue => _readyQueue;
 
         public void BeginPreparation()
         {
@@ -28,7 +27,7 @@ namespace Main.Game
         {
             _consecutivePasses = 0;
             card.SetState(CardState.Ready);
-            _readyQueue.Add((card, new ReadyAction()));
+            _readyQueue.Add(card);
             IsLocalPreparationTurn = !IsLocalPreparationTurn;
         }
 
