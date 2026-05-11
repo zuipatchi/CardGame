@@ -309,7 +309,7 @@ RunBattlePhaseAsync
   → 技カードが1枚でもあれば "FIGHT" 演出
   → 全技カードを同時に表向き
   → PlayAtkCounterAsync: 両フィールドに 0→ATK合計 のカウントアップ表示（両者同時）
-  → PlaySkillCardsAttackAsync: 技カードが相手デッキへ突撃（両者同時、複数枚はスタガー）
+  → PlaySkillCardsAttackAsync: 技カードが相手デッキへ突撃（両者同時、複数枚は1枚ずつ逐次）
   → ダメージ適用 → 両デッキ同時0なら引き分け、片方0なら勝敗確定 → 墓地へ
 ```
 
@@ -317,7 +317,7 @@ RunBattlePhaseAsync
 - Phase 1 予備動作（0.15秒）: 後退 50px しながらデッキ方向へ向く（`Atan2` で回転角計算）
 - Phase 2 突撃（0.65秒、InCubic）: 直線でデッキ中央へ加速
 - Phase 3 ノックバック（0.15秒、OutQuad）: 着弾後 35px 跳ね返る
-- 複数枚は 0.12 秒ずつスタガー（`Sequence.Insert`）、両サイド1枚目は同時発動
+- 複数枚は逐次実行（`Sequence.Append`）。1枚のアニメーション完了後に次のカードが攻撃開始
 
 **フライアニメーション（FlyCardToDestAsync）:**
 - `worldBound` をカード除去前にキャプチャ
