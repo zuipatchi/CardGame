@@ -107,16 +107,24 @@
 .main-player-character-area {
     position: absolute;
     left: 32px;
-    bottom: 32px;
-    scale: 0.6 0.6;
-    transform-origin: left bottom;
+    top: 50%;
+    bottom: 0;
+    flex-direction: column;
+    justify-content: center;
+    overflow: visible;
+    scale: 0.9 0.9;
+    transform-origin: left center;
 }
 
 .main-opponent-character-area {
     position: absolute;
     right: 32px;
-    top: 32px;
-    scale: 0.6 0.6;
+    top: 0;
+    bottom: 50%;
+    flex-direction: column;
+    justify-content: center;
+    overflow: visible;
+    scale: 0.9 0.9;
     rotate: 180deg;
     transform-origin: center center;
 }
