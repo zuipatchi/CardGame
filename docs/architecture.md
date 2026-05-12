@@ -214,10 +214,13 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ### カードシステム
 
 ```
-CardData              [Serializable] 抽象基底クラス。id / name / cost / Attack / Defense / image(Sprite)
+CardData              抽象基底クラス。id / name / cost / Attack / Defense / image(Sprite)
   CharacterCardData   キャラカード。Defense 値を保持。戦闘前1フェーズまたはキャラセットフェーズでスロット/フィールドに配置
   SkillCardData       技カード。Damage（= Attack）値を保持。戦闘前1フェーズで裏向きフィールドに配置
-  EventCardData       イベントカード。戦闘前2フェーズで Ready 化、解決フェーズで効果発動後に墓地へ
+  EventCardData       イベントカード。EffectType（None/AtkBoost）と EffectValue を保持
+                      戦闘前2フェーズで Ready 化、解決フェーズで効果を適用後に墓地へ
+
+EffectType        enum。None / AtkBoost（解決フェーズで次の戦闘フェーズまで ATK を加算）
 
 CharacterCardSO / SkillCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
 
