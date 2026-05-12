@@ -208,14 +208,12 @@
     right: 32px;
     bottom: 210px;
     width: 386px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
+    height: 88px;
     display: none;
 }
 
 .main-action-buttons-area--visible {
-    display: flex;
+    display: block;
 }
 
 .action-button {
@@ -242,6 +240,9 @@
 }
 
 .action-button--pass {
+    position: absolute;
+    right: 0;
+    top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/PassButton.png");
     -unity-background-scale-mode: scale-to-fit;
@@ -252,6 +253,9 @@
 }
 
 .action-button--ok {
+    position: absolute;
+    right: 0;
+    top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/OKButtn.png");
     -unity-background-scale-mode: scale-to-fit;
@@ -262,6 +266,9 @@
 }
 
 .action-button--back {
+    position: absolute;
+    right: 108px;
+    top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/ReturnButtn.png");
     -unity-background-scale-mode: scale-to-fit;
