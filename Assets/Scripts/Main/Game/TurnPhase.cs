@@ -2,10 +2,11 @@ namespace Main.Game
 {
     public enum TurnPhase
     {
+        CharacterSet,
         Draw,
-        Preparation,
+        PreBattle1,
+        PreBattle2,
         Resolution,
-        PreBattle,
         Battle,
     }
 }

@@ -20,11 +20,30 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void BeginPreparation_IsLocalTurnがtrueならIsLocalPreparationTurnもtrue()
+        public void 初期PhaseはCharacterSetである()
         {
             GameModel model = new GameModel();
 
-            model.BeginPreparation();
+            Assert.AreEqual(TurnPhase.CharacterSet, model.Phase);
+        }
+
+        [Test]
+        public void BeginCharacterSet_PhaseがCharacterSetになる()
+        {
+            GameModel model = new GameModel();
+            model.BeginPreBattle2();
+
+            model.BeginCharacterSet();
+
+            Assert.AreEqual(TurnPhase.CharacterSet, model.Phase);
+        }
+
+        [Test]
+        public void BeginPreBattle2_IsLocalTurnがtrueならIsLocalPreparationTurnもtrue()
+        {
+            GameModel model = new GameModel();
+
+            model.BeginPreBattle2();
 
             Assert.IsTrue(model.IsLocalPreparationTurn);
         }
@@ -33,7 +52,7 @@ namespace Tests.EditMode
         public void ReadyCard_ReadyQueueにカードが追加される()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
             CardView card = MakeCard();
 
             model.ReadyCard(card);
@@ -46,7 +65,7 @@ namespace Tests.EditMode
         public void ReadyCard_カードがReady状態になる()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
             CardView card = MakeCard();
 
             model.ReadyCard(card);
@@ -58,7 +77,7 @@ namespace Tests.EditMode
         public void ReadyCard_IsLocalPreparationTurnが反転する()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
             bool before = model.IsLocalPreparationTurn;
 
             model.ReadyCard(MakeCard());
@@ -67,10 +86,10 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void Pass_1回パスしても準備フェーズは終わらない()
+        public void Pass_1回パスしても戦闘前2フェーズは終わらない()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
 
             bool ended = model.Pass();
 
@@ -78,10 +97,10 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void Pass_2連続パスで準備フェーズが終わる()
+        public void Pass_2連続パスで戦闘前2フェーズが終わる()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
 
             model.Pass();
             bool ended = model.Pass();
@@ -93,7 +112,7 @@ namespace Tests.EditMode
         public void Pass_カードをReadyにすると連続パスカウントがリセットされる()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
 
             model.Pass(); // 1回パス
             model.ReadyCard(MakeCard()); // Ready → カウントリセット
@@ -119,7 +138,7 @@ namespace Tests.EditMode
         public void EndTurn_ReadyQueueがクリアされる()
         {
             GameModel model = new GameModel();
-            model.BeginPreparation();
+            model.BeginPreBattle2();
             model.ReadyCard(MakeCard());
 
             model.EndTurn();
@@ -128,12 +147,12 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void BeginPreparation_IsLocalTurnがfalseならIsLocalPreparationTurnもfalse()
+        public void BeginPreBattle2_IsLocalTurnがfalseならIsLocalPreparationTurnもfalse()
         {
             GameModel model = new GameModel();
             model.EndTurn(); // IsLocalTurn = false
 
-            model.BeginPreparation();
+            model.BeginPreBattle2();
 
             Assert.IsFalse(model.IsLocalPreparationTurn);
         }

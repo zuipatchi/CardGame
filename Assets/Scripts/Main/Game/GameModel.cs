@@ -5,10 +5,10 @@ namespace Main.Game
 {
     public sealed class GameModel
     {
-        public TurnPhase Phase { get; private set; } = TurnPhase.Draw;
+        public TurnPhase Phase { get; private set; } = TurnPhase.CharacterSet;
         public bool IsLocalTurn { get; private set; } = true;
 
-        // 準備フェーズでローカルプレイヤーが行動する番か
+        // 戦闘前2フェーズでローカルプレイヤーが行動する番か
         public bool IsLocalPreparationTurn { get; private set; }
 
         private readonly List<CardView> _readyQueue = new List<CardView>();
@@ -16,9 +16,13 @@ namespace Main.Game
 
         public IReadOnlyList<CardView> ReadyQueue => _readyQueue;
 
-        public void BeginPreparation()
+        public void BeginCharacterSet() { Phase = TurnPhase.CharacterSet; }
+
+        public void BeginPreBattle1() { Phase = TurnPhase.PreBattle1; }
+
+        public void BeginPreBattle2()
         {
-            Phase = TurnPhase.Preparation;
+            Phase = TurnPhase.PreBattle2;
             IsLocalPreparationTurn = IsLocalTurn;
             _consecutivePasses = 0;
         }
@@ -31,7 +35,7 @@ namespace Main.Game
             IsLocalPreparationTurn = !IsLocalPreparationTurn;
         }
 
-        // 2連続パスで true を返す（準備フェーズ終了）
+        // 2連続パスで true を返す（戦闘前2フェーズ終了）
         public bool Pass()
         {
             _consecutivePasses++;
@@ -40,7 +44,6 @@ namespace Main.Game
         }
 
         public void BeginResolution() { Phase = TurnPhase.Resolution; }
-        public void BeginPreBattle() { Phase = TurnPhase.PreBattle; }
         public void BeginBattle() { Phase = TurnPhase.Battle; }
 
         public void EndTurn()

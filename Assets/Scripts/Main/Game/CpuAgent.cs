@@ -5,23 +5,17 @@ namespace Main.Game
 {
     public sealed class CpuAgent
     {
-        // 準備フェーズ：Ready にするカードのインデックスを返す。なければ -1（パス）
-        public static int ChooseCardToReadyIndex(IReadOnlyList<CardData> hand)
+        // 戦闘前1フェーズ：キャラカード優先、なければ技カードのインデックスを返す
+        public static int ChoosePreBattle1CardIndex(IReadOnlyList<CardData> hand)
         {
             for (int i = 0; i < hand.Count; i++)
             {
-                if (hand[i] is CharacterCardData || hand[i] is EventCardData)
+                if (hand[i] is CharacterCardData)
                 {
                     return i;
                 }
             }
 
-            return -1;
-        }
-
-        // 戦闘前フェーズ：プレイする技カード1枚のインデックスを返す。なければ -1（パス）
-        public static int ChooseSkillCardIndex(IReadOnlyList<CardData> hand)
-        {
             for (int i = 0; i < hand.Count; i++)
             {
                 if (hand[i] is SkillCardData)
@@ -33,19 +27,18 @@ namespace Main.Game
             return -1;
         }
 
-        // 戦闘前フェーズ：プレイする技カードのインデックスリストを返す
-        public static List<int> ChooseSkillCardIndices(IReadOnlyList<CardData> hand)
+        // 戦闘前2フェーズ：イベントカードのインデックスを返す。なければ -1（パス）
+        public static int ChooseEventCardIndex(IReadOnlyList<CardData> hand)
         {
-            List<int> result = new List<int>();
             for (int i = 0; i < hand.Count; i++)
             {
-                if (hand[i] is SkillCardData)
+                if (hand[i] is EventCardData)
                 {
-                    result.Add(i);
+                    return i;
                 }
             }
 
-            return result;
+            return -1;
         }
     }
 }
