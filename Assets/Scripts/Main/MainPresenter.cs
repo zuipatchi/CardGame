@@ -48,8 +48,10 @@ namespace Main
         private Label _resolveLabel;
         private VisualElement _playerAtkCounterOverlay;
         private Label _playerAtkCounterLabel;
+        private Label _playerDamageFormulaLabel;
         private VisualElement _opponentAtkCounterOverlay;
         private Label _opponentAtkCounterLabel;
+        private Label _opponentDamageFormulaLabel;
         private VisualElement _dragLayer;
 
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
@@ -140,6 +142,10 @@ namespace Main
                 _playerAtkCounterLabel.pickingMode = PickingMode.Ignore;
                 _playerAtkCounterLabel.AddToClassList("atk-counter-label");
                 _playerAtkCounterOverlay.Add(_playerAtkCounterLabel);
+                _playerDamageFormulaLabel = new Label();
+                _playerDamageFormulaLabel.pickingMode = PickingMode.Ignore;
+                _playerDamageFormulaLabel.AddToClassList("atk-counter-damage-label");
+                _playerAtkCounterOverlay.Add(_playerDamageFormulaLabel);
                 _playerFieldView.Add(_playerAtkCounterOverlay);
 
                 _opponentAtkCounterOverlay = new VisualElement();
@@ -150,6 +156,10 @@ namespace Main
                 _opponentAtkCounterLabel.pickingMode = PickingMode.Ignore;
                 _opponentAtkCounterLabel.AddToClassList("atk-counter-label");
                 _opponentAtkCounterOverlay.Add(_opponentAtkCounterLabel);
+                _opponentDamageFormulaLabel = new Label();
+                _opponentDamageFormulaLabel.pickingMode = PickingMode.Ignore;
+                _opponentDamageFormulaLabel.AddToClassList("atk-counter-damage-label");
+                _opponentAtkCounterOverlay.Add(_opponentDamageFormulaLabel);
                 _opponentFieldView.Add(_opponentAtkCounterOverlay);
 
                 _opponentHandView = new HandView(
@@ -539,7 +549,7 @@ namespace Main
             int damageToPlayer = Mathf.Max(0, opponentATK - _playerCharacterSlot.Defense);
 
             // アニメーション①: ATKカウンター（両者同時）
-            await PlayAtkCounterAsync(playerATK, opponentATK, ct);
+            await PlayAtkCounterAsync(playerATK, opponentATK, _opponentCharacterSlot.Defense, _playerCharacterSlot.Defense, damageToOpponent, damageToPlayer, ct);
 
             // アニメーション②: 技カードが相手デッキへ飛翔（両者同時）
             await UniTask.WhenAll(
@@ -806,16 +816,23 @@ namespace Main
             _resolveOverlay.style.display = DisplayStyle.None;
         }
 
-        private async UniTask PlayAtkCounterAsync(int playerAtk, int opponentAtk, CancellationToken ct)
+        private async UniTask PlayAtkCounterAsync(
+            int playerAtk, int opponentAtk,
+            int opponentDef, int playerDef,
+            int damageToOpponent, int damageToPlayer,
+            CancellationToken ct)
         {
             const float countDuration = 0.8f;
             const float holdDuration = 0.3f;
+            const float formulaHoldDuration = 0.8f;
             const float fadeDuration = 0.3f;
 
             _playerAtkCounterOverlay.BringToFront();
             _opponentAtkCounterOverlay.BringToFront();
             _playerAtkCounterLabel.text = "0";
             _opponentAtkCounterLabel.text = "0";
+            _playerDamageFormulaLabel.text = string.Empty;
+            _opponentDamageFormulaLabel.text = string.Empty;
             _playerAtkCounterOverlay.style.display = DisplayStyle.Flex;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.Flex;
             _playerAtkCounterOverlay.style.opacity = 0f;
@@ -824,14 +841,34 @@ namespace Main
             float playerVal = 0f;
             float opponentVal = 0f;
 
+            bool showPlayerFormula = opponentDef > 0;
+            bool showOpponentFormula = playerDef > 0;
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => playerVal, v => { playerVal = v; _playerAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)playerAtk, countDuration).SetEase(Ease.OutQuad))
                 .Join(DOTween.To(() => opponentVal, v => { opponentVal = v; _opponentAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)opponentAtk, countDuration).SetEase(Ease.OutQuad))
-                .AppendInterval(holdDuration)
-                .Append(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
+                .AppendInterval(holdDuration);
+
+            if (showPlayerFormula || showOpponentFormula)
+            {
+                seq.AppendCallback(() =>
+                {
+                    if (showPlayerFormula)
+                    {
+                        _playerDamageFormulaLabel.text = $"{playerAtk} - {opponentDef} = {damageToOpponent}";
+                    }
+                    if (showOpponentFormula)
+                    {
+                        _opponentDamageFormulaLabel.text = $"{opponentAtk} - {playerDef} = {damageToPlayer}";
+                    }
+                })
+                .AppendInterval(formulaHoldDuration);
+            }
+
+            seq.Append(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
                 .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
                 .OnComplete(() => tcs.TrySetResult());
 

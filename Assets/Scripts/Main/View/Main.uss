@@ -369,6 +369,7 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .atk-counter-label {
@@ -376,5 +377,13 @@
     -unity-font-style: bold;
     color: rgb(255, 220, 50);
     -unity-text-outline-width: 6px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.atk-counter-damage-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(255, 100, 50);
+    -unity-text-outline-width: 3px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
