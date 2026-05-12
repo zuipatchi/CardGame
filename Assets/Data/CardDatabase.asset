@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CardDatabase
   _characterCards: {fileID: 11400000, guid: 8fd3182ad1f35424d8a89d7fe75fa888, type: 2}
   _skillCards: {fileID: 11400000, guid: 9054c3034f70db648abafd72e3f697cf, type: 2}
-  _eventCards: {fileID: 0}
+  _eventCards: {fileID: 11400000, guid: 87f1627760303df4cb698f4aaa701a5c, type: 2}

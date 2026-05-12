@@ -57,6 +57,9 @@ namespace Main
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
 
+        private int _playerAtkBoost;
+        private int _opponentAtkBoost;
+
         // キャラセットフェーズの入力待ち（null=パス、card=スロットに置くカード）
         private UniTaskCompletionSource<CardView> _charSetInputTcs;
         private CardView _stagedCharSetCard;
@@ -389,6 +392,8 @@ namespace Main
                     _cpuCards.Add(cards[cards.Count - 1]);
                 }
             }
+
+            CheckGameOver();
         }
 
         // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────
@@ -548,6 +553,11 @@ namespace Main
                 }
                 else
                 {
+                    if (card.Data is EventCardData eventData)
+                    {
+                        ApplyEventEffect(eventData, isLocal);
+                    }
+
                     FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
                     field.RemoveCard(card);
                     GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
@@ -555,6 +565,23 @@ namespace Main
                 }
 
                 card.SetState(CardState.Normal);
+            }
+        }
+
+        private void ApplyEventEffect(EventCardData data, bool isLocal)
+        {
+            switch (data.EffectType)
+            {
+                case EffectType.AtkBoost:
+                    if (isLocal)
+                    {
+                        _playerAtkBoost += data.EffectValue;
+                    }
+                    else
+                    {
+                        _opponentAtkBoost += data.EffectValue;
+                    }
+                    break;
             }
         }
 
@@ -615,8 +642,8 @@ namespace Main
 
             if (playerSkill.Count > 0 || opponentSkill.Count > 0)
             {
-                int playerATK = playerSkill.Sum(c => c.Data.Attack);
-                int opponentATK = opponentSkill.Sum(c => c.Data.Attack);
+                int playerATK = playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost;
+                int opponentATK = opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost;
                 int damageToOpponent = Mathf.Max(0, playerATK - _opponentCharacterSlot.Defense);
                 int damageToPlayer = Mathf.Max(0, opponentATK - _playerCharacterSlot.Defense);
 
@@ -635,14 +662,12 @@ namespace Main
                 {
                     _playerDeckView.RemoveFromTop(damageToPlayer);
                 }
-
-                if (_opponentDeckView.Count == 0 || _playerDeckView.Count == 0)
-                {
-                    _isGameOver = true;
-                    bool bothZero = _opponentDeckView.Count == 0 && _playerDeckView.Count == 0;
-                    OnGameEnd(bothZero ? (bool?)null : _opponentDeckView.Count == 0);
-                }
             }
+
+            _playerAtkBoost = 0;
+            _opponentAtkBoost = 0;
+
+            CheckGameOver();
 
             // 技カードを墓地へ（キャラカードはスロット済み）
             foreach (CardView c in playerSkill)
@@ -855,6 +880,16 @@ namespace Main
         private void HideActionButtons()
         {
             _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
+        }
+
+        private void CheckGameOver()
+        {
+            if (_opponentDeckView.Count == 0 || _playerDeckView.Count == 0)
+            {
+                _isGameOver = true;
+                bool bothZero = _opponentDeckView.Count == 0 && _playerDeckView.Count == 0;
+                OnGameEnd(bothZero ? (bool?)null : _opponentDeckView.Count == 0);
+            }
         }
 
         private void OnGameEnd(bool? playerWins)
