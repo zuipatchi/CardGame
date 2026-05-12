@@ -16,6 +16,7 @@ namespace DeckBuilder
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
         private DeckModel _deckModel;
+        private DeckRepository _deckRepository;
         private SceneTransitioner _sceneTransitioner;
 
         private ScrollView _cardListScrollView;
@@ -28,11 +29,13 @@ namespace DeckBuilder
             CardStore cardStore,
             CardDatabase cardDatabase,
             DeckModel deckModel,
+            DeckRepository deckRepository,
             SceneTransitioner sceneTransitioner)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
+            _deckRepository = deckRepository;
             _sceneTransitioner = sceneTransitioner;
         }
 
@@ -58,6 +61,7 @@ namespace DeckBuilder
                 _startButton.clicked += OnStartClicked;
 
                 _deckModel.Clear();
+                _deckRepository.Load(_deckModel);
 
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
@@ -93,6 +97,7 @@ namespace DeckBuilder
 
         private void OnStartClicked()
         {
+            _deckRepository.Save(_deckModel);
             _startButton.SetEnabled(false);
             _sceneTransitioner.Transit(Scenes.Main).Forget();
         }

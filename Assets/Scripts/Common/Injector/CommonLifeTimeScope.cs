@@ -15,6 +15,7 @@ namespace Common.Injector
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<DeckModel>(Lifetime.Singleton).AsSelf();
+            builder.Register<DeckRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<ModalStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponentInHierarchy<OptionPresenter>().AsSelf();
