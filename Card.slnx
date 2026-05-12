@@ -32,6 +32,7 @@
   <Project Path="Unity.VisualStudio.Editor.csproj" />
   <Project Path="Unity.Services.Authentication.csproj" />
   <Project Path="Unity.InputSystem.csproj" />
+  <Project Path="Common.csproj" />
   <Project Path="PPv2URPConverters.csproj" />
   <Project Path="Unity.Services.QoS.csproj" />
   <Project Path="Unity.Services.Authentication.Editor.csproj" />
@@ -108,7 +109,6 @@
   <Project Path="Unity.ShaderGraph.Utilities.csproj" />
   <Project Path="Unity.VisualScripting.Shared.Editor.csproj" />
   <Project Path="R3.Unity.TextMeshPro.csproj" />
-  <Project Path="Common.csproj" />
   <Project Path="Unity.Profiling.Core.csproj" />
   <Project Path="Unity.Services.Core.Device.csproj" />
   <Project Path="Unity.Services.Core.Analytics.csproj" />
@@ -116,6 +116,7 @@
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Services.Authentication.Editor.Shared.csproj" />
   <Project Path="UniTask.Editor.csproj" />
+  <Project Path="DeckBuilder.csproj" />
   <Project Path="Unity.Services.Core.Registration.csproj" />
   <Project Path="Title.csproj" />
   <Project Path="Tests.PlayMode.csproj" />
