@@ -23,6 +23,7 @@ namespace DeckBuilder
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
         private Button _startButton;
+        private bool _started;
 
         [Inject]
         public void Construct(
@@ -41,6 +42,11 @@ namespace DeckBuilder
 
         void IStartable.Start()
         {
+            if (_started)
+            {
+                return;
+            }
+            _started = true;
             BuildAsync().Forget();
         }
 

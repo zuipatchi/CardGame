@@ -328,7 +328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DeckBuilder::DeckBuilderLifetimeScope
   parentReference:
     TypeName: Common.Injector.CommonLifetimeScope
-  autoRun: 1
+  autoRun: 0
   autoInjectGameObjects: []
   _cardDatabase: {fileID: 11400000, guid: d84503d125c0df7499d68ac2cd715f5a, type: 2}
 --- !u!1 &1203855641
