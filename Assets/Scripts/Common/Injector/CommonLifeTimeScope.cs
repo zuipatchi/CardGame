@@ -1,3 +1,4 @@
+using Common.Deck;
 using Common.GameSession;
 using Common.Option;
 using Common.SceneManagement;
@@ -13,6 +14,7 @@ namespace Common.Injector
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<DeckModel>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<ModalStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponentInHierarchy<OptionPresenter>().AsSelf();

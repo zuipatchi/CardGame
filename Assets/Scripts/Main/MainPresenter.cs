@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common.Deck;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Main.Card;
@@ -24,6 +25,7 @@ namespace Main
 
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
+        private DeckModel _deckModel;
         private GameModel _gameModel;
 
         private HandView _handView;
@@ -63,10 +65,11 @@ namespace Main
         private bool _isLocalPreBattleActive;
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase, GameModel gameModel)
+        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, GameModel gameModel)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
+            _deckModel = deckModel;
             _gameModel = gameModel;
         }
 
@@ -102,9 +105,12 @@ namespace Main
                 mainRoot.Add(_dragLayer);
 
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
-                int handSize = Mathf.Min(InitialHandSize, allCards.Length);
+                CardData[] playerDeckFull = _deckModel.Count > 0
+                    ? _cardDatabase.BuildDeck(_deckModel.CardIds)
+                    : allCards;
+                int handSize = Mathf.Min(InitialHandSize, playerDeckFull.Length);
 
-                CardData[] playerShuffled = Shuffle((CardData[])allCards.Clone());
+                CardData[] playerShuffled = Shuffle((CardData[])playerDeckFull.Clone());
                 CardData[] playerHandCards = playerShuffled.Take(handSize).ToArray();
                 CardData[] playerDeckCards = playerShuffled.Skip(handSize).ToArray();
 

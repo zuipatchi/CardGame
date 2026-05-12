@@ -1,0 +1,23 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="DeckBuilder.uss" />
+    <ui:VisualElement name="DeckBuilderRoot" class="deckbuilder-root">
+        <ui:Label name="TitleLabel" class="deckbuilder-title" text="デッキ構築" />
+        <ui:VisualElement class="deckbuilder-content">
+            <ui:VisualElement class="deckbuilder-card-list-panel">
+                <ui:Label class="deckbuilder-panel-title" text="カード一覧" />
+                <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
+            </ui:VisualElement>
+            <ui:VisualElement class="deckbuilder-deck-panel">
+                <ui:VisualElement class="deckbuilder-deck-header">
+                    <ui:Label class="deckbuilder-panel-title" text="デッキ" />
+                    <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/20" />
+                </ui:VisualElement>
+                <ui:ScrollView name="DeckListScrollView" class="deckbuilder-deck-scroll" />
+                <ui:VisualElement class="deckbuilder-buttons">
+                    <ui:Button name="BackButton" class="deckbuilder-button deckbuilder-button--back" text="もどる" />
+                    <ui:Button name="StartButton" class="deckbuilder-button deckbuilder-button--start" text="はじめる" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
