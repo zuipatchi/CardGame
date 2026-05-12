@@ -4,7 +4,6 @@
     background-color: rgba(10, 10, 30, 0.97);
     flex-direction: column;
     padding: 24px;
-    gap: 16px;
 }
 
 .deckbuilder-title {
@@ -14,24 +13,25 @@
     -unity-text-align: middle-center;
     -unity-text-outline-width: 2px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 16px;
 }
 
 .deckbuilder-content {
     flex-grow: 1;
     flex-direction: row;
-    gap: 16px;
 }
 
 .deckbuilder-card-list-panel {
     flex-grow: 1;
     flex-direction: column;
-    gap: 8px;
+    margin-right: 32px;
 }
 
 .deckbuilder-panel-title {
     font-size: 28px;
     color: rgba(180, 180, 210, 1);
     -unity-font-style: bold;
+    margin-bottom: 8px;
 }
 
 .deckbuilder-card-scroll {
@@ -47,7 +47,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     padding: 12px;
-    gap: 12px;
     align-content: flex-start;
 }
 
@@ -58,6 +57,8 @@
     cursor: link;
     transition-duration: 0.1s;
     transition-property: scale;
+    margin-right: 12px;
+    margin-bottom: 12px;
 }
 
 .deckbuilder-card-item > #CardRoot {
@@ -77,13 +78,13 @@
     width: 380px;
     flex-shrink: 0;
     flex-direction: column;
-    gap: 8px;
 }
 
 .deckbuilder-deck-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 8px;
 }
 
 .deckbuilder-deck-count {
@@ -99,6 +100,7 @@
     border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+    margin-bottom: 8px;
 }
 
 .deckbuilder-deck-row {
@@ -120,7 +122,7 @@
     border-top-right-radius: 5px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    -unity-background-scale-mode: scale-to-fill;
+    -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0.3);
     margin-right: 10px;
 }
@@ -166,7 +168,6 @@
 
 .deckbuilder-buttons {
     flex-direction: row;
-    gap: 8px;
     justify-content: flex-end;
     padding-top: 8px;
 }
@@ -190,6 +191,7 @@
 .deckbuilder-button--back {
     background-color: rgba(70, 70, 100, 1);
     color: rgb(200, 200, 220);
+    margin-right: 8px;
 }
 
 .deckbuilder-button--back:hover {
