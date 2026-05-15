@@ -33,6 +33,7 @@ namespace Main.Card
                 OnCardDisplaced?.Invoke(displaced);
             }
 
+            card.RemoveDragManipulator();
             card.style.position = Position.Relative;
             card.style.left = StyleKeyword.Null;
             card.style.top = StyleKeyword.Null;
