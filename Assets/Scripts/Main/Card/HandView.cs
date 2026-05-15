@@ -190,7 +190,7 @@ namespace Main.Card
 
             if (_interactive)
             {
-                RegisterCardCallbacks(card);
+                ReattachDragManipulator(card);
             }
         }
 
@@ -318,6 +318,17 @@ namespace Main.Card
                 }
             });
 
+            ReattachDragManipulator(capturedCard);
+        }
+
+        private void ReattachDragManipulator(CardView card)
+        {
+            if (_dragLayer == null)
+            {
+                return;
+            }
+
+            CardView capturedCard = card;
             CardDragManipulator manipulator = new CardDragManipulator(_dragLayer);
             manipulator.OnDrop = worldPos =>
             {
