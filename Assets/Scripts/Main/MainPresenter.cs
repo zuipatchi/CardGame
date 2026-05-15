@@ -479,7 +479,6 @@ namespace Main
                     }
                     else
                     {
-                        _playerFieldView.PlaceCard(readied);
                         _gameModel.ReadyCard(readied);
                     }
                 }
@@ -755,14 +754,13 @@ namespace Main
                     return false;
                 }
 
-                if (!_playerFieldView.worldBound.Contains(worldPos))
+                bool placed = _playerFieldView.TryPlace(card, worldPos);
+                if (placed)
                 {
-                    return false;
+                    _stagedPrepCard = card;
+                    UpdateStagedButtons(true);
                 }
-
-                _stagedPrepCard = card;
-                UpdateStagedButtons(_stagedPrepCard != null);
-                return true;
+                return placed;
             }
 
             return false;
@@ -846,6 +844,7 @@ namespace Main
                 if (_stagedPrepCard != null)
                 {
                     Rect rect = _stagedPrepCard.worldBound;
+                    _playerFieldView.RemoveCard(_stagedPrepCard);
                     _handView.AddCardBackAsync(_stagedPrepCard, rect, destroyCancellationToken).Forget();
                     _stagedPrepCard = null;
                     UpdateStagedButtons(_stagedPrepCard != null);
