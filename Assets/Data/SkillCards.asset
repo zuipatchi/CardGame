@@ -17,17 +17,19 @@ MonoBehaviour:
     _cardName: "\u30D1\u30C3\u30C1\u30D5\u30EC\u30A4\u30E0"
     _cost: 3
     _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
-    _stats: []
     _damage: 3
   - _id: S002
     _cardName: "\u30D1\u30C3\u30C1\u65AC"
     _cost: 1
     _image: {fileID: 21300000, guid: d00e92eaa4f76cb42b3245ac9438c075, type: 3}
-    _stats: []
     _damage: 1
   - _id: S003
     _cardName: "\u30D1\u30C3\u30C1\u306E\u6BD2\u5203"
     _cost: 2
     _image: {fileID: 21300000, guid: 21c0f2a29f68af34b8f1b25661d37cd0, type: 3}
-    _stats: []
     _damage: 2
+  - _id: S004
+    _cardName: "\u708E\u3068\u9B54\u6CD5\u306E\u5203"
+    _cost: 4
+    _image: {fileID: 21300000, guid: f5f6d57a5f03b164b8cf1487b6f7badc, type: 3}
+    _damage: 4

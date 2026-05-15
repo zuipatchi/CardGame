@@ -59,6 +59,8 @@ namespace Main
 
         private int _playerAtkBoost;
         private int _opponentAtkBoost;
+        private int _playerDefBoost;
+        private int _opponentDefBoost;
 
         // キャラセットフェーズの入力待ち（null=パス、card=スロットに置くカード）
         private UniTaskCompletionSource<CardView> _charSetInputTcs;
@@ -582,6 +584,16 @@ namespace Main
                         _opponentAtkBoost += data.EffectValue;
                     }
                     break;
+                case EffectType.DefBoost:
+                    if (isLocal)
+                    {
+                        _playerDefBoost += data.EffectValue;
+                    }
+                    else
+                    {
+                        _opponentDefBoost += data.EffectValue;
+                    }
+                    break;
             }
         }
 
@@ -644,10 +656,12 @@ namespace Main
             {
                 int playerATK = playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost;
                 int opponentATK = opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost;
-                int damageToOpponent = Mathf.Max(0, playerATK - _opponentCharacterSlot.Defense);
-                int damageToPlayer = Mathf.Max(0, opponentATK - _playerCharacterSlot.Defense);
+                int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
+                int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
+                int damageToOpponent = Mathf.Max(0, playerATK - effectiveOpponentDef);
+                int damageToPlayer = Mathf.Max(0, opponentATK - effectivePlayerDef);
 
-                await PlayAtkCounterAsync(playerATK, opponentATK, _opponentCharacterSlot.Defense, _playerCharacterSlot.Defense, damageToOpponent, damageToPlayer, ct);
+                await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, damageToOpponent, damageToPlayer, ct);
 
                 await UniTask.WhenAll(
                     PlaySkillCardsAttackAsync(playerSkill, _playerFieldView, _opponentDeckView, ct),
@@ -666,6 +680,8 @@ namespace Main
 
             _playerAtkBoost = 0;
             _opponentAtkBoost = 0;
+            _playerDefBoost = 0;
+            _opponentDefBoost = 0;
 
             CheckGameOver();
 

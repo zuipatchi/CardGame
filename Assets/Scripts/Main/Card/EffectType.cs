@@ -4,5 +4,6 @@ namespace Main.Card
     {
         None,
         AtkBoost,
+        DefBoost,
     }
 }

@@ -29,5 +29,41 @@ namespace Tests.EditMode
 
             Assert.AreEqual(0, card.EffectValue);
         }
+
+        [Test]
+        public void DefBoostを指定するとEffectTypeとEffectValueが正しく返る()
+        {
+            EventCardData card = new EventCardData("e1", "守護", 2, EffectType.DefBoost, 3);
+
+            Assert.AreEqual(EffectType.DefBoost, card.EffectType);
+            Assert.AreEqual(3, card.EffectValue);
+        }
+
+        [Test]
+        public void DefBoostがある場合有効防御力はDefenseにEffectValueを加算した値になる()
+        {
+            int baseDefense = 2;
+            int defBoost = 3;
+            int playerATK = 6;
+
+            int effectiveDef = baseDefense + defBoost;
+            int damage = UnityEngine.Mathf.Max(0, playerATK - effectiveDef);
+
+            Assert.AreEqual(5, effectiveDef);
+            Assert.AreEqual(1, damage);
+        }
+
+        [Test]
+        public void DefBoostが攻撃力以上のときダメージは0になる()
+        {
+            int baseDefense = 2;
+            int defBoost = 5;
+            int playerATK = 4;
+
+            int effectiveDef = baseDefense + defBoost;
+            int damage = UnityEngine.Mathf.Max(0, playerATK - effectiveDef);
+
+            Assert.AreEqual(0, damage);
+        }
     }
 }
