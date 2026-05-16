@@ -362,19 +362,21 @@ RunResolutionPhaseAsync
 
 RunBattlePhaseAsync
   → 全フィールドカードを同時に表向き
-  → キャラカードをキャラスロットへ FlyCharToSlotAsync で移動（既存キャラは墓地へ）
-  → 技カードが1枚でもあれば "FIGHT" 演出
-  → PlayAtkCounterAsync: 両フィールドに 0→ATK合計 のカウントアップ表示（両者同時）
-  → PlaySkillCardsAttackAsync: 技カードが相手デッキへ突撃（両者同時、複数枚は1枚ずつ逐次）
-  → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行、1枚ずつ逐次）
-  → 両デッキ同時0なら引き分け、片方0なら勝敗確定 → 技カードを墓地へ
+  → フィールドのキャラカードを FlyCharToSlotAsync でスロットへ移動（既存キャラは墓地へ）
+  → "FIGHT" 告知
+  → ATK = スロットのキャラ.Attack + AtkBoost（スロット空なら 0）
+  → PlayCharacterSlotAttackAsync: スロットのキャラが相手デッキへ突撃し戻る（両者同時）
+  → PlayAtkCounterAsync: 両フィールドに 0→ATK合計 のカウントアップ表示（ATK>0 の場合のみ）
+  → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行）
+  → 両デッキ同時0なら引き分け、片方0なら勝敗確定 → 技カードを墓地へ（攻撃なし）
 ```
 
-**攻撃アニメーション（PlaySkillCardsAttackAsync）:**
+**キャラ攻撃アニメーション（PlayCharacterSlotAttackAsync）:**
+- スロットからキャラを一時取り出し DragLayer に絶対配置
 - Phase 1 予備動作（0.15秒）: 後退 50px しながらデッキ方向へ向く（`Atan2` で回転角計算）
 - Phase 2 突撃（0.65秒、InCubic）: 直線でデッキ中央へ加速
 - Phase 3 ノックバック（0.15秒、OutQuad）: 着弾後 35px 跳ね返る
-- 複数枚は逐次実行（`Sequence.Append`）。1枚のアニメーション完了後に次のカードが攻撃開始
+- アニメーション後、FlyCharToSlotAsync でスロットへ帰還
 
 **ダメージ墓地送りアニメーション（PlayDeckDamageAsync）:**
 - `TakeFromTop(n)` で取り出した CardView を 1 枚ずつ逐次処理（0.06 秒間隔）
