@@ -215,7 +215,7 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 
 ```
 CardData              抽象基底クラス。id / name / cost / Attack / Defense / image(Sprite)
-  CharacterCardData   キャラカード。Defense 値を保持。戦闘前1フェーズまたはキャラセットフェーズでスロット/フィールドに配置
+  CharacterCardData   キャラカード。Attack / Defense 値を保持。キャラセットフェーズでスロットに配置、戦闘前1フェーズでフィールドに配置（配置ターンは攻撃しない）
   SkillCardData       技カード。Damage（= Attack）値を保持。戦闘前1フェーズで裏向きフィールドに配置
   EventCardData       イベントカード。EffectType（None/AtkBoost/DefBoost）と EffectValue を保持
                       戦闘前2フェーズで Ready 化、解決フェーズで効果を適用後に墓地へ
@@ -361,15 +361,22 @@ RunResolutionPhaseAsync
   → Readyカードを逆順で解決（"RESOLVE" 演出）
 
 RunBattlePhaseAsync
+  → "FIGHT" 告知
   → 全フィールドカードを同時に表向き
   → フィールドのキャラカードを FlyCharToSlotAsync でスロットへ移動（既存キャラは墓地へ）
-  → "FIGHT" 告知
-  → ATK = スロットのキャラ.Attack + AtkBoost（スロット空なら 0）
-  → PlayCharacterSlotAttackAsync: スロットのキャラが相手デッキへ突撃し戻る（両者同時）
-  → PlayAtkCounterAsync: 両フィールドに 0→ATK合計 のカウントアップ表示（ATK>0 の場合のみ）
-  → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行）
-  → 両デッキ同時0なら引き分け、片方0なら勝敗確定 → 技カードを墓地へ（攻撃なし）
+  → フィールドの技カードを FlySkillToSlotAsync でキャラスロットへ移動（キャラの下に重なる）
+  → ATK = 戦闘前1で出した技カードの Damage 合計 + AtkBoost
+    （スロット空 or 今ターン新キャラ配置の場合は 0）
+  → PlayAtkCounterAsync: 両サイドに 0→ATK のカウントアップ表示（常時）
+  → 技カードを墓地へ
+  → PlayCharacterSlotAttackAsync: ATK > 0 かつ新キャラ未配置の場合のみ突撃・戻る（両者並行）
+  → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行、ダメージ > 0 の場合のみ）
+  → 両デッキ同時0なら引き分け、片方0なら勝敗確定
 ```
+
+**技カードスロット移動アニメーション（FlySkillToSlotAsync）:**
+- `FlyCardToDestAsync` でキャラスロットの worldBound 中央へ飛翔
+- 到着後に `position: Absolute, left:0, top:0, 100%×100%` でスロットに `Insert(0, card)`（キャラカードの下に描画）
 
 **キャラ攻撃アニメーション（PlayCharacterSlotAttackAsync）:**
 - スロットからキャラを一時取り出し DragLayer に絶対配置
