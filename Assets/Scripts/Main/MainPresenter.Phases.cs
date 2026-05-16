@@ -76,11 +76,7 @@ namespace Main
 
                 if (isLocalTurn)
                 {
-                    CardView placed = await WaitForPlayerCharSetInputAsync(ct);
-                    if (placed != null)
-                    {
-                        await placed.FlipAsync(ct);
-                    }
+                    await WaitForPlayerCharSetInputAsync(ct);
                 }
                 else
                 {
@@ -433,14 +429,14 @@ namespace Main
                     PlaySkillCardsAttackAsync(opponentSkill, _opponentFieldView, _playerDeckView, ct)
                 );
 
-                if (damageToOpponent > 0)
-                {
-                    _opponentDeckView.RemoveFromTop(damageToOpponent);
-                }
-                if (damageToPlayer > 0)
-                {
-                    _playerDeckView.RemoveFromTop(damageToPlayer);
-                }
+                Rect opponentDeckRect = _opponentDeckView.worldBound;
+                Rect playerDeckRect = _playerDeckView.worldBound;
+                List<CardView> opponentDamageCards = _opponentDeckView.TakeFromTop(damageToOpponent);
+                List<CardView> playerDamageCards = _playerDeckView.TakeFromTop(damageToPlayer);
+                await UniTask.WhenAll(
+                    PlayDeckDamageAsync(opponentDamageCards, opponentDeckRect, _opponentGraveyardView, ct),
+                    PlayDeckDamageAsync(playerDamageCards, playerDeckRect, _playerGraveyardView, ct)
+                );
             }
 
             _playerAtkBoost = 0;

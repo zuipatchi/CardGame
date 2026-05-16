@@ -214,10 +214,10 @@ namespace Main
                 _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack);
                 opponentDeckArea.Add(_opponentDeckView);
 
-                _playerGraveyardView = new GraveyardView();
+                _playerGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
                 graveyardArea.Add(_playerGraveyardView);
 
-                _opponentGraveyardView = new GraveyardView();
+                _opponentGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
                 opponentGraveyardArea.Add(_opponentGraveyardView);
 
                 CancellationToken ct = destroyCancellationToken;

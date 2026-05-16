@@ -12,13 +12,16 @@ namespace Tests.EditMode
         private static VisualTreeAsset LoadTemplate() =>
             AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
 
+        private static GraveyardView MakeGraveyard() =>
+            new GraveyardView(LoadTemplate(), null);
+
         private static CardView MakeCardView() =>
             new CardView(LoadTemplate(), new EventCardData("e1", "テスト", 0));
 
         [Test]
         public void 初期状態のCountは0()
         {
-            GraveyardView graveyard = new GraveyardView();
+            GraveyardView graveyard = MakeGraveyard();
 
             Assert.AreEqual(0, graveyard.Count);
         }
@@ -26,7 +29,7 @@ namespace Tests.EditMode
         [Test]
         public void AddCardでCountが増える()
         {
-            GraveyardView graveyard = new GraveyardView();
+            GraveyardView graveyard = MakeGraveyard();
 
             graveyard.AddCard(MakeCardView());
 
@@ -36,7 +39,7 @@ namespace Tests.EditMode
         [Test]
         public void 複数カードを追加できる()
         {
-            GraveyardView graveyard = new GraveyardView();
+            GraveyardView graveyard = MakeGraveyard();
 
             graveyard.AddCard(MakeCardView());
             graveyard.AddCard(MakeCardView());
@@ -46,14 +49,14 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void AddCard後にカードがGraveyardViewの子になる()
+        public void AddCard後にカードはGraveyardViewから切り離される()
         {
-            GraveyardView graveyard = new GraveyardView();
+            GraveyardView graveyard = MakeGraveyard();
             CardView card = MakeCardView();
 
             graveyard.AddCard(card);
 
-            Assert.AreEqual(graveyard, card.parent);
+            Assert.IsNull(card.parent);
         }
     }
 }

@@ -66,17 +66,20 @@ namespace Main.Card
             return top.Data;
         }
 
-        public void RemoveFromTop(int count)
+        public List<CardView> TakeFromTop(int count)
         {
-            int toRemove = Mathf.Min(count, _deckCards.Count);
-            for (int i = 0; i < toRemove; i++)
+            int toTake = Mathf.Min(count, _deckCards.Count);
+            List<CardView> taken = new List<CardView>(toTake);
+            for (int i = 0; i < toTake; i++)
             {
                 CardView top = _deckCards[_deckCards.Count - 1];
                 _deckCards.RemoveAt(_deckCards.Count - 1);
                 top.RemoveFromHierarchy();
+                taken.Add(top);
             }
             _countLabel.text = _deckCards.Count.ToString();
             UpdateSize();
+            return taken;
         }
 
         private void UpdateSize()

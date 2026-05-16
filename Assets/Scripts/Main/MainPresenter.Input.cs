@@ -31,6 +31,7 @@ namespace Main
 
                 _playerCharacterSlot.PlaceCard(card);
                 _stagedCharSetCard = card;
+                card.FlipAsync(destroyCancellationToken).Forget();
                 UpdateStagedButtons(_stagedCharSetCard != null);
                 return true;
             }
@@ -124,8 +125,10 @@ namespace Main
                 {
                     Rect rect = _stagedCharSetCard.worldBound;
                     _playerCharacterSlot.RemoveCard();
-                    _handView.AddCardBackAsync(_stagedCharSetCard, rect, destroyCancellationToken).Forget();
+                    CardView charCard = _stagedCharSetCard;
                     _stagedCharSetCard = null;
+                    charCard.FlipAsync(destroyCancellationToken).Forget();
+                    _handView.AddCardBackAsync(charCard, rect, destroyCancellationToken).Forget();
                     UpdateStagedButtons(_stagedCharSetCard != null);
                 }
                 return;

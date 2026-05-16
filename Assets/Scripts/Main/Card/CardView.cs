@@ -52,6 +52,12 @@ namespace Main.Card
                 IsFaceDown = true;
                 _frontFace.style.display = DisplayStyle.None;
                 _backFace.style.display = DisplayStyle.Flex;
+                _imageArea.style.display = DisplayStyle.None;
+                ApplyTypeFrame(false);
+            }
+            else
+            {
+                ApplyTypeFrame(true);
             }
         }
 
@@ -75,7 +81,6 @@ namespace Main.Card
         public void SetState(CardState state)
         {
             State = state;
-            _cardRoot.EnableInClassList("game-card--ready", state == CardState.Ready);
             _cardRoot.EnableInClassList("game-card--resolve", state == CardState.Resolve);
         }
 
@@ -96,6 +101,8 @@ namespace Main.Card
             IsFaceDown = !IsFaceDown;
             _frontFace.style.display = IsFaceDown ? DisplayStyle.None : DisplayStyle.Flex;
             _backFace.style.display = IsFaceDown ? DisplayStyle.Flex : DisplayStyle.None;
+            _imageArea.style.display = IsFaceDown ? DisplayStyle.None : DisplayStyle.Flex;
+            ApplyTypeFrame(!IsFaceDown);
 
             await AnimateScaleXAsync(1f, 0.15f, Ease.OutQuad, cancellation);
         }
@@ -121,6 +128,13 @@ namespace Main.Card
                 await tcs.Task;
             }
             catch (System.OperationCanceledException) { }
+        }
+
+        private void ApplyTypeFrame(bool visible)
+        {
+            _cardRoot.EnableInClassList("game-card--character", visible && Data is CharacterCardData);
+            _cardRoot.EnableInClassList("game-card--skill", visible && Data is SkillCardData);
+            _cardRoot.EnableInClassList("game-card--event", visible && Data is EventCardData);
         }
 
         private void Bind(CardData data)

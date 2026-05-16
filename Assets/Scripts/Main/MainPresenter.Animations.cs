@@ -290,6 +290,68 @@ namespace Main
             _dragLayer.Remove(card);
         }
 
+        // ─── デッキダメージ→墓地アニメーション ─────────────────────────────
+
+        private async UniTask PlayDeckDamageAsync(
+            List<CardView> cards, Rect fromRect, GraveyardView graveyard, CancellationToken ct)
+        {
+            if (cards.Count == 0)
+            {
+                return;
+            }
+
+            const float FlyDuration = 0.3f;
+            const float CardInterval = 0.06f;
+
+            Rect toRect = graveyard.worldBound;
+            float startLeft = fromRect.center.x - CardWidth / 2f;
+            float startTop = fromRect.center.y - CardHeight / 2f;
+            float targetLeft = toRect.center.x - CardWidth / 2f;
+            float targetTop = toRect.center.y - CardHeight / 2f;
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CardView card = cards[i];
+                card.style.position = Position.Absolute;
+                card.style.left = startLeft;
+                card.style.top = startTop;
+                card.style.width = StyleKeyword.Null;
+                card.style.height = StyleKeyword.Null;
+                card.style.rotate = new Rotate(0);
+                card.style.scale = new Scale(Vector3.one);
+                card.style.transformOrigin = StyleKeyword.Null;
+                card.style.marginLeft = StyleKeyword.Null;
+                card.style.marginRight = StyleKeyword.Null;
+                _dragLayer.Add(card);
+
+                UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+                Sequence seq = DOTween.Sequence()
+                    .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(
+                        () => card.style.scale.value.value.x,
+                        s => card.style.scale = new Scale(new Vector3(s, s, 1f)),
+                        0f, FlyDuration).SetEase(Ease.InQuad))
+                    .OnComplete(() => tcs.TrySetResult());
+
+                ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+                try { await tcs.Task; }
+                catch (OperationCanceledException) { }
+
+                if (card.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(card);
+                }
+                graveyard.AddCard(card);
+
+                if (i < cards.Count - 1)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(CardInterval), cancellationToken: ct);
+                }
+            }
+        }
+
         // ─── ユーティリティ ──────────────────────────────────────────────
 
         private static CardData[] Shuffle(CardData[] cards)

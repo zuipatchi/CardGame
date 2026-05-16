@@ -81,14 +81,14 @@
 
 .game-card__image {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    left: 2px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     -unity-background-scale-mode: stretch-to-fill;
 }
 
@@ -96,16 +96,39 @@
     display: none;
 }
 
-.game-card--ready {
-    border-left-color: rgb(255, 153, 0);
-    border-right-color: rgb(255, 153, 0);
-    border-top-color: rgb(255, 153, 0);
-    border-bottom-color: rgb(255, 153, 0);
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
+.game-card--character {
+    border-left-color: rgb(70, 130, 230);
+    border-right-color: rgb(70, 130, 230);
+    border-top-color: rgb(70, 130, 230);
+    border-bottom-color: rgb(70, 130, 230);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
 }
+
+.game-card--skill {
+    border-left-color: rgb(220, 60, 60);
+    border-right-color: rgb(220, 60, 60);
+    border-top-color: rgb(220, 60, 60);
+    border-bottom-color: rgb(220, 60, 60);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--event {
+    border-left-color: rgb(210, 185, 50);
+    border-right-color: rgb(210, 185, 50);
+    border-top-color: rgb(210, 185, 50);
+    border-bottom-color: rgb(210, 185, 50);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
 
 .game-card--resolve {
     border-left-color: rgb(255, 255, 100);
