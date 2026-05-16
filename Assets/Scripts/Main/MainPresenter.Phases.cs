@@ -399,56 +399,52 @@ namespace Main
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
-            // キャラカードをスロットへ飛翔（両者同時、DEF更新）
-            List<(CardView Card, Rect FromRect, CharacterSlotView Slot)> charMoves
-                = new List<(CardView, Rect, CharacterSlotView)>();
-
-            foreach (CardView c in playerCards)
-            {
-                if (c.Data is CharacterCardData)
-                {
-                    charMoves.Add((c, c.worldBound, _playerCharacterSlot));
-                    _playerFieldView.RemoveCard(c);
-                }
-            }
-            foreach (CardView c in opponentCards)
-            {
-                if (c.Data is CharacterCardData)
-                {
-                    charMoves.Add((c, c.worldBound, _opponentCharacterSlot));
-                    _opponentFieldView.RemoveCard(c);
-                }
-            }
-
-            if (charMoves.Count > 0)
-            {
-                UniTask[] moveTasks = new UniTask[charMoves.Count];
-                for (int i = 0; i < charMoves.Count; i++)
-                {
-                    moveTasks[i] = FlyCharToSlotAsync(charMoves[i].Card, charMoves[i].FromRect, charMoves[i].Slot, ct);
-                }
-                await UniTask.WhenAll(moveTasks);
-            }
-
-            // 技カードのみでダメージ計算
+            List<CardView> playerFieldChar = playerCards.Where(c => c.Data is CharacterCardData).ToList();
+            List<CardView> opponentFieldChar = opponentCards.Where(c => c.Data is CharacterCardData).ToList();
             List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
             List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
 
-            if (playerSkill.Count > 0 || opponentSkill.Count > 0)
+            // フィールドのキャラをスロットへ飛翔（スロット更新・DEF確定）
+            List<UniTask> charMoveTasks = new List<UniTask>();
+            foreach (CardView c in playerFieldChar)
             {
-                int playerATK = playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost;
-                int opponentATK = opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost;
-                int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
-                int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
-                int damageToOpponent = Mathf.Max(0, playerATK - effectiveOpponentDef);
-                int damageToPlayer = Mathf.Max(0, opponentATK - effectivePlayerDef);
+                Rect fromRect = c.worldBound;
+                _playerFieldView.RemoveCard(c);
+                charMoveTasks.Add(FlyCharToSlotAsync(c, fromRect, _playerCharacterSlot, ct));
+            }
+            foreach (CardView c in opponentFieldChar)
+            {
+                Rect fromRect = c.worldBound;
+                _opponentFieldView.RemoveCard(c);
+                charMoveTasks.Add(FlyCharToSlotAsync(c, fromRect, _opponentCharacterSlot, ct));
+            }
+            if (charMoveTasks.Count > 0)
+            {
+                await UniTask.WhenAll(charMoveTasks);
+            }
 
+            // スロットのキャラが攻撃（キャラなし→ATK=0）
+            int playerATK = _playerCharacterSlot.CurrentCard != null
+                ? _playerCharacterSlot.CurrentCard.Data.Attack + _playerAtkBoost
+                : 0;
+            int opponentATK = _opponentCharacterSlot.CurrentCard != null
+                ? _opponentCharacterSlot.CurrentCard.Data.Attack + _opponentAtkBoost
+                : 0;
+
+            await UniTask.WhenAll(
+                PlayCharacterSlotAttackAsync(_playerCharacterSlot, _opponentDeckView, ct),
+                PlayCharacterSlotAttackAsync(_opponentCharacterSlot, _playerDeckView, ct)
+            );
+
+            // DEF・ダメージ計算（攻撃後もスロットにキャラが戻っている）
+            int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
+            int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
+            int damageToOpponent = Mathf.Max(0, playerATK - effectiveOpponentDef);
+            int damageToPlayer = Mathf.Max(0, opponentATK - effectivePlayerDef);
+
+            if (playerATK > 0 || opponentATK > 0)
+            {
                 await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, damageToOpponent, damageToPlayer, ct);
-
-                await UniTask.WhenAll(
-                    PlaySkillCardsAttackAsync(playerSkill, _playerFieldView, _opponentDeckView, ct),
-                    PlaySkillCardsAttackAsync(opponentSkill, _opponentFieldView, _playerDeckView, ct)
-                );
 
                 Rect opponentDeckRect = _opponentDeckView.worldBound;
                 Rect playerDeckRect = _playerDeckView.worldBound;
@@ -467,7 +463,7 @@ namespace Main
 
             CheckGameOver();
 
-            // 技カードを墓地へ（キャラカードはスロット済み）
+            // 技カードを墓地へ（攻撃なし）
             foreach (CardView c in playerSkill)
             {
                 if (c.parent != null)

@@ -253,6 +253,89 @@ namespace Main
             }
         }
 
+        // ─── キャラスロット攻撃アニメーション ────────────────────────────────
+
+        private async UniTask PlayCharacterSlotAttackAsync(
+            CharacterSlotView slot, DeckView targetDeck, CancellationToken ct)
+        {
+            CardView card = slot.CurrentCard;
+            if (card == null)
+            {
+                return;
+            }
+
+            const float windupDuration = 0.15f;
+            const float windupDistance = 50f;
+            const float flyDuration = 0.65f;
+            const float knockbackDist = 35f;
+            const float knockbackDuration = 0.15f;
+
+            Rect slotRect = slot.worldBound;
+            slot.RemoveCard();
+
+            card.style.position = Position.Absolute;
+            card.style.left = slotRect.center.x - CardWidth / 2f;
+            card.style.top = slotRect.center.y - CardHeight / 2f;
+            card.style.width = StyleKeyword.Null;
+            card.style.height = StyleKeyword.Null;
+            card.style.rotate = new Rotate(new Angle(0f, AngleUnit.Degree));
+            card.style.scale = new Scale(Vector3.one);
+            card.style.transformOrigin = StyleKeyword.Null;
+            card.style.marginLeft = StyleKeyword.Null;
+            card.style.marginRight = StyleKeyword.Null;
+            _dragLayer.Add(card);
+
+            Vector2 fromCenter = slotRect.center;
+            Vector2 toCenter = targetDeck.worldBound.center;
+            Vector2 dir = (toCenter - fromCenter).normalized;
+            float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+            float rotAngle = 0f;
+
+            Vector2 windupCenter = fromCenter - dir * windupDistance;
+            float windupLeft = windupCenter.x - CardWidth / 2f;
+            float windupTop = windupCenter.y - CardHeight / 2f;
+            float targetLeft = toCenter.x - CardWidth / 2f;
+            float targetTop = toCenter.y - CardHeight / 2f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, windupDuration).SetEase(Ease.OutSine))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, windupDuration).SetEase(Ease.OutSine))
+                .Join(DOTween.To(() => rotAngle, v =>
+                {
+                    rotAngle = v;
+                    card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
+                }, facingAngle, windupDuration).SetEase(Ease.OutSine));
+
+            seq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
+            seq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
+
+            float kbT = 0f;
+            Vector2 kbEnd = toCenter - dir * knockbackDist;
+            seq.Append(DOTween.To(() => kbT, v =>
+            {
+                kbT = v;
+                Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
+                card.style.left = pos.x - CardWidth / 2f;
+                card.style.top = pos.y - CardHeight / 2f;
+            }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
+
+            seq.OnComplete(() => tcs.TrySetResult());
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            if (card.parent == _dragLayer)
+            {
+                await FlyCharToSlotAsync(card, card.worldBound, slot, ct);
+            }
+        }
+
         // ─── CPU ドロー演出 ──────────────────────────────────────────────
 
         private async UniTask PlayCpuDrawAsync(CardData data, Rect deckRect, CancellationToken ct)
