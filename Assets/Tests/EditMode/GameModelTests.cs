@@ -15,7 +15,7 @@ namespace Tests.EditMode
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
             CardData data = isSkill
                 ? (CardData)new SkillCardData("s1", "ファイア", 1, damage: 3)
-                : new CharacterCardData("c1", "戦士", 2, defense: 5);
+                : new CharacterCardData("c1", "戦士", 2, 0, 5);
             return new CardView(template, data);
         }
 

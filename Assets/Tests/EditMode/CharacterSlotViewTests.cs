@@ -9,10 +9,10 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardView MakeCharacter(int defense = 3)
+        private static CardView MakeCharacter(int attack = 2, int defense = 3)
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CharacterCardData("C001", "戦士", 2, defense));
+            return new CardView(template, new CharacterCardData("C001", "戦士", 2, attack, defense));
         }
 
         [Test]

@@ -53,3 +53,8 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 4726ec14bd38d6842b46b5bbab04ea67, type: 3}
     _damage: 4
+  - _id: S009
+    _cardName: "\u30B7\u30FC\u30EB\u30C9\u30D0\u30C3\u30B7\u30E5\u3071\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: cefcbde2bb1163442a76228651383022, type: 3}
+    _damage: 3

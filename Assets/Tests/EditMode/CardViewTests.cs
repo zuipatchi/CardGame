@@ -46,7 +46,7 @@ namespace Tests.EditMode
         public void キャラカードの防御力が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, defense: 3);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, 3);
 
             CardView view = new CardView(template, data);
 
