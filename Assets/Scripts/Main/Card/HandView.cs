@@ -194,6 +194,14 @@ namespace Main.Card
             }
         }
 
+        public void AcceptCard(CardView card)
+        {
+            SetupCardInHand(card);
+            _entries.Add(new HandCardEntry { Card = card });
+            Add(card);
+            ApplyPositions(animate: true);
+        }
+
         private static void SetupCardInHand(CardView card)
         {
             card.style.position = Position.Absolute;

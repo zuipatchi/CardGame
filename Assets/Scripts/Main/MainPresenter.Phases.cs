@@ -138,13 +138,14 @@ namespace Main
         private async UniTask RunDrawPhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
             DeckView sourceDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
-            HandView targetHand = isLocalTurn ? _handView : _opponentHandView;
             Rect deckRect = sourceDeck.worldBound;
             CardData drawn = sourceDeck.DrawTop();
 
             UniTask announcementTask = PlayTurnAnnouncementAsync(isLocalTurn, ct);
             UniTask drawTask = drawn != null
-                ? targetHand.AddCardAnimatedAsync(drawn, deckRect, 0f, ct)
+                ? isLocalTurn
+                    ? _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct)
+                    : PlayCpuDrawAsync(drawn, deckRect, ct)
                 : UniTask.CompletedTask;
             await UniTask.WhenAll(announcementTask, drawTask);
 

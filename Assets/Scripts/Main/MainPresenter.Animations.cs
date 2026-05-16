@@ -247,6 +247,44 @@ namespace Main
             }
         }
 
+        // ─── CPU ドロー演出 ──────────────────────────────────────────────
+
+        private async UniTask PlayCpuDrawAsync(CardData data, Rect deckRect, CancellationToken ct)
+        {
+            const float FlyDuration = 0.35f;
+
+            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true);
+            card.style.position = Position.Absolute;
+            card.style.left = deckRect.center.x - CardWidth / 2f;
+            card.style.top = deckRect.center.y - CardHeight / 2f;
+            _dragLayer.Add(card);
+
+            Rect handRect = _opponentHandView.worldBound;
+            float targetLeft = handRect.center.x - CardWidth / 2f;
+            float targetTop = handRect.yMax - CardHeight / 2f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, FlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, FlyDuration).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                _dragLayer.Remove(card);
+                return;
+            }
+
+            _dragLayer.Remove(card);
+            _opponentHandView.AcceptCard(card);
+        }
+
         // ─── カード移動ヘルパー ──────────────────────────────────────────
 
         private async UniTask FlyCharToSlotAsync(CardView card, Rect fromRect, CharacterSlotView slot, CancellationToken ct)
