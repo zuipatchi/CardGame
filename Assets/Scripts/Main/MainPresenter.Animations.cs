@@ -20,6 +20,12 @@ namespace Main
             await PlayAnnouncementAsync(isLocalTurn ? "YOUR TURN" : "ENEMY TURN", labelClass, ct);
         }
 
+        private async UniTask PlayPassAnimationAsync(bool isLocal, CancellationToken ct)
+        {
+            string labelClass = isLocal ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            await PlayAnnouncementAsync("PASS", labelClass, ct);
+        }
+
         private async UniTask PlayAnnouncementAsync(string text, string labelClass, CancellationToken ct)
         {
             _turnLabel.text = text;

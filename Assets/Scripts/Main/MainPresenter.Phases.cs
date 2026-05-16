@@ -76,7 +76,11 @@ namespace Main
 
                 if (isLocalTurn)
                 {
-                    await WaitForPlayerCharSetInputAsync(ct);
+                    CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+                    if (placed == null)
+                    {
+                        await PlayPassAnimationAsync(true, ct);
+                    }
                 }
                 else
                 {
@@ -99,6 +103,10 @@ namespace Main
                         _opponentHandView.RemoveCard(card);
                         await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
                         _opponentCharacterSlot.PlaceCard(card);
+                    }
+                    else
+                    {
+                        await PlayPassAnimationAsync(false, ct);
                     }
                 }
             }
@@ -175,7 +183,11 @@ namespace Main
 
                 if (isLocalAct)
                 {
-                    await WaitForPlayerPreBattle1TurnAsync(ct);
+                    bool placed = await WaitForPlayerPreBattle1TurnAsync(ct);
+                    if (!placed)
+                    {
+                        await PlayPassAnimationAsync(true, ct);
+                    }
                 }
                 else
                 {
@@ -184,7 +196,7 @@ namespace Main
             }
         }
 
-        private async UniTask WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
+        private async UniTask<bool> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
         {
             _isLocalPreBattleActive = true;
             _preBattleInputTcs = new UniTaskCompletionSource<CardView>();
@@ -192,9 +204,10 @@ namespace Main
             ShowActionButtons();
             UpdateStagedButtons(_stagedPreBattleCard != null);
 
+            CardView result = null;
             try
             {
-                await _preBattleInputTcs.Task.AttachExternalCancellation(ct);
+                result = await _preBattleInputTcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
@@ -202,6 +215,8 @@ namespace Main
                 _preBattleInputTcs = null;
                 HideActionButtons();
             }
+
+            return result != null;
         }
 
         private async UniTask RunCpuPreBattle1SubTurnAsync(CancellationToken ct)
@@ -212,6 +227,7 @@ namespace Main
 
             if (idx < 0)
             {
+                await PlayPassAnimationAsync(false, ct);
                 return;
             }
 
@@ -235,6 +251,7 @@ namespace Main
                     CardView readied = await WaitForPlayerPreBattle2InputAsync(ct);
                     if (readied == null)
                     {
+                        await PlayPassAnimationAsync(true, ct);
                         if (_gameModel.Pass())
                         {
                             break;
@@ -263,6 +280,7 @@ namespace Main
                     }
                     else
                     {
+                        await PlayPassAnimationAsync(false, ct);
                         if (_gameModel.Pass())
                         {
                             break;
