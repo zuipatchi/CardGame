@@ -262,7 +262,8 @@ FieldView         VisualElement サブクラス。横長フィールドエリア
 DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き、60% スケール）
                   deck-view CSS クラス付き（GraveyardView と同じ背景・枠線スタイルを共有）
                   デッキ上方に HeartIcon.png + 残り枚数を重ねた 80×80px バッジを表示
-                  DrawTop() で一番上の CardData を取り出してデッキから除去（ターン開始ドロー用）
+                  DrawTop() で一番上の CardData を取り出してデッキから除去（枚数ラベルは更新しない）
+                  RefreshCount() で枚数ラベルを現在の _deckCards.Count に同期（RunDrawPhaseAsync がドロー直前に呼ぶ）
                   TakeFromTop(n) で上から n 枚を CardView リストとして取り出す（ダメージアニメーション連携用）。Count と枚数バッジを更新
 CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のドラッグ実装
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
@@ -342,10 +343,11 @@ RunCharacterSetPhaseAsync  （ゲーム開始時1回のみ）
 
 ```
 RunDrawPhaseAsync
+  → "YOUR TURN" / "ENEMY TURN" 告知（完了まで待機）
+  → sourceDeck.RefreshCount() でデッキ枚数ラベルを更新
   → ターンプレイヤーのデッキから1枚ドロー
     - プレイヤー: AddCardAnimatedAsync（飛翔→フリップ）
     - CPU: PlayCpuDrawAsync（デッキから手札エリア上部へ飛翔、AcceptCard で手札に追加）
-  → "YOUR TURN" / "ENEMY TURN" 告知と並走
 
 RunPreBattle1PhaseAsync
   → "SET CARDS" 告知
