@@ -149,13 +149,15 @@ namespace Main
             Rect deckRect = sourceDeck.worldBound;
             CardData drawn = sourceDeck.DrawTop();
 
-            UniTask announcementTask = PlayTurnAnnouncementAsync(isLocalTurn, ct);
-            UniTask drawTask = drawn != null
-                ? isLocalTurn
+            await PlayTurnAnnouncementAsync(isLocalTurn, ct);
+
+            sourceDeck.RefreshCount();
+            if (drawn != null)
+            {
+                await (isLocalTurn
                     ? _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct)
-                    : PlayCpuDrawAsync(drawn, deckRect, ct)
-                : UniTask.CompletedTask;
-            await UniTask.WhenAll(announcementTask, drawTask);
+                    : PlayCpuDrawAsync(drawn, deckRect, ct));
+            }
 
             if (!isLocalTurn && drawn != null)
             {

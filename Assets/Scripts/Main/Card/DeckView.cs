@@ -61,9 +61,13 @@ namespace Main.Card
             CardView top = _deckCards[_deckCards.Count - 1];
             _deckCards.RemoveAt(_deckCards.Count - 1);
             top.RemoveFromHierarchy();
-            _countLabel.text = _deckCards.Count.ToString();
             UpdateSize();
             return top.Data;
+        }
+
+        public void RefreshCount()
+        {
+            _countLabel.text = _deckCards.Count.ToString();
         }
 
         public List<CardView> TakeFromTop(int count)
