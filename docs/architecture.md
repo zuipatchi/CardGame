@@ -252,7 +252,8 @@ HandView          VisualElement サブクラス。手札を扇状に表示（60%
                   ドラッグ開始時に DragLayer へ移動、ドロップ失敗でスナップバック
                   ドロップ成功後に残りカードを DOTween でアニメーションしながら詰める
                   faceDown: true で裏向き表示、interactive: false でホバー・ドラッグ無効化（相手手札用）
-                  AddCardAnimatedAsync() でデッキ位置から手札へのドロー演出（飛翔→フリップ）
+                  AddCardAnimatedAsync() でデッキ位置から手札へのドロー演出（飛翔→フリップ）※プレイヤー用
+                  AcceptCard(CardView) で既存 CardView をそのまま手札に取り込む（CPU ドロー演出後の手札追加用）
                   AddCardBackAsync() でフィールドから手札へ戻す飛翔アニメーション（戻るボタン用）
                   interactive: false のときフリップをスキップ（相手手札は裏向きのまま）
                   内部状態は HandCardEntry { Card, ScaleTween } の単一リストで管理（並列リスト廃止）
@@ -341,8 +342,10 @@ RunCharacterSetPhaseAsync  （ゲーム開始時1回のみ）
 
 ```
 RunDrawPhaseAsync
-  → ターンプレイヤーのデッキから1枚ドロー（AddCardAnimatedAsync）
-  → "YOUR TURN" / "ENEMY TURN" 告知
+  → ターンプレイヤーのデッキから1枚ドロー
+    - プレイヤー: AddCardAnimatedAsync（飛翔→フリップ）
+    - CPU: PlayCpuDrawAsync（デッキから手札エリア上部へ飛翔、AcceptCard で手札に追加）
+  → "YOUR TURN" / "ENEMY TURN" 告知と並走
 
 RunPreBattle1PhaseAsync
   → "SET CARDS" 告知
