@@ -350,7 +350,12 @@ namespace Main
                 {
                     if (card.Data is EventCardData eventData)
                     {
-                        ApplyEventEffect(eventData, isLocal);
+                        await ApplyEventEffectAsync(eventData, isLocal, ct);
+                    }
+
+                    if (_isGameOver)
+                    {
+                        break;
                     }
 
                     FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
@@ -360,10 +365,15 @@ namespace Main
                 }
 
                 card.SetState(CardState.Normal);
+
+                if (_isGameOver)
+                {
+                    break;
+                }
             }
         }
 
-        private void ApplyEventEffect(EventCardData data, bool isLocal)
+        private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
         {
             switch (data.EffectType)
             {
@@ -387,6 +397,51 @@ namespace Main
                         _opponentDefBoost += data.EffectValue;
                     }
                     break;
+                case EffectType.Draw:
+                    await ApplyDrawEffectAsync(data.EffectValue, isLocal, ct);
+                    break;
+            }
+        }
+
+        private async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+
+            DeckView deck = isLocal ? _playerDeckView : _opponentDeckView;
+
+            for (int i = 0; i < count; i++)
+            {
+                Rect deckRect = deck.worldBound;
+                CardData drawn = deck.DrawTop();
+                deck.RefreshCount();
+
+                if (drawn == null)
+                {
+                    break;
+                }
+
+                if (isLocal)
+                {
+                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                }
+                else
+                {
+                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    IReadOnlyList<CardView> cards = _opponentHandView.Cards;
+                    if (cards.Count > 0)
+                    {
+                        _cpuCards.Add(cards[cards.Count - 1]);
+                    }
+                }
+
+                CheckGameOver();
+                if (_isGameOver)
+                {
+                    break;
+                }
             }
         }
 

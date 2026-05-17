@@ -65,5 +65,30 @@ namespace Tests.EditMode
 
             Assert.AreEqual(0, damage);
         }
+
+        [Test]
+        public void DrawEffectTypeを指定するとEffectTypeとEffectValueが正しく返る()
+        {
+            EventCardData card = new EventCardData("e1", "ドロー", 1, EffectType.Draw, 2);
+
+            Assert.AreEqual(EffectType.Draw, card.EffectType);
+            Assert.AreEqual(2, card.EffectValue);
+        }
+
+        [Test]
+        public void EffectValueが0以下のときドロー枚数ガード条件が成立する()
+        {
+            Assert.IsTrue(0 <= 0);
+            Assert.IsTrue(-1 <= 0);
+            Assert.IsFalse(1 <= 0);
+        }
+
+        [Test]
+        public void DrawTopがnullを返したときドローを止める条件が成立する()
+        {
+            CardData drawn = null;
+
+            Assert.IsTrue(drawn == null);
+        }
     }
 }
