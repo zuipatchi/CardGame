@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.AttributeIconDatabaseSO
   _entries:
   - Attribute: 1
-    Icon: {fileID: 21300000, guid: f404917e7c56ca848871533578b814f3, type: 3}
+    Icon: {fileID: 21300000, guid: 985eedfd76fa7b943bbe364f39e057e3, type: 3}
   - Attribute: 2
-    Icon: {fileID: 21300000, guid: 0ea7d82e7c47218419be5175c18c8c68, type: 3}
+    Icon: {fileID: 21300000, guid: 68a2f54b48440a34ca18e83d60321252, type: 3}
   - Attribute: 3
     Icon: {fileID: 21300000, guid: d03a48c7ead04b149be60e55d8399651, type: 3}
