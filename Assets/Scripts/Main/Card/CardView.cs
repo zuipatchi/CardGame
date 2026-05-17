@@ -19,14 +19,17 @@ namespace Main.Card
         private readonly Label _atkLabel;
         private readonly Label _defLabel;
         private readonly Label _chainLabel;
+        private readonly VisualElement _attributeIcon;
+        private readonly AttributeIconDatabaseSO _attrIconDb;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public CardData Data { get; }
         public CardState State { get; private set; }
 
-        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false)
+        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeIconDatabaseSO attrIconDb = null)
         {
             Data = data;
+            _attrIconDb = attrIconDb;
             template.CloneTree(this);
             _cardRoot = this.Q<VisualElement>("CardRoot");
             _frontFace = this.Q<VisualElement>("FrontFace");
@@ -39,6 +42,7 @@ namespace Main.Card
             _atkLabel = this.Q<Label>("AtkLabel");
             _defLabel = this.Q<Label>("DefLabel");
             _chainLabel = this.Q<Label>("ChainLabel");
+            _attributeIcon = this.Q<VisualElement>("AttributeIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -182,6 +186,24 @@ namespace Main.Card
             if (data.Image != null)
             {
                 _imageArea.style.backgroundImage = new StyleBackground(data.Image);
+            }
+
+            if (data is CharacterCardData charData)
+            {
+                Sprite icon = _attrIconDb?.GetIcon(charData.Attribute);
+                if (icon != null)
+                {
+                    _attributeIcon.style.backgroundImage = new StyleBackground(icon);
+                    _attributeIcon.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    _attributeIcon.style.display = DisplayStyle.None;
+                }
+            }
+            else
+            {
+                _attributeIcon.style.display = DisplayStyle.None;
             }
         }
     }

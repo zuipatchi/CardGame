@@ -16,14 +16,14 @@ namespace Main.Card
 
         public int Count => _deckCards.Count;
 
-        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
+        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeIconDatabaseSO attrIconDb = null)
         {
             AddToClassList("deck-view");
             style.position = Position.Relative;
 
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true);
+                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true, attrIconDb);
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;

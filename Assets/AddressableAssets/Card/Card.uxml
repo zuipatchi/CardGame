@@ -9,6 +9,7 @@
                     <ui:VisualElement class="game-card__heart-icon" />
                     <ui:Label name="CostLabel" class="game-card__cost" />
                 </ui:VisualElement>
+                <ui:VisualElement name="AttributeIcon" class="game-card__attribute-icon" />
                 <ui:VisualElement class="game-card__atk-area">
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />

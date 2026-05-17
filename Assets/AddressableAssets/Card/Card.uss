@@ -208,6 +208,14 @@
     -unity-text-align: middle-center;
 }
 
+.game-card__attribute-icon {
+    display: none;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 4px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .game-card__chain {
     display: none;
     position: absolute;

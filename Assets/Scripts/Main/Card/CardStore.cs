@@ -15,14 +15,17 @@ namespace Main.Card
         private readonly string _cardTemplateAddressable = "Card/CardTemplate";
         private readonly string _cardBackAddressable = "Image/CardBack";
         private readonly string _battleFieldAddressable = "Image/BattleField";
+        private readonly string _attributeIconDatabaseAddressable = "Card/AttributeIconDatabase";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
         public Texture2D BattleField => _battleField;
+        public AttributeIconDatabaseSO AttributeIconDatabase => _attributeIconDatabase;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
         private Texture2D _battleField;
+        private AttributeIconDatabaseSO _attributeIconDatabase;
 
         public void Start()
         {
@@ -36,6 +39,16 @@ namespace Main.Card
                 _cardTemplate = await Addressables.LoadAssetAsync<VisualTreeAsset>(_cardTemplateAddressable).ToUniTask();
                 _cardBack = await Addressables.LoadAssetAsync<Texture2D>(_cardBackAddressable).ToUniTask();
                 _battleField = await Addressables.LoadAssetAsync<Texture2D>(_battleFieldAddressable).ToUniTask();
+
+                try
+                {
+                    _attributeIconDatabase = await Addressables.LoadAssetAsync<AttributeIconDatabaseSO>(_attributeIconDatabaseAddressable).ToUniTask();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"属性アイコンデータベースのロードをスキップ: {e.Message}");
+                }
+
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)

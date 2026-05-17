@@ -73,7 +73,7 @@ namespace DeckBuilder
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
                 foreach (CardData cardData in allCards)
                 {
-                    CardView cardView = new CardView(_cardStore.CardTemplate, cardData);
+                    CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeIconDatabase);
                     cardView.AddToClassList("deckbuilder-card-item");
                     CardData captured = cardData;
                     cardView.RegisterCallback<ClickEvent>(_ => OnCardListItemClicked(captured));

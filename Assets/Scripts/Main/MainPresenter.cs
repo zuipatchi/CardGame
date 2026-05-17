@@ -171,12 +171,12 @@ namespace Main
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false);
+                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeIconDatabase);
                 opponentHandArea.Add(_opponentHandView);
 
                 _handView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer);
+                    _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeIconDatabase);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
 
@@ -208,10 +208,10 @@ namespace Main
                 _backButton.clicked += OnBackClicked;
                 _passButton.clicked += OnPassClicked;
 
-                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
+                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
                 deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 _playerGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);

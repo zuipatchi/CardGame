@@ -118,5 +118,24 @@ namespace Tests.EditMode
             Assert.IsFalse(view.IsFaceDown);
             Assert.AreEqual(DisplayStyle.Flex, view.Q<VisualElement>("FrontFace").style.display.value);
         }
+
+        [Test]
+        public void キャラカードのFire属性がAttributeから取得できる()
+        {
+            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, 1, CardAttribute.Fire);
+
+            Assert.AreEqual(CardAttribute.Fire, data.Attribute);
+        }
+
+        [Test]
+        public void キャラカード属性Noneのとき属性アイコンが非表示()
+        {
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, 3);
+
+            CardView view = new CardView(template, data);
+
+            Assert.AreEqual(DisplayStyle.None, view.Q<VisualElement>("AttributeIcon").style.display.value);
+        }
     }
 }

@@ -8,17 +8,20 @@ namespace Main.Card
     {
         [SerializeField] private int _attack;
         [SerializeField] private int _defense;
+        [SerializeField] private CardAttribute _attribute;
 
         public CharacterCardData() { }
 
-        public CharacterCardData(string id, string name, int cost, int attack, int defense)
+        public CharacterCardData(string id, string name, int cost, int attack, int defense, CardAttribute attribute = CardAttribute.None)
             : base(id, name, cost)
         {
             _attack = attack;
             _defense = defense;
+            _attribute = attribute;
         }
 
         public override int Attack => _attack;
         public override int Defense => _defense;
+        public CardAttribute Attribute => _attribute;
     }
 }
