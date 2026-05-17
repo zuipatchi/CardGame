@@ -51,23 +51,21 @@
 }
 
 .deckbuilder-card-item {
-    width: 96px;
-    height: 132px;
+    width: 160px;
+    height: 220px;
     overflow: hidden;
+    scale: 0.7 0.7;
+    transform-origin: 0% 0%;
     cursor: link;
     transition-duration: 0.1s;
     transition-property: scale;
-    margin-right: 12px;
-    margin-bottom: 12px;
+    margin-right: -36px;
+    margin-bottom: -54px;
 }
 
-.deckbuilder-card-item > #CardRoot {
-    scale: 0.6 0.6;
-    transform-origin: 0% 0%;
-}
 
 .deckbuilder-card-item:hover {
-    scale: 1.08 1.08;
+    scale: 0.75 0.75;
 }
 
 .deckbuilder-card-scroll--full .deckbuilder-card-item {
