@@ -58,6 +58,11 @@ namespace DeckBuilder
                 await _cardStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
 
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+                VisualElement deckBuilderRoot = root.Q<VisualElement>("DeckBuilderRoot");
+                if (_cardStore.DeckBuilderBackground != null)
+                {
+                    deckBuilderRoot.style.backgroundImage = new StyleBackground(_cardStore.DeckBuilderBackground);
+                }
                 _cardListScrollView = root.Q<ScrollView>("CardListScrollView");
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
                 _deckCountLabel = root.Q<Label>("DeckCountLabel");
