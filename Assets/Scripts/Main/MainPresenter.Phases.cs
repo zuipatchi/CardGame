@@ -266,6 +266,7 @@ namespace Main
                     else
                     {
                         _gameModel.ReadyCard(readied);
+                        readied.SetChainNumber(_gameModel.ReadyQueue.Count);
                         await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
                         CheckGameOver();
                     }
@@ -285,6 +286,7 @@ namespace Main
                         _opponentFieldView.PlaceCard(card);
                         await card.FlipAsync(ct);
                         _gameModel.ReadyCard(card);
+                        card.SetChainNumber(_gameModel.ReadyQueue.Count);
                         await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                         CheckGameOver();
                     }
@@ -334,6 +336,7 @@ namespace Main
             for (int i = queue.Count - 1; i >= 0; i--)
             {
                 CardView card = queue[i];
+                card.SetChainNumber(0);
                 card.SetState(CardState.Resolve);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 

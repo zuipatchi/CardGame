@@ -18,6 +18,7 @@ namespace Main.Card
         private readonly VisualElement _defArea;
         private readonly Label _atkLabel;
         private readonly Label _defLabel;
+        private readonly Label _chainLabel;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public CardData Data { get; }
@@ -37,6 +38,7 @@ namespace Main.Card
             _defArea = this.Q<VisualElement>(className: "game-card__def-area");
             _atkLabel = this.Q<Label>("AtkLabel");
             _defLabel = this.Q<Label>("DefLabel");
+            _chainLabel = this.Q<Label>("ChainLabel");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -82,6 +84,20 @@ namespace Main.Card
         {
             State = state;
             _cardRoot.EnableInClassList("game-card--resolve", state == CardState.Resolve);
+        }
+
+        public void SetChainNumber(int number)
+        {
+            if (number <= 0)
+            {
+                _chainLabel.style.display = DisplayStyle.None;
+                return;
+            }
+
+            _chainLabel.text = number is >= 1 and <= 9
+                ? ((char)(0x2460 + number - 1)).ToString()
+                : number.ToString();
+            _chainLabel.style.display = DisplayStyle.Flex;
         }
 
         public void SetBackImage(Texture2D texture)

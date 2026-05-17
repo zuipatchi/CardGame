@@ -207,3 +207,23 @@
     color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
 }
+
+.game-card__chain {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    font-size: 72px;
+    -unity-font-style: bold;
+    color: rgb(255, 220, 50);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    -unity-text-align: middle-center;
+}

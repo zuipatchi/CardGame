@@ -20,5 +20,6 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="BackFace" class="game-card__face game-card__back" />
+        <ui:Label name="ChainLabel" class="game-card__chain" />
     </ui:VisualElement>
 </ui:UXML>
