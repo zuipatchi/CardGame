@@ -233,6 +233,9 @@ namespace Main
                 }
                 await UniTask.WhenAll(drawTasks);
 
+                await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
+                await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
+
                 foreach (CardView cpuCard in _opponentHandView.Cards)
                 {
                     _cpuCards.Add(cpuCard);
@@ -241,6 +244,45 @@ namespace Main
                 RunGameAsync(ct).Forget();
             }
             catch (System.OperationCanceledException) { }
+        }
+
+        private async UniTask RunMulliganIfNeededAsync(
+            CardData[] fullDeck, HandView hand, DeckView deck, int handSize, CancellationToken ct)
+        {
+            IReadOnlyList<CardView> cards = hand.Cards;
+            bool hasCharacter = false;
+            foreach (CardView card in cards)
+            {
+                if (card.Data is CharacterCardData)
+                {
+                    hasCharacter = true;
+                    break;
+                }
+            }
+
+            if (hasCharacter)
+            {
+                return;
+            }
+
+            await PlayAnnouncementAsync("MULLIGAN", "turn-announcement-label--mulligan", ct);
+            await PlayReturnHandToDeckAsync(hand, deck, ct);
+
+            CardData[] reshuffled = Shuffle((CardData[])fullDeck.Clone());
+            CardData[] newHandCards = reshuffled.Take(handSize).ToArray();
+            CardData[] newDeckCards = reshuffled.Skip(handSize).ToArray();
+
+            deck.Rebuild(newDeckCards);
+
+            await UniTask.NextFrame(ct);
+
+            Rect deckRect = deck.worldBound;
+            UniTask[] drawTasks = new UniTask[handSize];
+            for (int i = 0; i < handSize; i++)
+            {
+                drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
+            }
+            await UniTask.WhenAll(drawTasks);
         }
     }
 }

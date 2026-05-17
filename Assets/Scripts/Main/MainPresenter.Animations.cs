@@ -35,6 +35,7 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--event");
             _turnLabel.RemoveFromClassList("turn-announcement-label--skill");
             _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--mulligan");
             _turnLabel.AddToClassList(labelClass);
 
             _turnOverlay.style.display = DisplayStyle.Flex;
@@ -509,6 +510,86 @@ namespace Main
                 {
                     await UniTask.Delay(TimeSpan.FromSeconds(CardInterval), cancellationToken: ct);
                 }
+            }
+        }
+
+        // ─── マリガン：手札をデッキへ返すアニメーション ─────────────────────────
+
+        private async UniTask PlayReturnHandToDeckAsync(HandView hand, DeckView deck, CancellationToken ct)
+        {
+            const float FlyDuration = 0.25f;
+            const float Stagger = 0.06f;
+
+            IReadOnlyList<CardView> snapshot = hand.Cards;
+            if (snapshot.Count == 0)
+            {
+                return;
+            }
+
+            Rect deckRect = deck.worldBound;
+            float targetLeft = deckRect.center.x - CardWidth / 2f;
+            float targetTop = deckRect.center.y - CardHeight / 2f;
+
+            List<(CardView card, Rect fromRect)> entries = new List<(CardView, Rect)>();
+            foreach (CardView card in snapshot)
+            {
+                entries.Add((card, card.worldBound));
+            }
+
+            foreach ((CardView card, Rect _) in entries)
+            {
+                hand.RemoveCard(card);
+            }
+
+            List<UniTask> tasks = new List<UniTask>();
+            for (int i = 0; i < entries.Count; i++)
+            {
+                (CardView card, Rect fromRect) = entries[i];
+                tasks.Add(FlyCardToDeckPositionAsync(card, fromRect, targetLeft, targetTop, i * Stagger, FlyDuration, ct));
+            }
+            await UniTask.WhenAll(tasks);
+        }
+
+        private async UniTask FlyCardToDeckPositionAsync(
+            CardView card, Rect fromRect,
+            float targetLeft, float targetTop,
+            float delay, float duration,
+            CancellationToken ct)
+        {
+            card.style.position = Position.Absolute;
+            card.style.left = fromRect.center.x - CardWidth / 2f;
+            card.style.top = fromRect.center.y - CardHeight / 2f;
+            card.style.width = StyleKeyword.Null;
+            card.style.height = StyleKeyword.Null;
+            card.style.rotate = new Rotate(0);
+            card.style.scale = new Scale(Vector3.one);
+            card.style.transformOrigin = StyleKeyword.Null;
+            card.style.marginLeft = StyleKeyword.Null;
+            card.style.marginRight = StyleKeyword.Null;
+            _dragLayer.Add(card);
+
+            if (delay > 0f)
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: ct);
+            }
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, duration).SetEase(Ease.InQuad))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, duration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            if (card.parent == _dragLayer)
+            {
+                _dragLayer.Remove(card);
             }
         }
 

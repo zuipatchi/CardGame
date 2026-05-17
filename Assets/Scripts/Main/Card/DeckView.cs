@@ -11,6 +11,9 @@ namespace Main.Card
         private const float CardWidth = 160f;
         private const float CardHeight = 220f;
 
+        private readonly VisualTreeAsset _cardTemplate;
+        private readonly Texture2D _backImage;
+        private readonly AttributeIconDatabaseSO _attrIconDb;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
 
@@ -18,6 +21,9 @@ namespace Main.Card
 
         public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeIconDatabaseSO attrIconDb = null)
         {
+            _cardTemplate = cardTemplate;
+            _backImage = backImage;
+            _attrIconDb = attrIconDb;
             AddToClassList("deck-view");
             style.position = Position.Relative;
 
@@ -91,6 +97,28 @@ namespace Main.Card
             {
                 _countLabel.text = Mathf.Max(0, current - 1).ToString();
             }
+        }
+
+        public void Rebuild(CardData[] cards)
+        {
+            foreach (CardView card in _deckCards)
+            {
+                card.RemoveFromHierarchy();
+            }
+            _deckCards.Clear();
+
+            for (int i = 0; i < cards.Length; i++)
+            {
+                CardView card = new CardView(_cardTemplate, cards[i], _backImage, faceDown: true, _attrIconDb);
+                card.style.position = Position.Absolute;
+                card.style.left = (cards.Length - 1 - i) * StackOffsetX;
+                card.style.top = (cards.Length - 1 - i) * StackOffsetY;
+                _deckCards.Add(card);
+                Insert(childCount - 1, card);
+            }
+
+            UpdateSize();
+            RefreshCount();
         }
 
         private void UpdateSize()

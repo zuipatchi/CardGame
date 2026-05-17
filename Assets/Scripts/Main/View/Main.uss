@@ -363,6 +363,11 @@
     background-color: rgba(60, 10, 0, 0.65);
 }
 
+.turn-announcement-label--mulligan {
+    color: rgb(255, 200, 50);
+    background-color: rgba(60, 45, 0, 0.65);
+}
+
 .resolve-overlay {
     position: absolute;
     left: 0;
