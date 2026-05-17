@@ -81,9 +81,16 @@ namespace Main.Card
                 top.RemoveFromHierarchy();
                 taken.Add(top);
             }
-            _countLabel.text = _deckCards.Count.ToString();
             UpdateSize();
             return taken;
+        }
+
+        public void DecrementDisplayCount()
+        {
+            if (int.TryParse(_countLabel.text, out int current))
+            {
+                _countLabel.text = Mathf.Max(0, current - 1).ToString();
+            }
         }
 
         private void UpdateSize()

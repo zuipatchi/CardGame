@@ -493,8 +493,8 @@ namespace Main
                 List<CardView> opponentDamageCards = _opponentDeckView.TakeFromTop(damageToOpponent);
                 List<CardView> playerDamageCards = _playerDeckView.TakeFromTop(damageToPlayer);
                 await UniTask.WhenAll(
-                    PlayDeckDamageAsync(opponentDamageCards, opponentDeckRect, _opponentGraveyardView, ct),
-                    PlayDeckDamageAsync(playerDamageCards, playerDeckRect, _playerGraveyardView, ct)
+                    PlayDeckDamageAsync(opponentDamageCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct),
+                    PlayDeckDamageAsync(playerDamageCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct)
                 );
             }
 

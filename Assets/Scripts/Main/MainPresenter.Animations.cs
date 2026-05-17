@@ -89,7 +89,7 @@ namespace Main
         {
             const float countDuration = 0.8f;
             const float holdDuration = 0.3f;
-            const float formulaHoldDuration = 0.8f;
+            const float formulaHoldDuration = 1.8f;
             const float fadeDuration = 0.3f;
 
             _playerAtkCounterOverlay.BringToFront();
@@ -436,7 +436,7 @@ namespace Main
         // ─── デッキダメージ→墓地アニメーション ─────────────────────────────
 
         private async UniTask PlayDeckDamageAsync(
-            List<CardView> cards, Rect fromRect, GraveyardView graveyard, CancellationToken ct)
+            List<CardView> cards, Rect fromRect, GraveyardView graveyard, DeckView sourceDeck, CancellationToken ct)
         {
             if (cards.Count == 0)
             {
@@ -487,6 +487,7 @@ namespace Main
                     _dragLayer.Remove(card);
                 }
                 graveyard.AddCard(card);
+                sourceDeck.DecrementDisplayCount();
 
                 if (i < cards.Count - 1)
                 {
