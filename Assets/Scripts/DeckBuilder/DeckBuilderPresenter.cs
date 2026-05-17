@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common.Deck;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
@@ -71,18 +72,39 @@ namespace DeckBuilder
 
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
-                foreach (CardData cardData in allCards)
-                {
-                    CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeIconDatabase);
-                    cardView.AddToClassList("deckbuilder-card-item");
-                    CardData captured = cardData;
-                    cardView.RegisterCallback<ClickEvent>(_ => OnCardListItemClicked(captured));
-                    _cardListScrollView.Add(cardView);
-                }
+                AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
+                AddCardSection("技", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
+                AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();
             }
             catch (OperationCanceledException) { }
+        }
+
+        private void AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass)
+        {
+            List<CardData> cardList = new List<CardData>(cards);
+            if (cardList.Count == 0)
+            {
+                return;
+            }
+
+            Label header = new Label(title);
+            header.AddToClassList("deckbuilder-section-header");
+            header.AddToClassList(modifierClass);
+            _cardListScrollView.Add(header);
+
+            VisualElement grid = new VisualElement();
+            grid.AddToClassList("deckbuilder-section-cards");
+            foreach (CardData cardData in cardList)
+            {
+                CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeIconDatabase);
+                cardView.AddToClassList("deckbuilder-card-item");
+                CardData captured = cardData;
+                cardView.RegisterCallback<ClickEvent>(_ => OnCardListItemClicked(captured));
+                grid.Add(cardView);
+            }
+            _cardListScrollView.Add(grid);
         }
 
         private void OnCardListItemClicked(CardData cardData)

@@ -44,9 +44,35 @@
 }
 
 .deckbuilder-card-scroll .unity-scroll-view__content-container {
+    flex-direction: column;
+    padding: 12px;
+}
+
+.deckbuilder-section-header {
+    font-size: 22px;
+    -unity-font-style: bold;
+    padding-left: 8px;
+    padding-top: 12px;
+    padding-bottom: 6px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+}
+
+.deckbuilder-section-header--character {
+    color: rgb(100, 160, 255);
+}
+
+.deckbuilder-section-header--skill {
+    color: rgb(255, 100, 100);
+}
+
+.deckbuilder-section-header--event {
+    color: rgb(255, 220, 80);
+}
+
+.deckbuilder-section-cards {
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 12px;
     align-content: flex-start;
 }
 
