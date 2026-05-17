@@ -481,6 +481,7 @@ namespace Main
                 card.style.marginLeft = StyleKeyword.Null;
                 card.style.marginRight = StyleKeyword.Null;
                 _dragLayer.Add(card);
+                card.FaceUp();
 
                 UniTaskCompletionSource tcs = new UniTaskCompletionSource();
                 Sequence seq = DOTween.Sequence()

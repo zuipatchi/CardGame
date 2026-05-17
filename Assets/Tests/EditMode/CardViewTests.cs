@@ -91,5 +91,32 @@ namespace Tests.EditMode
 
             Assert.AreEqual(DisplayStyle.None, view.Q<Label>("ChainLabel").style.display.value);
         }
+
+        [Test]
+        public void FaceUp_裏向きカードが表向きになる()
+        {
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0, 2);
+            CardView view = new CardView(template, data, faceDown: true);
+
+            view.FaceUp();
+
+            Assert.IsFalse(view.IsFaceDown);
+            Assert.AreEqual(DisplayStyle.Flex, view.Q<VisualElement>("FrontFace").style.display.value);
+            Assert.AreEqual(DisplayStyle.None, view.Q<VisualElement>("BackFace").style.display.value);
+        }
+
+        [Test]
+        public void FaceUp_すでに表向きのカードは変化しない()
+        {
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0, 2);
+            CardView view = new CardView(template, data, faceDown: false);
+
+            view.FaceUp();
+
+            Assert.IsFalse(view.IsFaceDown);
+            Assert.AreEqual(DisplayStyle.Flex, view.Q<VisualElement>("FrontFace").style.display.value);
+        }
     }
 }

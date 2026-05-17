@@ -86,6 +86,20 @@ namespace Main.Card
             _cardRoot.EnableInClassList("game-card--resolve", state == CardState.Resolve);
         }
 
+        public void FaceUp()
+        {
+            if (!IsFaceDown)
+            {
+                return;
+            }
+
+            IsFaceDown = false;
+            _frontFace.style.display = DisplayStyle.Flex;
+            _backFace.style.display = DisplayStyle.None;
+            _imageArea.style.display = DisplayStyle.Flex;
+            ApplyTypeFrame(true);
+        }
+
         public void SetChainNumber(int number)
         {
             if (number <= 0)
