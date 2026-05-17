@@ -116,10 +116,14 @@ namespace Main
             if (_playerCharacterSlot.CurrentCard != null)
             {
                 await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
+                await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
+                CheckGameOver();
             }
             if (_opponentCharacterSlot.CurrentCard != null)
             {
                 await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
+                await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
+                CheckGameOver();
             }
         }
 
@@ -185,8 +189,8 @@ namespace Main
 
                 if (isLocalAct)
                 {
-                    bool placed = await WaitForPlayerPreBattle1TurnAsync(ct);
-                    if (!placed)
+                    CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
+                    if (placed == null)
                     {
                         await PlayPassAnimationAsync(true, ct);
                     }
@@ -198,7 +202,7 @@ namespace Main
             }
         }
 
-        private async UniTask<bool> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
+        private async UniTask<CardView> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
         {
             _isLocalPreBattleActive = true;
             _preBattleInputTcs = new UniTaskCompletionSource<CardView>();
@@ -218,7 +222,7 @@ namespace Main
                 HideActionButtons();
             }
 
-            return result != null;
+            return result;
         }
 
         private async UniTask RunCpuPreBattle1SubTurnAsync(CancellationToken ct)
@@ -262,6 +266,8 @@ namespace Main
                     else
                     {
                         _gameModel.ReadyCard(readied);
+                        await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
+                        CheckGameOver();
                     }
                 }
                 else
@@ -279,6 +285,8 @@ namespace Main
                         _opponentFieldView.PlaceCard(card);
                         await card.FlipAsync(ct);
                         _gameModel.ReadyCard(card);
+                        await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
+                        CheckGameOver();
                     }
                     else
                     {
@@ -399,6 +407,26 @@ namespace Main
             await UniTask.WhenAll(flipTasks);
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
+
+            // コスト払い（キャラ・技カード：オープン時）
+            List<UniTask> costPayTasks = new List<UniTask>();
+            foreach (CardView c in playerCards)
+            {
+                costPayTasks.Add(PayCostAsync(c, _playerDeckView, _playerGraveyardView, ct));
+            }
+            foreach (CardView c in opponentCards)
+            {
+                costPayTasks.Add(PayCostAsync(c, _opponentDeckView, _opponentGraveyardView, ct));
+            }
+            if (costPayTasks.Count > 0)
+            {
+                await UniTask.WhenAll(costPayTasks);
+                CheckGameOver();
+                if (_isGameOver)
+                {
+                    return;
+                }
+            }
 
             List<CardView> playerFieldChar = playerCards.Where(c => c.Data is CharacterCardData).ToList();
             List<CardView> opponentFieldChar = opponentCards.Where(c => c.Data is CharacterCardData).ToList();

@@ -433,6 +433,21 @@ namespace Main
             _dragLayer.Remove(card);
         }
 
+        // ─── コスト払い（デッキ上から→墓地）───────────────────────────────
+
+        private async UniTask PayCostAsync(CardView card, DeckView deck, GraveyardView graveyard, CancellationToken ct)
+        {
+            int cost = card.Data.Cost;
+            if (cost <= 0)
+            {
+                return;
+            }
+
+            Rect deckRect = deck.worldBound;
+            List<CardView> costCards = deck.TakeFromTop(cost);
+            await PlayDeckDamageAsync(costCards, deckRect, graveyard, deck, ct);
+        }
+
         // ─── デッキダメージ→墓地アニメーション ─────────────────────────────
 
         private async UniTask PlayDeckDamageAsync(
