@@ -51,6 +51,7 @@ namespace Main
         private Label _opponentAtkCounterLabel;
         private Label _opponentDamageFormulaLabel;
         private VisualElement _dragLayer;
+        private Label _costWarningLabel;
 
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
@@ -207,6 +208,12 @@ namespace Main
                 _okButton.clicked += OnOkClicked;
                 _backButton.clicked += OnBackClicked;
                 _passButton.clicked += OnPassClicked;
+
+                _costWarningLabel = new Label("コストを払うとデッキが0枚になります");
+                _costWarningLabel.AddToClassList("main-cost-warning-label");
+                _costWarningLabel.pickingMode = PickingMode.Ignore;
+                _costWarningLabel.style.display = DisplayStyle.None;
+                mainRoot.Add(_costWarningLabel);
 
                 _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
                 deckArea.Add(_playerDeckView);

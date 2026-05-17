@@ -33,6 +33,7 @@ namespace Main
                 _stagedCharSetCard = card;
                 card.FlipAsync(destroyCancellationToken).Forget();
                 UpdateStagedButtons(_stagedCharSetCard != null);
+                UpdateCostWarning(_stagedCharSetCard);
                 return true;
             }
 
@@ -49,6 +50,7 @@ namespace Main
                     _stagedPreBattleCard = card;
                     card.FlipAsync(destroyCancellationToken).Forget();
                     UpdateStagedButtons(_stagedPreBattleCard != null);
+                    UpdateCostWarning(_stagedPreBattleCard);
                 }
                 return placed;
             }
@@ -65,6 +67,7 @@ namespace Main
                 {
                     _stagedPrepCard = card;
                     UpdateStagedButtons(true);
+                    UpdateCostWarning(_stagedPrepCard);
                 }
                 return placed;
             }
@@ -195,6 +198,10 @@ namespace Main
             _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
             _backButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
             _okButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
+            if (!hasStaged)
+            {
+                _costWarningLabel.style.display = DisplayStyle.None;
+            }
         }
 
         private void ShowActionButtons()
@@ -205,6 +212,13 @@ namespace Main
         private void HideActionButtons()
         {
             _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
+            _costWarningLabel.style.display = DisplayStyle.None;
+        }
+
+        private void UpdateCostWarning(CardView card)
+        {
+            bool show = card != null && card.Data.Cost > 0 && card.Data.Cost >= _playerDeckView.Count;
+            _costWarningLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
