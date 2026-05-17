@@ -10,10 +10,11 @@ namespace Main.Card
 
         public SkillCardData() { }
 
-        public SkillCardData(string id, string name, int cost, int damage)
+        public SkillCardData(string id, string name, int cost, int damage, CardAttribute attribute = CardAttribute.None)
             : base(id, name, cost)
         {
             _damage = damage;
+            _attribute = attribute;
         }
 
         public int Damage => _damage;

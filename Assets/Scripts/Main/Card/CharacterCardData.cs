@@ -8,7 +8,6 @@ namespace Main.Card
     {
         [SerializeField] private int _attack;
         [SerializeField] private int _defense;
-        [SerializeField] private CardAttribute _attribute;
 
         public CharacterCardData() { }
 
@@ -22,6 +21,5 @@ namespace Main.Card
 
         public override int Attack => _attack;
         public override int Defense => _defense;
-        public CardAttribute Attribute => _attribute;
     }
 }

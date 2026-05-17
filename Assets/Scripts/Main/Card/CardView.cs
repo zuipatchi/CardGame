@@ -188,18 +188,11 @@ namespace Main.Card
                 _imageArea.style.backgroundImage = new StyleBackground(data.Image);
             }
 
-            if (data is CharacterCardData charData)
+            Sprite attrIcon = _attrIconDb?.GetIcon(data.Attribute);
+            if (attrIcon != null)
             {
-                Sprite icon = _attrIconDb?.GetIcon(charData.Attribute);
-                if (icon != null)
-                {
-                    _attributeIcon.style.backgroundImage = new StyleBackground(icon);
-                    _attributeIcon.style.display = DisplayStyle.Flex;
-                }
-                else
-                {
-                    _attributeIcon.style.display = DisplayStyle.None;
-                }
+                _attributeIcon.style.backgroundImage = new StyleBackground(attrIcon);
+                _attributeIcon.style.display = DisplayStyle.Flex;
             }
             else
             {

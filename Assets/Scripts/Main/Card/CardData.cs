@@ -9,11 +9,13 @@ namespace Main.Card
         [SerializeField] protected string _cardName;
         [SerializeField] protected int _cost;
         [SerializeField] protected Sprite _image;
+        [SerializeField] protected CardAttribute _attribute;
 
         public string Id => _id;
         public string CardName => _cardName;
         public int Cost => _cost;
         public Sprite Image => _image;
+        public CardAttribute Attribute => _attribute;
 
         public virtual int Attack => 0;
         public virtual int Defense => 0;

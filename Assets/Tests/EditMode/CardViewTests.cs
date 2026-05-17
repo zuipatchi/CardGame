@@ -128,6 +128,14 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void スキルカードのPoison属性がAttributeから取得できる()
+        {
+            SkillCardData data = new SkillCardData("s1", "毒爪", 1, 2, CardAttribute.Poison);
+
+            Assert.AreEqual(CardAttribute.Poison, data.Attribute);
+        }
+
+        [Test]
         public void キャラカード属性Noneのとき属性アイコンが非表示()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
