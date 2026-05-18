@@ -87,7 +87,7 @@ namespace DeckBuilder
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
                 _cardListDragLayer.pickingMode = PickingMode.Ignore;
-                _cardDetailModal = new CardDetailModal(deckBuilderRoot, _cardStore.AttributeIconDatabase);
+                _cardDetailModal = new CardDetailModal(deckBuilderRoot, _cardStore.AttributeDatabase);
 
                 _deckModel.Clear();
                 _deckRepository.Load(_deckModel);
@@ -121,13 +121,13 @@ namespace DeckBuilder
             grid.AddToClassList("deckbuilder-section-cards");
             foreach (CardData cardData in cardList)
             {
-                CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeIconDatabase);
+                CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeDatabase);
                 cardView.AddToClassList("deckbuilder-card-item");
                 CardData captured = cardData;
                 CardDragManipulator manipulator = new CardDragManipulator(_cardListDragLayer);
                 manipulator.CreateGhost = () =>
                 {
-                    CardView ghost = new CardView(_cardStore.CardTemplate, captured, attrIconDb: _cardStore.AttributeIconDatabase);
+                    CardView ghost = new CardView(_cardStore.CardTemplate, captured, attrIconDb: _cardStore.AttributeDatabase);
                     ghost.AddToClassList("deckbuilder-card-item");
                     ghost.style.opacity = 0.75f;
                     ghost.pickingMode = PickingMode.Ignore;

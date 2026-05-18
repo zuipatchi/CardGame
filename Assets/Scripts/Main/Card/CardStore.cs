@@ -22,13 +22,13 @@ namespace Main.Card
         public Texture2D CardBack => _cardBack;
         public Texture2D BattleField => _battleField;
         public Texture2D DeckBuilderBackground => _deckBuilderBackground;
-        public AttributeIconDatabaseSO AttributeIconDatabase => _attributeIconDatabase;
+        public AttributeDatabaseSO AttributeDatabase => _attributeDatabase;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
         private Texture2D _battleField;
         private Texture2D _deckBuilderBackground;
-        private AttributeIconDatabaseSO _attributeIconDatabase;
+        private AttributeDatabaseSO _attributeDatabase;
 
         public void Start()
         {
@@ -46,7 +46,7 @@ namespace Main.Card
 
                 try
                 {
-                    _attributeIconDatabase = await Addressables.LoadAssetAsync<AttributeIconDatabaseSO>(_attributeIconDatabaseAddressable).ToUniTask();
+                    _attributeDatabase = await Addressables.LoadAssetAsync<AttributeDatabaseSO>(_attributeIconDatabaseAddressable).ToUniTask();
                 }
                 catch (Exception e)
                 {

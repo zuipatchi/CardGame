@@ -13,7 +13,7 @@ namespace Main.Card
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
-        private readonly AttributeIconDatabaseSO _attrIconDb;
+        private readonly AttributeDatabaseSO _attrIconDb;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
         private readonly VisualElement _defOverlay;
@@ -23,7 +23,7 @@ namespace Main.Card
         public VisualElement DefOverlay => _defOverlay;
         public void SetDefValue(int def) => _defLabel.text = def.ToString();
 
-        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeIconDatabaseSO attrIconDb = null)
+        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeDatabaseSO attrIconDb = null)
         {
             _cardTemplate = cardTemplate;
             _backImage = backImage;

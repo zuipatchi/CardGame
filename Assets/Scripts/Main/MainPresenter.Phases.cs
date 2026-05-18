@@ -530,14 +530,20 @@ namespace Main
             bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null && opponentFieldChar.Count == 0;
 
             CardAttribute playerCharAttr = _playerCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
-            bool playerTypeMatch = playerSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == playerCharAttr);
-            int playerATK = playerHasAttackingChar
-                ? (playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost) * (playerTypeMatch ? 2 : 1)
-                : 0;
             CardAttribute opponentCharAttr = _opponentCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
+
+            bool playerTypeMatch = playerSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == playerCharAttr);
+            CardAttribute opponentWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(opponentCharAttr) : CardAttribute.None;
+            bool playerWeaknessHit = opponentWeakness != CardAttribute.None && playerSkill.Any(c => c.Data.Attribute == opponentWeakness);
+            int playerATK = playerHasAttackingChar
+                ? (playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost) * (playerTypeMatch ? 2 : 1) * (playerWeaknessHit ? 3 : 1)
+                : 0;
+
             bool opponentTypeMatch = opponentSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == opponentCharAttr);
+            CardAttribute playerWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(playerCharAttr) : CardAttribute.None;
+            bool opponentWeaknessHit = playerWeakness != CardAttribute.None && opponentSkill.Any(c => c.Data.Attribute == playerWeakness);
             int opponentATK = opponentHasAttackingChar
-                ? (opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost) * (opponentTypeMatch ? 2 : 1)
+                ? (opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost) * (opponentTypeMatch ? 2 : 1) * (opponentWeaknessHit ? 3 : 1)
                 : 0;
 
             int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;

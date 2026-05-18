@@ -20,13 +20,13 @@ namespace Main.Card
         private readonly Label _defLabel;
         private readonly Label _chainLabel;
         private readonly VisualElement _attributeIcon;
-        private readonly AttributeIconDatabaseSO _attrIconDb;
+        private readonly AttributeDatabaseSO _attrIconDb;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public CardData Data { get; }
         public CardState State { get; private set; }
 
-        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeIconDatabaseSO attrIconDb = null)
+        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeDatabaseSO attrIconDb = null)
         {
             Data = data;
             _attrIconDb = attrIconDb;

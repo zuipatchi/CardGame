@@ -185,16 +185,16 @@ namespace Main
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeIconDatabase);
+                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeDatabase);
                 opponentHandArea.Add(_opponentHandView);
 
                 _handView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeIconDatabase);
+                    _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeDatabase);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
 
-                _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeIconDatabase);
+                _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeDatabase);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _playerFieldView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _opponentFieldView.OnCardClicked = card =>
@@ -262,10 +262,10 @@ namespace Main
                 _gameEndOverlay.Add(_gameEndTitleButton);
                 mainRoot.Add(_gameEndOverlay);
 
-                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
+                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeDatabase);
                 deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, _cardStore.AttributeDatabase);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 _playerGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);

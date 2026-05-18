@@ -33,10 +33,10 @@ namespace Main.Card
         private readonly Texture2D _backImage;
         private readonly VisualElement _dragLayer;
         private readonly bool _interactive;
-        private readonly AttributeIconDatabaseSO _attrIconDb;
+        private readonly AttributeDatabaseSO _attrIconDb;
         private readonly List<HandCardEntry> _entries = new List<HandCardEntry>();
 
-        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true, AttributeIconDatabaseSO attrIconDb = null)
+        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true, AttributeDatabaseSO attrIconDb = null)
         {
             _cardTemplate = cardTemplate;
             _backImage = backImage;

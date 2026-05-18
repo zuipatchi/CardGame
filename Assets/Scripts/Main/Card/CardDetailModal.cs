@@ -6,10 +6,10 @@ namespace Main.Card
     public sealed class CardDetailModal
     {
         private readonly VisualElement _root;
-        private readonly AttributeIconDatabaseSO _attrIconDb;
+        private readonly AttributeDatabaseSO _attrIconDb;
         private VisualElement _overlay;
 
-        public CardDetailModal(VisualElement root, AttributeIconDatabaseSO attrIconDb = null)
+        public CardDetailModal(VisualElement root, AttributeDatabaseSO attrIconDb = null)
         {
             _root = root;
             _attrIconDb = attrIconDb;
