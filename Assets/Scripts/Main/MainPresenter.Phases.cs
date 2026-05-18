@@ -67,7 +67,7 @@ namespace Main
 
         private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
-            await PlayAnnouncementAsync("SET CHARACTERS", "turn-announcement-label--character", ct);
+            await PlayAnnouncementAsync("PLACE CHARACTERS", "turn-announcement-label--character", ct);
 
             bool isLocalFirst = _gameModel.IsLocalTurn;
 
@@ -104,6 +104,7 @@ namespace Main
                         _opponentHandView.RemoveCard(card);
                         await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
                         _opponentCharacterSlot.PlaceCard(card);
+                        await PlayOkFlashAsync(false, ct);
                     }
                     else
                     {
@@ -185,7 +186,7 @@ namespace Main
 
         private async UniTask RunPreBattle1PhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
-            await PlayAnnouncementAsync("SET CARDS", "turn-announcement-label--skill", ct);
+            await PlayAnnouncementAsync("PLACE CARDS", "turn-announcement-label--skill", ct);
 
             bool isLocalFirst = isLocalTurn;
 
@@ -248,13 +249,14 @@ namespace Main
             _opponentHandView.RemoveCard(card);
             await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(card);
+            await PlayOkFlashAsync(false, ct);
         }
 
         // ─── 戦闘前2フェーズ（Event のみ・交互・2連続パス）──────────────────
 
         private async UniTask RunPreBattle2PhaseAsync(CancellationToken ct)
         {
-            await PlayAnnouncementAsync("SET EVENTS", "turn-announcement-label--event", ct);
+            await PlayAnnouncementAsync("PLACE EVENTS", "turn-announcement-label--event", ct);
 
             while (true)
             {
@@ -293,6 +295,7 @@ namespace Main
                         await card.FlipAsync(ct);
                         _gameModel.ReadyCard(card);
                         card.SetChainNumber(_gameModel.ReadyQueue.Count);
+                        await PlayOkFlashAsync(false, ct);
                         await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                         if (_isGameOver) break;
                     }
@@ -477,14 +480,19 @@ namespace Main
             List<UniTask> costPayTasks = new List<UniTask>();
             foreach (CardView c in playerCards)
             {
-                costPayTasks.Add(PayCostAsync(c, _playerDeckView, _playerGraveyardView, ct));
+                costPayTasks.Add(PayCostAsync(c, _playerDeckView, _playerGraveyardView, ct, announce: false));
             }
             foreach (CardView c in opponentCards)
             {
-                costPayTasks.Add(PayCostAsync(c, _opponentDeckView, _opponentGraveyardView, ct));
+                costPayTasks.Add(PayCostAsync(c, _opponentDeckView, _opponentGraveyardView, ct, announce: false));
             }
             if (costPayTasks.Count > 0)
             {
+                bool anyCost = playerCards.Concat(opponentCards).Any(c => c.Data.Cost > 0);
+                if (anyCost)
+                {
+                    await PlayAnnouncementAsync("PAY THE COST", "turn-announcement-label--cost", ct);
+                }
                 await UniTask.WhenAll(costPayTasks);
                 if (_isGameOver)
                 {

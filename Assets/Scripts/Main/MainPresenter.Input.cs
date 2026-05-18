@@ -77,7 +77,7 @@ namespace Main
 
         // ─── ボタンハンドラ ──────────────────────────────────────────────
 
-        private void OnOkClicked()
+        private async void OnOkClicked()
         {
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null)
             {
@@ -88,6 +88,8 @@ namespace Main
 
                 CardView card = _stagedCharSetCard;
                 _stagedCharSetCard = null;
+                HideActionButtons();
+                await PlayOkFlashAsync(true, destroyCancellationToken);
                 _charSetInputTcs.TrySetResult(card);
                 return;
             }
@@ -101,6 +103,8 @@ namespace Main
 
                 CardView card = _stagedPreBattleCard;
                 _stagedPreBattleCard = null;
+                HideActionButtons();
+                await PlayOkFlashAsync(true, destroyCancellationToken);
                 _preBattleInputTcs.TrySetResult(card);
                 return;
             }
@@ -115,6 +119,7 @@ namespace Main
                 CardView card = _stagedPrepCard;
                 _stagedPrepCard = null;
                 HideActionButtons();
+                await PlayOkFlashAsync(true, destroyCancellationToken);
                 _prepInputTcs.TrySetResult(card);
                 return;
             }

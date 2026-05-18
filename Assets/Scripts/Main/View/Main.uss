@@ -368,6 +368,16 @@
     background-color: rgba(60, 45, 0, 0.65);
 }
 
+.turn-announcement-label--cost {
+    color: rgb(255, 160, 30);
+    background-color: rgba(60, 30, 0, 0.65);
+}
+
+.turn-announcement-label--set {
+    color: rgb(80, 220, 120);
+    background-color: rgba(0, 40, 15, 0.65);
+}
+
 .resolve-overlay {
     position: absolute;
     left: 0;
