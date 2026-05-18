@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Main
 {
@@ -515,25 +516,6 @@ namespace Main
                 await UniTask.WhenAll(charMoveTasks);
             }
 
-            // 技カードをキャラスロットへ飛翔
-            List<UniTask> skillMoveTasks = new List<UniTask>();
-            foreach (CardView c in playerSkill)
-            {
-                Rect fromRect = c.worldBound;
-                _playerFieldView.RemoveCard(c);
-                skillMoveTasks.Add(FlySkillToSlotAsync(c, fromRect, _playerCharacterSlot, ct));
-            }
-            foreach (CardView c in opponentSkill)
-            {
-                Rect fromRect = c.worldBound;
-                _opponentFieldView.RemoveCard(c);
-                skillMoveTasks.Add(FlySkillToSlotAsync(c, fromRect, _opponentCharacterSlot, ct));
-            }
-            if (skillMoveTasks.Count > 0)
-            {
-                await UniTask.WhenAll(skillMoveTasks);
-            }
-
             // 戦闘前1でキャラを出した場合は攻撃しない（ATK=0・モーションなし）
             // ATKは技カードのダメージ値の合計（キャラなし or 新キャラ配置→0）
             bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null && playerFieldChar.Count == 0;
@@ -551,8 +533,11 @@ namespace Main
             int damageToOpponent = Mathf.Max(0, playerATK - effectiveOpponentDef);
             int damageToPlayer = Mathf.Max(0, opponentATK - effectivePlayerDef);
 
-            // 技カードスロット到着後にATKカウントアップ表示
-            await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, damageToOpponent, damageToPlayer, ct);
+            // ATKカウントアップ表示（技カードはフィールドに残ったまま）
+            await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, ct);
+
+            // ATK数字・技カードをキャラスロットへ同時に飛翔
+            await FlySkillsWithAtkAsync(playerATK, opponentATK, playerSkill, opponentSkill, ct);
 
             // 技カードを墓地へ
             foreach (CardView c in playerSkill)
@@ -575,6 +560,11 @@ namespace Main
                     ? PlayCharacterSlotAttackAsync(_opponentCharacterSlot, _playerDeckView, ct)
                     : UniTask.CompletedTask
             );
+
+            _playerCharacterSlot.SetAtkOverlayVisible(false);
+            _opponentCharacterSlot.SetAtkOverlayVisible(false);
+            _playerDeckView.DefOverlay.style.display = DisplayStyle.None;
+            _opponentDeckView.DefOverlay.style.display = DisplayStyle.None;
 
             // DEF・ダメージ計算（攻撃後もスロットにキャラが戻っている）
             if (damageToOpponent > 0 || damageToPlayer > 0)

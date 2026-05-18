@@ -85,57 +85,39 @@ namespace Main
         private async UniTask PlayAtkCounterAsync(
             int playerAtk, int opponentAtk,
             int opponentDef, int playerDef,
-            int damageToOpponent, int damageToPlayer,
             CancellationToken ct)
         {
             const float countDuration = 0.8f;
             const float holdDuration = 0.3f;
-            const float formulaHoldDuration = 1.8f;
-            const float fadeDuration = 0.3f;
 
             _playerAtkCounterOverlay.BringToFront();
             _opponentAtkCounterOverlay.BringToFront();
             _playerAtkCounterLabel.text = "0";
             _opponentAtkCounterLabel.text = "0";
-            _playerDamageFormulaLabel.text = string.Empty;
-            _opponentDamageFormulaLabel.text = string.Empty;
             _playerAtkCounterOverlay.style.display = DisplayStyle.Flex;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.Flex;
             _playerAtkCounterOverlay.style.opacity = 0f;
             _opponentAtkCounterOverlay.style.opacity = 0f;
 
+            _playerDeckView.SetDefValue(playerDef);
+            _opponentDeckView.SetDefValue(opponentDef);
+            _playerDeckView.DefOverlay.style.display = DisplayStyle.Flex;
+            _opponentDeckView.DefOverlay.style.display = DisplayStyle.Flex;
+            _playerDeckView.DefOverlay.style.opacity = 0f;
+            _opponentDeckView.DefOverlay.style.opacity = 0f;
+
             float playerVal = 0f;
             float opponentVal = 0f;
-
-            bool showPlayerFormula = opponentDef > 0;
-            bool showOpponentFormula = playerDef > 0;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
+                .Join(DOTween.To(() => _playerDeckView.DefOverlay.style.opacity.value, v => _playerDeckView.DefOverlay.style.opacity = v, 1f, 0.2f))
+                .Join(DOTween.To(() => _opponentDeckView.DefOverlay.style.opacity.value, v => _opponentDeckView.DefOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => playerVal, v => { playerVal = v; _playerAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)playerAtk, countDuration).SetEase(Ease.OutQuad))
                 .Join(DOTween.To(() => opponentVal, v => { opponentVal = v; _opponentAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)opponentAtk, countDuration).SetEase(Ease.OutQuad))
-                .AppendInterval(holdDuration);
-
-            if (showPlayerFormula || showOpponentFormula)
-            {
-                seq.AppendCallback(() =>
-                {
-                    if (showPlayerFormula)
-                    {
-                        _playerDamageFormulaLabel.text = $"{playerAtk} - {opponentDef} = {damageToOpponent}";
-                    }
-                    if (showOpponentFormula)
-                    {
-                        _opponentDamageFormulaLabel.text = $"{opponentAtk} - {playerDef} = {damageToPlayer}";
-                    }
-                })
-                .AppendInterval(formulaHoldDuration);
-            }
-
-            seq.Append(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
-                .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 0f, fadeDuration))
+                .AppendInterval(holdDuration)
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
@@ -146,8 +128,102 @@ namespace Main
             }
             catch (OperationCanceledException) { }
 
+            // overlays はここで非表示にしない — FlySkillsWithAtkAsync が処理する
+        }
+
+        // ─── 技カード+ATK数字をキャラスロットへ同時飛翔 ────────────────────
+
+        private async UniTask FlySkillsWithAtkAsync(
+            int playerAtk, int opponentAtk,
+            System.Collections.Generic.List<CardView> playerSkill,
+            System.Collections.Generic.List<CardView> opponentSkill,
+            CancellationToken ct)
+        {
+            const float holdDuration = 0.8f;
+            const float labelW = 200f;
+            const float labelH = 160f;
+
+            // 現在位置を記録（drag layer ローカル座標）
+            Vector2 playerCounterCenter = _dragLayer.WorldToLocal(_playerAtkCounterOverlay.worldBound.center);
+            Vector2 opponentCounterCenter = _dragLayer.WorldToLocal(_opponentAtkCounterOverlay.worldBound.center);
+            Vector2 playerSlotCenter = _dragLayer.WorldToLocal(_playerCharacterSlot.worldBound.center);
+            Vector2 opponentSlotCenter = _dragLayer.WorldToLocal(_opponentCharacterSlot.worldBound.center);
+
+            // floating label を drag layer に追加
+            Label playerLabel = MakeFloatingAtkLabel(playerAtk.ToString(), playerCounterCenter, labelW, labelH);
+            Label opponentLabel = MakeFloatingAtkLabel(opponentAtk.ToString(), opponentCounterCenter, labelW, labelH);
+            _dragLayer.Add(playerLabel);
+            _dragLayer.Add(opponentLabel);
+
+            // field ATK overlays を非表示（DEF overlays は攻撃力非表示と同タイミングで Phases.cs が処理）
             _playerAtkCounterOverlay.style.display = DisplayStyle.None;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
+
+            // スロットの ATK 値を設定
+            _playerCharacterSlot.SetAtkValue(playerAtk);
+            _opponentCharacterSlot.SetAtkValue(opponentAtk);
+
+            float pLeft = playerLabel.style.left.value.value;
+            float pTop = playerLabel.style.top.value.value;
+            float oLeft = opponentLabel.style.left.value.value;
+            float oTop = opponentLabel.style.top.value.value;
+
+            UniTaskCompletionSource labelTcs = new UniTaskCompletionSource();
+            Sequence labelSeq = DOTween.Sequence()
+                .Join(DOTween.To(() => pLeft, v => { pLeft = v; playerLabel.style.left = v; }, playerSlotCenter.x - labelW * 0.5f, CpuCardFlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => pTop, v => { pTop = v; playerLabel.style.top = v; }, playerSlotCenter.y - labelH * 0.5f, CpuCardFlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => oLeft, v => { oLeft = v; opponentLabel.style.left = v; }, opponentSlotCenter.x - labelW * 0.5f, CpuCardFlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => oTop, v => { oTop = v; opponentLabel.style.top = v; }, opponentSlotCenter.y - labelH * 0.5f, CpuCardFlyDuration).SetEase(Ease.OutQuad))
+                .AppendCallback(() =>
+                {
+                    playerLabel.RemoveFromHierarchy();
+                    opponentLabel.RemoveFromHierarchy();
+                    _playerCharacterSlot.SetAtkOverlayVisible(true);
+                    _opponentCharacterSlot.SetAtkOverlayVisible(true);
+                })
+                .AppendInterval(holdDuration)
+                .OnComplete(() => labelTcs.TrySetResult());
+
+            ct.Register(() => { labelSeq.Kill(); labelTcs.TrySetCanceled(); });
+
+            System.Collections.Generic.List<UniTask> tasks = new System.Collections.Generic.List<UniTask>();
+            tasks.Add(labelTcs.Task);
+            foreach (CardView c in playerSkill)
+            {
+                Rect fromRect = c.worldBound;
+                _playerFieldView.RemoveCard(c);
+                tasks.Add(FlySkillToSlotAsync(c, fromRect, _playerCharacterSlot, ct));
+            }
+            foreach (CardView c in opponentSkill)
+            {
+                Rect fromRect = c.worldBound;
+                _opponentFieldView.RemoveCard(c);
+                tasks.Add(FlySkillToSlotAsync(c, fromRect, _opponentCharacterSlot, ct));
+            }
+
+            try
+            {
+                await UniTask.WhenAll(tasks);
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                if (playerLabel.parent != null) { playerLabel.RemoveFromHierarchy(); }
+                if (opponentLabel.parent != null) { opponentLabel.RemoveFromHierarchy(); }
+            }
+        }
+
+        private static Label MakeFloatingAtkLabel(string text, Vector2 centerInDragLayer, float width, float height)
+        {
+            Label label = new Label(text);
+            label.AddToClassList("atk-counter-label");
+            label.pickingMode = PickingMode.Ignore;
+            label.style.position = Position.Absolute;
+            label.style.width = width;
+            label.style.height = height;
+            label.style.left = centerInDragLayer.x - width * 0.5f;
+            label.style.top = centerInDragLayer.y - height * 0.5f;
+            return label;
         }
 
         // ─── 技カード攻撃アニメーション ──────────────────────────────────
@@ -272,6 +348,39 @@ namespace Main
             const float knockbackDuration = 0.15f;
 
             Rect slotRect = slot.worldBound;
+
+            bool hasAtkOverlay = slot.IsAtkOverlayVisible;
+            string atkText = slot.AtkLabelText;
+            VisualElement flyingAtk = null;
+            float flyAtkLeft = 0f;
+            float flyAtkTop = 0f;
+
+            if (hasAtkOverlay)
+            {
+                slot.SetAtkOverlayVisible(false);
+                flyingAtk = new VisualElement();
+                flyingAtk.pickingMode = PickingMode.Ignore;
+                flyingAtk.style.position = Position.Absolute;
+                flyingAtk.style.width = CardWidth;
+                flyingAtk.style.height = CardHeight;
+                flyingAtk.style.alignItems = Align.Center;
+                flyingAtk.style.justifyContent = Justify.Center;
+                flyAtkLeft = slotRect.center.x - CardWidth / 2f;
+                flyAtkTop = slotRect.center.y - CardHeight / 2f;
+                flyingAtk.style.left = flyAtkLeft;
+                flyingAtk.style.top = flyAtkTop;
+
+                VisualElement atkIcon = new VisualElement();
+                atkIcon.AddToClassList("char-slot-atk-icon");
+                atkIcon.pickingMode = PickingMode.Ignore;
+                flyingAtk.Add(atkIcon);
+
+                Label atkLabel = new Label(atkText);
+                atkLabel.AddToClassList("char-slot-atk-label");
+                atkLabel.pickingMode = PickingMode.Ignore;
+                flyingAtk.Add(atkLabel);
+            }
+
             slot.RemoveCard();
 
             card.style.position = Position.Absolute;
@@ -285,6 +394,11 @@ namespace Main
             card.style.marginLeft = StyleKeyword.Null;
             card.style.marginRight = StyleKeyword.Null;
             _dragLayer.Add(card);
+
+            if (flyingAtk != null)
+            {
+                _dragLayer.Add(flyingAtk);
+            }
 
             Vector2 fromCenter = slotRect.center;
             Vector2 toCenter = targetDeck.worldBound.center;
@@ -309,8 +423,20 @@ namespace Main
                     card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
                 }, facingAngle, windupDuration).SetEase(Ease.OutSine));
 
+            if (flyingAtk != null)
+            {
+                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, windupLeft, windupDuration).SetEase(Ease.OutSine));
+                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, windupTop, windupDuration).SetEase(Ease.OutSine));
+            }
+
             seq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
             seq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
+
+            if (flyingAtk != null)
+            {
+                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, targetLeft, flyDuration).SetEase(Ease.InCubic));
+                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, targetTop, flyDuration).SetEase(Ease.InCubic));
+            }
 
             float kbT = 0f;
             Vector2 kbEnd = toCenter - dir * knockbackDist;
@@ -320,6 +446,11 @@ namespace Main
                 Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
                 card.style.left = pos.x - CardWidth / 2f;
                 card.style.top = pos.y - CardHeight / 2f;
+                if (flyingAtk != null)
+                {
+                    flyingAtk.style.left = pos.x - CardWidth / 2f;
+                    flyingAtk.style.top = pos.y - CardHeight / 2f;
+                }
             }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
 
             seq.OnComplete(() => tcs.TrySetResult());
@@ -330,6 +461,11 @@ namespace Main
                 await tcs.Task;
             }
             catch (OperationCanceledException) { }
+
+            if (flyingAtk != null && flyingAtk.parent != null)
+            {
+                flyingAtk.RemoveFromHierarchy();
+            }
 
             if (card.parent == _dragLayer)
             {

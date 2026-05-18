@@ -48,10 +48,8 @@ namespace Main
         private Label _resolveLabel;
         private VisualElement _playerAtkCounterOverlay;
         private Label _playerAtkCounterLabel;
-        private Label _playerDamageFormulaLabel;
         private VisualElement _opponentAtkCounterOverlay;
         private Label _opponentAtkCounterLabel;
-        private Label _opponentDamageFormulaLabel;
         private VisualElement _dragLayer;
         private Label _costWarningLabel;
         private VisualElement _gameEndOverlay;
@@ -152,28 +150,36 @@ namespace Main
                 _playerAtkCounterOverlay.AddToClassList("atk-counter-overlay");
                 _playerAtkCounterOverlay.pickingMode = PickingMode.Ignore;
                 _playerAtkCounterOverlay.style.display = DisplayStyle.None;
+                VisualElement playerAtkIconWrapper = new VisualElement();
+                playerAtkIconWrapper.AddToClassList("atk-counter-icon-wrapper");
+                playerAtkIconWrapper.pickingMode = PickingMode.Ignore;
+                VisualElement playerAtkIcon = new VisualElement();
+                playerAtkIcon.AddToClassList("atk-counter-icon");
+                playerAtkIcon.pickingMode = PickingMode.Ignore;
+                playerAtkIconWrapper.Add(playerAtkIcon);
+                _playerAtkCounterOverlay.Add(playerAtkIconWrapper);
                 _playerAtkCounterLabel = new Label("0");
                 _playerAtkCounterLabel.pickingMode = PickingMode.Ignore;
                 _playerAtkCounterLabel.AddToClassList("atk-counter-label");
                 _playerAtkCounterOverlay.Add(_playerAtkCounterLabel);
-                _playerDamageFormulaLabel = new Label();
-                _playerDamageFormulaLabel.pickingMode = PickingMode.Ignore;
-                _playerDamageFormulaLabel.AddToClassList("atk-counter-damage-label");
-                _playerAtkCounterOverlay.Add(_playerDamageFormulaLabel);
                 _playerFieldView.Add(_playerAtkCounterOverlay);
 
                 _opponentAtkCounterOverlay = new VisualElement();
                 _opponentAtkCounterOverlay.AddToClassList("atk-counter-overlay");
                 _opponentAtkCounterOverlay.pickingMode = PickingMode.Ignore;
                 _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
+                VisualElement opponentAtkIconWrapper = new VisualElement();
+                opponentAtkIconWrapper.AddToClassList("atk-counter-icon-wrapper");
+                opponentAtkIconWrapper.pickingMode = PickingMode.Ignore;
+                VisualElement opponentAtkIcon = new VisualElement();
+                opponentAtkIcon.AddToClassList("atk-counter-icon");
+                opponentAtkIcon.pickingMode = PickingMode.Ignore;
+                opponentAtkIconWrapper.Add(opponentAtkIcon);
+                _opponentAtkCounterOverlay.Add(opponentAtkIconWrapper);
                 _opponentAtkCounterLabel = new Label("0");
                 _opponentAtkCounterLabel.pickingMode = PickingMode.Ignore;
                 _opponentAtkCounterLabel.AddToClassList("atk-counter-label");
                 _opponentAtkCounterOverlay.Add(_opponentAtkCounterLabel);
-                _opponentDamageFormulaLabel = new Label();
-                _opponentDamageFormulaLabel.pickingMode = PickingMode.Ignore;
-                _opponentDamageFormulaLabel.AddToClassList("atk-counter-damage-label");
-                _opponentAtkCounterOverlay.Add(_opponentDamageFormulaLabel);
                 _opponentFieldView.Add(_opponentAtkCounterOverlay);
 
                 _opponentHandView = new HandView(

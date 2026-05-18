@@ -16,6 +16,8 @@ namespace Tests.EditMode
         {
             _hadOriginalKey = PlayerPrefs.HasKey(SaveKey);
             _originalDeckJson = PlayerPrefs.GetString(SaveKey, null);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.Save();
         }
 
         [TearDown]

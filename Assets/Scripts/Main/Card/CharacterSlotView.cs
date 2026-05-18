@@ -12,15 +12,47 @@ namespace Main.Card
         public event Action<CardView> OnCardDisplaced;
 
         private CardView _current;
+        private readonly VisualElement _atkOverlay;
+        private readonly Label _atkLabel;
 
         public CardView CurrentCard => _current;
         public int Defense => _current?.Data.Defense ?? 0;
+
+        public void SetAtkValue(int atk) => _atkLabel.text = atk.ToString();
+        public string AtkLabelText => _atkLabel.text;
+        public bool IsAtkOverlayVisible => _atkOverlay.style.display == DisplayStyle.Flex;
+
+        public void SetAtkOverlayVisible(bool visible)
+        {
+            if (visible)
+            {
+                _atkOverlay.BringToFront();
+            }
+            _atkOverlay.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
 
         public CharacterSlotView()
         {
             AddToClassList("character-slot-view");
             style.width = CardWidth;
             style.height = CardHeight;
+
+            _atkOverlay = new VisualElement();
+            _atkOverlay.AddToClassList("char-slot-atk-overlay");
+            _atkOverlay.pickingMode = PickingMode.Ignore;
+            _atkOverlay.style.display = DisplayStyle.None;
+
+            VisualElement atkIcon = new VisualElement();
+            atkIcon.AddToClassList("char-slot-atk-icon");
+            atkIcon.pickingMode = PickingMode.Ignore;
+            _atkOverlay.Add(atkIcon);
+
+            _atkLabel = new Label("0");
+            _atkLabel.AddToClassList("char-slot-atk-label");
+            _atkLabel.pickingMode = PickingMode.Ignore;
+            _atkOverlay.Add(_atkLabel);
+
+            Add(_atkOverlay);
         }
 
         public void PlaceCard(CardView card)

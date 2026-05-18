@@ -16,8 +16,12 @@ namespace Main.Card
         private readonly AttributeIconDatabaseSO _attrIconDb;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
+        private readonly VisualElement _defOverlay;
+        private readonly Label _defLabel;
 
         public int Count => _deckCards.Count;
+        public VisualElement DefOverlay => _defOverlay;
+        public void SetDefValue(int def) => _defLabel.text = def.ToString();
 
         public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeIconDatabaseSO attrIconDb = null)
         {
@@ -55,6 +59,24 @@ namespace Main.Card
 
             badgeContainer.Add(badge);
             Add(badgeContainer);
+
+            _defOverlay = new VisualElement();
+            _defOverlay.AddToClassList("deck-def-overlay");
+            _defOverlay.pickingMode = PickingMode.Ignore;
+            _defOverlay.style.display = DisplayStyle.None;
+            _defOverlay.style.opacity = 0f;
+
+            VisualElement defIcon = new VisualElement();
+            defIcon.AddToClassList("deck-def-icon");
+            defIcon.pickingMode = PickingMode.Ignore;
+            _defOverlay.Add(defIcon);
+
+            _defLabel = new Label("0");
+            _defLabel.AddToClassList("deck-def-label");
+            _defLabel.pickingMode = PickingMode.Ignore;
+            _defOverlay.Add(_defLabel);
+
+            Add(_defOverlay);
         }
 
         public CardData DrawTop()

@@ -423,6 +423,24 @@
     flex-direction: column;
 }
 
+.atk-counter-icon-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.atk-counter-icon {
+    width: 200px;
+    height: 200px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.4;
+}
+
 .atk-counter-label {
     font-size: 120px;
     -unity-font-style: bold;
@@ -431,11 +449,69 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
-.atk-counter-damage-label {
-    font-size: 36px;
+.deck-def-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.deck-def-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.5;
+}
+
+.deck-def-label {
+    font-size: 80px;
     -unity-font-style: bold;
-    color: rgb(255, 100, 50);
-    -unity-text-outline-width: 3px;
+    color: rgb(100, 200, 255);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.char-slot-atk-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.char-slot-atk-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.4;
+}
+
+.char-slot-atk-label {
+    font-size: 80px;
+    -unity-font-style: bold;
+    color: rgb(255, 220, 50);
+    -unity-text-outline-width: 5px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
