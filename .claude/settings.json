@@ -13,7 +13,9 @@
       "Bash(Unity:*)",
       "Bash(gh:*)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Skill(feature)",
+      "Skill(feature:*)"
     ],
     "deny": [
       "Bash(rm:*)",
