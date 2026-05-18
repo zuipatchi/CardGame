@@ -117,13 +117,12 @@ namespace Main
             {
                 await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
                 await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
-                CheckGameOver();
+                if (_isGameOver) return;
             }
             if (_opponentCharacterSlot.CurrentCard != null)
             {
                 await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
                 await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
-                CheckGameOver();
             }
         }
 
@@ -150,6 +149,14 @@ namespace Main
         private async UniTask RunDrawPhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
             DeckView sourceDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
+
+            if (sourceDeck.Count == 0)
+            {
+                _isGameOver = true;
+                OnGameEnd(isLocalTurn ? (bool?)false : true);
+                return;
+            }
+
             Rect deckRect = sourceDeck.worldBound;
             CardData drawn = sourceDeck.DrawTop();
 
@@ -171,8 +178,6 @@ namespace Main
                     _cpuCards.Add(cards[cards.Count - 1]);
                 }
             }
-
-            CheckGameOver();
         }
 
         // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────
@@ -268,7 +273,7 @@ namespace Main
                         _gameModel.ReadyCard(readied);
                         readied.SetChainNumber(_gameModel.ReadyQueue.Count);
                         await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
-                        CheckGameOver();
+                        if (_isGameOver) break;
                     }
                 }
                 else
@@ -288,7 +293,7 @@ namespace Main
                         _gameModel.ReadyCard(card);
                         card.SetChainNumber(_gameModel.ReadyQueue.Count);
                         await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
-                        CheckGameOver();
+                        if (_isGameOver) break;
                     }
                     else
                     {
@@ -414,6 +419,13 @@ namespace Main
 
             for (int i = 0; i < count; i++)
             {
+                if (deck.Count == 0)
+                {
+                    _isGameOver = true;
+                    OnGameEnd(isLocal ? (bool?)false : true);
+                    break;
+                }
+
                 Rect deckRect = deck.worldBound;
                 CardData drawn = deck.DrawTop();
                 deck.RefreshCount();
@@ -435,12 +447,6 @@ namespace Main
                     {
                         _cpuCards.Add(cards[cards.Count - 1]);
                     }
-                }
-
-                CheckGameOver();
-                if (_isGameOver)
-                {
-                    break;
                 }
             }
         }
@@ -479,7 +485,6 @@ namespace Main
             if (costPayTasks.Count > 0)
             {
                 await UniTask.WhenAll(costPayTasks);
-                CheckGameOver();
                 if (_isGameOver)
                 {
                     return;
@@ -588,26 +593,11 @@ namespace Main
             _opponentAtkBoost = 0;
             _playerDefBoost = 0;
             _opponentDefBoost = 0;
-
-            CheckGameOver();
-        }
-
-        // ─── ゲーム終了判定 ──────────────────────────────────────────────
-
-        private void CheckGameOver()
-        {
-            if (_opponentDeckView.Count == 0 || _playerDeckView.Count == 0)
-            {
-                _isGameOver = true;
-                bool bothZero = _opponentDeckView.Count == 0 && _playerDeckView.Count == 0;
-                OnGameEnd(bothZero ? (bool?)null : _opponentDeckView.Count == 0);
-            }
         }
 
         private void OnGameEnd(bool? playerWins)
         {
-            string message = playerWins == null ? "引き分け！" : playerWins.Value ? "あなたの勝ち！" : "CPU の勝ち！";
-            Debug.Log(message);
+            PlayGameEndAsync(playerWins, destroyCancellationToken).Forget();
         }
     }
 }

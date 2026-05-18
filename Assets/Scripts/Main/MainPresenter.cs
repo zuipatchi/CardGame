@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Common.Deck;
+using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
@@ -25,6 +26,7 @@ namespace Main
         private CardDatabase _cardDatabase;
         private DeckModel _deckModel;
         private GameModel _gameModel;
+        private SceneTransitioner _sceneTransitioner;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -52,6 +54,9 @@ namespace Main
         private Label _opponentDamageFormulaLabel;
         private VisualElement _dragLayer;
         private Label _costWarningLabel;
+        private VisualElement _gameEndOverlay;
+        private Label _gameEndLabel;
+        private Button _gameEndTitleButton;
 
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
@@ -75,12 +80,13 @@ namespace Main
         private bool _isLocalPreBattleActive;
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, GameModel gameModel)
+        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, GameModel gameModel, SceneTransitioner sceneTransitioner)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
             _gameModel = gameModel;
+            _sceneTransitioner = sceneTransitioner;
         }
 
         void IStartable.Start()
@@ -214,6 +220,21 @@ namespace Main
                 _costWarningLabel.pickingMode = PickingMode.Ignore;
                 _costWarningLabel.style.display = DisplayStyle.None;
                 mainRoot.Add(_costWarningLabel);
+
+                _gameEndOverlay = new VisualElement();
+                _gameEndOverlay.AddToClassList("game-end-overlay");
+                _gameEndOverlay.style.display = DisplayStyle.None;
+                _gameEndLabel = new Label();
+                _gameEndLabel.AddToClassList("game-end-label");
+                _gameEndLabel.pickingMode = PickingMode.Ignore;
+                _gameEndOverlay.Add(_gameEndLabel);
+                _gameEndTitleButton = new Button();
+                _gameEndTitleButton.text = "タイトルに戻る";
+                _gameEndTitleButton.AddToClassList("game-end-button");
+                _gameEndTitleButton.style.opacity = 0f;
+                _gameEndTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+                _gameEndOverlay.Add(_gameEndTitleButton);
+                mainRoot.Add(_gameEndOverlay);
 
                 _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeIconDatabase);
                 deckArea.Add(_playerDeckView);

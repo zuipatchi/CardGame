@@ -518,3 +518,59 @@
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
 }
+
+.game-end-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.game-end-label {
+    font-size: 96px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 48px;
+}
+
+.game-end-label--win {
+    color: rgb(255, 210, 50);
+}
+
+.game-end-label--lose {
+    color: rgb(220, 60, 60);
+}
+
+.game-end-label--draw {
+    color: rgb(160, 160, 180);
+}
+
+.game-end-button {
+    height: 64px;
+    min-width: 200px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    background-color: rgba(60, 60, 100, 0.9);
+    color: rgb(200, 200, 240);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin: 0;
+}
+
+.game-end-button:hover {
+    background-color: rgba(80, 80, 130, 0.9);
+}

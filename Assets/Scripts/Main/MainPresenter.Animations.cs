@@ -438,9 +438,21 @@ namespace Main
 
         private async UniTask PayCostAsync(CardView card, DeckView deck, GraveyardView graveyard, CancellationToken ct)
         {
+            if (_isGameOver)
+            {
+                return;
+            }
+
             int cost = card.Data.Cost;
             if (cost <= 0)
             {
+                return;
+            }
+
+            if (deck.Count == 0)
+            {
+                _isGameOver = true;
+                OnGameEnd(deck == _playerDeckView ? (bool?)false : true);
                 return;
             }
 
@@ -604,6 +616,48 @@ namespace Main
             }
 
             return cards;
+        }
+
+        // ─── 勝敗演出 ───────────────────────────────────────────────────────
+
+        private async UniTask PlayGameEndAsync(bool? playerWins, CancellationToken ct)
+        {
+            string text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
+            string labelClass = playerWins == null ? "game-end-label--draw"
+                : playerWins.Value ? "game-end-label--win" : "game-end-label--lose";
+
+            _gameEndLabel.text = text;
+            _gameEndLabel.RemoveFromClassList("game-end-label--win");
+            _gameEndLabel.RemoveFromClassList("game-end-label--lose");
+            _gameEndLabel.RemoveFromClassList("game-end-label--draw");
+            _gameEndLabel.AddToClassList(labelClass);
+            _gameEndLabel.style.scale = new Scale(new Vector3(0.3f, 0.3f, 1f));
+
+            _gameEndTitleButton.style.opacity = 0f;
+            _gameEndOverlay.style.display = DisplayStyle.Flex;
+            _gameEndOverlay.style.opacity = 0f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(
+                    () => _gameEndOverlay.style.opacity.value,
+                    v => _gameEndOverlay.style.opacity = v,
+                    1f, 0.3f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(
+                    () => _gameEndLabel.style.scale.value.value.x,
+                    v => _gameEndLabel.style.scale = new Scale(new Vector3(v, v, 1f)),
+                    1f, 0.4f).SetEase(Ease.OutBack))
+                .AppendInterval(0.3f)
+                .Append(DOTween.To(
+                    () => _gameEndTitleButton.style.opacity.value,
+                    v => _gameEndTitleButton.style.opacity = v,
+                    1f, 0.3f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
         }
     }
 }
