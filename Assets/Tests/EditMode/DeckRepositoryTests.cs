@@ -38,9 +38,9 @@ namespace Tests.EditMode
         public void Save後にLoadするとカードIDが復元される()
         {
             DeckModel model = new DeckModel();
-            model.TryAdd("C001");
-            model.TryAdd("S001");
-            model.TryAdd("E001");
+            model.Add("C001", 10);
+            model.Add("S001", 8);
+            model.Add("E001", 5);
             DeckRepository repository = new DeckRepository();
 
             repository.Save(model);
@@ -55,6 +55,26 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void Save後にLoadするとコストが復元される()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 10);
+            model.Add("S001", 8);
+            model.Add("E001", 5);
+            DeckRepository repository = new DeckRepository();
+
+            repository.Save(model);
+
+            DeckModel loaded = new DeckModel();
+            repository.Load(loaded);
+
+            Assert.AreEqual(23, loaded.TotalCost);
+            Assert.AreEqual(10, loaded.Entries[0].cost);
+            Assert.AreEqual(8, loaded.Entries[1].cost);
+            Assert.AreEqual(5, loaded.Entries[2].cost);
+        }
+
+        [Test]
         public void 空デッキをSaveしてLoadすると空のまま()
         {
             DeckModel model = new DeckModel();
@@ -63,7 +83,7 @@ namespace Tests.EditMode
             repository.Save(model);
 
             DeckModel loaded = new DeckModel();
-            loaded.TryAdd("C001");
+            loaded.Add("C001", 5);
             repository.Load(loaded);
 
             Assert.AreEqual(0, loaded.Count);
@@ -84,9 +104,9 @@ namespace Tests.EditMode
         public void 同名カードを複数枚含むデッキが正しく復元される()
         {
             DeckModel model = new DeckModel();
-            model.TryAdd("C001");
-            model.TryAdd("C001");
-            model.TryAdd("C001");
+            model.Add("C001", 7);
+            model.Add("C001", 7);
+            model.Add("C001", 7);
             DeckRepository repository = new DeckRepository();
 
             repository.Save(model);
@@ -98,6 +118,7 @@ namespace Tests.EditMode
             Assert.AreEqual("C001", loaded.CardIds[0]);
             Assert.AreEqual("C001", loaded.CardIds[1]);
             Assert.AreEqual("C001", loaded.CardIds[2]);
+            Assert.AreEqual(21, loaded.TotalCost);
         }
     }
 }

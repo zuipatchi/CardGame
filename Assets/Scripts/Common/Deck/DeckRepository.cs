@@ -9,7 +9,11 @@ namespace Common.Deck
 
         public void Save(DeckModel deckModel)
         {
-            DeckSaveData data = new DeckSaveData { CardIds = new List<string>(deckModel.CardIds) };
+            DeckSaveData data = new DeckSaveData();
+            foreach ((string id, int cost) in deckModel.Entries)
+            {
+                data.Cards.Add(new CardEntry { Id = id, Cost = cost });
+            }
             string json = JsonUtility.ToJson(data);
             PlayerPrefs.SetString(SaveKey, json);
             PlayerPrefs.Save();
@@ -24,22 +28,29 @@ namespace Common.Deck
             }
 
             DeckSaveData data = JsonUtility.FromJson<DeckSaveData>(json);
-            if (data?.CardIds == null)
+            if (data?.Cards == null)
             {
                 return;
             }
 
             deckModel.Clear();
-            foreach (string id in data.CardIds)
+            foreach (CardEntry entry in data.Cards)
             {
-                deckModel.TryAdd(id);
+                deckModel.Add(entry.Id, entry.Cost);
             }
+        }
+
+        [System.Serializable]
+        private sealed class CardEntry
+        {
+            public string Id;
+            public int Cost;
         }
 
         [System.Serializable]
         private sealed class DeckSaveData
         {
-            public List<string> CardIds;
+            public List<CardEntry> Cards = new List<CardEntry>();
         }
     }
 }

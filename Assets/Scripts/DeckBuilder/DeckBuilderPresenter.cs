@@ -133,10 +133,8 @@ namespace DeckBuilder
                 {
                     if (_deckListScrollView.worldBound.Contains(worldPos))
                     {
-                        if (_deckModel.TryAdd(captured.Id))
-                        {
-                            RefreshDeckPanel();
-                        }
+                        _deckModel.Add(captured.Id, captured.Cost);
+                        RefreshDeckPanel();
                     }
                     return false;
                 };
@@ -174,8 +172,7 @@ namespace DeckBuilder
         private void RefreshDeckPanel()
         {
             _deckListScrollView.Clear();
-            _deckCountLabel.text = $"{_deckModel.Count}/{DeckModel.MaxSize}";
-            _cardListScrollView.EnableInClassList("deckbuilder-card-scroll--full", _deckModel.IsFull);
+            _deckCountLabel.text = $"{_deckModel.TotalCost}/{DeckModel.TargetCost}";
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();
