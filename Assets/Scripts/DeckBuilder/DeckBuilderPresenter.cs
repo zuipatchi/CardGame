@@ -24,6 +24,7 @@ namespace DeckBuilder
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
         private Button _startButton;
+        private Button _clearDeckButton;
         private bool _started;
 
         [Inject]
@@ -67,10 +68,12 @@ namespace DeckBuilder
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
                 _deckCountLabel = root.Q<Label>("DeckCountLabel");
                 _startButton = root.Q<Button>("StartButton");
+                _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 Button backButton = root.Q<Button>("BackButton");
 
                 backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
                 _startButton.clicked += OnStartClicked;
+                _clearDeckButton.clicked += OnClearDeckClicked;
 
                 _deckModel.Clear();
                 _deckRepository.Load(_deckModel);
@@ -125,6 +128,12 @@ namespace DeckBuilder
         private void OnRemoveClicked(string id)
         {
             _deckModel.Remove(id);
+            RefreshDeckPanel();
+        }
+
+        private void OnClearDeckClicked()
+        {
+            _deckModel.Clear();
             RefreshDeckPanel();
         }
 
@@ -190,6 +199,7 @@ namespace DeckBuilder
             }
 
             _startButton.SetEnabled(_deckModel.IsReady);
+            _clearDeckButton.style.display = _deckModel.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

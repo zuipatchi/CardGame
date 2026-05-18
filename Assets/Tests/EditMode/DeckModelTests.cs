@@ -114,5 +114,42 @@ namespace Tests.EditMode
 
             Assert.AreEqual(0, model.Count);
         }
+
+        [Test]
+        public void Clear_IsReadyがfalseになる()
+        {
+            DeckModel model = new DeckModel();
+            for (int i = 0; i < DeckModel.MinSize; i++)
+            {
+                model.TryAdd("c001");
+            }
+
+            model.Clear();
+
+            Assert.IsFalse(model.IsReady);
+        }
+
+        [Test]
+        public void Clear_IsFullがfalseになる()
+        {
+            DeckModel model = new DeckModel();
+            for (int i = 0; i < DeckModel.MaxSize; i++)
+            {
+                model.TryAdd("c001");
+            }
+
+            model.Clear();
+
+            Assert.IsFalse(model.IsFull);
+        }
+
+        [Test]
+        public void Clear_空のデッキで例外が発生しない()
+        {
+            DeckModel model = new DeckModel();
+
+            Assert.DoesNotThrow(() => model.Clear());
+            Assert.AreEqual(0, model.Count);
+        }
     }
 }
