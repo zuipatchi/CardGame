@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,6 +13,8 @@ namespace Main.Card
         public bool IsFull => _cards.Count >= MaxCards;
 
         public IReadOnlyList<CardView> Cards => _cards;
+
+        public Action<CardView> OnCardClicked { get; set; }
 
         public FieldView()
         {
@@ -66,6 +69,10 @@ namespace Main.Card
             card.style.marginRight = 8;
             _cards.Add(card);
             Add(card);
+
+            CardView capturedCard = card;
+            capturedCard.RegisterCallback<ClickEvent>(_ => OnCardClicked?.Invoke(capturedCard));
+
             return true;
         }
     }

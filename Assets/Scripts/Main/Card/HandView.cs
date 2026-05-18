@@ -27,6 +27,7 @@ namespace Main.Card
         }
 
         public Func<CardView, Vector2, bool> OnCardDropped;
+        public Action<CardView> OnCardClicked { get; set; }
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
@@ -357,6 +358,7 @@ namespace Main.Card
 
                 return placed;
             };
+            manipulator.OnClick = () => OnCardClicked?.Invoke(capturedCard);
             capturedCard.AttachDragManipulator(manipulator);
         }
 

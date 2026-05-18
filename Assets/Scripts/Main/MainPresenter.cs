@@ -56,6 +56,7 @@ namespace Main
         private Label _gameEndLabel;
         private Button _gameEndTitleButton;
 
+        private CardDetailModal _cardDetailModal;
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
 
@@ -192,6 +193,17 @@ namespace Main
                     _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeIconDatabase);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
+
+                _cardDetailModal = new CardDetailModal(mainRoot);
+                _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
+                _playerFieldView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
+                _opponentFieldView.OnCardClicked = card =>
+                {
+                    if (!card.IsFaceDown)
+                    {
+                        _cardDetailModal.Show(card.Data);
+                    }
+                };
 
                 _resolveOverlay = new VisualElement();
                 _resolveOverlay.AddToClassList("resolve-overlay");

@@ -7,17 +7,25 @@ namespace Main.Card
     public sealed class CardDragManipulator : PointerManipulator
     {
         public Func<Vector2, bool> OnDrop;
+        public Action OnClick;
+        public Func<VisualElement> CreateGhost;
+
+        private const float ClickMovementThreshold = 8f;
 
         private readonly VisualElement _dragLayer;
         private VisualElement _originalParent;
         private int _originalIndex;
+        private StyleEnum<Position> _originalPosition;
         private StyleLength _originalLeft;
         private StyleLength _originalBottom;
+        private StyleLength _originalTop;
         private StyleRotate _originalRotate;
         private StyleScale _originalScale;
         private Vector2 _startPointerPosition;
         private Vector2 _startElementPosition;
         private bool _isDragging;
+        private bool _moved;
+        private VisualElement _ghost;
 
         public CardDragManipulator(VisualElement dragLayer)
         {
@@ -43,23 +51,37 @@ namespace Main.Card
         private void OnPointerDown(PointerDownEvent evt)
         {
             _isDragging = true;
+            _moved = false;
             _startPointerPosition = evt.position;
             _startElementPosition = target.worldBound.position;
 
-            _originalParent = target.parent;
-            _originalIndex = _originalParent.IndexOf(target);
-            _originalLeft = target.style.left;
-            _originalBottom = target.style.bottom;
-            _originalRotate = target.style.rotate;
-            _originalScale = target.style.scale;
+            if (CreateGhost != null)
+            {
+                _ghost = CreateGhost();
+                _ghost.style.position = Position.Absolute;
+                _ghost.style.left = _startElementPosition.x;
+                _ghost.style.top = _startElementPosition.y;
+                _dragLayer.Add(_ghost);
+            }
+            else
+            {
+                _originalParent = target.parent;
+                _originalIndex = _originalParent.IndexOf(target);
+                _originalPosition = target.style.position;
+                _originalLeft = target.style.left;
+                _originalTop = target.style.top;
+                _originalBottom = target.style.bottom;
+                _originalRotate = target.style.rotate;
+                _originalScale = target.style.scale;
 
-            _dragLayer.Add(target);
-            target.style.position = Position.Absolute;
-            target.style.left = _startElementPosition.x;
-            target.style.top = _startElementPosition.y;
-            target.style.bottom = StyleKeyword.Null;
-            target.style.rotate = new Rotate(0);
-            target.style.scale = new Scale(Vector3.one);
+                _dragLayer.Add(target);
+                target.style.position = Position.Absolute;
+                target.style.left = _startElementPosition.x;
+                target.style.top = _startElementPosition.y;
+                target.style.bottom = StyleKeyword.Null;
+                target.style.rotate = new Rotate(0);
+                target.style.scale = new Scale(Vector3.one);
+            }
 
             target.CapturePointer(evt.pointerId);
             evt.StopPropagation();
@@ -73,8 +95,14 @@ namespace Main.Card
             }
 
             Vector2 delta = (Vector2)evt.position - _startPointerPosition;
-            target.style.left = _startElementPosition.x + delta.x;
-            target.style.top = _startElementPosition.y + delta.y;
+            if (delta.magnitude > ClickMovementThreshold)
+            {
+                _moved = true;
+            }
+
+            VisualElement dragTarget = _ghost ?? target;
+            dragTarget.style.left = _startElementPosition.x + delta.x;
+            dragTarget.style.top = _startElementPosition.y + delta.y;
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -87,10 +115,27 @@ namespace Main.Card
             _isDragging = false;
             target.ReleasePointer(evt.pointerId);
 
-            bool placed = OnDrop?.Invoke(evt.position) ?? false;
-            if (!placed)
+            if (_ghost != null)
             {
-                SnapBack();
+                _ghost.RemoveFromHierarchy();
+                _ghost = null;
+                OnDrop?.Invoke(evt.position);
+                if (!_moved)
+                {
+                    OnClick?.Invoke();
+                }
+            }
+            else
+            {
+                bool placed = OnDrop?.Invoke(evt.position) ?? false;
+                if (!placed)
+                {
+                    SnapBack();
+                    if (!_moved)
+                    {
+                        OnClick?.Invoke();
+                    }
+                }
             }
 
             evt.StopPropagation();
@@ -101,16 +146,24 @@ namespace Main.Card
             if (_isDragging)
             {
                 _isDragging = false;
-                SnapBack();
+                if (_ghost != null)
+                {
+                    _ghost.RemoveFromHierarchy();
+                    _ghost = null;
+                }
+                else
+                {
+                    SnapBack();
+                }
             }
         }
 
         private void SnapBack()
         {
             _originalParent.Insert(_originalIndex, target);
-            target.style.position = Position.Absolute;
+            target.style.position = _originalPosition;
             target.style.left = _originalLeft;
-            target.style.top = StyleKeyword.Null;
+            target.style.top = _originalTop;
             target.style.bottom = _originalBottom;
             target.style.rotate = _originalRotate;
             target.style.scale = _originalScale;

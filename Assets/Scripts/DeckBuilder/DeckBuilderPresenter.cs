@@ -26,6 +26,8 @@ namespace DeckBuilder
         private Button _saveButton;
         private Button _startButton;
         private Button _clearDeckButton;
+        private VisualElement _cardListDragLayer;
+        private CardDetailModal _cardDetailModal;
         private bool _started;
 
         [Inject]
@@ -78,6 +80,11 @@ namespace DeckBuilder
                 _startButton.clicked += OnStartClicked;
                 _clearDeckButton.clicked += OnClearDeckClicked;
 
+                _cardListDragLayer = new VisualElement();
+                _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
+                _cardListDragLayer.pickingMode = PickingMode.Ignore;
+                _cardDetailModal = new CardDetailModal(deckBuilderRoot);
+
                 _deckModel.Clear();
                 _deckRepository.Load(_deckModel);
 
@@ -88,6 +95,7 @@ namespace DeckBuilder
                 AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();
+                deckBuilderRoot.Add(_cardListDragLayer);
             }
             catch (OperationCanceledException) { }
         }
@@ -112,20 +120,31 @@ namespace DeckBuilder
                 CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeIconDatabase);
                 cardView.AddToClassList("deckbuilder-card-item");
                 CardData captured = cardData;
-                cardView.RegisterCallback<ClickEvent>(_ => OnCardListItemClicked(captured));
+                CardDragManipulator manipulator = new CardDragManipulator(_cardListDragLayer);
+                manipulator.CreateGhost = () =>
+                {
+                    CardView ghost = new CardView(_cardStore.CardTemplate, captured, attrIconDb: _cardStore.AttributeIconDatabase);
+                    ghost.AddToClassList("deckbuilder-card-item");
+                    ghost.style.opacity = 0.75f;
+                    ghost.pickingMode = PickingMode.Ignore;
+                    return ghost;
+                };
+                manipulator.OnDrop = worldPos =>
+                {
+                    if (_deckListScrollView.worldBound.Contains(worldPos))
+                    {
+                        if (_deckModel.TryAdd(captured.Id))
+                        {
+                            RefreshDeckPanel();
+                        }
+                    }
+                    return false;
+                };
+                manipulator.OnClick = () => _cardDetailModal.Show(captured);
+                cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
             }
             _cardListScrollView.Add(grid);
-        }
-
-        private void OnCardListItemClicked(CardData cardData)
-        {
-            if (!_deckModel.TryAdd(cardData.Id))
-            {
-                return;
-            }
-
-            RefreshDeckPanel();
         }
 
         private void OnRemoveClicked(string id)
