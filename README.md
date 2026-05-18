@@ -65,7 +65,7 @@
 - Live2D Cubism SDK（`Assets/Live2D/`、Git 管理対象）
 
 ## プラットフォーム
-決まったら記載する
+iOS
 
 ## 日本語フォント
 - uxmlで日本語フォントを使用したい場合は /Assets/Font に入っている日本語フォントを使用する
