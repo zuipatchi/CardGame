@@ -8,10 +8,28 @@ namespace Tests.EditMode
     {
         private const string SaveKey = "SavedDeck";
 
+        private string _originalDeckJson;
+        private bool _hadOriginalKey;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _hadOriginalKey = PlayerPrefs.HasKey(SaveKey);
+            _originalDeckJson = PlayerPrefs.GetString(SaveKey, null);
+        }
+
         [TearDown]
         public void TearDown()
         {
-            PlayerPrefs.DeleteKey(SaveKey);
+            if (_hadOriginalKey)
+            {
+                PlayerPrefs.SetString(SaveKey, _originalDeckJson);
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(SaveKey);
+            }
+            PlayerPrefs.Save();
         }
 
         [Test]
