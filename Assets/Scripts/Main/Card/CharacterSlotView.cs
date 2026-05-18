@@ -10,6 +10,7 @@ namespace Main.Card
         private const float CardHeight = 220f;
 
         public event Action<CardView> OnCardDisplaced;
+        public Action<CardView> OnCardClicked { get; set; }
 
         private CardView _current;
         private readonly VisualElement _atkOverlay;
@@ -53,6 +54,14 @@ namespace Main.Card
             _atkOverlay.Add(_atkLabel);
 
             Add(_atkOverlay);
+
+            RegisterCallback<ClickEvent>(_ =>
+            {
+                if (_current != null)
+                {
+                    OnCardClicked?.Invoke(_current);
+                }
+            });
         }
 
         public void PlaceCard(CardView card)

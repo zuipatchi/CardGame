@@ -83,7 +83,7 @@ namespace DeckBuilder
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
                 _cardListDragLayer.pickingMode = PickingMode.Ignore;
-                _cardDetailModal = new CardDetailModal(deckBuilderRoot);
+                _cardDetailModal = new CardDetailModal(deckBuilderRoot, _cardStore.AttributeIconDatabase);
 
                 _deckModel.Clear();
                 _deckRepository.Load(_deckModel);
@@ -91,7 +91,7 @@ namespace DeckBuilder
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
                 AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
-                AddCardSection("技", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
+                AddCardSection("スキル", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
                 AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();

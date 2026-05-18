@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,9 +10,9 @@ namespace Main.Card
         private readonly List<CardData> _cards = new List<CardData>();
         private readonly VisualTreeAsset _cardTemplate;
         private readonly VisualElement _modalRoot;
-        private readonly Label _countLabel;
 
         public int Count => _cards.Count;
+        public Action<CardData> OnCardClicked { get; set; }
 
         public GraveyardView(VisualTreeAsset cardTemplate, VisualElement modalRoot)
         {
@@ -23,10 +24,6 @@ namespace Main.Card
             VisualElement icon = new VisualElement();
             icon.AddToClassList("graveyard-count-icon");
             Add(icon);
-
-            _countLabel = new Label("0");
-            _countLabel.AddToClassList("graveyard-count-label");
-            Add(_countLabel);
 
             RegisterCallback<ClickEvent>(_ =>
             {
@@ -41,7 +38,6 @@ namespace Main.Card
         {
             card.RemoveFromHierarchy();
             _cards.Add(card.Data);
-            _countLabel.text = Count.ToString();
         }
 
         private void OpenModal()
@@ -57,7 +53,7 @@ namespace Main.Card
             VisualElement panel = new VisualElement();
             panel.AddToClassList("graveyard-modal-panel");
 
-            Label title = new Label("墓地");
+            Label title = new Label($"墓地（{_cards.Count}枚）");
             title.AddToClassList("graveyard-modal-title");
             panel.Add(title);
 
@@ -92,6 +88,12 @@ namespace Main.Card
                 wrapper.Add(posLabel);
 
                 CardView display = new CardView(_cardTemplate, _cards[i]);
+                CardData capturedData = _cards[i];
+                display.RegisterCallback<ClickEvent>(evt =>
+                {
+                    OnCardClicked?.Invoke(capturedData);
+                    evt.StopPropagation();
+                });
                 wrapper.Add(display);
 
                 scrollView.Add(wrapper);

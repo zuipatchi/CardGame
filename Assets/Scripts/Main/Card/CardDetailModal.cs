@@ -6,11 +6,13 @@ namespace Main.Card
     public sealed class CardDetailModal
     {
         private readonly VisualElement _root;
+        private readonly AttributeIconDatabaseSO _attrIconDb;
         private VisualElement _overlay;
 
-        public CardDetailModal(VisualElement root)
+        public CardDetailModal(VisualElement root, AttributeIconDatabaseSO attrIconDb = null)
         {
             _root = root;
+            _attrIconDb = attrIconDb;
         }
 
         public void Show(CardData data)
@@ -55,23 +57,40 @@ namespace Main.Card
             nameLabel.AddToClassList("card-detail-name");
             stats.Add(nameLabel);
 
+            if (data is CharacterCardData or SkillCardData)
+            {
+                UnityEngine.Sprite attrIcon = _attrIconDb?.GetIcon(data.Attribute);
+                if (attrIcon != null)
+                {
+                    VisualElement attrIconEl = new VisualElement();
+                    attrIconEl.AddToClassList("card-detail-attr-icon");
+                    attrIconEl.style.backgroundImage = new StyleBackground(attrIcon);
+                    stats.Add(attrIconEl);
+                }
+            }
+
             VisualElement divider = new VisualElement();
             divider.AddToClassList("card-detail-divider");
             stats.Add(divider);
 
-            AddStatRow(stats, "コスト", data.Cost.ToString());
+            AddIconStatRow(stats, "card-detail-stat-icon--cost", data.Cost.ToString());
 
             if (data is CharacterCardData)
             {
-                AddStatRow(stats, "DEF", data.Defense.ToString());
+                AddIconStatRow(stats, "card-detail-stat-icon--def", data.Defense.ToString());
             }
             else if (data is SkillCardData)
             {
-                AddStatRow(stats, "ダメージ", data.Attack.ToString());
+                AddIconStatRow(stats, "card-detail-stat-icon--atk", data.Attack.ToString());
             }
             else if (data is EventCardData eventData)
             {
-                AddStatRow(stats, "効果", FormatEffect(eventData.EffectType, eventData.EffectValue));
+                if (!string.IsNullOrEmpty(eventData.Description))
+                {
+                    Label descLabel = new Label(eventData.Description);
+                    descLabel.AddToClassList("card-detail-description");
+                    stats.Add(descLabel);
+                }
             }
 
             panel.Add(stats);
@@ -90,31 +109,22 @@ namespace Main.Card
             _overlay = null;
         }
 
-        private static void AddStatRow(VisualElement container, string labelText, string valueText)
+        private static void AddIconStatRow(VisualElement container, string iconClass, string valueText)
         {
             VisualElement row = new VisualElement();
             row.AddToClassList("card-detail-row");
 
-            Label label = new Label(labelText);
-            label.AddToClassList("card-detail-row-label");
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("card-detail-stat-icon");
+            icon.AddToClassList(iconClass);
 
             Label value = new Label(valueText);
             value.AddToClassList("card-detail-row-value");
 
-            row.Add(label);
+            row.Add(icon);
             row.Add(value);
             container.Add(row);
         }
 
-        private static string FormatEffect(EffectType effectType, int value)
-        {
-            return effectType switch
-            {
-                EffectType.AtkBoost => $"ATK Boost +{value}",
-                EffectType.DefBoost => $"DEF Boost +{value}",
-                EffectType.Draw => $"Draw ×{value}",
-                _ => effectType.ToString(),
-            };
-        }
     }
 }

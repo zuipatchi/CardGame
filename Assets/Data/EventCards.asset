@@ -20,6 +20,7 @@ MonoBehaviour:
     _attribute: 0
     _effectType: 0
     _effectValue: 0
+    _description: 
   - _id: E002
     _cardName: "\u672C\u5F53\u306E\u529B"
     _cost: 2
@@ -27,6 +28,7 @@ MonoBehaviour:
     _attribute: 0
     _effectType: 1
     _effectValue: 2
+    _description: "\u653B\u6483\u529B + 2"
   - _id: E003
     _cardName: "\u5B88\u308A\u306E\u5370"
     _cost: 2
@@ -34,6 +36,7 @@ MonoBehaviour:
     _attribute: 0
     _effectType: 2
     _effectValue: 2
+    _description: "\u9632\u5FA1\u529B + 2"
   - _id: E004
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
     _cost: 2
@@ -41,6 +44,7 @@ MonoBehaviour:
     _attribute: 0
     _effectType: 3
     _effectValue: 2
+    _description: "2\u30C9\u30ED\u30FC"
   - _id: E005
     _cardName: "\u3061\u3087\u3063\u3068\u5F85\u3063\u305F"
     _cost: 3
@@ -48,3 +52,4 @@ MonoBehaviour:
     _attribute: 0
     _effectType: 0
     _effectValue: 0
+    _description: 

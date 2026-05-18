@@ -694,8 +694,8 @@
 }
 
 .card-detail-image {
-    width: 200px;
-    height: 275px;
+    width: 300px;
+    height: 412px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
@@ -796,4 +796,37 @@
     font-size: 26px;
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
+}
+
+.card-detail-stat-icon {
+    width: 64px;
+    height: 64px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.card-detail-stat-icon--cost {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/CostIcon.png");
+}
+
+.card-detail-stat-icon--atk {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
+}
+
+.card-detail-stat-icon--def {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
+}
+
+.card-detail-attr-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.card-detail-description {
+    font-size: 18px;
+    color: rgb(200, 200, 220);
+    white-space: normal;
+    margin-top: 12px;
+    max-width: 240px;
 }

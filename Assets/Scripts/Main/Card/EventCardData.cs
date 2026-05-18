@@ -8,20 +8,23 @@ namespace Main.Card
     {
         [SerializeField] private EffectType _effectType;
         [SerializeField] private int _effectValue;
+        [SerializeField] private string _description;
 
         public EffectType EffectType => _effectType;
         public int EffectValue => _effectValue;
+        public string Description => _description;
 
         public EventCardData() { }
 
         public EventCardData(string id, string name, int cost)
             : base(id, name, cost) { }
 
-        public EventCardData(string id, string name, int cost, EffectType effectType, int effectValue)
+        public EventCardData(string id, string name, int cost, EffectType effectType, int effectValue, string description = "")
             : base(id, name, cost)
         {
             _effectType = effectType;
             _effectValue = effectValue;
+            _description = description;
         }
     }
 }

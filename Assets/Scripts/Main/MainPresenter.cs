@@ -194,10 +194,18 @@ namespace Main
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
 
-                _cardDetailModal = new CardDetailModal(mainRoot);
+                _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeIconDatabase);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _playerFieldView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _opponentFieldView.OnCardClicked = card =>
+                {
+                    if (!card.IsFaceDown)
+                    {
+                        _cardDetailModal.Show(card.Data);
+                    }
+                };
+                _playerCharacterSlot.OnCardClicked = card => _cardDetailModal.Show(card.Data);
+                _opponentCharacterSlot.OnCardClicked = card =>
                 {
                     if (!card.IsFaceDown)
                     {
@@ -261,9 +269,11 @@ namespace Main
                 opponentDeckArea.Add(_opponentDeckView);
 
                 _playerGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
+                _playerGraveyardView.OnCardClicked = data => _cardDetailModal.Show(data);
                 graveyardArea.Add(_playerGraveyardView);
 
                 _opponentGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
+                _opponentGraveyardView.OnCardClicked = data => _cardDetailModal.Show(data);
                 opponentGraveyardArea.Add(_opponentGraveyardView);
 
                 CancellationToken ct = destroyCancellationToken;
