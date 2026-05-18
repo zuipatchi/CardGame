@@ -529,11 +529,15 @@ namespace Main
             bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null && playerFieldChar.Count == 0;
             bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null && opponentFieldChar.Count == 0;
 
+            CardAttribute playerCharAttr = _playerCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
+            bool playerTypeMatch = playerSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == playerCharAttr);
             int playerATK = playerHasAttackingChar
-                ? playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost
+                ? (playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost) * (playerTypeMatch ? 2 : 1)
                 : 0;
+            CardAttribute opponentCharAttr = _opponentCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
+            bool opponentTypeMatch = opponentSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == opponentCharAttr);
             int opponentATK = opponentHasAttackingChar
-                ? opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost
+                ? (opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost) * (opponentTypeMatch ? 2 : 1)
                 : 0;
 
             int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
