@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Common.Deck;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
@@ -26,9 +27,11 @@ namespace DeckBuilder
         private Button _saveButton;
         private Button _startButton;
         private Button _clearDeckButton;
+        private Label _saveToastLabel;
         private VisualElement _cardListDragLayer;
         private CardDetailModal _cardDetailModal;
         private bool _started;
+        private CancellationTokenSource _toastCts;
 
         [Inject]
         public void Construct(
@@ -73,6 +76,7 @@ namespace DeckBuilder
                 _saveButton = root.Q<Button>("SaveButton");
                 _startButton = root.Q<Button>("StartButton");
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
+                _saveToastLabel = root.Q<Label>("SaveToastLabel");
                 Button backButton = root.Q<Button>("BackButton");
 
                 backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
@@ -160,6 +164,27 @@ namespace DeckBuilder
         private void OnSaveClicked()
         {
             _deckRepository.Save(_deckModel);
+            ShowSaveToastAsync().Forget();
+        }
+
+        private async UniTaskVoid ShowSaveToastAsync()
+        {
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+            _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+            CancellationToken token = _toastCts.Token;
+            _saveToastLabel.style.display = DisplayStyle.Flex;
+            try
+            {
+                await UniTask.Delay(1500, cancellationToken: token);
+                _saveToastLabel.style.display = DisplayStyle.None;
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        private void OnDestroy()
+        {
+            _toastCts?.Dispose();
         }
 
         private void OnStartClicked()
