@@ -22,7 +22,7 @@
   - 20秒タイムアウト＋リトライ確認
 - デッキ構築（Title → DeckBuilder → Main の遷移）
   - カード一覧をキャラ・技・イベントのセクション別に表示。グリッドから選択・枚数管理（最小5枚・最大20枚）・背景画像（Addressables）・「空にする」ボタンで一括削除
-  - デッキを PlayerPrefs に JSON 保存・次回起動時に復元
+  - デッキを PlayerPrefs に JSON 保存（「保存」ボタンまたはスタート時）・次回起動時に復元
 - カードゲーム盤面（Main シーン）
   - カードテンプレート（UXML）+ カードデータベース（ScriptableObject）、カードにイラスト（Sprite）設定可能
   - 盤面背景画像（Addressables）
