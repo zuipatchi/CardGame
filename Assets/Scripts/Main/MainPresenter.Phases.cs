@@ -577,6 +577,22 @@ namespace Main
                     PlayDeckDamageAsync(opponentDamageCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct),
                     PlayDeckDamageAsync(playerDamageCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct)
                 );
+
+                bool playerDeckEmpty = damageToPlayer > 0 && _playerDeckView.Count == 0;
+                bool opponentDeckEmpty = damageToOpponent > 0 && _opponentDeckView.Count == 0;
+                if (playerDeckEmpty || opponentDeckEmpty)
+                {
+                    _isGameOver = true;
+                    if (playerDeckEmpty && opponentDeckEmpty)
+                    {
+                        OnGameEnd(null);
+                    }
+                    else
+                    {
+                        OnGameEnd(!playerDeckEmpty);
+                    }
+                    return;
+                }
             }
 
             _playerAtkBoost = 0;
