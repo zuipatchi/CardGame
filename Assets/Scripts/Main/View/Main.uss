@@ -133,7 +133,7 @@
 .main-opponent-character-area {
     position: absolute;
     right: 32px;
-    top: 0;
+    top: 100px;
     bottom: 50%;
     flex-direction: column;
     justify-content: center;

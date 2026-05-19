@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="Matching.uss" />
-    <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center;">
+    <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center; padding-top: 100px; padding-right: 100px;">
 
         <!-- メインカード -->
         <ui:VisualElement class="card" style="width: 640px; flex-direction: column;">

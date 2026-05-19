@@ -5,7 +5,10 @@
     top: 0;
     bottom: 0;
     flex-direction: column;
-    padding: 24px;
+    padding-top: 100px;
+    padding-right: 100px;
+    padding-bottom: 24px;
+    padding-left: 24px;
     -unity-background-scale-mode: scale-and-crop;
 }
 
