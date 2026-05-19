@@ -16,6 +16,7 @@ namespace Common.Injector
         {
             builder.Register<DeckModel>(Lifetime.Singleton).AsSelf();
             builder.Register<DeckRepository>(Lifetime.Singleton).AsSelf();
+            builder.Register<CpuDeckRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<ModalStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponentInHierarchy<OptionPresenter>().AsSelf();

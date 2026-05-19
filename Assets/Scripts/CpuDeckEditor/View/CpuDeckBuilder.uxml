@@ -1,0 +1,26 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="../../DeckBuilder/View/DeckBuilder.uss" />
+    <ui:VisualElement name="DeckBuilderRoot" class="deckbuilder-root">
+        <ui:VisualElement class="deckbuilder-content">
+            <ui:VisualElement class="deckbuilder-card-list-panel">
+                <ui:Label class="deckbuilder-panel-title" text="カード一覧" />
+                <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
+            </ui:VisualElement>
+            <ui:VisualElement class="deckbuilder-deck-panel">
+                <ui:VisualElement class="deckbuilder-deck-header">
+                    <ui:Label class="deckbuilder-panel-title" text="CPUデッキ" />
+                    <ui:VisualElement class="deckbuilder-deck-header-right">
+                        <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" text="空にする" />
+                        <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/30" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:ScrollView name="DeckListScrollView" class="deckbuilder-deck-scroll" />
+                <ui:Label name="SaveToastLabel" class="deckbuilder-save-toast" text="保存しました" />
+                <ui:VisualElement class="deckbuilder-buttons">
+                    <ui:Button name="BackButton" class="deckbuilder-button deckbuilder-button--back" text="もどる" />
+                    <ui:Button name="SaveButton" class="deckbuilder-button deckbuilder-button--save" text="保存" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

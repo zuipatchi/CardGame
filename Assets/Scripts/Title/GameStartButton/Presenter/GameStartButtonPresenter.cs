@@ -37,6 +37,15 @@ namespace Title.GameStartButton
                 return;
             }
             _gameStartButton.clicked += OnClickGameStart;
+
+#if UNITY_EDITOR
+            Button cpuDeckEditorButton = root.Q<Button>("CpuDeckEditorButton");
+            if (cpuDeckEditorButton != null)
+            {
+                cpuDeckEditorButton.style.display = DisplayStyle.Flex;
+                cpuDeckEditorButton.clicked += OnClickCpuDeckEditor;
+            }
+#endif
         }
 
         private void OnDisable()
@@ -50,5 +59,25 @@ namespace Title.GameStartButton
             _gameStartButton.SetEnabled(false);
             _sceneTransitioner.Transit(_nextScene).Forget();
         }
+
+#if UNITY_EDITOR
+        private void OnClickCpuDeckEditor()
+        {
+            StartCoroutine(LoadCpuDeckEditorCoroutine());
+        }
+
+        private System.Collections.IEnumerator LoadCpuDeckEditorCoroutine()
+        {
+            yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+                "CpuDeckBuilder", UnityEngine.SceneManagement.LoadSceneMode.Additive);
+
+            UnityEngine.SceneManagement.Scene cpuScene =
+                UnityEngine.SceneManagement.SceneManager.GetSceneByName("CpuDeckBuilder");
+            UnityEngine.SceneManagement.SceneManager.SetActiveScene(cpuScene);
+
+            yield return UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
+                UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex((int)Scenes.Title));
+        }
+#endif
     }
 }
