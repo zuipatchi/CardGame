@@ -17,6 +17,8 @@
   - 背景画像（TitleBackgroundPresenter）：Addressables から背景をロードし、カメラ画角に合わせてSpriteRenderer で全画面表示。透明度（_alpha）を Inspector で調整可能
   - ロゴ表示（TitleLogoPresenter）：Addressables からロゴをロードし球の中心Z座標に配置。前半カードがロゴの手前・後半カードがロゴの奥に自然に重なるビルボード表示
   - スタートボタン（GameStartButtonPresenter）：画面全体タッチ対応・「PRESS START」ゴールドパルス点滅演出（USS transition + schedule）
+- ホームシーン（Title → Home → DeckBuilder / Main / Matching の中継ハブ）
+  - デッキ構築・CPU 対戦・オンラインマッチングへの遷移ボタン（カードパネル風デザイン・ホバーアニメーション）
 - BGMとSEの再生機能
 - シーン管理機能（Commonシーンをベースに他のシーンを使用する）
   - フェードイン/アウトによる画面遷移演出
@@ -25,9 +27,9 @@
   - クイックマッチ（空きルームへ自動参加 or 作成して待機）
   - ルーム一覧から手動参加
   - 20秒タイムアウト＋リトライ確認
-- デッキ構築（Title → DeckBuilder → Main の遷移）
-  - カード一覧をキャラ・スキル・イベントのセクション別に表示。カードをクリックで詳細モーダル表示・デッキパネルへドラッグ&ドロップで追加（元カードはリストに残る）。コスト合計ルール（コスト超過でも追加自由・コスト合計ぴったり30でスタート可）・背景画像（Addressables）・「空にする」ボタンで一括削除
-  - デッキを PlayerPrefs に JSON 保存（「保存」ボタンまたはスタート時）・次回起動時に復元
+- デッキ構築（Home → DeckBuilder → Home の遷移、ゲーム開始は Home から）
+  - カード一覧をキャラ・スキル・イベントのセクション別に表示。カードをクリックで詳細モーダル表示・デッキパネルへドラッグ&ドロップで追加（元カードはリストに残る）。コスト合計ルール（コスト超過でも追加自由）・背景画像（Addressables）・「空にする」ボタンで一括削除
+  - デッキを PlayerPrefs に JSON 保存（「保存」ボタン）・次回起動時に復元
 - CPUデッキ構築シーン（CpuDeckBuilder）：Editor 専用・Build Settings 対象外。タイトル画面右下の「CPUデッキ編集」ボタン（Editor 時のみ表示）から遷移。コスト合計30で保存可、保存済みデッキは次回ゲーム開始時に CPU が使用（未保存時は AllCards フォールバック）
 - カードゲーム盤面（Main シーン）
   - カードテンプレート（UXML）+ カードデータベース（ScriptableObject）、カードにイラスト（Sprite）設定可能
