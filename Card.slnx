@@ -112,13 +112,13 @@
   <Project Path="Unity.Profiling.Core.csproj" />
   <Project Path="Unity.Services.Core.Device.csproj" />
   <Project Path="Unity.Services.Core.Analytics.csproj" />
+  <Project Path="Title.csproj" />
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Services.Authentication.Editor.Shared.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="DeckBuilder.csproj" />
   <Project Path="Unity.Services.Core.Registration.csproj" />
-  <Project Path="Title.csproj" />
   <Project Path="Tests.PlayMode.csproj" />
   <Project Path="R3.Unity.XRInteractionToolkit.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />

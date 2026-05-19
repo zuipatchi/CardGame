@@ -15,7 +15,11 @@
       "Skill(update-config)",
       "Skill(update-config:*)",
       "Skill(feature)",
-      "Skill(feature:*)"
+      "Skill(feature:*)",
+      "Bash(mkdir -p C:/Users/hukad/.claude/skills/sync-docs)",
+      "Edit(~/.claude/skills/sync-docs/**)",
+      "Skill(sync-docs)",
+      "Skill(sync-docs:*)"
     ],
     "deny": [
       "Bash(rm:*)",
@@ -26,7 +30,8 @@
       "Bash(kill:*)"
     ],
     "additionalDirectories": [
-      "C:\\Users\\hukad\\.claude"
+      "C:\\Users\\hukad\\.claude",
+      "C:\\Users\\hukad\\.claude\\skills"
     ]
   }
 }
