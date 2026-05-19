@@ -25,8 +25,8 @@ namespace Tests.EditMode
         [Test]
         public void 弱点でない属性では弱点倍率なし()
         {
-            // Poison技(3) で Fire弱点キャラを攻撃 → 3×1 = 3
-            int result = CalcATK(3, 0, CardAttribute.Poison, CardAttribute.Poison, CardAttribute.Fire);
+            // Poison技(3) で Fire弱点Patchiキャラを攻撃 → タイプ不一致・弱点不一致 → 3×1 = 3
+            int result = CalcATK(3, 0, CardAttribute.Poison, CardAttribute.Patchi, CardAttribute.Fire);
             Assert.AreEqual(3, result);
         }
 

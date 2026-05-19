@@ -7,6 +7,7 @@ namespace Title.CardSphere
     public sealed class TitleCardSpherePresenter : MonoBehaviour
     {
         [SerializeField] private CardDatabase _cardDatabase;
+        [SerializeField] private Camera _camera;
         [SerializeField] private float _radius = 3f;
         [SerializeField] private float _cardScale = 0.4f;
         [SerializeField] private int _totalCards = 6;
@@ -14,18 +15,19 @@ namespace Title.CardSphere
         [SerializeField] private float _periodSec = 20f;
 
         private readonly List<Transform> _cardTransforms = new List<Transform>();
-        private Camera _camera;
+        private readonly List<SpriteRenderer> _spriteRenderers = new List<SpriteRenderer>();
+        private IReadOnlyList<CardData> _allCards;
+        private float _elapsed = 0f;
 
         private void Start()
         {
-            _camera = Camera.main;
             if (_cardDatabase == null)
             {
                 return;
             }
 
-            IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
-            if (allCards.Count == 0)
+            _allCards = _cardDatabase.AllCards;
+            if (_allCards.Count == 0)
             {
                 return;
             }
@@ -38,26 +40,29 @@ namespace Title.CardSphere
                 float rad = angle * Mathf.Deg2Rad;
                 Vector3 localPos = new Vector3(Mathf.Cos(rad) * _radius, 0f, Mathf.Sin(rad) * _radius);
 
-                CardData cardData = allCards[i % allCards.Count];
-
                 GameObject cardObj = new GameObject($"Card_{angle:F0}");
                 cardObj.transform.SetParent(transform);
                 cardObj.transform.localPosition = localPos;
                 cardObj.transform.localScale = Vector3.one * _cardScale;
 
                 SpriteRenderer sr = cardObj.AddComponent<SpriteRenderer>();
-                if (cardData.Image != null)
-                {
-                    sr.sprite = cardData.Image;
-                }
-
                 _cardTransforms.Add(cardObj.transform);
+                _spriteRenderers.Add(sr);
             }
+
+            AssignRandomCards();
         }
 
         private void Update()
         {
             transform.Rotate(Vector3.up, 360f / _periodSec * Time.deltaTime, Space.Self);
+
+            _elapsed += Time.deltaTime;
+            if (_elapsed >= _periodSec)
+            {
+                _elapsed -= _periodSec;
+                AssignRandomCards();
+            }
 
             if (_camera == null)
             {
@@ -68,6 +73,28 @@ namespace Title.CardSphere
             foreach (Transform cardTransform in _cardTransforms)
             {
                 cardTransform.rotation = camRotation;
+            }
+        }
+
+        private void AssignRandomCards()
+        {
+            List<int> indices = new List<int>(_allCards.Count);
+            for (int i = 0; i < _allCards.Count; i++)
+            {
+                indices.Add(i);
+            }
+
+            for (int i = indices.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                int temp = indices[i];
+                indices[i] = indices[j];
+                indices[j] = temp;
+            }
+
+            for (int i = 0; i < _spriteRenderers.Count; i++)
+            {
+                _spriteRenderers[i].sprite = _allCards[indices[i % indices.Count]].Image;
             }
         }
     }

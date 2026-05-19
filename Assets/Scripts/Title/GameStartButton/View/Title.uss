@@ -1,0 +1,27 @@
+.touch-area {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.game-start-label {
+    position: absolute;
+    bottom: 20%;
+    left: 0;
+    right: 0;
+    font-size: 48px;
+    color: rgb(255, 215, 80);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    letter-spacing: 6px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(180, 120, 0);
+    text-shadow: 0 0 12px rgba(255, 200, 0, 0.8);
+    transition-property: opacity;
+    transition-duration: 0.8s;
+    transition-timing-function: ease-in-out;
+    opacity: 1;
+}
+
+.game-start-label--dim {
+    opacity: 0.1;
+}

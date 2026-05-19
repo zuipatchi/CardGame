@@ -390,8 +390,55 @@ Transform:
   - {fileID: 1158252077}
   - {fileID: 583007812}
   - {fileID: 2078257226}
+  - {fileID: 1495407215}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1495407214
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1495407215}
+  - component: {fileID: 1495407216}
+  m_Layer: 0
+  m_Name: TitleBackground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1495407215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495407214}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1472985659}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1495407216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495407214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8af96a853fb604840810f5f54dcd427e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Title::Title.Background.TitleBackgroundPresenter
+  _camera: {fileID: 583007815}
+  _alpha: 0.8
 --- !u!1 &1627839144
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +501,7 @@ Transform:
   m_GameObject: {fileID: 2078257225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 4}
+  m_LocalPosition: {x: 0, y: 0, z: 3.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -473,10 +520,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Title::Title.CardSphere.TitleCardSpherePresenter
   _cardDatabase: {fileID: 11400000, guid: d84503d125c0df7499d68ac2cd715f5a, type: 2}
+  _camera: {fileID: 583007815}
   _radius: 2
   _cardScale: 0.1
-  _totalCards: 6
-  _tiltDeg: 30
+  _totalCards: 10
+  _tiltDeg: 0
   _periodSec: 20
 --- !u!1 &2140557686
 GameObject:

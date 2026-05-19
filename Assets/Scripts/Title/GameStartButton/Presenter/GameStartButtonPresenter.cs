@@ -6,7 +6,6 @@ using VContainer;
 
 namespace Title.GameStartButton
 {
-    // クリックされたらネクストシーンに遷移する
     [RequireComponent(typeof(UIDocument))]
     public class GameStartButtonPresenter : MonoBehaviour
     {
@@ -14,7 +13,9 @@ namespace Title.GameStartButton
         [SerializeField] private Scenes _nextScene;
 
         private UIDocument _uiDocument;
-        private Button _gameStartButton;
+        private VisualElement _touchArea;
+        private Label _gameStartLabel;
+        private IVisualElementScheduledItem _pulseTask;
 
         [Inject]
         public void Construct(SceneTransitioner sceneTransitioner)
@@ -30,54 +31,31 @@ namespace Title.GameStartButton
         private void OnEnable()
         {
             VisualElement root = _uiDocument.rootVisualElement;
-            _gameStartButton = root.Q<Button>("GameStartButton");
-            if (_gameStartButton == null)
-            {
-                Debug.LogError("GameStartButton が見つかりませんでした。");
-                return;
-            }
-            _gameStartButton.clicked += OnClickGameStart;
+            _touchArea = root.Q<VisualElement>("TouchArea");
+            _gameStartLabel = root.Q<Label>("GameStartLabel");
 
-#if UNITY_EDITOR
-            Button cpuDeckEditorButton = root.Q<Button>("CpuDeckEditorButton");
-            if (cpuDeckEditorButton != null)
-            {
-                cpuDeckEditorButton.style.display = DisplayStyle.Flex;
-                cpuDeckEditorButton.clicked += OnClickCpuDeckEditor;
-            }
-#endif
+            _touchArea.RegisterCallback<ClickEvent>(OnClick);
+            _pulseTask = _gameStartLabel.schedule.Execute(TogglePulse).Every(900);
         }
 
         private void OnDisable()
         {
-            if (_gameStartButton != null) _gameStartButton.clicked -= OnClickGameStart;
-            _gameStartButton = null;
+            _touchArea?.UnregisterCallback<ClickEvent>(OnClick);
+            _pulseTask?.Pause();
+            _touchArea = null;
+            _gameStartLabel = null;
+            _pulseTask = null;
         }
 
-        private void OnClickGameStart()
+        private void TogglePulse()
         {
-            _gameStartButton.SetEnabled(false);
+            _gameStartLabel.ToggleInClassList("game-start-label--dim");
+        }
+
+        private void OnClick(ClickEvent evt)
+        {
+            _touchArea.UnregisterCallback<ClickEvent>(OnClick);
             _sceneTransitioner.Transit(_nextScene).Forget();
         }
-
-#if UNITY_EDITOR
-        private void OnClickCpuDeckEditor()
-        {
-            StartCoroutine(LoadCpuDeckEditorCoroutine());
-        }
-
-        private System.Collections.IEnumerator LoadCpuDeckEditorCoroutine()
-        {
-            yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
-                "CpuDeckBuilder", UnityEngine.SceneManagement.LoadSceneMode.Additive);
-
-            UnityEngine.SceneManagement.Scene cpuScene =
-                UnityEngine.SceneManagement.SceneManager.GetSceneByName("CpuDeckBuilder");
-            UnityEngine.SceneManagement.SceneManager.SetActiveScene(cpuScene);
-
-            yield return UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
-                UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex((int)Scenes.Title));
-        }
-#endif
     }
 }
