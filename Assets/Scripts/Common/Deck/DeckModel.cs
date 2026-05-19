@@ -46,7 +46,7 @@ namespace Common.Deck
 
         public bool Remove(string id)
         {
-            for (int i = 0; i < _entries.Count; i++)
+            for (int i = _entries.Count - 1; i >= 0; i--)
             {
                 if (_entries[i].id == id)
                 {

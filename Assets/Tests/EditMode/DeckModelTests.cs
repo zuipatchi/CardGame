@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Common.Deck;
 using NUnit.Framework;
 
@@ -141,6 +142,24 @@ namespace Tests.EditMode
             model.Remove("C001");
 
             Assert.AreEqual(1, model.Count);
+        }
+
+        [Test]
+        public void Remove_他カードが挟まれた複数枚のとき先頭エントリは残り順番が変わらない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+            model.Add("C001", 5);
+            model.Add("E001", 2);
+
+            model.Remove("C001");
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual(3, model.Count);
+            Assert.AreEqual("C001", ids[0]);
+            Assert.AreEqual("S001", ids[1]);
+            Assert.AreEqual("E001", ids[2]);
         }
 
         [Test]
