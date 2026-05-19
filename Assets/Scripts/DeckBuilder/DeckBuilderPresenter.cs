@@ -25,7 +25,6 @@ namespace DeckBuilder
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
         private Button _saveButton;
-        private Button _startButton;
         private Button _clearDeckButton;
         private Label _saveToastLabel;
         private VisualElement _cardListDragLayer;
@@ -74,14 +73,12 @@ namespace DeckBuilder
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
                 _deckCountLabel = root.Q<Label>("DeckCountLabel");
                 _saveButton = root.Q<Button>("SaveButton");
-                _startButton = root.Q<Button>("StartButton");
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 _saveToastLabel = root.Q<Label>("SaveToastLabel");
                 Button backButton = root.Q<Button>("BackButton");
 
-                backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+                backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
                 _saveButton.clicked += OnSaveClicked;
-                _startButton.clicked += OnStartClicked;
                 _clearDeckButton.clicked += OnClearDeckClicked;
 
                 _cardListDragLayer = new VisualElement();
@@ -187,13 +184,6 @@ namespace DeckBuilder
             _toastCts?.Dispose();
         }
 
-        private void OnStartClicked()
-        {
-            _deckRepository.Save(_deckModel);
-            _startButton.SetEnabled(false);
-            _sceneTransitioner.Transit(Scenes.Main).Forget();
-        }
-
         private void RefreshDeckPanel()
         {
             _deckListScrollView.Clear();
@@ -248,7 +238,6 @@ namespace DeckBuilder
             }
 
             _saveButton.SetEnabled(_deckModel.Count > 0);
-            _startButton.SetEnabled(_deckModel.IsReady);
             _clearDeckButton.style.display = _deckModel.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }

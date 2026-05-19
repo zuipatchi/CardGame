@@ -1,0 +1,25 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="Home.uss"/>
+    <ui:VisualElement name="HomeRoot" class="home-root">
+        <ui:VisualElement class="home-buttons">
+            <ui:Button name="DeckBuilderButton" class="home-button home-button--deck">
+                <ui:VisualElement class="home-button-content">
+                    <ui:Label text="デッキ構築" class="home-button-title"/>
+                    <ui:Label text="カードを編集する" class="home-button-subtitle"/>
+                </ui:VisualElement>
+            </ui:Button>
+            <ui:Button name="BattleButton" class="home-button home-button--battle">
+                <ui:VisualElement class="home-button-content">
+                    <ui:Label text="対戦（CPU）" class="home-button-title"/>
+                    <ui:Label text="今のデッキで対戦する" class="home-button-subtitle"/>
+                </ui:VisualElement>
+            </ui:Button>
+            <ui:Button name="MatchingButton" class="home-button home-button--matching">
+                <ui:VisualElement class="home-button-content">
+                    <ui:Label text="オンライン" class="home-button-title"/>
+                    <ui:Label text="対戦相手を探す" class="home-button-subtitle"/>
+                </ui:VisualElement>
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

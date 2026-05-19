@@ -33,50 +33,58 @@ namespace Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ゲームスタートボタンがシーンに存在する()
+        public IEnumerator ゲームスタートラベルがシーンに存在する()
         {
-            Button button = FindGameStartButton();
-            Assert.IsNotNull(button, "GameStartButton が見つかりません");
+            Label label = FindGameStartLabel();
+            Assert.IsNotNull(label, "GameStartLabel が見つかりません");
             yield return null;
         }
 
         [UnityTest]
-        public IEnumerator ゲームスタートボタンが初期状態で有効()
+        public IEnumerator タッチエリアがシーンに存在する()
         {
-            Button button = FindGameStartButton();
-            Assert.IsNotNull(button, "GameStartButton が見つかりません");
-            Assert.IsTrue(button.enabledSelf, "初期状態でボタンが無効になっています");
+            VisualElement touchArea = FindTouchArea();
+            Assert.IsNotNull(touchArea, "TouchArea が見つかりません");
             yield return null;
         }
 
         [UnityTest]
-        public IEnumerator クリック後にゲームスタートボタンが無効化される()
+        public IEnumerator タッチエリアが初期状態でクリックを受け付ける()
         {
-            Button button = FindGameStartButton();
-            Assert.IsNotNull(button, "GameStartButton が見つかりません");
-
-            // NavigationSubmitEvent（Enter/Space キー相当）で Clickable を発火させる
-            button.Focus();
-            using var submitEvent = NavigationSubmitEvent.GetPooled();
-            button.SendEvent(submitEvent);
-
+            VisualElement touchArea = FindTouchArea();
+            Assert.IsNotNull(touchArea, "TouchArea が見つかりません");
+            Assert.AreNotEqual(PickingMode.Ignore, touchArea.pickingMode, "TouchArea がクリックを無視しています");
             yield return null;
-
-            Assert.IsFalse(button.enabledSelf, "クリック後にボタンが disabled になっていません");
         }
 
-        // Title シーン内の UIDocument から GameStartButton を探す
-        private static Button FindGameStartButton()
+        private static Label FindGameStartLabel()
         {
             Scene titleScene = SceneManager.GetSceneByName("Title");
             foreach (GameObject root in titleScene.GetRootGameObjects())
             {
                 foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
                 {
-                    Button button = doc.rootVisualElement?.Q<Button>("GameStartButton");
-                    if (button != null)
+                    Label label = doc.rootVisualElement?.Q<Label>("GameStartLabel");
+                    if (label != null)
                     {
-                        return button;
+                        return label;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static VisualElement FindTouchArea()
+        {
+            Scene titleScene = SceneManager.GetSceneByName("Title");
+            foreach (GameObject root in titleScene.GetRootGameObjects())
+            {
+                foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
+                {
+                    VisualElement touchArea = doc.rootVisualElement?.Q<VisualElement>("TouchArea");
+                    if (touchArea != null)
+                    {
+                        return touchArea;
                     }
                 }
             }

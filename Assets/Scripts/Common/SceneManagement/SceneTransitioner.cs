@@ -14,7 +14,8 @@ namespace Common.SceneManagement
         Title = 1,
         Matching = 2,
         Main = 3,
-        DeckBuilder = 4
+        DeckBuilder = 4,
+        Home = 5
     }
     /// <summary>
     /// アクティブシーンを変更するクラス
