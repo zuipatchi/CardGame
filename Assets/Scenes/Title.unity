@@ -119,6 +119,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &71610765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 71610766}
+  - component: {fileID: 71610767}
+  m_Layer: 0
+  m_Name: TitleLogo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &71610766
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71610765}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1472985659}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &71610767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71610765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d946ffd598e91504abb4582af260dc10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Title::Title.Logo.TitleLogoPresenter
+  _sphereRoot: {fileID: 2078257226}
+  _camera: {fileID: 583007815}
+  _scale: 0.2
 --- !u!1 &229162518
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,6 +438,7 @@ Transform:
   - {fileID: 583007812}
   - {fileID: 2078257226}
   - {fileID: 1495407215}
+  - {fileID: 71610766}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1495407214
@@ -521,11 +569,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Title::Title.CardSphere.TitleCardSpherePresenter
   _cardDatabase: {fileID: 11400000, guid: d84503d125c0df7499d68ac2cd715f5a, type: 2}
   _camera: {fileID: 583007815}
-  _radius: 2
-  _cardScale: 0.1
-  _totalCards: 10
+  _radius: 2.4
+  _cardScale: 0.05
+  _totalCards: 20
   _tiltDeg: 0
-  _periodSec: 20
+  _periodSec: 30
 --- !u!1 &2140557686
 GameObject:
   m_ObjectHideFlags: 0
