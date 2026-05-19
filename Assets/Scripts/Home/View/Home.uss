@@ -104,3 +104,24 @@
     font-size: 18px;
     color: rgba(175, 180, 210, 0.85);
 }
+
+.home-cost-over-toast {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+    -unity-text-align: middle-center;
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(255, 80, 80);
+    background-color: rgba(60, 10, 10, 0.95);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-color: rgba(255, 80, 80, 0.5);
+    border-bottom-color: rgba(255, 80, 80, 0.5);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    display: none;
+}

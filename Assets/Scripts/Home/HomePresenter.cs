@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using Common.Deck;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -10,15 +13,19 @@ namespace Home
     public sealed class HomePresenter : MonoBehaviour
     {
         private SceneTransitioner _sceneTransitioner;
+        private DeckModel _deckModel;
         private UIDocument _uiDocument;
         private Button _deckBuilderButton;
         private Button _battleButton;
         private Button _matchingButton;
+        private Label _costOverToastLabel;
+        private CancellationTokenSource _toastCts;
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner)
+        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel)
         {
             _sceneTransitioner = sceneTransitioner;
+            _deckModel = deckModel;
         }
 
         private void Awake()
@@ -32,6 +39,7 @@ namespace Home
             _deckBuilderButton = root.Q<Button>("DeckBuilderButton");
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
+            _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
             _matchingButton.clicked += OnMatchingClicked;
@@ -54,6 +62,12 @@ namespace Home
             _deckBuilderButton = null;
             _battleButton = null;
             _matchingButton = null;
+            _costOverToastLabel = null;
+        }
+
+        private void OnDestroy()
+        {
+            _toastCts?.Dispose();
         }
 
         private void OnDeckBuilderClicked()
@@ -63,12 +77,37 @@ namespace Home
 
         private void OnBattleClicked()
         {
+            if (_deckModel.IsOver)
+            {
+                ShowCostOverToastAsync().Forget();
+                return;
+            }
             _sceneTransitioner.Transit(Scenes.Main).Forget();
         }
 
         private void OnMatchingClicked()
         {
+            if (_deckModel.IsOver)
+            {
+                ShowCostOverToastAsync().Forget();
+                return;
+            }
             _sceneTransitioner.Transit(Scenes.Matching).Forget();
+        }
+
+        private async UniTaskVoid ShowCostOverToastAsync()
+        {
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+            _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+            CancellationToken token = _toastCts.Token;
+            _costOverToastLabel.style.display = DisplayStyle.Flex;
+            try
+            {
+                await UniTask.Delay(1500, cancellationToken: token);
+                _costOverToastLabel.style.display = DisplayStyle.None;
+            }
+            catch (OperationCanceledException) { }
         }
     }
 }
