@@ -21,7 +21,10 @@
 ### その他
 
 - デッキは DeckModel に保持され、DeckBuilder → Main 遷移をまたいで引き継がれる
-- CPU は常にカードDB全カードをシャッフルした全枚数デッキを使用する
+- CPU デッキは `CpuDeckRepository`（PlayerPrefs キー `"SavedCpuDeck"`）から読み込む
+  - 保存済みデッキがある場合：そのカードIDリストで `CardDatabase.BuildDeck` を呼び出したカード群をシャッフルして使用する
+  - 保存済みデッキがない場合：カードDB全カードをシャッフルした全枚数をフォールバックとして使用する
+- CPU デッキの編集は Unity Editor 専用の `CpuDeckBuilder` シーンで行う（タイトル画面の「CPU デッキ編集」ボタン、`#if UNITY_EDITOR` でのみ表示）
 
 ---
 
