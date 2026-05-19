@@ -147,7 +147,7 @@ Assets/Scripts/<Scene>/<Feature>/
 | アセンブリ | パス | 依存 |
 |---|---|---|
 | `Common` | `Assets/Scripts/Common/` | VContainer / R3 / UniTask / DOTween |
-| `Title` | `Assets/Scripts/Title/` | VContainer / UniTask / Common |
+| `Title` | `Assets/Scripts/Title/` | VContainer / UniTask / Common / Main |
 | `Matching` | `Assets/Scripts/Matching/` | VContainer / R3 / UniTask / Common / Unity.Services.Multiplayer |
 | `Main` | `Assets/Scripts/Main/` | VContainer / R3 / UniTask / DOTween / Common |
 
