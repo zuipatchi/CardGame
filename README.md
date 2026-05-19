@@ -12,7 +12,11 @@
 決まったら記載する
 
 ## 機能一覧
-- タイトル画面カード軌道アニメーション（TitleCardSpherePresenter）：カードを1つの傾いた軌道リング上に配置し、衛星軌道のように回転。枚数・半径・傾き・速度を Inspector で調整可能
+- タイトル画面演出
+  - カード軌道アニメーション（TitleCardSpherePresenter）：カードを1つの軌道リング上に配置し衛星軌道のように回転。Fisher-Yates シャッフルでランダム選出・1周ごとにラインナップ入れ替え。枚数・半径・傾き・速度を Inspector で調整可能
+  - 背景画像（TitleBackgroundPresenter）：Addressables から背景をロードし、カメラ画角に合わせてSpriteRenderer で全画面表示。透明度（_alpha）を Inspector で調整可能
+  - ロゴ表示（TitleLogoPresenter）：Addressables からロゴをロードし球の中心Z座標に配置。前半カードがロゴの手前・後半カードがロゴの奥に自然に重なるビルボード表示
+  - スタートボタン（GameStartButtonPresenter）：画面全体タッチ対応・「PRESS START」ゴールドパルス点滅演出（USS transition + schedule）
 - BGMとSEの再生機能
 - シーン管理機能（Commonシーンをベースに他のシーンを使用する）
   - フェードイン/アウトによる画面遷移演出
