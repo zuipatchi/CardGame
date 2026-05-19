@@ -27,6 +27,7 @@ namespace DeckBuilder
         private Button _saveButton;
         private Button _clearDeckButton;
         private Label _saveToastLabel;
+        private Label _costOverLabel;
         private VisualElement _cardListDragLayer;
         private CardDetailModal _cardDetailModal;
         private bool _started;
@@ -75,6 +76,7 @@ namespace DeckBuilder
                 _saveButton = root.Q<Button>("SaveButton");
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 _saveToastLabel = root.Q<Label>("SaveToastLabel");
+                _costOverLabel = root.Q<Label>("CostOverLabel");
                 Button backButton = root.Q<Button>("BackButton");
 
                 backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
@@ -239,6 +241,17 @@ namespace DeckBuilder
 
             _saveButton.SetEnabled(_deckModel.Count > 0);
             _clearDeckButton.style.display = _deckModel.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+
+            bool isOver = _deckModel.IsOver;
+            _costOverLabel.style.display = isOver ? DisplayStyle.Flex : DisplayStyle.None;
+            if (isOver)
+            {
+                _deckCountLabel.AddToClassList("deckbuilder-deck-count--over");
+            }
+            else
+            {
+                _deckCountLabel.RemoveFromClassList("deckbuilder-deck-count--over");
+            }
         }
     }
 }

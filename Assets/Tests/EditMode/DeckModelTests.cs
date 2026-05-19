@@ -83,6 +83,43 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void IsOver_TotalCostが30を超えるときtrue()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 20);
+            model.Add("S001", 15);
+
+            Assert.IsTrue(model.IsOver);
+        }
+
+        [Test]
+        public void IsOver_TotalCostが30のときfalse()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 15);
+            model.Add("S001", 15);
+
+            Assert.IsFalse(model.IsOver);
+        }
+
+        [Test]
+        public void IsOver_TotalCostが30未満のときfalse()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 10);
+
+            Assert.IsFalse(model.IsOver);
+        }
+
+        [Test]
+        public void IsOver_デッキが空のときfalse()
+        {
+            DeckModel model = new DeckModel();
+
+            Assert.IsFalse(model.IsOver);
+        }
+
+        [Test]
         public void Remove_カードをデッキから削除できる()
         {
             DeckModel model = new DeckModel();

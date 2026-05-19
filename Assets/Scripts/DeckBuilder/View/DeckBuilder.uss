@@ -114,10 +114,26 @@
     margin-bottom: 8px;
 }
 
+.deckbuilder-deck-count-container {
+    flex-direction: column;
+    align-items: flex-end;
+}
+
 .deckbuilder-deck-count {
     font-size: 28px;
     color: rgba(180, 180, 210, 1);
     -unity-font-style: bold;
+}
+
+.deckbuilder-deck-count--over {
+    color: rgb(255, 80, 80);
+}
+
+.deckbuilder-cost-over {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 80, 80);
+    display: none;
 }
 
 .deckbuilder-deck-scroll {

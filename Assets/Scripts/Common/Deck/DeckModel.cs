@@ -24,6 +24,7 @@ namespace Common.Deck
         }
 
         public bool IsReady => TotalCost == TargetCost;
+        public bool IsOver => TotalCost > TargetCost;
 
         public IReadOnlyList<string> CardIds
         {
