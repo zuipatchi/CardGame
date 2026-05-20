@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Common.SceneManagement;
 using NUnit.Framework;
@@ -115,85 +117,27 @@ namespace Tests.PlayMode
             VisualElement overlay = deckBuilderRoot.Q<VisualElement>(className: "deck-analysis-overlay");
             Assert.IsNotNull(overlay, "オーバーレイが見つかりません");
 
-            bool hasCostSection = false;
-            bool hasTypeSection = false;
-            foreach (Label sectionTitle in overlay.Query<Label>(className: "deck-analysis-section-title").ToList())
-            {
-                if (sectionTitle.text == "コスト分布")
-                {
-                    hasCostSection = true;
-                }
-                if (sectionTitle.text == "種類分布")
-                {
-                    hasTypeSection = true;
-                }
-            }
-            Assert.IsTrue(hasCostSection, "コスト分布セクションが見つかりません");
-            Assert.IsTrue(hasTypeSection, "種類分布セクションが見つかりません");
+            List<Label> sectionTitles = overlay.Query<Label>(className: "deck-analysis-section-title").ToList();
+            Assert.IsTrue(sectionTitles.Any(l => l.text == "コスト分布"), "コスト分布セクションが見つかりません");
+            Assert.IsTrue(sectionTitles.Any(l => l.text == "種類分布"), "種類分布セクションが見つかりません");
         }
 
-        private static Label FindLabel(string name)
+        private static Label FindLabel(string name) => FindElement<Label>(name);
+        private static Button FindButton(string name) => FindElement<Button>(name);
+        private static VisualElement FindDeckBuilderRoot() => FindElement<VisualElement>("DeckBuilderRoot");
+        private static ScrollView FindCardListScrollView() => FindElement<ScrollView>("CardListScrollView");
+
+        private static T FindElement<T>(string name) where T : VisualElement
         {
             Scene scene = SceneManager.GetSceneByName("DeckBuilder");
             foreach (GameObject root in scene.GetRootGameObjects())
             {
                 foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
                 {
-                    Label label = doc.rootVisualElement?.Q<Label>(name);
-                    if (label != null)
+                    T element = doc.rootVisualElement?.Q<T>(name);
+                    if (element != null)
                     {
-                        return label;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private static Button FindButton(string name)
-        {
-            Scene scene = SceneManager.GetSceneByName("DeckBuilder");
-            foreach (GameObject root in scene.GetRootGameObjects())
-            {
-                foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
-                {
-                    Button button = doc.rootVisualElement?.Q<Button>(name);
-                    if (button != null)
-                    {
-                        return button;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private static VisualElement FindDeckBuilderRoot()
-        {
-            Scene scene = SceneManager.GetSceneByName("DeckBuilder");
-            foreach (GameObject root in scene.GetRootGameObjects())
-            {
-                foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
-                {
-                    VisualElement el = doc.rootVisualElement?.Q<VisualElement>("DeckBuilderRoot");
-                    if (el != null)
-                    {
-                        return el;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private static ScrollView FindCardListScrollView()
-        {
-            Scene scene = SceneManager.GetSceneByName("DeckBuilder");
-            foreach (GameObject root in scene.GetRootGameObjects())
-            {
-                foreach (UIDocument doc in root.GetComponentsInChildren<UIDocument>())
-                {
-                    ScrollView sv = doc.rootVisualElement?.Q<ScrollView>("CardListScrollView");
-                    if (sv != null)
-                    {
-                        return sv;
+                        return element;
                     }
                 }
             }

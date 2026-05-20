@@ -73,11 +73,14 @@ namespace DeckBuilder
             Dictionary<int, int> dist = new Dictionary<int, int>();
             foreach ((string _, int cost) in deckModel.Entries)
             {
-                if (!dist.ContainsKey(cost))
+                if (dist.TryGetValue(cost, out int current))
                 {
-                    dist[cost] = 0;
+                    dist[cost] = current + 1;
                 }
-                dist[cost]++;
+                else
+                {
+                    dist[cost] = 1;
+                }
             }
             return dist;
         }
@@ -160,19 +163,11 @@ namespace DeckBuilder
             VisualElement chart = new VisualElement();
             chart.AddToClassList("deck-analysis-chart");
 
-            int maxCount = charCount;
-            if (skillCount > maxCount)
-            {
-                maxCount = skillCount;
-            }
-            if (eventCount > maxCount)
-            {
-                maxCount = eventCount;
-            }
-
-            float charRatio = maxCount > 0 ? (float)charCount / maxCount : 0f;
-            float skillRatio = maxCount > 0 ? (float)skillCount / maxCount : 0f;
-            float eventRatio = maxCount > 0 ? (float)eventCount / maxCount : 0f;
+            int maxCount = System.Math.Max(charCount, System.Math.Max(skillCount, eventCount));
+            bool hasCards = maxCount > 0;
+            float charRatio = hasCards ? (float)charCount / maxCount : 0f;
+            float skillRatio = hasCards ? (float)skillCount / maxCount : 0f;
+            float eventRatio = hasCards ? (float)eventCount / maxCount : 0f;
 
             chart.Add(BuildBarColumn("キャラ", charCount, charRatio, "deck-analysis-bar--character"));
             chart.Add(BuildBarColumn("技", skillCount, skillRatio, "deck-analysis-bar--skill"));
