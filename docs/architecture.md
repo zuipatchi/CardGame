@@ -166,7 +166,7 @@ Assets/Scripts/<Scene>/<Feature>/
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
   ├── Icon/        HeartIcon.png（コスト・デッキ枚数バッジ用）、AttackIcon.png（攻撃力バッジ用）、GraveIcon.png（墓地枚数バッジ用）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
-  ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButtn.png（OKボタン画像）、ReturnButtn.png（戻るボタン画像）、PassButton.png（パスボタン画像）
+  ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButtn.png（OKボタン画像）、ReturnButtn.png（戻るボタン画像）、PassButton.png（パスボタン画像）、HomeBackground.png（Home 画面背景）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
 ```
@@ -175,6 +175,29 @@ Assets/AddressableAssets/
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
+
+---
+
+## Home シーン（ホーム画面）
+
+### 概要
+
+Title → Home の遷移後に表示されるメインハブ画面。デッキ構築・バトル・マッチングへの導線を提供する。
+
+### Live2D キャラクター（Dog-kid）
+
+`HomeLive2DPresenter` が `Animator.Play(clip.name)` で全モーションからランダムに再生する無限ループを管理する。
+
+- `[DefaultExecutionOrder(-10000)]` で Cubism 系コンポーネントより先に `Awake` を実行し、`CubismFadeController` を reflection で無効化する
+- FadeMotionList なしで運用するため、`DogKidFadeMotionListSetup`（エディタメニュー `Live2D/Setup Dog-kid FadeMotionList`）でセットアップ済みの FadeMotionList アセットを Dog-kid プレハブに割り当てている
+
+### 食べ物スポーン（HomeFoodSpawner）
+
+画面左半分をクリック（New Input System: `Mouse.current.leftButton.wasPressedThisFrame`）すると、クリック座標に Food Live2D プレハブをインスタンス化する。
+
+### 背景（HomeBackgroundPresenter）
+
+Addressables キー `Image/HomeBackground` から Sprite を非同期ロードし、カメラの視野全体を覆うように `SpriteRenderer` でフィットさせる（`destroyCancellationToken` でキャンセル対応）。
 
 ---
 
