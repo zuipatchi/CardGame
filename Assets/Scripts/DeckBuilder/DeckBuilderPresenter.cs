@@ -30,6 +30,7 @@ namespace DeckBuilder
         private Label _costOverLabel;
         private VisualElement _cardListDragLayer;
         private CardDetailModal _cardDetailModal;
+        private DeckAnalysisModal _deckAnalysisModal;
         private bool _started;
         private CancellationTokenSource _toastCts;
 
@@ -87,6 +88,10 @@ namespace DeckBuilder
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
                 _cardListDragLayer.pickingMode = PickingMode.Ignore;
                 _cardDetailModal = new CardDetailModal(deckBuilderRoot, _cardStore.AttributeDatabase);
+                _deckAnalysisModal = new DeckAnalysisModal(deckBuilderRoot, _cardDatabase);
+
+                Button analyzeButton = root.Q<Button>("AnalyzeButton");
+                analyzeButton.clicked += OnAnalyzeClicked;
 
                 _deckModel.Clear();
                 _deckRepository.Load(_deckModel);
@@ -146,6 +151,11 @@ namespace DeckBuilder
                 grid.Add(cardView);
             }
             _cardListScrollView.Add(grid);
+        }
+
+        private void OnAnalyzeClicked()
+        {
+            _deckAnalysisModal.Show(_deckModel);
         }
 
         private void OnRemoveClicked(string id)

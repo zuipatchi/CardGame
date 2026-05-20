@@ -317,6 +317,154 @@
     display: none;
 }
 
+.deckbuilder-button--analyze {
+    background-color: rgba(60, 120, 80, 1);
+    color: rgb(200, 240, 210);
+    margin-right: 8px;
+}
+
+.deckbuilder-button--analyze:hover {
+    background-color: rgba(75, 150, 100, 1);
+}
+
+.deck-analysis-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-analysis-panel {
+    background-color: rgb(22, 22, 35);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.2);
+    border-right-color: rgba(255, 255, 255, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+    padding-left: 36px;
+    padding-right: 36px;
+    padding-top: 28px;
+    padding-bottom: 36px;
+    min-width: 480px;
+}
+
+.deck-analysis-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.deck-analysis-title {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: rgb(230, 230, 255);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+}
+
+.deck-analysis-close {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgba(200, 200, 220, 1);
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+
+.deck-analysis-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.deck-analysis-section {
+    margin-bottom: 28px;
+}
+
+.deck-analysis-section-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgba(160, 160, 200, 1);
+    margin-bottom: 12px;
+}
+
+.deck-analysis-chart {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.deck-analysis-empty {
+    font-size: 18px;
+    color: rgba(140, 140, 160, 1);
+    align-self: center;
+}
+
+.deck-analysis-bar-column {
+    width: 52px;
+    height: 240px;
+    flex-shrink: 0;
+    margin-right: 6px;
+    margin-left: 6px;
+}
+
+.deck-analysis-bar-count {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(220, 220, 240);
+    -unity-text-align: middle-center;
+}
+
+.deck-analysis-bar {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.deck-analysis-bar--cost {
+    background-color: rgba(100, 160, 255, 0.85);
+}
+
+.deck-analysis-bar--character {
+    background-color: rgba(100, 160, 255, 0.85);
+}
+
+.deck-analysis-bar--skill {
+    background-color: rgba(255, 100, 100, 0.85);
+}
+
+.deck-analysis-bar--event {
+    background-color: rgba(255, 220, 80, 0.85);
+}
+
+.deck-analysis-bar-label {
+    font-size: 16px;
+    color: rgba(180, 180, 200, 1);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
 .deckbuilder-drag-layer {
     position: absolute;
     left: 0;
