@@ -12,14 +12,11 @@ namespace Home
         private CubismMotionController _motionController;
 
         [SerializeField]
-        private AnimationClip _idleMotion;
-
-        [SerializeField]
-        private AnimationClip[] _randomMotions;
+        private AnimationClip[] _motions;
 
         private void Start()
         {
-            if (_motionController == null || _idleMotion == null)
+            if (_motionController == null || _motions == null || _motions.Length == 0)
             {
                 return;
             }
@@ -30,22 +27,7 @@ namespace Home
         {
             while (true)
             {
-                _motionController.PlayAnimation(_idleMotion, layerIndex: 0, priority: CubismMotionPriority.PriorityForce, isLoop: false);
-                try
-                {
-                    await UniTask.Delay(TimeSpan.FromSeconds(_idleMotion.length), cancellationToken: token);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-
-                if (_randomMotions == null || _randomMotions.Length == 0)
-                {
-                    continue;
-                }
-
-                AnimationClip clip = _randomMotions[UnityEngine.Random.Range(0, _randomMotions.Length)];
+                AnimationClip clip = _motions[UnityEngine.Random.Range(0, _motions.Length)];
                 _motionController.PlayAnimation(clip, layerIndex: 0, priority: CubismMotionPriority.PriorityForce, isLoop: false);
                 try
                 {
