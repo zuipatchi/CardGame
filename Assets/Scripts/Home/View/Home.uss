@@ -4,10 +4,9 @@
     right: 0;
     top: 0;
     bottom: 0;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    padding-top: 100px;
-    padding-right: 100px;
+    padding-right: 80px;
 }
 
 .home-buttons {
