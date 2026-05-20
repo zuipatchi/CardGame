@@ -6,10 +6,19 @@
     bottom: 0;
     flex-direction: column;
     padding-top: 100px;
-    padding-right: 100px;
+    padding-right: 24px;
     padding-bottom: 24px;
     padding-left: 24px;
     -unity-background-scale-mode: scale-and-crop;
+}
+
+.deckbuilder-bg-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .deckbuilder-title {
@@ -105,7 +114,7 @@
 }
 
 .deckbuilder-deck-panel {
-    width: 430px;
+    width: 520px;
     flex-shrink: 0;
     flex-direction: column;
 }
@@ -212,10 +221,11 @@
     background-color: rgba(255, 80, 80, 0.15);
 }
 
-.deckbuilder-buttons {
+.deckbuilder-top-left-buttons {
+    position: absolute;
+    top: 16px;
+    left: 16px;
     flex-direction: row;
-    justify-content: flex-end;
-    padding-top: 8px;
 }
 
 .deckbuilder-button {
@@ -253,7 +263,7 @@
 .deckbuilder-button--clear-deck {
     width: 36px;
     height: 36px;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(255, 60, 60, 0.3);
     background-image: url("project://database/Assets/AddressableAssets/Icon/TrashIcon.png");
     -unity-background-scale-mode: scale-to-fit;
     border-left-width: 0;
@@ -272,7 +282,7 @@
 }
 
 .deckbuilder-button--clear-deck:hover {
-    background-color: rgba(255, 80, 80, 0.15);
+    background-color: rgba(255, 60, 60, 0.75);
 }
 
 

@@ -1,6 +1,11 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="DeckBuilder.uss" />
     <ui:VisualElement name="DeckBuilderRoot" class="deckbuilder-root">
+        <ui:VisualElement class="deckbuilder-bg-overlay" picking-mode="Ignore" />
+        <ui:VisualElement class="deckbuilder-top-left-buttons">
+            <ui:Button name="BackButton" class="deckbuilder-button deckbuilder-button--back" text="もどる" />
+            <ui:Button name="AnalyzeButton" class="deckbuilder-button deckbuilder-button--analyze" text="分析" />
+        </ui:VisualElement>
         <ui:VisualElement class="deckbuilder-content">
             <ui:VisualElement class="deckbuilder-card-list-panel">
                 <ui:Label class="deckbuilder-panel-title" text="カード一覧" />
@@ -18,10 +23,6 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:ScrollView name="DeckListScrollView" class="deckbuilder-deck-scroll" />
-                <ui:VisualElement class="deckbuilder-buttons">
-                    <ui:Button name="AnalyzeButton" class="deckbuilder-button deckbuilder-button--analyze" text="分析" />
-                    <ui:Button name="BackButton" class="deckbuilder-button deckbuilder-button--back" text="もどる" />
-                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
