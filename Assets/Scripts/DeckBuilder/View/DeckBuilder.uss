@@ -131,6 +131,18 @@
     align-items: flex-end;
 }
 
+.deckbuilder-deck-count-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.deckbuilder-deck-card-count {
+    font-size: 22px;
+    color: rgba(160, 160, 190, 1);
+    -unity-font-style: bold;
+    margin-left: 10px;
+}
+
 .deckbuilder-deck-count {
     font-size: 28px;
     color: rgba(180, 180, 210, 1);

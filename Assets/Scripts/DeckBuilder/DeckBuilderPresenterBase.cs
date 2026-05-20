@@ -22,6 +22,7 @@ namespace DeckBuilder
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
+        private Label _deckCardCountLabel;
         private Button _clearDeckButton;
         private Label _costOverLabel;
         private VisualElement _cardListDragLayer;
@@ -54,6 +55,7 @@ namespace DeckBuilder
                 _cardListScrollView = root.Q<ScrollView>("CardListScrollView");
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
                 _deckCountLabel = root.Q<Label>("DeckCountLabel");
+                _deckCardCountLabel = root.Q<Label>("DeckCardCountLabel");
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 _costOverLabel = root.Q<Label>("CostOverLabel");
                 Button backButton = root.Q<Button>("BackButton");
@@ -152,6 +154,7 @@ namespace DeckBuilder
         {
             _deckListScrollView.Clear();
             _deckCountLabel.text = $"{_deckModel.TotalCost}/{DeckModel.TargetCost}";
+            _deckCardCountLabel.text = $"{_deckModel.Count}枚";
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();

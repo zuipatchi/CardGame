@@ -17,7 +17,10 @@
                     <ui:VisualElement class="deckbuilder-deck-header-right">
                         <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" />
                         <ui:VisualElement class="deckbuilder-deck-count-container">
-                            <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/30" />
+                            <ui:VisualElement class="deckbuilder-deck-count-row">
+                                <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/30" />
+                                <ui:Label name="DeckCardCountLabel" class="deckbuilder-deck-card-count" text="0枚" />
+                            </ui:VisualElement>
                             <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="コストオーバー" />
                         </ui:VisualElement>
                     </ui:VisualElement>
