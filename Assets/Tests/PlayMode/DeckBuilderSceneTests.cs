@@ -49,6 +49,22 @@ namespace Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator 保存ボタンがシーンに存在しない()
+        {
+            Button button = FindButton("SaveButton");
+            Assert.IsNull(button, "SaveButton が削除されていません");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator 保存トーストラベルがシーンに存在しない()
+        {
+            Label label = FindLabel("SaveToastLabel");
+            Assert.IsNull(label, "SaveToastLabel が削除されていません");
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator 分析ボタンがシーンに存在する()
         {
             Button button = FindButton("AnalyzeButton");

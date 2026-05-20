@@ -18,11 +18,9 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:ScrollView name="DeckListScrollView" class="deckbuilder-deck-scroll" />
-                <ui:Label name="SaveToastLabel" class="deckbuilder-save-toast" text="保存しました" />
                 <ui:VisualElement class="deckbuilder-buttons">
                     <ui:Button name="AnalyzeButton" class="deckbuilder-button deckbuilder-button--analyze" text="分析" />
                     <ui:Button name="BackButton" class="deckbuilder-button deckbuilder-button--back" text="もどる" />
-                    <ui:Button name="SaveButton" class="deckbuilder-button deckbuilder-button--save" text="保存" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
