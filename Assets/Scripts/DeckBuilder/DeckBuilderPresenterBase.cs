@@ -184,9 +184,12 @@ namespace DeckBuilder
                 {
                     thumbnail.style.backgroundImage = new StyleBackground(cardData.Image);
                 }
+                CardData capturedCardData = cardData;
+                thumbnail.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
 
                 Label nameLabel = new Label(cardData.CardName);
                 nameLabel.AddToClassList("deckbuilder-deck-row-name");
+                nameLabel.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
 
                 Label countLabel = new Label($"{counts[id]}");
                 countLabel.AddToClassList("deckbuilder-deck-row-count");
