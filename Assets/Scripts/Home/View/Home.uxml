@@ -5,20 +5,17 @@
         <ui:VisualElement class="home-buttons">
             <ui:Button name="DeckBuilderButton" class="home-button home-button--deck">
                 <ui:VisualElement class="home-button-content">
-                    <ui:Label text="デッキ構築" class="home-button-title"/>
-                    <ui:Label text="カードを編集する" class="home-button-subtitle"/>
+                    <ui:Label text="デッキ編集" class="home-button-title"/>
                 </ui:VisualElement>
             </ui:Button>
             <ui:Button name="BattleButton" class="home-button home-button--battle">
                 <ui:VisualElement class="home-button-content">
-                    <ui:Label text="対戦（CPU）" class="home-button-title"/>
-                    <ui:Label text="今のデッキで対戦する" class="home-button-subtitle"/>
+                    <ui:Label text="CPU対戦" class="home-button-title"/>
                 </ui:VisualElement>
             </ui:Button>
             <ui:Button name="MatchingButton" class="home-button home-button--matching">
                 <ui:VisualElement class="home-button-content">
-                    <ui:Label text="オンライン" class="home-button-title"/>
-                    <ui:Label text="対戦相手を探す" class="home-button-subtitle"/>
+                    <ui:Label text="オンライン対戦" class="home-button-title"/>
                 </ui:VisualElement>
             </ui:Button>
         </ui:VisualElement>
