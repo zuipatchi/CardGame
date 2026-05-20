@@ -16,7 +16,7 @@
 }
 
 .home-button {
-    background-color: rgba(8, 8, 25, 0.88);
+    background-color: rgba(8, 8, 25, 1);
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
     border-bottom-left-radius: 14px;
@@ -50,7 +50,7 @@
 }
 
 .home-button--deck:hover {
-    background-color: rgba(20, 30, 70, 0.92);
+    background-color: rgba(20, 30, 70, 1);
     border-left-color: rgb(80, 150, 255);
     border-right-color: rgb(80, 150, 255);
     border-top-color: rgb(80, 150, 255);
@@ -65,7 +65,7 @@
 }
 
 .home-button--battle:hover {
-    background-color: rgba(50, 12, 12, 0.92);
+    background-color: rgba(50, 12, 12, 1);
     border-left-color: rgb(255, 80, 80);
     border-right-color: rgb(255, 80, 80);
     border-top-color: rgb(255, 80, 80);
@@ -80,7 +80,7 @@
 }
 
 .home-button--matching:hover {
-    background-color: rgba(10, 40, 20, 0.92);
+    background-color: rgba(10, 40, 20, 1);
     border-left-color: rgb(80, 210, 120);
     border-right-color: rgb(80, 210, 120);
     border-top-color: rgb(80, 210, 120);
@@ -90,6 +90,7 @@
 .home-button-content {
     flex-direction: column;
     justify-content: center;
+    flex-grow: 1;
 }
 
 .home-button-title {
@@ -98,6 +99,9 @@
     color: rgb(240, 240, 255);
     -unity-text-outline-width: 1px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+    margin-top: 0;
+    margin-bottom: 0;
+    -unity-text-align: middle-left;
 }
 
 .home-cost-over-toast {

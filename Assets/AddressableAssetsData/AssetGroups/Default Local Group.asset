@@ -21,16 +21,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e0c55e8aa624c6f46a691581f55bb6cf
-    m_Address: Image/Logo
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 932b0dda6e8be9b42bb261f5e750ea1c
-    m_Address: Image/TitleBackground
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3811412f7661ec640a60eb192332f10c
     m_Address: Image/CardBack
     m_ReadOnly: 0
@@ -63,6 +53,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 932b0dda6e8be9b42bb261f5e750ea1c
+    m_Address: Image/TitleBackground
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bf6f1160940837d468bd8c176cc85503
     m_Address: Modal/OptionModal
     m_ReadOnly: 0
@@ -75,8 +70,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e0c55e8aa624c6f46a691581f55bb6cf
+    m_Address: Image/Logo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e5d36d0e1ccf9d242ab44ec7e23f651c
     m_Address: Card/CardTemplate
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: edd0cac94276d2543a58eb79809e42df
+    m_Address: Image/HomeBackground
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
