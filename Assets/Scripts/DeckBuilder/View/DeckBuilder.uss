@@ -34,6 +34,7 @@
 .deckbuilder-content {
     flex-grow: 1;
     flex-direction: row;
+    overflow: visible;
 }
 
 .deckbuilder-card-list-panel {
@@ -117,6 +118,7 @@
     width: 520px;
     flex-shrink: 0;
     flex-direction: column;
+    overflow: visible;
 }
 
 .deckbuilder-deck-header {
@@ -154,9 +156,14 @@
 }
 
 .deckbuilder-cost-over {
+    position: absolute;
+    top: -22px;
+    left: 0;
+    right: 0;
     font-size: 16px;
     -unity-font-style: bold;
     color: rgb(255, 80, 80);
+    -unity-text-align: middle-center;
     display: none;
 }
 
@@ -204,18 +211,17 @@
     font-size: 22px;
     -unity-font-style: bold;
     color: rgb(180, 210, 255);
-    min-width: 44px;
-    -unity-text-align: middle-right;
-    margin-right: 4px;
+    min-width: 32px;
+    -unity-text-align: middle-center;
 }
 
-.deckbuilder-deck-row-remove {
+.deckbuilder-deck-row-subtract {
     width: 44px;
     height: 44px;
     font-size: 22px;
     -unity-font-style: bold;
     color: rgba(255, 100, 100, 1);
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(255, 80, 80, 0.15);
     border-left-width: 0;
     border-right-width: 0;
     border-top-width: 0;
@@ -229,8 +235,32 @@
     padding: 0;
 }
 
-.deckbuilder-deck-row-remove:hover {
-    background-color: rgba(255, 80, 80, 0.15);
+.deckbuilder-deck-row-subtract:hover {
+    background-color: rgba(255, 80, 80, 0.35);
+}
+
+.deckbuilder-deck-row-add {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgba(100, 210, 130, 1);
+    background-color: rgba(100, 210, 130, 0.15);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+
+.deckbuilder-deck-row-add:hover {
+    background-color: rgba(100, 210, 130, 0.35);
 }
 
 .deckbuilder-top-left-buttons {

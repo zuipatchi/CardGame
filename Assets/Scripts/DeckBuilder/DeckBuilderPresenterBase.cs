@@ -188,19 +188,31 @@ namespace DeckBuilder
                 Label nameLabel = new Label(cardData.CardName);
                 nameLabel.AddToClassList("deckbuilder-deck-row-name");
 
-                Label countLabel = new Label($"×{counts[id]}");
+                Label countLabel = new Label($"{counts[id]}");
                 countLabel.AddToClassList("deckbuilder-deck-row-count");
 
-                Button removeButton = new Button();
-                removeButton.text = "×";
-                removeButton.AddToClassList("deckbuilder-deck-row-remove");
+                Button subtractButton = new Button();
+                subtractButton.text = "－";
+                subtractButton.AddToClassList("deckbuilder-deck-row-subtract");
                 string capturedId = id;
-                removeButton.clicked += () => OnRemoveClicked(capturedId);
+                subtractButton.clicked += () => OnRemoveClicked(capturedId);
+
+                Button addButton = new Button();
+                addButton.text = "＋";
+                addButton.AddToClassList("deckbuilder-deck-row-add");
+                int capturedCost = cardData.Cost;
+                addButton.clicked += () =>
+                {
+                    _deckModel.Add(capturedId, capturedCost);
+                    RefreshDeckPanel();
+                    SaveDeck();
+                };
 
                 row.Add(thumbnail);
                 row.Add(nameLabel);
+                row.Add(subtractButton);
                 row.Add(countLabel);
-                row.Add(removeButton);
+                row.Add(addButton);
                 _deckListScrollView.Add(row);
             }
 
