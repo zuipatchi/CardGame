@@ -10,7 +10,7 @@
                 <ui:VisualElement class="deckbuilder-deck-header">
                     <ui:Label class="deckbuilder-panel-title" text="デッキ" />
                     <ui:VisualElement class="deckbuilder-deck-header-right">
-                        <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" text="空にする" />
+                        <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" />
                         <ui:VisualElement class="deckbuilder-deck-count-container">
                             <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/30" />
                             <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="コストオーバー" />
