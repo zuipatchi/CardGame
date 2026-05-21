@@ -19,7 +19,8 @@
   - スタートボタン（GameStartButtonPresenter）：画面全体タッチ対応・「PRESS START」ゴールドパルス点滅演出（USS transition + schedule）
 - ホームシーン（Title → Home → DeckBuilder / Main / Matching の中継ハブ）
   - 「デッキ編集」「CPU対戦」「オンライン対戦」への遷移ボタン（カードパネル風デザイン・ホバーアニメーション・右寄せ配置）。コストオーバー時に対戦・マッチングボタンを押すとトーストを表示して遷移をブロック
-  - Live2D キャラクター（Dog-kid）表示：画面左側に配置。登録した全モーションからランダムに再生→終了後に次をランダム選択のループ（CubismMotionController 使用・フェードなし）
+  - Live2D キャラクター（Dog-kid）表示：画面左側に配置。登録した全モーションからランダムに再生→終了後に次をランダム選択のループ（AnimatorController 使用・FadeMotionList なし・CubismFadeController 無効化）
+  - 食べ物スポーン・食事演出：画面左半分クリックで Food Live2D プレハブをスポーン。犬が歩いて近づき Eat アニメーションを同時再生、Food の Eat アニメーション終了後に削除（Dog-kid より前面表示）
 - BGMとSEの再生機能
 - シーン管理機能（Commonシーンをベースに他のシーンを使用する）
   - フェードイン/アウトによる画面遷移演出
