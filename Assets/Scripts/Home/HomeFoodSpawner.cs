@@ -14,6 +14,9 @@ namespace Home
         [SerializeField]
         private float _spawnDepth = 10f;
 
+        [SerializeField]
+        private HomeLive2DPresenter _dogPresenter;
+
         private void Update()
         {
             if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame)
@@ -30,7 +33,23 @@ namespace Home
             Vector3 worldPos = _camera.ScreenToWorldPoint(
                 new Vector3(mousePos.x, mousePos.y, _spawnDepth)
             );
-            Instantiate(_foodPrefab, worldPos, Quaternion.identity);
+            GameObject food = Instantiate(_foodPrefab, worldPos, Quaternion.identity);
+            Animator foodAnimator = food.GetComponentInChildren<Animator>();
+
+            // CubismFadeController  : FadeMotionList 未設定による NullRef を防ぐため無効化
+            // CubismParameterStore  : CubismModel.Update が RestoreParameters() を呼び Eat アニメーション値を
+            //                         0 に戻してしまうため無効化（idle.anim のパスが不正で保存値が常に 0 のため）
+            foreach (Component c in food.GetComponentsInChildren<Component>())
+            {
+                string typeName = c.GetType().Name;
+                if ((typeName == "CubismFadeController" || typeName == "CubismParameterStore")
+                    && c is Behaviour b)
+                {
+                    b.enabled = false;
+                }
+            }
+
+            _dogPresenter?.NotifyFoodSpawned(worldPos, foodAnimator);
         }
     }
 }

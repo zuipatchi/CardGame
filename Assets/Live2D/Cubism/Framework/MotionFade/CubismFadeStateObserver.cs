@@ -141,6 +141,13 @@ namespace Live2D.Cubism.Framework.MotionFade
             }
 
             _cubismFadeMotionList = fadeController.CubismFadeMotionList;
+
+            // Fail silently if no FadeMotionList is assigned (e.g. Food prefab without setup).
+            if (_cubismFadeMotionList == null)
+            {
+                return;
+            }
+
             _isStateTransitionFinished = false;
 
             _layerIndex = layerIndex;

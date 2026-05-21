@@ -275,7 +275,6 @@ namespace Live2D.Cubism.Framework.Motion
             // Fail silently...
             if(_cubismFadeMotionList == null)
             {
-                Debug.LogError("CubismMotionController : CubismFadeMotionList doesn't set in CubismFadeController.");
                 return;
             }
 

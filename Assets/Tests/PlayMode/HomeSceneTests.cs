@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using Common.SceneManagement;
+using Home;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -65,6 +67,55 @@ namespace Tests.PlayMode
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator 食べ物通知後にキューに積まれる()
+        {
+            HomeLive2DPresenter presenter = FindInHomeScene<HomeLive2DPresenter>();
+            Assume.That(presenter, Is.Not.Null, "HomeLive2DPresenter が見つかりません");
+
+            Queue<Vector3> queue = (Queue<Vector3>)typeof(HomeLive2DPresenter)
+                .GetField("_foodQueue", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.GetValue(presenter);
+            Assume.That(queue, Is.Not.Null);
+
+            int before = queue.Count;
+            presenter.NotifyFoodSpawned(new Vector3(1f, 0f, 0f), null);
+
+            Assert.That(queue.Count, Is.EqualTo(before + 1), "キューに追加されていません");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator 食べ物通知後に犬が目標位置に移動する()
+        {
+            HomeLive2DPresenter presenter = FindInHomeScene<HomeLive2DPresenter>();
+            Assume.That(presenter, Is.Not.Null, "HomeLive2DPresenter が見つかりません");
+
+            // Walk/Eat クリップが設定されていることを前提とする
+            AnimationClip walkClip = (AnimationClip)typeof(HomeLive2DPresenter)
+                .GetField("_walkClip", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.GetValue(presenter);
+            Assume.That(walkClip, Is.Not.Null, "_walkClip が未設定です（Inspector で設定してください）");
+
+            // 犬の真横 0.5f 先に食べ物を置く（短距離なので到達が速い）
+            Vector3 initialPos = presenter.transform.position;
+            Vector3 foodPos = new Vector3(initialPos.x + 0.5f, initialPos.y, initialPos.z);
+            presenter.NotifyFoodSpawned(foodPos, null);
+
+            // 現在のモーション終了 + 移動 + Eat まで最大 15 秒待機
+            float startTime = Time.time;
+            yield return new WaitUntil(() =>
+                Mathf.Abs(presenter.transform.position.x - foodPos.x) < 0.15f ||
+                Time.time - startTime > 15f
+            );
+
+            Assert.That(
+                Mathf.Abs(presenter.transform.position.x - foodPos.x),
+                Is.LessThan(0.15f),
+                "犬が食べ物の位置に移動しませんでした"
+            );
+        }
+
         private static Button FindButton(string name)
         {
             Scene homeScene = SceneManager.GetSceneByName("Home");
@@ -77,6 +128,20 @@ namespace Tests.PlayMode
                     {
                         return button;
                     }
+                }
+            }
+            return null;
+        }
+
+        private static T FindInHomeScene<T>() where T : Component
+        {
+            Scene homeScene = SceneManager.GetSceneByName("Home");
+            foreach (GameObject root in homeScene.GetRootGameObjects())
+            {
+                T component = root.GetComponentInChildren<T>();
+                if (component != null)
+                {
+                    return component;
                 }
             }
             return null;
