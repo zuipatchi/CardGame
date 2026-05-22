@@ -99,10 +99,11 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 }
 ```
 
-### シーン遷移のキャンセル処理
+### シーン遷移の多重実行防止
 
-`SceneTransitioner` は `SemaphoreSlim` で同時遷移を防ぎ、
-連打された場合は最後のリクエストのみ実行する（前の遷移は CancellationToken でキャンセル）。
+`SceneTransitioner` は `SemaphoreSlim` で同時遷移を防ぐ。
+遷移中に `Transit` が呼ばれた場合は即座に無視する（`WaitAsync(0)` でゲートを取れない場合はリターン）。
+シーンロードを中途キャンセルすると壊れた状態になるため、実行中の遷移はキャンセルしない。
 
 ---
 
