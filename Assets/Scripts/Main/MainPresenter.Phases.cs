@@ -342,6 +342,8 @@ namespace Main
 
             await PlayResolveAnimationAsync(ct);
 
+            bool skipNextEffect = false;
+
             for (int i = queue.Count - 1; i >= 0; i--)
             {
                 CardView card = queue[i];
@@ -359,7 +361,18 @@ namespace Main
                 {
                     if (card.Data is EventCardData eventData)
                     {
-                        await ApplyEventEffectAsync(eventData, isLocal, ct);
+                        if (skipNextEffect)
+                        {
+                            skipNextEffect = false;
+                        }
+                        else if (eventData.EffectType == EffectType.Negate)
+                        {
+                            skipNextEffect = true;
+                        }
+                        else
+                        {
+                            await ApplyEventEffectAsync(eventData, isLocal, ct);
+                        }
                     }
 
                     if (_isGameOver)

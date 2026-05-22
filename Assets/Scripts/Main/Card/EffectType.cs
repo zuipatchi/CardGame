@@ -6,5 +6,6 @@ namespace Main.Card
         AtkBoost,
         DefBoost,
         Draw,
+        Negate,
     }
 }

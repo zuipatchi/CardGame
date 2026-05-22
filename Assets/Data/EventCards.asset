@@ -50,6 +50,6 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: d49d4ced848d5bf4d908b5bec5e3479b, type: 3}
     _attribute: 0
-    _effectType: 0
+    _effectType: 4
     _effectValue: 0
-    _description: 
+    _description: "1\u3064\u524D\u306B\u4F7F\u308F\u308C\u305F\u30A4\u30D9\u30F3\u30C8\u30AB\u30FC\u30C9\u3092\u6253\u3061\u6D88\u3059"
