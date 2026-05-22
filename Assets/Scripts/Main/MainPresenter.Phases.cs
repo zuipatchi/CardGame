@@ -564,14 +564,18 @@ namespace Main
             bool playerTypeMatch = playerSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == playerCharAttr);
             CardAttribute opponentWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(opponentCharAttr) : CardAttribute.None;
             bool playerWeaknessHit = opponentWeakness != CardAttribute.None && playerSkill.Any(c => c.Data.Attribute == opponentWeakness);
-            int playerATK = playerHasAttackingChar
+            CardAttribute opponentStrength = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetStrength(opponentCharAttr) : CardAttribute.None;
+            bool playerStrengthBlocked = opponentStrength != CardAttribute.None && playerSkill.Any(c => c.Data.Attribute == opponentStrength);
+            int playerATK = playerHasAttackingChar && !playerStrengthBlocked
                 ? (playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost) * (playerTypeMatch ? 2 : 1) * (playerWeaknessHit ? 3 : 1)
                 : 0;
 
             bool opponentTypeMatch = opponentSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == opponentCharAttr);
             CardAttribute playerWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(playerCharAttr) : CardAttribute.None;
             bool opponentWeaknessHit = playerWeakness != CardAttribute.None && opponentSkill.Any(c => c.Data.Attribute == playerWeakness);
-            int opponentATK = opponentHasAttackingChar
+            CardAttribute playerStrength = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetStrength(playerCharAttr) : CardAttribute.None;
+            bool opponentStrengthBlocked = playerStrength != CardAttribute.None && opponentSkill.Any(c => c.Data.Attribute == playerStrength);
+            int opponentATK = opponentHasAttackingChar && !opponentStrengthBlocked
                 ? (opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost) * (opponentTypeMatch ? 2 : 1) * (opponentWeaknessHit ? 3 : 1)
                 : 0;
 
