@@ -17,15 +17,9 @@ namespace Common.SceneManagement
         DeckBuilder = 4,
         Home = 5
     }
-    /// <summary>
-    /// アクティブシーンを変更するクラス
-    /// </summary>
     public sealed class SceneTransitioner : MonoBehaviour
     {
         private readonly SemaphoreSlim _gate = new(1, 1);
-
-        // 「今走ってる遷移」を止めるためのCTS
-        private CancellationTokenSource _runningCts;
         private TransitionPresenter _transitionPresenter;
 
         [Inject]
@@ -35,35 +29,25 @@ namespace Common.SceneManagement
         }
 
         // アクティブシーンを next に変更する
-        // 複数同時に実行された場合は一番最後の処理のみ実行される
+        // 遷移中に呼ばれた場合は無視する（二重遷移防止）
         public async UniTask Transit(Scenes next)
         {
-            // コモンシーンはアクティブにしない
             if (next == Scenes.Common) return;
 
-            // 実行中の Transit はキャンセル
-            _runningCts?.Cancel();
-            _runningCts?.Dispose();
-            _runningCts = new CancellationTokenSource();
+            // 遷移中なら無視（ゲートをすぐ取れない = 別の遷移が実行中）
+            if (!await _gate.WaitAsync(0)) return;
 
-            await _gate.WaitAsync();
             try
             {
-                // Destroyされるまたは、キャンセルされたら止まるトークンを作成する
-                using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(
-                    _runningCts.Token,
-                    this.GetCancellationTokenOnDestroy()
-                );
-                CancellationToken ct = linked.Token;
+                CancellationToken ct = this.GetCancellationTokenOnDestroy();
 
                 Scene activeScene = SceneManager.GetActiveScene();
 
-                // 同じシーンに遷移できなくする
+                // 同じシーンへの遷移は無視
                 if (activeScene.buildIndex == (int)next) return;
 
                 await _transitionPresenter.CoverAsync();
 
-                // nextScene が未ロードならロード
                 Scene nextScene = SceneManager.GetSceneByBuildIndex((int)next);
                 if (!nextScene.IsValid() || !nextScene.isLoaded)
                 {
@@ -75,32 +59,20 @@ namespace Common.SceneManagement
 
                 nextScene.BuildLifetimeScopes();
 
-                // nextScene をメイン(Active)にする
                 SceneManager.SetActiveScene(nextScene);
 
-                // 遷移前のシーンはアンロードするただし、Common シーンは残す
                 if (activeScene.buildIndex != (int)Scenes.Common)
                 {
                     await SceneManager.UnloadSceneAsync(activeScene).WithCancellation(ct);
                 }
 
                 await _transitionPresenter.RevealAsync();
-
             }
-            catch (OperationCanceledException)
-            {
-                // 連打やDestroyでキャンセルされたのは正常系なので何もしない
-            }
+            catch (OperationCanceledException) { }
             finally
             {
                 _gate.Release();
             }
-        }
-
-        private void OnDestroy()
-        {
-            _runningCts?.Cancel();
-            _runningCts?.Dispose();
         }
     }
 }
