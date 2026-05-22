@@ -13,6 +13,7 @@ namespace Main.Card
             public CardAttribute Attribute;
             public Sprite Icon;
             public CardAttribute Weakness;
+            public CardAttribute Strength;
         }
 
         [SerializeField] private List<Entry> _entries;
@@ -37,6 +38,19 @@ namespace Main.Card
                 if (entry.Attribute == attribute)
                 {
                     return entry.Weakness;
+                }
+            }
+
+            return CardAttribute.None;
+        }
+
+        public CardAttribute GetStrength(CardAttribute attribute)
+        {
+            foreach (Entry entry in _entries)
+            {
+                if (entry.Attribute == attribute)
+                {
+                    return entry.Strength;
                 }
             }
 
