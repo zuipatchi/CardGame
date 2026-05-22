@@ -36,6 +36,8 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--skill");
             _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
             _turnLabel.RemoveFromClassList("turn-announcement-label--mulligan");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--cost");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--set");
             _turnLabel.AddToClassList(labelClass);
 
             _turnOverlay.style.display = DisplayStyle.Flex;

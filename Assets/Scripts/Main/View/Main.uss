@@ -344,23 +344,25 @@
 }
 
 .turn-announcement-label--character {
-    color: rgb(80, 220, 120);
-    background-color: rgba(0, 40, 15, 0.65);
+    color: rgb(80, 160, 240);
+    background-color: rgba(0, 20, 50, 0.65);
 }
 
 .turn-announcement-label--event {
-    color: rgb(180, 100, 240);
-    background-color: rgba(30, 0, 50, 0.65);
-}
-
-.turn-announcement-label--skill {
     color: rgb(255, 210, 60);
     background-color: rgba(50, 35, 0, 0.65);
 }
 
+.turn-announcement-label--skill {
+    color: rgb(180, 100, 240);
+    background-color: rgba(30, 0, 50, 0.65);
+}
+
 .turn-announcement-label--fight {
-    color: rgb(255, 80, 40);
-    background-color: rgba(60, 10, 0, 0.65);
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
 }
 
 .turn-announcement-label--mulligan {
@@ -374,8 +376,8 @@
 }
 
 .turn-announcement-label--set {
-    color: rgb(80, 220, 120);
-    background-color: rgba(0, 40, 15, 0.65);
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
 }
 
 .resolve-overlay {
