@@ -587,37 +587,22 @@ namespace Main
             // ATKカウントアップ表示（技カードはフィールドに残ったまま）
             await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, ct);
 
-            // ATK数字・技カードをキャラスロットへ同時に飛翔
-            await FlySkillsWithAtkAsync(playerATK, opponentATK, playerSkill, opponentSkill, ct);
-
-            // 技カードを墓地へ
-            foreach (CardView c in playerSkill)
-            {
-                if (c.parent != null) { c.RemoveFromHierarchy(); }
-                _playerGraveyardView.AddCard(c);
-            }
-            foreach (CardView c in opponentSkill)
-            {
-                if (c.parent != null) { c.RemoveFromHierarchy(); }
-                _opponentGraveyardView.AddCard(c);
-            }
-
-            // 攻撃アニメーション（ATK > 0 のときのみ実行）
-            await UniTask.WhenAll(
-                playerHasAttackingChar && playerATK > 0
-                    ? PlayCharacterSlotAttackAsync(_playerCharacterSlot, _opponentDeckView, ct)
-                    : UniTask.CompletedTask,
-                opponentHasAttackingChar && opponentATK > 0
-                    ? PlayCharacterSlotAttackAsync(_opponentCharacterSlot, _playerDeckView, ct)
-                    : UniTask.CompletedTask
-            );
-
-            _playerCharacterSlot.SetAtkOverlayVisible(false);
-            _opponentCharacterSlot.SetAtkOverlayVisible(false);
+            _playerAtkCounterOverlay.style.display = DisplayStyle.None;
+            _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
             _playerDeckView.DefOverlay.style.display = DisplayStyle.None;
             _opponentDeckView.DefOverlay.style.display = DisplayStyle.None;
 
-            // DEF・ダメージ計算（攻撃後もスロットにキャラが戻っている）
+            // 技カードが相手キャラへ突撃
+            await UniTask.WhenAll(
+                playerSkill.Count > 0
+                    ? PlaySkillsAttackCharacterAsync(playerSkill, _playerFieldView, _opponentCharacterSlot, ct)
+                    : UniTask.CompletedTask,
+                opponentSkill.Count > 0
+                    ? PlaySkillsAttackCharacterAsync(opponentSkill, _opponentFieldView, _playerCharacterSlot, ct)
+                    : UniTask.CompletedTask
+            );
+
+            // デッキダメージ
             if (damageToOpponent > 0 || damageToPlayer > 0)
             {
                 Rect opponentDeckRect = _opponentDeckView.worldBound;
@@ -633,6 +618,8 @@ namespace Main
                 bool opponentDeckEmpty = damageToOpponent > 0 && _opponentDeckView.Count == 0;
                 if (playerDeckEmpty || opponentDeckEmpty)
                 {
+                    foreach (CardView c in playerSkill) { if (c.parent != null) { c.RemoveFromHierarchy(); } _playerGraveyardView.AddCard(c); }
+                    foreach (CardView c in opponentSkill) { if (c.parent != null) { c.RemoveFromHierarchy(); } _opponentGraveyardView.AddCard(c); }
                     _isGameOver = true;
                     if (playerDeckEmpty && opponentDeckEmpty)
                     {
@@ -644,6 +631,18 @@ namespace Main
                     }
                     return;
                 }
+            }
+
+            // 技カードを墓地へ
+            foreach (CardView c in playerSkill)
+            {
+                if (c.parent != null) { c.RemoveFromHierarchy(); }
+                _playerGraveyardView.AddCard(c);
+            }
+            foreach (CardView c in opponentSkill)
+            {
+                if (c.parent != null) { c.RemoveFromHierarchy(); }
+                _opponentGraveyardView.AddCard(c);
             }
 
             _playerAtkBoost = 0;
