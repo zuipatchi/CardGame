@@ -70,13 +70,17 @@ public enum EffectType
 }
 ```
 
-**② `ApplyEventEffectAsync` にケースを追加する**
+**② `ApplyEventEffectAsync` にケースを追加する**（効果が他カードに干渉しない場合）
 
 [MainPresenter.Phases.cs](../Assets/Scripts/Main/MainPresenter.Phases.cs) の `ApplyEventEffectAsync` メソッドに `case EffectType.YourNewEffect:` を追加して処理を実装する。
 
 - 同期処理のみ（AtkBoost / DefBoost 相当）なら `break` で完結
 - 非同期処理が必要（Draw 相当）なら `await SomeHelperAsync(...)` を呼んで `break`
 - ドローなどデッキを減らす処理の後は `CheckGameOver(); if (_isGameOver) break;` を入れること
+
+**他カードの処理に干渉する効果（Negate 相当）の場合**
+
+`ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EffectType == EffectType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる。
 
 ---
 
