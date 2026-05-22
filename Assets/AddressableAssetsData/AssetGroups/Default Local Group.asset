@@ -48,8 +48,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 79f3c1081a64a144e81ad83c47bb4930
-    m_Address: Card/AttributeIconDatabase
+  - m_GUID: cbbb08094674eeb4c9fa600cd9a1db83
+    m_Address: Card/AttributeDatabase
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

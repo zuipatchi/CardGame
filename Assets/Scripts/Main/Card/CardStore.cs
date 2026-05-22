@@ -16,7 +16,7 @@ namespace Main.Card
         private readonly string _cardBackAddressable = "Image/CardBack";
         private readonly string _battleFieldAddressable = "Image/BattleField";
         private readonly string _deckBuilderBackgroundAddressable = "Image/DeckBuilderBackground";
-        private readonly string _attributeIconDatabaseAddressable = "Card/AttributeIconDatabase";
+        private readonly string _attributeDatabaseAddressable = "Card/AttributeDatabase";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
@@ -46,7 +46,7 @@ namespace Main.Card
 
                 try
                 {
-                    _attributeDatabase = await Addressables.LoadAssetAsync<AttributeDatabaseSO>(_attributeIconDatabaseAddressable).ToUniTask();
+                    _attributeDatabase = await Addressables.LoadAssetAsync<AttributeDatabaseSO>(_attributeDatabaseAddressable).ToUniTask();
                 }
                 catch (Exception e)
                 {
