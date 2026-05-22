@@ -349,13 +349,17 @@
 }
 
 .turn-announcement-label--event {
-    color: rgb(255, 210, 60);
-    background-color: rgba(50, 35, 0, 0.65);
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
 }
 
 .turn-announcement-label--skill {
-    color: rgb(180, 100, 240);
-    background-color: rgba(30, 0, 50, 0.65);
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
 }
 
 .turn-announcement-label--fight {
@@ -371,8 +375,13 @@
 }
 
 .turn-announcement-label--cost {
-    color: rgb(255, 160, 30);
-    background-color: rgba(60, 30, 0, 0.65);
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
+}
+
+.turn-announcement-label--cost-opponent {
+    color: rgb(230, 80, 80);
+    background-color: rgba(50, 0, 0, 0.65);
 }
 
 .turn-announcement-label--set {

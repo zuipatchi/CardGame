@@ -37,6 +37,7 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
             _turnLabel.RemoveFromClassList("turn-announcement-label--mulligan");
             _turnLabel.RemoveFromClassList("turn-announcement-label--cost");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--cost-opponent");
             _turnLabel.RemoveFromClassList("turn-announcement-label--set");
             _turnLabel.AddToClassList(labelClass);
 
@@ -591,7 +592,10 @@ namespace Main
 
             if (announce)
             {
-                await PlayAnnouncementAsync($"PAY {cost} COSTS", "turn-announcement-label--cost", ct);
+                string costClass = deck == _playerDeckView
+                    ? "turn-announcement-label--cost"
+                    : "turn-announcement-label--cost-opponent";
+                await PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct);
             }
 
             Rect deckRect = deck.worldBound;

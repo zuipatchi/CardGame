@@ -511,16 +511,18 @@ namespace Main
             DeckView secondDeck = isLocalTurn ? _opponentDeckView : _playerDeckView;
             GraveyardView secondGraveyard = isLocalTurn ? _opponentGraveyardView : _playerGraveyardView;
 
+            string firstCostClass = isLocalTurn ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
             int firstCost = firstCards.Sum(c => c.Data.Cost);
-            await PlayAnnouncementAsync($"PAY {firstCost} COSTS", "turn-announcement-label--cost", ct);
+            await PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct);
             await UniTask.WhenAll(firstCards.Select(c => PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false)));
             if (_isGameOver)
             {
                 return;
             }
 
+            string secondCostClass = isLocalTurn ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
             int secondCost = secondCards.Sum(c => c.Data.Cost);
-            await PlayAnnouncementAsync($"PAY {secondCost} COSTS", "turn-announcement-label--cost", ct);
+            await PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct);
             await UniTask.WhenAll(secondCards.Select(c => PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false)));
             if (_isGameOver)
             {
