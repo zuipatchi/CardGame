@@ -39,7 +39,7 @@ MonoBehaviour:
     _description: "\u9632\u5FA1\u529B + 2"
   - _id: E004
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
-    _cost: 2
+    _cost: 1
     _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
     _attribute: 0
     _eventType: 3
