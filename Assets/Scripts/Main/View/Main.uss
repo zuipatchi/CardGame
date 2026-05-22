@@ -133,7 +133,7 @@
 .main-opponent-character-area {
     position: absolute;
     right: 32px;
-    top: 100px;
+    top: 0;
     bottom: 50%;
     flex-direction: column;
     justify-content: center;
@@ -415,11 +415,6 @@
     justify-content: center;
     align-items: center;
     overflow: visible;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-top-color: rgba(255, 255, 255, 0.12);
-    border-bottom-color: rgba(255, 255, 255, 0.12);
-    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .atk-counter-overlay {

@@ -594,7 +594,7 @@ namespace Main
 
             if (announce)
             {
-                await PlayAnnouncementAsync("PAY THE COST", "turn-announcement-label--cost", ct);
+                await PlayAnnouncementAsync($"PAY {cost} COSTS", "turn-announcement-label--cost", ct);
             }
 
             Rect deckRect = deck.worldBound;

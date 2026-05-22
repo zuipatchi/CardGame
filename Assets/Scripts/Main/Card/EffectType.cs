@@ -1,11 +1,12 @@
 namespace Main.Card
 {
-    public enum EffectType
+    public enum EventType
     {
         None,
         AtkBoost,
         DefBoost,
         Draw,
         Negate,
+        BanishChar,
     }
 }

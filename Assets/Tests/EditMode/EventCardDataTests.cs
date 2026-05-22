@@ -6,41 +6,41 @@ namespace Tests.EditMode
     public class EventCardDataTests
     {
         [Test]
-        public void デフォルトのEffectTypeはNoneである()
+        public void デフォルトのEventTypeはNoneである()
         {
             EventCardData card = new EventCardData("e1", "テスト", 1);
 
-            Assert.AreEqual(EffectType.None, card.EffectType);
+            Assert.AreEqual(EventType.None, card.EventType);
         }
 
         [Test]
-        public void AtkBoostを指定するとEffectTypeとEffectValueが正しく返る()
+        public void AtkBoostを指定するとEventTypeとEventValueが正しく返る()
         {
-            EventCardData card = new EventCardData("e1", "強化", 1, EffectType.AtkBoost, 2);
+            EventCardData card = new EventCardData("e1", "強化", 1, EventType.AtkBoost, 2);
 
-            Assert.AreEqual(EffectType.AtkBoost, card.EffectType);
-            Assert.AreEqual(2, card.EffectValue);
+            Assert.AreEqual(EventType.AtkBoost, card.EventType);
+            Assert.AreEqual(2, card.EventValue);
         }
 
         [Test]
-        public void EffectTypeがNoneのときEffectValueは0である()
+        public void EventTypeがNoneのときEventValueは0である()
         {
             EventCardData card = new EventCardData("e1", "テスト", 1);
 
-            Assert.AreEqual(0, card.EffectValue);
+            Assert.AreEqual(0, card.EventValue);
         }
 
         [Test]
-        public void DefBoostを指定するとEffectTypeとEffectValueが正しく返る()
+        public void DefBoostを指定するとEventTypeとEventValueが正しく返る()
         {
-            EventCardData card = new EventCardData("e1", "守護", 2, EffectType.DefBoost, 3);
+            EventCardData card = new EventCardData("e1", "守護", 2, EventType.DefBoost, 3);
 
-            Assert.AreEqual(EffectType.DefBoost, card.EffectType);
-            Assert.AreEqual(3, card.EffectValue);
+            Assert.AreEqual(EventType.DefBoost, card.EventType);
+            Assert.AreEqual(3, card.EventValue);
         }
 
         [Test]
-        public void DefBoostがある場合有効防御力はDefenseにEffectValueを加算した値になる()
+        public void DefBoostがある場合有効防御力はDefenseにEventValueを加算した値になる()
         {
             int baseDefense = 2;
             int defBoost = 3;
@@ -67,16 +67,16 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void DrawEffectTypeを指定するとEffectTypeとEffectValueが正しく返る()
+        public void DrawEventTypeを指定するとEventTypeとEventValueが正しく返る()
         {
-            EventCardData card = new EventCardData("e1", "ドロー", 1, EffectType.Draw, 2);
+            EventCardData card = new EventCardData("e1", "ドロー", 1, EventType.Draw, 2);
 
-            Assert.AreEqual(EffectType.Draw, card.EffectType);
-            Assert.AreEqual(2, card.EffectValue);
+            Assert.AreEqual(EventType.Draw, card.EventType);
+            Assert.AreEqual(2, card.EventValue);
         }
 
         [Test]
-        public void EffectValueが0以下のときドロー枚数ガード条件が成立する()
+        public void EventValueが0以下のときドロー枚数ガード条件が成立する()
         {
             Assert.IsTrue(0 <= 0);
             Assert.IsTrue(-1 <= 0);

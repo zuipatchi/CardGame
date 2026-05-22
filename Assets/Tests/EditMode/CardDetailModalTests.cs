@@ -58,7 +58,7 @@ namespace Tests.EditMode
         [Test]
         public void イベントカードの説明テキストが表示される()
         {
-            EventCardData data = new EventCardData("E003", "強化の書", 1, EffectType.AtkBoost, 2, "次の戦闘で攻撃力を強化する");
+            EventCardData data = new EventCardData("E003", "強化の書", 1, EventType.AtkBoost, 2, "次の戦闘で攻撃力を強化する");
 
             _modal.Show(data);
 
@@ -71,7 +71,7 @@ namespace Tests.EditMode
         [Test]
         public void イベントカードの説明テキストが空のとき説明ラベルは表示されない()
         {
-            EventCardData data = new EventCardData("E001", "ATKブースト", 1, EffectType.AtkBoost, 3);
+            EventCardData data = new EventCardData("E001", "ATKブースト", 1, EventType.AtkBoost, 3);
 
             _modal.Show(data);
 

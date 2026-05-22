@@ -20,7 +20,7 @@ namespace Tests.EditMode
                 {
                     skipNextEffect = false;
                 }
-                else if (data.EffectType == EffectType.Negate)
+                else if (data.EventType == EventType.Negate)
                 {
                     skipNextEffect = true;
                 }
@@ -34,19 +34,19 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void NegateをEffectTypeに指定するとEffectTypeがNegateになる()
+        public void NegateをEventTypeに指定するとEventTypeがNegateになる()
         {
-            EventCardData card = new EventCardData("e1", "打ち消し", 1, EffectType.Negate, 0);
+            EventCardData card = new EventCardData("e1", "打ち消し", 1, EventType.Negate, 0);
 
-            Assert.AreEqual(EffectType.Negate, card.EffectType);
+            Assert.AreEqual(EventType.Negate, card.EventType);
         }
 
         [Test]
-        public void NegateはEffectValueが0であっても生成できる()
+        public void NegateはEventValueが0であっても生成できる()
         {
-            EventCardData card = new EventCardData("e1", "打ち消し", 1, EffectType.Negate, 0);
+            EventCardData card = new EventCardData("e1", "打ち消し", 1, EventType.Negate, 0);
 
-            Assert.AreEqual(0, card.EffectValue);
+            Assert.AreEqual(0, card.EventValue);
         }
 
         [Test]
@@ -57,8 +57,8 @@ namespace Tests.EditMode
             // Negate が skipNextEffect = true をセット → AtkBoost はスキップ
             List<EventCardData> queue = new List<EventCardData>
             {
-                new EventCardData("e1", "ATK強化", 1, EffectType.AtkBoost, 3),
-                new EventCardData("e2", "打ち消し", 1, EffectType.Negate, 0),
+                new EventCardData("e1", "ATK強化", 1, EventType.AtkBoost, 3),
+                new EventCardData("e2", "打ち消し", 1, EventType.Negate, 0),
             };
 
             List<int> applied = SimulateResolution(queue);
@@ -76,9 +76,9 @@ namespace Tests.EditMode
             // AtkBoost は通常発動
             List<EventCardData> queue = new List<EventCardData>
             {
-                new EventCardData("e1", "ATK強化", 1, EffectType.AtkBoost, 3),
-                new EventCardData("e2", "打ち消し2", 1, EffectType.Negate, 0),
-                new EventCardData("e3", "打ち消し1", 1, EffectType.Negate, 0),
+                new EventCardData("e1", "ATK強化", 1, EventType.AtkBoost, 3),
+                new EventCardData("e2", "打ち消し2", 1, EventType.Negate, 0),
+                new EventCardData("e3", "打ち消し1", 1, EventType.Negate, 0),
             };
 
             List<int> applied = SimulateResolution(queue);
@@ -93,7 +93,7 @@ namespace Tests.EditMode
             // 解決順: Negate(0) のみ → skipNextEffect = true になるが次カードなし
             List<EventCardData> queue = new List<EventCardData>
             {
-                new EventCardData("e1", "打ち消し", 1, EffectType.Negate, 0),
+                new EventCardData("e1", "打ち消し", 1, EventType.Negate, 0),
             };
 
             List<int> applied = SimulateResolution(queue);
@@ -109,9 +109,9 @@ namespace Tests.EditMode
             // Negate が AtkBoost2 をスキップ → AtkBoost1 は通常発動
             List<EventCardData> queue = new List<EventCardData>
             {
-                new EventCardData("e1", "ATK強化1", 1, EffectType.AtkBoost, 2),
-                new EventCardData("e2", "ATK強化2", 1, EffectType.AtkBoost, 3),
-                new EventCardData("e3", "打ち消し", 1, EffectType.Negate, 0),
+                new EventCardData("e1", "ATK強化1", 1, EventType.AtkBoost, 2),
+                new EventCardData("e2", "ATK強化2", 1, EventType.AtkBoost, 3),
+                new EventCardData("e3", "打ち消し", 1, EventType.Negate, 0),
             };
 
             List<int> applied = SimulateResolution(queue);

@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
+using CardEventType = Main.Card.EventType;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -365,7 +366,7 @@ namespace Main
                         {
                             skipNextEffect = false;
                         }
-                        else if (eventData.EffectType == EffectType.Negate)
+                        else if (eventData.EventType == CardEventType.Negate)
                         {
                             skipNextEffect = true;
                         }
@@ -397,31 +398,43 @@ namespace Main
 
         private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
         {
-            switch (data.EffectType)
+            switch (data.EventType)
             {
-                case EffectType.AtkBoost:
+                case CardEventType.AtkBoost:
                     if (isLocal)
                     {
-                        _playerAtkBoost += data.EffectValue;
+                        _playerAtkBoost += data.EventValue;
                     }
                     else
                     {
-                        _opponentAtkBoost += data.EffectValue;
+                        _opponentAtkBoost += data.EventValue;
                     }
                     break;
-                case EffectType.DefBoost:
+                case CardEventType.DefBoost:
                     if (isLocal)
                     {
-                        _playerDefBoost += data.EffectValue;
+                        _playerDefBoost += data.EventValue;
                     }
                     else
                     {
-                        _opponentDefBoost += data.EffectValue;
+                        _opponentDefBoost += data.EventValue;
                     }
                     break;
-                case EffectType.Draw:
-                    await ApplyDrawEffectAsync(data.EffectValue, isLocal, ct);
+                case CardEventType.Draw:
+                    await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
                     break;
+                case CardEventType.BanishChar:
+                {
+                    CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+                    CardView charCard = targetSlot.CurrentCard;
+                    if (charCard != null)
+                    {
+                        targetSlot.RemoveCard();
+                        targetGraveyard.AddCard(charCard);
+                    }
+                    break;
+                }
             }
         }
 
@@ -489,28 +502,29 @@ namespace Main
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
-            // コスト払い（キャラ・技カード：オープン時）
-            List<UniTask> costPayTasks = new List<UniTask>();
-            foreach (CardView c in playerCards)
+            // コスト払い（キャラ・技カード：ターンプレイヤー→相手の順にアナウンス＋支払い）
+            bool isLocalTurn = _gameModel.IsLocalTurn;
+            List<CardView> firstCards = isLocalTurn ? playerCards : opponentCards;
+            DeckView firstDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
+            GraveyardView firstGraveyard = isLocalTurn ? _playerGraveyardView : _opponentGraveyardView;
+            List<CardView> secondCards = isLocalTurn ? opponentCards : playerCards;
+            DeckView secondDeck = isLocalTurn ? _opponentDeckView : _playerDeckView;
+            GraveyardView secondGraveyard = isLocalTurn ? _opponentGraveyardView : _playerGraveyardView;
+
+            int firstCost = firstCards.Sum(c => c.Data.Cost);
+            await PlayAnnouncementAsync($"PAY {firstCost} COSTS", "turn-announcement-label--cost", ct);
+            await UniTask.WhenAll(firstCards.Select(c => PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false)));
+            if (_isGameOver)
             {
-                costPayTasks.Add(PayCostAsync(c, _playerDeckView, _playerGraveyardView, ct, announce: false));
+                return;
             }
-            foreach (CardView c in opponentCards)
+
+            int secondCost = secondCards.Sum(c => c.Data.Cost);
+            await PlayAnnouncementAsync($"PAY {secondCost} COSTS", "turn-announcement-label--cost", ct);
+            await UniTask.WhenAll(secondCards.Select(c => PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false)));
+            if (_isGameOver)
             {
-                costPayTasks.Add(PayCostAsync(c, _opponentDeckView, _opponentGraveyardView, ct, announce: false));
-            }
-            if (costPayTasks.Count > 0)
-            {
-                bool anyCost = playerCards.Concat(opponentCards).Any(c => c.Data.Cost > 0);
-                if (anyCost)
-                {
-                    await PlayAnnouncementAsync("PAY THE COST", "turn-announcement-label--cost", ct);
-                }
-                await UniTask.WhenAll(costPayTasks);
-                if (_isGameOver)
-                {
-                    return;
-                }
+                return;
             }
 
             List<CardView> playerFieldChar = playerCards.Where(c => c.Data is CharacterCardData).ToList();

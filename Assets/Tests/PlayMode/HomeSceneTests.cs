@@ -73,7 +73,7 @@ namespace Tests.PlayMode
             HomeLive2DPresenter presenter = FindInHomeScene<HomeLive2DPresenter>();
             Assume.That(presenter, Is.Not.Null, "HomeLive2DPresenter が見つかりません");
 
-            Queue<Vector3> queue = (Queue<Vector3>)typeof(HomeLive2DPresenter)
+            Queue<(Vector3, Animator)> queue = (Queue<(Vector3, Animator)>)typeof(HomeLive2DPresenter)
                 .GetField("_foodQueue", BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.GetValue(presenter);
             Assume.That(queue, Is.Not.Null);
@@ -91,26 +91,37 @@ namespace Tests.PlayMode
             HomeLive2DPresenter presenter = FindInHomeScene<HomeLive2DPresenter>();
             Assume.That(presenter, Is.Not.Null, "HomeLive2DPresenter が見つかりません");
 
-            // Walk/Eat クリップが設定されていることを前提とする
+            // Walk/Eat クリップが両方設定されていることを前提とする（片方でも欠けると犬がキューを処理しない）
             AnimationClip walkClip = (AnimationClip)typeof(HomeLive2DPresenter)
                 .GetField("_walkClip", BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.GetValue(presenter);
             Assume.That(walkClip, Is.Not.Null, "_walkClip が未設定です（Inspector で設定してください）");
 
+            AnimationClip eatClip = (AnimationClip)typeof(HomeLive2DPresenter)
+                .GetField("_eatClip", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.GetValue(presenter);
+            Assume.That(eatClip, Is.Not.Null, "_eatClip が未設定です（Inspector で設定してください）");
+
+            // 犬は _animator.transform で移動する（presenter.transform とは別 GameObject）
+            Animator animator = (Animator)typeof(HomeLive2DPresenter)
+                .GetField("_animator", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.GetValue(presenter);
+            Assume.That(animator, Is.Not.Null, "_animator が未設定です（Inspector で設定してください）");
+
             // 犬の真横 0.5f 先に食べ物を置く（短距離なので到達が速い）
-            Vector3 initialPos = presenter.transform.position;
+            Vector3 initialPos = animator.transform.position;
             Vector3 foodPos = new Vector3(initialPos.x + 0.5f, initialPos.y, initialPos.z);
             presenter.NotifyFoodSpawned(foodPos, null);
 
             // 現在のモーション終了 + 移動 + Eat まで最大 15 秒待機
             float startTime = Time.time;
             yield return new WaitUntil(() =>
-                Mathf.Abs(presenter.transform.position.x - foodPos.x) < 0.15f ||
+                Mathf.Abs(animator.transform.position.x - foodPos.x) < 0.15f ||
                 Time.time - startTime > 15f
             );
 
             Assert.That(
-                Mathf.Abs(presenter.transform.position.x - foodPos.x),
+                Mathf.Abs(animator.transform.position.x - foodPos.x),
                 Is.LessThan(0.15f),
                 "犬が食べ物の位置に移動しませんでした"
             );
