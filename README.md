@@ -60,7 +60,7 @@
     - 勝敗演出（YOU WIN / YOU LOSE / DRAW をスケールアップで表示→タイトルに戻るボタン出現）
   - Resolve テキスト演出・攻撃アニメーション（DOTween）
   - ターン告知演出（「YOUR TURN」水色 / 「ENEMY TURN」赤）
-  - フェーズ告知演出（PLACE CHARACTERS / PLACE CARDS / PLACE EVENTS / FIGHT / PAY X COSTS）
+  - フェーズ告知演出（PLACE CHARACTERS 青 / PLACE CARDS・PLACE EVENTS・FIGHT 黒白縁取り / PAY X COSTS プレイヤー=水色・相手=赤）
   - カード確定時に「SET!」フラッシュ演出（プレイヤー=緑、CPU=赤）・演出終了後に次フェーズへ遷移
   - ターン開始ドロー（告知アニメーションと並走）
   - コスト警告（ステージング時にコスト支払いでデッキが0枚になる場合、OKボタン上部に赤字で警告表示）
