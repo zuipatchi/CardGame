@@ -585,12 +585,7 @@ namespace Main
                 return;
             }
 
-            if (deck.Count == 0)
-            {
-                _isGameOver = true;
-                OnGameEnd(deck == _playerDeckView ? (bool?)false : true);
-                return;
-            }
+            bool willLose = cost > deck.Count;
 
             if (announce)
             {
@@ -600,6 +595,12 @@ namespace Main
             Rect deckRect = deck.worldBound;
             List<CardView> costCards = deck.TakeFromTop(cost);
             await PlayDeckDamageAsync(costCards, deckRect, graveyard, deck, ct);
+
+            if (willLose)
+            {
+                _isGameOver = true;
+                OnGameEnd(deck == _playerDeckView ? (bool?)false : true);
+            }
         }
 
         // ─── デッキダメージ→墓地アニメーション ─────────────────────────────
