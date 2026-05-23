@@ -9,31 +9,51 @@ namespace CpuDeckBuilder
 {
     public sealed class CpuDeckBuilderPresenter : DeckBuilderPresenterBase
     {
-        private CpuDeckRepository _cpuDeckRepository;
+        private const string CpuDeckAssetPath = "Assets/Data/CpuDeck.asset";
 
         [Inject]
         public void Construct(
             CardStore cardStore,
             CardDatabase cardDatabase,
-            CpuDeckRepository cpuDeckRepository,
             SceneTransitioner sceneTransitioner)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = new DeckModel();
-            _cpuDeckRepository = cpuDeckRepository;
             _sceneTransitioner = sceneTransitioner;
         }
 
         protected override void InitializeDeck()
         {
             _deckModel.Clear();
-            _cpuDeckRepository.Load(_deckModel);
+#if UNITY_EDITOR
+            CpuDeckSO so = UnityEditor.AssetDatabase.LoadAssetAtPath<CpuDeckSO>(CpuDeckAssetPath);
+            if (so != null)
+            {
+                foreach (string id in so.CardIds)
+                {
+                    if (_cardDatabase.TryGet(id, out CardData card))
+                    {
+                        _deckModel.Add(id, card.Cost);
+                    }
+                }
+            }
+#endif
         }
 
         protected override void SaveDeck()
         {
-            _cpuDeckRepository.Save(_deckModel);
+#if UNITY_EDITOR
+            CpuDeckSO so = UnityEditor.AssetDatabase.LoadAssetAtPath<CpuDeckSO>(CpuDeckAssetPath);
+            if (so == null)
+            {
+                return;
+            }
+            so.CardIds.Clear();
+            so.CardIds.AddRange(_deckModel.CardIds);
+            UnityEditor.EditorUtility.SetDirty(so);
+            UnityEditor.AssetDatabase.SaveAssets();
+#endif
         }
 
         protected override void NavigateBack()

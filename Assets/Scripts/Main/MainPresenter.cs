@@ -83,18 +83,16 @@ namespace Main
             internal CardView Card;
         }
 
-        private CpuDeckRepository _cpuDeckRepository;
         private readonly UniTaskCompletionSource _readyTcs = new UniTaskCompletionSource();
 
         public UniTask ReadyAsync(CancellationToken ct) => _readyTcs.Task.AttachExternalCancellation(ct);
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, CpuDeckRepository cpuDeckRepository, GameModel gameModel, SceneTransitioner sceneTransitioner)
+        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, GameModel gameModel, SceneTransitioner sceneTransitioner)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
-            _cpuDeckRepository = cpuDeckRepository;
             _gameModel = gameModel;
             _sceneTransitioner = sceneTransitioner;
         }
@@ -141,10 +139,9 @@ namespace Main
                 CardData[] playerHandCards = playerShuffled.Take(handSize).ToArray();
                 CardData[] playerDeckCards = playerShuffled.Skip(handSize).ToArray();
 
-                DeckModel cpuDeckModel = new DeckModel();
-                _cpuDeckRepository.Load(cpuDeckModel);
-                CardData[] cpuPool = cpuDeckModel.Count > 0
-                    ? _cardDatabase.BuildDeck(cpuDeckModel.CardIds)
+                CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
+                CardData[] cpuPool = cpuDeckSo != null && cpuDeckSo.CardIds.Count > 0
+                    ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
                     : allCards;
                 CardData[] cpuShuffled = Shuffle((CardData[])cpuPool.Clone());
                 CardData[] cpuHandCards = cpuShuffled.Take(handSize).ToArray();

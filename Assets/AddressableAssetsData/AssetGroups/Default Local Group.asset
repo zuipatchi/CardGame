@@ -39,6 +39,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f06f5715d733f84a9353995594ffcf8
+    m_Address: Card/CpuDeck
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 567f667ab04376d45b3f8b18b96566da
     m_Address: Image/DeckBuilderBackground
     m_ReadOnly: 0

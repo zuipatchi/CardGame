@@ -19,6 +19,7 @@ namespace Main.Card
         private readonly string _attributeDatabaseAddressable = "Card/AttributeDatabase";
         private readonly string _coinFrontAddressable = "Image/Coin1";
         private readonly string _coinBackAddressable = "Image/Coin2";
+        private readonly string _cpuDeckAddressable = "Card/CpuDeck";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
@@ -27,6 +28,7 @@ namespace Main.Card
         public AttributeDatabaseSO AttributeDatabase => _attributeDatabase;
         public Sprite CoinFront => _coinFront;
         public Sprite CoinBack => _coinBack;
+        public CpuDeckSO CpuDeck => _cpuDeck;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
@@ -35,6 +37,7 @@ namespace Main.Card
         private AttributeDatabaseSO _attributeDatabase;
         private Sprite _coinFront;
         private Sprite _coinBack;
+        private CpuDeckSO _cpuDeck;
 
         public void Start()
         {
@@ -61,6 +64,15 @@ namespace Main.Card
 
                 _coinFront = await Addressables.LoadAssetAsync<Sprite>(_coinFrontAddressable).ToUniTask();
                 _coinBack = await Addressables.LoadAssetAsync<Sprite>(_coinBackAddressable).ToUniTask();
+
+                try
+                {
+                    _cpuDeck = await Addressables.LoadAssetAsync<CpuDeckSO>(_cpuDeckAddressable).ToUniTask();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"CPUデッキデータのロードをスキップ: {e.Message}");
+                }
 
                 _loadedTcs.TrySetResult();
             }
