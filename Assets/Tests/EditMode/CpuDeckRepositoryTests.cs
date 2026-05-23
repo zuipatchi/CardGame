@@ -6,19 +6,34 @@ namespace Tests.EditMode
 {
     public class CpuDeckRepositoryTests
     {
+        private const string SaveKey = "SavedCpuDeck";
+
         private CpuDeckRepository _repository;
+        private bool _hadOriginalKey;
+        private string _originalJson;
 
         [SetUp]
         public void SetUp()
         {
             _repository = new CpuDeckRepository();
-            PlayerPrefs.DeleteKey("SavedCpuDeck");
+            _hadOriginalKey = PlayerPrefs.HasKey(SaveKey);
+            _originalJson = PlayerPrefs.GetString(SaveKey, null);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.Save();
         }
 
         [TearDown]
         public void TearDown()
         {
-            PlayerPrefs.DeleteKey("SavedCpuDeck");
+            if (_hadOriginalKey)
+            {
+                PlayerPrefs.SetString(SaveKey, _originalJson);
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(SaveKey);
+            }
+            PlayerPrefs.Save();
         }
 
         [Test]
