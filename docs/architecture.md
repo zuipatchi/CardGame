@@ -104,6 +104,7 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 `SceneTransitioner` は `SemaphoreSlim` で同時遷移を防ぐ。
 遷移中に `Transit` が呼ばれた場合は即座に無視する（`WaitAsync(0)` でゲートを取れない場合はリターン）。
 シーンロードを中途キャンセルすると壊れた状態になるため、実行中の遷移はキャンセルしない。
+ゲートは `RevealAsync`（フェードイン）の**前**に解放する。これにより新シーンが見え始めた時点でボタンがすぐ有効になる。
 
 ---
 
