@@ -47,12 +47,13 @@ Title → Matching → Main
    → QuerySessions で Name="QuickMatch" かつ AvailableSlots>0 を検索
    → 見つかった → JoinSessionByIdAsync → Main シーンへ遷移
    → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2)
-     → PlayerJoined イベント待機（20秒タイムアウト）
+     → PlayerJoined イベント待機（30秒タイムアウト）
      → タイムアウト → リトライ確認ダイアログ
 
 2b. ルームを手動作成
    → CreateSessionAsync(MaxPlayers=2)
-   → PlayerJoined イベント待機（20秒タイムアウト）
+   → PlayerJoined イベント待機（120秒タイムアウト）
+   → 待機中は「2分で自動解散します」を表示
    → タイムアウト → リトライ確認ダイアログ
 
 2c. ルームに手動参加
@@ -105,7 +106,8 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 | `BrowsingRooms` | ルーム一覧表示中（ボタン有効） |
 | `CreatingRoom` | ルーム作成中 |
 | `JoiningRoom` | ルーム参加中 |
-| `WaitingForPlayer` | 相手待ち（ホスト側） |
+| `WaitingForPlayer` | 相手待ち・クイックマッチホスト（30秒タイムアウト） |
+| `WaitingInCreatedRoom` | 相手待ち・手動ルーム作成ホスト（120秒タイムアウト、「2分で自動解散します」表示） |
 | `Starting` | Main シーンへ遷移中 |
 | `Ready` | 全員準備完了、遷移待ち |
 | `TimedOut` | タイムアウト（リトライ確認中） |
