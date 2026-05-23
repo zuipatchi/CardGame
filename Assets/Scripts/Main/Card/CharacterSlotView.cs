@@ -15,11 +15,16 @@ namespace Main.Card
         private CardView _current;
         private readonly VisualElement _atkOverlay;
         private readonly Label _atkLabel;
+        private readonly VisualElement _defOverlay;
+        private readonly Label _defLabel;
 
         public CardView CurrentCard => _current;
         public int Defense => _current?.Data.Defense ?? 0;
 
+        public VisualElement DefOverlay => _defOverlay;
+
         public void SetAtkValue(int atk) => _atkLabel.text = atk.ToString();
+        public void SetDefValue(int def) => _defLabel.text = def.ToString();
         public string AtkLabelText => _atkLabel.text;
         public bool IsAtkOverlayVisible => _atkOverlay.style.display == DisplayStyle.Flex;
 
@@ -57,6 +62,23 @@ namespace Main.Card
             _atkOverlay.Add(_atkLabel);
 
             Add(_atkOverlay);
+
+            _defOverlay = new VisualElement();
+            _defOverlay.AddToClassList("char-slot-def-overlay");
+            _defOverlay.pickingMode = PickingMode.Ignore;
+            _defOverlay.style.display = DisplayStyle.None;
+
+            VisualElement defIcon = new VisualElement();
+            defIcon.AddToClassList("char-slot-def-icon");
+            defIcon.pickingMode = PickingMode.Ignore;
+            _defOverlay.Add(defIcon);
+
+            _defLabel = new Label("0");
+            _defLabel.AddToClassList("char-slot-def-label");
+            _defLabel.pickingMode = PickingMode.Ignore;
+            _defOverlay.Add(_defLabel);
+
+            Add(_defOverlay);
 
             RegisterCallback<ClickEvent>(_ =>
             {
