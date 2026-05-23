@@ -893,6 +893,140 @@
     max-width: 240px;
 }
 
+/* ─── 属性相性ボタン ────────────────────────────────────────────────── */
+
+.attr-compatibility-button {
+    position: absolute;
+    left: 16px;
+    bottom: 60px;
+    width: 72px;
+    height: 72px;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
+    border-bottom-left-radius: 36px;
+    border-bottom-right-radius: 36px;
+    background-color: rgba(20, 20, 40, 0.85);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(160, 160, 220, 0.6);
+    border-right-color: rgba(160, 160, 220, 0.6);
+    border-top-color: rgba(160, 160, 220, 0.6);
+    border-bottom-color: rgba(160, 160, 220, 0.6);
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 240);
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    -unity-text-align: middle-center;
+}
+
+.attr-compatibility-button:hover {
+    background-color: rgba(40, 40, 70, 0.9);
+}
+
+/* ─── 属性相性モーダル ──────────────────────────────────────────────── */
+
+.attr-compatibility-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    align-items: center;
+    justify-content: center;
+}
+
+.attr-compatibility-panel {
+    background-color: rgb(18, 18, 30);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(160, 140, 220, 0.5);
+    border-right-color: rgba(160, 140, 220, 0.5);
+    border-top-color: rgba(160, 140, 220, 0.5);
+    border-bottom-color: rgba(160, 140, 220, 0.5);
+    padding-left: 36px;
+    padding-right: 36px;
+    padding-top: 28px;
+    padding-bottom: 32px;
+    min-width: 320px;
+}
+
+.attr-compatibility-title {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(220, 210, 255);
+    -unity-text-align: middle-center;
+    margin-bottom: 16px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+}
+
+.attr-compatibility-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.attr-compatibility-row--alt {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.attr-compatibility-header-label {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(160, 155, 200);
+    width: 96px;
+    height: 44px;
+    -unity-text-align: middle-center;
+}
+
+.attr-compatibility-header-label--strength {
+    color: rgb(100, 210, 120);
+}
+
+.attr-compatibility-header-label--weakness {
+    color: rgb(230, 100, 100);
+}
+
+.attr-compatibility-separator {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.18);
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.attr-compatibility-cell {
+    width: 96px;
+    height: 68px;
+    align-items: center;
+    justify-content: center;
+}
+
+.attr-compatibility-icon {
+    width: 56px;
+    height: 56px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.attr-compatibility-none-label {
+    font-size: 28px;
+    color: rgb(100, 100, 130);
+    -unity-text-align: middle-center;
+}
+
 /* ─── コイントス演出 ─────────────────────────────────────────────── */
 
 .coin-toss-overlay {

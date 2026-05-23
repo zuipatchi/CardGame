@@ -57,6 +57,7 @@ namespace Main
         private Button _gameEndTitleButton;
 
         private CardDetailModal _cardDetailModal;
+        private AttributeCompatibilityModal _attrCompatibilityModal;
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
 
@@ -201,6 +202,12 @@ namespace Main
                     _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeDatabase);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
+
+                _attrCompatibilityModal = new AttributeCompatibilityModal(mainRoot, _cardStore.AttributeDatabase);
+                Button attrCompatibilityButton = new Button(() => _attrCompatibilityModal.Show());
+                attrCompatibilityButton.AddToClassList("attr-compatibility-button");
+                attrCompatibilityButton.text = "相性";
+                mainRoot.Add(attrCompatibilityButton);
 
                 _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeDatabase);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
