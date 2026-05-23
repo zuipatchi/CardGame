@@ -72,7 +72,7 @@ namespace Main
 
         private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
-            await PlayAnnouncementAsync("キャラカードをセット", "turn-announcement-label--character", ct);
+            await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
             bool isLocalFirst = _gameModel.IsLocalTurn;
 
@@ -191,7 +191,7 @@ namespace Main
 
         private async UniTask RunPreBattle1PhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
-            await PlayAnnouncementAsync("カードをセット", "turn-announcement-label--skill", ct);
+            await PlayAnnouncementAsync("準備フェーズ", "turn-announcement-label--skill", ct);
 
             bool isLocalFirst = isLocalTurn;
 
@@ -261,7 +261,7 @@ namespace Main
 
         private async UniTask RunPreBattle2PhaseAsync(CancellationToken ct)
         {
-            await PlayAnnouncementAsync("イベントカードをセット", "turn-announcement-label--event", ct);
+            await PlayAnnouncementAsync("イベントフェーズ", "turn-announcement-label--event", ct);
 
             while (true)
             {
