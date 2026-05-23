@@ -558,86 +558,25 @@ namespace Main
             }
 
             // 戦闘前1でキャラを出した場合は攻撃しない（ATK=0・モーションなし）
-            // ATKは技カードのダメージ値の合計（キャラなし or 新キャラ配置→0）
             bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null && playerFieldChar.Count == 0;
             bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null && opponentFieldChar.Count == 0;
 
             CardAttribute playerCharAttr = _playerCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
             CardAttribute opponentCharAttr = _opponentCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
 
-            bool playerTypeMatch = playerSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == playerCharAttr);
-            CardAttribute opponentWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(opponentCharAttr) : CardAttribute.None;
-            bool playerWeaknessHit = opponentWeakness != CardAttribute.None && playerSkill.Any(c => c.Data.Attribute == opponentWeakness);
-            CardAttribute opponentStrength = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetStrength(opponentCharAttr) : CardAttribute.None;
-            bool playerStrengthBlocked = opponentStrength != CardAttribute.None && playerSkill.Any(c => c.Data.Attribute == opponentStrength);
-            int playerATK = playerHasAttackingChar && !playerStrengthBlocked
-                ? (playerSkill.Sum(c => c.Data.Attack) + _playerAtkBoost) * (playerTypeMatch ? 2 : 1) * (playerWeaknessHit ? 3 : 1)
-                : 0;
-
-            bool opponentTypeMatch = opponentSkill.Any(c => c.Data.Attribute != CardAttribute.None && c.Data.Attribute == opponentCharAttr);
-            CardAttribute playerWeakness = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetWeakness(playerCharAttr) : CardAttribute.None;
-            bool opponentWeaknessHit = playerWeakness != CardAttribute.None && opponentSkill.Any(c => c.Data.Attribute == playerWeakness);
-            CardAttribute playerStrength = _cardStore.AttributeDatabase != null ? _cardStore.AttributeDatabase.GetStrength(playerCharAttr) : CardAttribute.None;
-            bool opponentStrengthBlocked = playerStrength != CardAttribute.None && opponentSkill.Any(c => c.Data.Attribute == playerStrength);
-            int opponentATK = opponentHasAttackingChar && !opponentStrengthBlocked
-                ? (opponentSkill.Sum(c => c.Data.Attack) + _opponentAtkBoost) * (opponentTypeMatch ? 2 : 1) * (opponentWeaknessHit ? 3 : 1)
-                : 0;
+            BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
+                playerSkill, playerCharAttr, opponentCharAttr, _playerAtkBoost, playerHasAttackingChar, _cardStore.AttributeDatabase);
+            BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
+                opponentSkill, opponentCharAttr, playerCharAttr, _opponentAtkBoost, opponentHasAttackingChar, _cardStore.AttributeDatabase);
 
             int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
             int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
-            int damageToOpponent = Mathf.Max(0, playerATK - effectiveOpponentDef);
-            int damageToPlayer = Mathf.Max(0, opponentATK - effectivePlayerDef);
+            int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
+            int damageToPlayer = Mathf.Max(0, opponentStats.ATK - effectivePlayerDef);
 
             // ATKカウントアップ表示（技カードはフィールドに残ったまま）
-            await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, ct);
-
-            if (playerTypeMatch || playerWeaknessHit || playerStrengthBlocked
-                || opponentTypeMatch || opponentWeaknessHit || opponentStrengthBlocked)
-            {
-                const float labelH = 80f;
-                const float labelGap = 8f;
-                const float stackOffset = labelH / 2f + labelGap / 2f;
-
-                List<UniTask> battleLabelTasks = new List<UniTask>();
-
-                if (playerStrengthBlocked)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", _playerAtkCounterLabel, 0f, ct));
-                }
-                else if (playerTypeMatch && playerWeaknessHit)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _playerAtkCounterLabel, -stackOffset, ct));
-                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _playerAtkCounterLabel, stackOffset, ct));
-                }
-                else if (playerTypeMatch)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _playerAtkCounterLabel, 0f, ct));
-                }
-                else if (playerWeaknessHit)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _playerAtkCounterLabel, 0f, ct));
-                }
-
-                if (opponentStrengthBlocked)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", _opponentAtkCounterLabel, 0f, ct));
-                }
-                else if (opponentTypeMatch && opponentWeaknessHit)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _opponentAtkCounterLabel, -stackOffset, ct));
-                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _opponentAtkCounterLabel, stackOffset, ct));
-                }
-                else if (opponentTypeMatch)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _opponentAtkCounterLabel, 0f, ct));
-                }
-                else if (opponentWeaknessHit)
-                {
-                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _opponentAtkCounterLabel, 0f, ct));
-                }
-
-                await UniTask.WhenAll(battleLabelTasks);
-            }
+            await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
+            await PlayBattleLabelsAsync(playerStats, opponentStats, ct);
 
             _playerAtkCounterOverlay.style.display = DisplayStyle.None;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
@@ -670,8 +609,8 @@ namespace Main
                 bool opponentDeckEmpty = damageToOpponent > 0 && _opponentDeckView.Count == 0;
                 if (playerDeckEmpty || opponentDeckEmpty)
                 {
-                    foreach (CardView c in playerSkill) { if (c.parent != null) { c.RemoveFromHierarchy(); } _playerGraveyardView.AddCard(c); }
-                    foreach (CardView c in opponentSkill) { if (c.parent != null) { c.RemoveFromHierarchy(); } _opponentGraveyardView.AddCard(c); }
+                    SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
+                    SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
                     _isGameOver = true;
                     if (playerDeckEmpty && opponentDeckEmpty)
                     {
@@ -686,16 +625,8 @@ namespace Main
             }
 
             // 技カードを墓地へ
-            foreach (CardView c in playerSkill)
-            {
-                if (c.parent != null) { c.RemoveFromHierarchy(); }
-                _playerGraveyardView.AddCard(c);
-            }
-            foreach (CardView c in opponentSkill)
-            {
-                if (c.parent != null) { c.RemoveFromHierarchy(); }
-                _opponentGraveyardView.AddCard(c);
-            }
+            SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
+            SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
 
             _playerAtkBoost = 0;
             _opponentAtkBoost = 0;
@@ -706,6 +637,67 @@ namespace Main
         private void OnGameEnd(bool? playerWins)
         {
             PlayGameEndAsync(playerWins, destroyCancellationToken).Forget();
+        }
+
+        // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
+
+        private async UniTask PlayBattleLabelsAsync(
+            BattleCalculator.SideBattleStats playerStats,
+            BattleCalculator.SideBattleStats opponentStats,
+            CancellationToken ct)
+        {
+            if (!playerStats.TypeMatch && !playerStats.WeaknessHit && !playerStats.StrengthBlocked
+                && !opponentStats.TypeMatch && !opponentStats.WeaknessHit && !opponentStats.StrengthBlocked)
+            {
+                return;
+            }
+
+            const float labelH = 80f;
+            const float labelGap = 8f;
+            const float stackOffset = labelH / 2f + labelGap / 2f;
+
+            List<UniTask> tasks = new List<UniTask>();
+            CollectBattleLabelTasks(tasks, playerStats, _playerAtkCounterLabel, stackOffset, ct);
+            CollectBattleLabelTasks(tasks, opponentStats, _opponentAtkCounterLabel, stackOffset, ct);
+            await UniTask.WhenAll(tasks);
+        }
+
+        private void CollectBattleLabelTasks(
+            List<UniTask> tasks,
+            BattleCalculator.SideBattleStats stats,
+            Label counterLabel,
+            float stackOffset,
+            CancellationToken ct)
+        {
+            if (stats.StrengthBlocked)
+            {
+                tasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", counterLabel, 0f, ct));
+            }
+            else if (stats.TypeMatch && stats.WeaknessHit)
+            {
+                tasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", counterLabel, -stackOffset, ct));
+                tasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", counterLabel, stackOffset, ct));
+            }
+            else if (stats.TypeMatch)
+            {
+                tasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", counterLabel, 0f, ct));
+            }
+            else if (stats.WeaknessHit)
+            {
+                tasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", counterLabel, 0f, ct));
+            }
+        }
+
+        private void SendSkillsToGraveyard(IEnumerable<CardView> skills, GraveyardView graveyard)
+        {
+            foreach (CardView c in skills)
+            {
+                if (c.parent != null)
+                {
+                    c.RemoveFromHierarchy();
+                }
+                graveyard.AddCard(c);
+            }
         }
     }
 }

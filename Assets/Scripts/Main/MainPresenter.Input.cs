@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
@@ -79,50 +80,45 @@ namespace Main
 
         private async void OnOkClicked()
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null)
+            if (!TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card))
             {
-                if (_stagedCharSetCard == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                CardView card = _stagedCharSetCard;
+            HideActionButtons();
+            await PlayOkFlashAsync(true, destroyCancellationToken);
+            tcs.TrySetResult(card);
+        }
+
+        private bool TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card)
+        {
+            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null && _stagedCharSetCard != null)
+            {
+                tcs = _charSetInputTcs;
+                card = _stagedCharSetCard;
                 _stagedCharSetCard = null;
-                HideActionButtons();
-                await PlayOkFlashAsync(true, destroyCancellationToken);
-                _charSetInputTcs.TrySetResult(card);
-                return;
+                return true;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInputTcs != null && _stagedPreBattleCard != null)
             {
-                if (_stagedPreBattleCard == null)
-                {
-                    return;
-                }
-
-                CardView card = _stagedPreBattleCard;
+                tcs = _preBattleInputTcs;
+                card = _stagedPreBattleCard;
                 _stagedPreBattleCard = null;
-                HideActionButtons();
-                await PlayOkFlashAsync(true, destroyCancellationToken);
-                _preBattleInputTcs.TrySetResult(card);
-                return;
+                return true;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInputTcs != null && _stagedPrepCard != null)
             {
-                if (_stagedPrepCard == null)
-                {
-                    return;
-                }
-
-                CardView card = _stagedPrepCard;
+                tcs = _prepInputTcs;
+                card = _stagedPrepCard;
                 _stagedPrepCard = null;
-                HideActionButtons();
-                await PlayOkFlashAsync(true, destroyCancellationToken);
-                _prepInputTcs.TrySetResult(card);
-                return;
+                return true;
             }
+
+            tcs = null;
+            card = null;
+            return false;
         }
 
         private void OnBackClicked()
@@ -131,13 +127,9 @@ namespace Main
             {
                 if (_stagedCharSetCard != null)
                 {
-                    Rect rect = _stagedCharSetCard.worldBound;
-                    _playerCharacterSlot.RemoveCard();
-                    CardView charCard = _stagedCharSetCard;
+                    CardView card = _stagedCharSetCard;
                     _stagedCharSetCard = null;
-                    charCard.FlipAsync(destroyCancellationToken).Forget();
-                    _handView.AddCardBackAsync(charCard, rect, destroyCancellationToken).Forget();
-                    UpdateStagedButtons(_stagedCharSetCard != null);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: true);
                 }
                 return;
             }
@@ -146,13 +138,9 @@ namespace Main
             {
                 if (_stagedPreBattleCard != null)
                 {
-                    Rect rect = _stagedPreBattleCard.worldBound;
-                    _playerFieldView.RemoveCard(_stagedPreBattleCard);
                     CardView card = _stagedPreBattleCard;
                     _stagedPreBattleCard = null;
-                    card.FlipAsync(destroyCancellationToken).Forget();
-                    _handView.AddCardBackAsync(card, rect, destroyCancellationToken).Forget();
-                    UpdateStagedButtons(_stagedPreBattleCard != null);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: true);
                 }
                 return;
             }
@@ -161,11 +149,9 @@ namespace Main
             {
                 if (_stagedPrepCard != null)
                 {
-                    Rect rect = _stagedPrepCard.worldBound;
-                    _playerFieldView.RemoveCard(_stagedPrepCard);
-                    _handView.AddCardBackAsync(_stagedPrepCard, rect, destroyCancellationToken).Forget();
+                    CardView card = _stagedPrepCard;
                     _stagedPrepCard = null;
-                    UpdateStagedButtons(_stagedPrepCard != null);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                     return;
                 }
 
@@ -173,6 +159,17 @@ namespace Main
                 HideActionButtons();
                 _prepInputTcs.TrySetResult(null);
             }
+        }
+
+        private void ReturnStagedCardToHand(CardView card, Rect fromRect, Action removeFromPlace, bool flipCard)
+        {
+            removeFromPlace();
+            if (flipCard)
+            {
+                card.FlipAsync(destroyCancellationToken).Forget();
+            }
+            _handView.AddCardBackAsync(card, fromRect, destroyCancellationToken).Forget();
+            UpdateStagedButtons(false);
         }
 
         private void OnPassClicked()
