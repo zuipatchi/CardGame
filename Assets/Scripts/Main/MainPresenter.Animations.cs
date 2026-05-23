@@ -215,13 +215,6 @@ namespace Main
             _playerAtkCounterOverlay.style.opacity = 0f;
             _opponentAtkCounterOverlay.style.opacity = 0f;
 
-            _playerDeckView.SetDefValue(playerDef);
-            _opponentDeckView.SetDefValue(opponentDef);
-            _playerDeckView.DefOverlay.style.display = DisplayStyle.Flex;
-            _opponentDeckView.DefOverlay.style.display = DisplayStyle.Flex;
-            _playerDeckView.DefOverlay.style.opacity = 0f;
-            _opponentDeckView.DefOverlay.style.opacity = 0f;
-
             _playerCharacterSlot.SetDefValue(playerDef);
             _opponentCharacterSlot.SetDefValue(opponentDef);
             _playerCharacterSlot.DefOverlay.BringToFront();
@@ -238,8 +231,6 @@ namespace Main
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => _playerAtkCounterOverlay.style.opacity.value, v => _playerAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => _opponentAtkCounterOverlay.style.opacity.value, v => _opponentAtkCounterOverlay.style.opacity = v, 1f, 0.2f))
-                .Join(DOTween.To(() => _playerDeckView.DefOverlay.style.opacity.value, v => _playerDeckView.DefOverlay.style.opacity = v, 1f, 0.2f))
-                .Join(DOTween.To(() => _opponentDeckView.DefOverlay.style.opacity.value, v => _opponentDeckView.DefOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => _playerCharacterSlot.DefOverlay.style.opacity.value, v => _playerCharacterSlot.DefOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => _opponentCharacterSlot.DefOverlay.style.opacity.value, v => _opponentCharacterSlot.DefOverlay.style.opacity = v, 1f, 0.2f))
                 .Join(DOTween.To(() => playerVal, v => { playerVal = v; _playerAtkCounterLabel.text = Mathf.RoundToInt(v).ToString(); }, (float)playerAtk, countDuration).SetEase(Ease.OutQuad))

@@ -572,8 +572,6 @@ namespace Main
 
             _playerAtkCounterOverlay.style.display = DisplayStyle.None;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
-            _playerDeckView.DefOverlay.style.display = DisplayStyle.None;
-            _opponentDeckView.DefOverlay.style.display = DisplayStyle.None;
             _playerCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
             _opponentCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
 
