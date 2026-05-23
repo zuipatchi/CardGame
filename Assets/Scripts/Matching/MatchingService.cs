@@ -105,19 +105,16 @@ namespace Matching
 
             using CancellationTokenSource timeoutCts = new(timeout);
             using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
-            using CancellationTokenRegistration reg = linked.Token.Register(() =>
-            {
-                session.PlayerJoined -= OnPlayerJoined;
-                tcs.TrySetCanceled();
-            });
 
             try
             {
-                await tcs.Task;
+                await tcs.Task.AttachExternalCancellation(linked.Token);
                 return true;
             }
             catch (OperationCanceledException)
             {
+                session.PlayerJoined -= OnPlayerJoined;
+                await UniTask.SwitchToMainThread();
                 if (ct.IsCancellationRequested)
                 {
                     throw;

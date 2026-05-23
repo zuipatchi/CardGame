@@ -8,6 +8,7 @@ namespace Matching
         CreatingRoom,
         JoiningRoom,
         WaitingForPlayer,
+        WaitingInCreatedRoom,
         Starting,
         Ready,
         TimedOut,

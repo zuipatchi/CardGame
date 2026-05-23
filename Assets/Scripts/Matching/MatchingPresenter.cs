@@ -14,7 +14,8 @@ namespace Matching
 {
     public class MatchingPresenter : MonoBehaviour, IStartable
     {
-        private static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(20);
+        private static readonly TimeSpan QuickMatchTimeoutDuration = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan CreateRoomTimeoutDuration = TimeSpan.FromSeconds(120);
 
         private MatchingModel _model;
         private MatchingService _matchingService;
@@ -86,7 +87,7 @@ namespace Matching
                 or MatchingState.CreatingRoom
                 or MatchingState.JoiningRoom
                 or MatchingState.Starting;
-            bool isWaiting = state is MatchingState.WaitingForPlayer or MatchingState.TimedOut;
+            bool isWaiting = state is MatchingState.WaitingForPlayer or MatchingState.WaitingInCreatedRoom or MatchingState.TimedOut;
             bool isTimedOut = state == MatchingState.TimedOut;
 
             _loadingOverlay.style.display = isLoading ? DisplayStyle.Flex : DisplayStyle.None;
@@ -103,7 +104,12 @@ namespace Matching
 
             if (isWaiting)
             {
-                _waitingLabel.text = isTimedOut ? "タイムアウトしました" : "プレイヤーを待っています...";
+                _waitingLabel.text = state switch
+                {
+                    MatchingState.TimedOut => "タイムアウトしました",
+                    MatchingState.WaitingInCreatedRoom => "プレイヤーを待っています...\n2分で自動解散します",
+                    _ => "プレイヤーを待っています..."
+                };
                 _cancelWaitButton.style.display = isTimedOut ? DisplayStyle.None : DisplayStyle.Flex;
                 _retryButton.style.display = isTimedOut ? DisplayStyle.Flex : DisplayStyle.None;
                 _backToTitleButton.style.display = isTimedOut ? DisplayStyle.Flex : DisplayStyle.None;
@@ -190,7 +196,7 @@ namespace Matching
                     IHostSession session = await _matchingService.CreateRoomAsync("QuickMatch", destroyCancellationToken);
                     _model.State.Value = MatchingState.WaitingForPlayer;
 
-                    bool found = await _matchingService.WaitForPlayerAsync(session, TimeoutDuration, destroyCancellationToken);
+                    bool found = await _matchingService.WaitForPlayerAsync(session, QuickMatchTimeoutDuration, destroyCancellationToken);
                     if (found)
                     {
                         _model.State.Value = MatchingState.Starting;
@@ -217,9 +223,9 @@ namespace Matching
             {
                 _model.State.Value = MatchingState.CreatingRoom;
                 IHostSession session = await _matchingService.CreateRoomAsync("Room", destroyCancellationToken);
-                _model.State.Value = MatchingState.WaitingForPlayer;
+                _model.State.Value = MatchingState.WaitingInCreatedRoom;
 
-                bool found = await _matchingService.WaitForPlayerAsync(session, TimeoutDuration, destroyCancellationToken);
+                bool found = await _matchingService.WaitForPlayerAsync(session, CreateRoomTimeoutDuration, destroyCancellationToken);
                 if (found)
                 {
                     _model.State.Value = MatchingState.Starting;
