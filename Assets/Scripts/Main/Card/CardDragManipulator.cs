@@ -8,6 +8,7 @@ namespace Main.Card
     {
         public Func<Vector2, bool> OnDrop;
         public Action OnClick;
+        public Action OnRightClick;
         public Func<VisualElement> CreateGhost;
 
         private const float ClickMovementThreshold = 8f;
@@ -50,6 +51,19 @@ namespace Main.Card
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            if (evt.button == 1)
+            {
+                OnRightClick?.Invoke();
+                evt.StopPropagation();
+                return;
+            }
+
+            if (evt.button != 0)
+            {
+                evt.StopPropagation();
+                return;
+            }
+
             _isDragging = true;
             _moved = false;
             _startPointerPosition = evt.position;

@@ -13,9 +13,13 @@ namespace Tests.PlayMode
 {
     public class DeckBuilderSceneTests
     {
+        private const string SaveKey = "SavedDeck";
+        private string _savedDeckSnapshot;
+
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            _savedDeckSnapshot = PlayerPrefs.GetString(SaveKey, null);
             yield return SceneManager.LoadSceneAsync("DeckBuilder", LoadSceneMode.Single);
             yield return new WaitUntil(() => SceneManager.GetSceneByName("Common").isLoaded);
             yield return null;
@@ -28,6 +32,15 @@ namespace Tests.PlayMode
             typeof(CommonSceneLoader)
                 .GetField("_loaded", BindingFlags.NonPublic | BindingFlags.Static)
                 ?.SetValue(null, false);
+            if (_savedDeckSnapshot != null)
+            {
+                PlayerPrefs.SetString(SaveKey, _savedDeckSnapshot);
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(SaveKey);
+            }
+            PlayerPrefs.Save();
             yield return null;
         }
 
@@ -136,6 +149,65 @@ namespace Tests.PlayMode
             List<Label> sectionTitles = overlay.Query<Label>(className: "deck-analysis-section-title").ToList();
             Assert.IsTrue(sectionTitles.Any(l => l.text == "コスト分布"), "コスト分布セクションが見つかりません");
             Assert.IsTrue(sectionTitles.Any(l => l.text == "種類分布"), "種類分布セクションが見つかりません");
+        }
+
+        [UnityTest]
+        public IEnumerator カード一覧の右クリックでデッキに1枚追加される()
+        {
+            yield return new WaitUntil(() => FindCardListScrollView()?.childCount > 0);
+
+            Label deckCardCountLabel = FindElement<Label>("DeckCardCountLabel");
+            Assert.IsNotNull(deckCardCountLabel, "DeckCardCountLabel が見つかりません");
+            int beforeCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+
+            ScrollView cardList = FindCardListScrollView();
+            VisualElement cardItem = cardList.Q<VisualElement>(className: "deckbuilder-card-item");
+            Assert.IsNotNull(cardItem, "deckbuilder-card-item が見つかりません");
+
+            SendRightClick(cardItem);
+            yield return null;
+
+            int afterCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            Assert.AreEqual(beforeCount + 1, afterCount, "右クリック後にデッキ枚数が1枚増えていません");
+        }
+
+        [UnityTest]
+        public IEnumerator カード一覧の右クリックを複数回でデッキ枚数が増える()
+        {
+            yield return new WaitUntil(() => FindCardListScrollView()?.childCount > 0);
+
+            Label deckCardCountLabel = FindElement<Label>("DeckCardCountLabel");
+            Assert.IsNotNull(deckCardCountLabel, "DeckCardCountLabel が見つかりません");
+            int beforeCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+
+            ScrollView cardList = FindCardListScrollView();
+            VisualElement cardItem = cardList.Q<VisualElement>(className: "deckbuilder-card-item");
+            Assert.IsNotNull(cardItem, "deckbuilder-card-item が見つかりません");
+
+            for (int i = 0; i < 3; i++)
+            {
+                SendRightClick(cardItem);
+                yield return null;
+            }
+
+            int afterCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            Assert.AreEqual(beforeCount + 3, afterCount, "右クリック3回後にデッキ枚数が3枚増えていません");
+        }
+
+        private static void SendRightClick(VisualElement target)
+        {
+            FieldInfo dragManipulatorField = target.GetType()
+                .GetField("_dragManipulator", BindingFlags.NonPublic | BindingFlags.Instance);
+            object manipulator = dragManipulatorField?.GetValue(target);
+            if (manipulator == null)
+            {
+                return;
+            }
+
+            FieldInfo onRightClickField = manipulator.GetType()
+                .GetField("OnRightClick", BindingFlags.Public | BindingFlags.Instance);
+            System.Action action = onRightClickField?.GetValue(manipulator) as System.Action;
+            action?.Invoke();
         }
 
         private static Label FindLabel(string name) => FindElement<Label>(name);

@@ -130,6 +130,12 @@ namespace DeckBuilder
                     return false;
                 };
                 manipulator.OnClick = () => _cardDetailModal.Show(captured);
+                manipulator.OnRightClick = () =>
+                {
+                    _deckModel.Add(captured.Id, captured.Cost);
+                    RefreshDeckPanel();
+                    SaveDeck();
+                };
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
             }
