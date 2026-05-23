@@ -40,7 +40,7 @@ namespace Main
             coin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
             coin.style.marginBottom = 32f;
 
-            Label resultLabel = new Label(isLocalFirst ? "あなたが先攻" : "相手が先攻");
+            Label resultLabel = new Label(isLocalFirst ? "先攻" : "後攻");
             resultLabel.AddToClassList("turn-announcement-label");
             resultLabel.AddToClassList(isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy");
             resultLabel.pickingMode = PickingMode.Ignore;
