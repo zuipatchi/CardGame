@@ -22,6 +22,12 @@ namespace Main
         private const float CardWidth = 160f;
         private const float CardHeight = 220f;
 
+        private const float AttackWindupDuration = 0.15f;
+        private const float AttackWindupDistance = 50f;
+        private const float AttackFlyDuration = 0.65f;
+        private const float AttackKnockbackDistance = 35f;
+        private const float AttackKnockbackDuration = 0.15f;
+
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
         private DeckModel _deckModel;
@@ -66,18 +72,16 @@ namespace Main
         private int _playerDefBoost;
         private int _opponentDefBoost;
 
-        // キャラセットフェーズの入力待ち（null=パス、card=スロットに置くカード）
-        private UniTaskCompletionSource<CardView> _charSetInputTcs;
-        private CardView _stagedCharSetCard;
-
-        // 準備フェーズの入力待ち（null=パス、card=Ready するカード）
-        private UniTaskCompletionSource<CardView> _prepInputTcs;
-        private CardView _stagedPrepCard;
-
-        // 戦闘前フェーズの入力待ち（null=パス、card=プレイしたカード）
-        private UniTaskCompletionSource<CardView> _preBattleInputTcs;
-        private CardView _stagedPreBattleCard;
+        private readonly StagedInput _charSetInput = new StagedInput();
+        private readonly StagedInput _prepInput = new StagedInput();
+        private readonly StagedInput _preBattleInput = new StagedInput();
         private bool _isLocalPreBattleActive;
+
+        private sealed class StagedInput
+        {
+            internal UniTaskCompletionSource<CardView> Tcs;
+            internal CardView Card;
+        }
 
         private CpuDeckRepository _cpuDeckRepository;
 

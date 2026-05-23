@@ -391,12 +391,6 @@ namespace Main
                 return;
             }
 
-            const float windupDuration = 0.15f;
-            const float windupDistance = 50f;
-            const float flyDuration = 0.65f;
-            const float knockbackDist = 35f;
-            const float knockbackDuration = 0.15f;
-
             List<Rect> rects = skills.Select(c => c.worldBound).ToList();
             foreach (CardView c in skills)
             {
@@ -432,26 +426,26 @@ namespace Main
                 Vector2 dir = (toCenter - fromCenter).normalized;
                 float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
 
-                Vector2 windupCenter = fromCenter - dir * windupDistance;
+                Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
                 float windupLeft = windupCenter.x - CardWidth / 2f;
                 float windupTop = windupCenter.y - CardHeight / 2f;
                 float targetLeft = toCenter.x - CardWidth / 2f;
                 float targetTop = toCenter.y - CardHeight / 2f;
                 float rotAngle = 0f;
                 float kbT = 0f;
-                Vector2 kbEnd = toCenter - dir * knockbackDist;
+                Vector2 kbEnd = toCenter - dir * AttackKnockbackDistance;
 
                 Sequence cardSeq = DOTween.Sequence()
-                    .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, windupDuration).SetEase(Ease.OutSine))
-                    .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, windupDuration).SetEase(Ease.OutSine))
+                    .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine))
+                    .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, AttackWindupDuration).SetEase(Ease.OutSine))
                     .Join(DOTween.To(() => rotAngle, v =>
                     {
                         rotAngle = v;
                         card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
-                    }, facingAngle, windupDuration).SetEase(Ease.OutSine));
+                    }, facingAngle, AttackWindupDuration).SetEase(Ease.OutSine));
 
-                cardSeq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
-                cardSeq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
+                cardSeq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic));
+                cardSeq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, AttackFlyDuration).SetEase(Ease.InCubic));
 
                 cardSeq.Append(DOTween.To(() => kbT, v =>
                 {
@@ -459,7 +453,7 @@ namespace Main
                     Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
                     card.style.left = pos.x - CardWidth / 2f;
                     card.style.top = pos.y - CardHeight / 2f;
-                }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
+                }, 1f, AttackKnockbackDuration).SetEase(Ease.OutQuad));
 
                 masterSeq.Append(cardSeq);
             }
@@ -482,110 +476,6 @@ namespace Main
             }
         }
 
-        // ─── 技カード攻撃アニメーション（旧・未使用）────────────────────────────
-
-        private async UniTask PlaySkillCardsAttackAsync(
-            List<CardView> cards, FieldView field, DeckView targetDeck, CancellationToken ct)
-        {
-            if (cards.Count == 0)
-            {
-                return;
-            }
-
-            const float windupDuration = 0.15f;
-            const float windupDistance = 50f;
-            const float flyDuration = 0.65f;
-            const float knockbackDist = 35f;
-            const float knockbackDuration = 0.15f;
-
-            List<Rect> rects = cards.Select(c => c.worldBound).ToList();
-            foreach (CardView c in cards)
-            {
-                field.RemoveCard(c);
-            }
-
-            Vector2 toCenter = targetDeck.worldBound.center;
-
-            for (int i = 0; i < cards.Count; i++)
-            {
-                CardView card = cards[i];
-                Rect rect = rects[i];
-                card.style.position = Position.Absolute;
-                card.style.left = rect.center.x - CardWidth / 2f;
-                card.style.top = rect.center.y - CardHeight / 2f;
-                card.style.width = StyleKeyword.Null;
-                card.style.height = StyleKeyword.Null;
-                card.style.rotate = new Rotate(new Angle(0f, AngleUnit.Degree));
-                card.style.scale = new Scale(Vector3.one);
-                card.style.transformOrigin = StyleKeyword.Null;
-                card.style.marginLeft = StyleKeyword.Null;
-                card.style.marginRight = StyleKeyword.Null;
-                _dragLayer.Add(card);
-            }
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence masterSeq = DOTween.Sequence();
-
-            for (int i = 0; i < cards.Count; i++)
-            {
-                CardView card = cards[i];
-                Vector2 fromCenter = rects[i].center;
-                Vector2 dir = (toCenter - fromCenter).normalized;
-                float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
-
-                Vector2 windupCenter = fromCenter - dir * windupDistance;
-                float windupLeft = windupCenter.x - CardWidth / 2f;
-                float windupTop = windupCenter.y - CardHeight / 2f;
-                float targetLeft = toCenter.x - CardWidth / 2f;
-                float targetTop = toCenter.y - CardHeight / 2f;
-                float rotAngle = 0f;
-
-                // Phase 1: 予備動作（後退 + デッキ方向を向く）
-                Sequence cardSeq = DOTween.Sequence()
-                    .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, windupDuration).SetEase(Ease.OutSine))
-                    .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, windupDuration).SetEase(Ease.OutSine))
-                    .Join(DOTween.To(() => rotAngle, v =>
-                    {
-                        rotAngle = v;
-                        card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
-                    }, facingAngle, windupDuration).SetEase(Ease.OutSine));
-
-                // Phase 2: 直線突撃
-                cardSeq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
-                cardSeq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
-
-                // Phase 3: ノックバック（着弾後に跳ね返る）
-                float kbT = 0f;
-                Vector2 kbEnd = toCenter - dir * knockbackDist;
-                cardSeq.Append(DOTween.To(() => kbT, v =>
-                {
-                    kbT = v;
-                    Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
-                    card.style.left = pos.x - CardWidth / 2f;
-                    card.style.top = pos.y - CardHeight / 2f;
-                }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
-
-                masterSeq.Append(cardSeq);
-            }
-
-            masterSeq.OnComplete(() => tcs.TrySetResult());
-            ct.Register(() => { masterSeq.Kill(); tcs.TrySetCanceled(); });
-
-            try
-            {
-                await tcs.Task;
-            }
-            catch (OperationCanceledException) { }
-
-            foreach (CardView card in cards)
-            {
-                if (card.parent == _dragLayer)
-                {
-                    _dragLayer.Remove(card);
-                }
-            }
-        }
-
         // ─── キャラスロット攻撃アニメーション ────────────────────────────────
 
         private async UniTask PlayCharacterSlotAttackAsync(
@@ -596,12 +486,6 @@ namespace Main
             {
                 return;
             }
-
-            const float windupDuration = 0.15f;
-            const float windupDistance = 50f;
-            const float flyDuration = 0.65f;
-            const float knockbackDist = 35f;
-            const float knockbackDuration = 0.15f;
 
             Rect slotRect = slot.worldBound;
 
@@ -662,7 +546,7 @@ namespace Main
             float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
             float rotAngle = 0f;
 
-            Vector2 windupCenter = fromCenter - dir * windupDistance;
+            Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
             float windupLeft = windupCenter.x - CardWidth / 2f;
             float windupTop = windupCenter.y - CardHeight / 2f;
             float targetLeft = toCenter.x - CardWidth / 2f;
@@ -671,31 +555,31 @@ namespace Main
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
 
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, windupDuration).SetEase(Ease.OutSine))
-                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, windupDuration).SetEase(Ease.OutSine))
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, windupTop, AttackWindupDuration).SetEase(Ease.OutSine))
                 .Join(DOTween.To(() => rotAngle, v =>
                 {
                     rotAngle = v;
                     card.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
-                }, facingAngle, windupDuration).SetEase(Ease.OutSine));
+                }, facingAngle, AttackWindupDuration).SetEase(Ease.OutSine));
 
             if (flyingAtk != null)
             {
-                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, windupLeft, windupDuration).SetEase(Ease.OutSine));
-                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, windupTop, windupDuration).SetEase(Ease.OutSine));
+                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine));
+                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, windupTop, AttackWindupDuration).SetEase(Ease.OutSine));
             }
 
-            seq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, flyDuration).SetEase(Ease.InCubic));
-            seq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, flyDuration).SetEase(Ease.InCubic));
+            seq.Append(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic));
+            seq.Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, AttackFlyDuration).SetEase(Ease.InCubic));
 
             if (flyingAtk != null)
             {
-                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, targetLeft, flyDuration).SetEase(Ease.InCubic));
-                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, targetTop, flyDuration).SetEase(Ease.InCubic));
+                seq.Join(DOTween.To(() => flyAtkLeft, v => { flyAtkLeft = v; flyingAtk.style.left = v; }, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic));
+                seq.Join(DOTween.To(() => flyAtkTop, v => { flyAtkTop = v; flyingAtk.style.top = v; }, targetTop, AttackFlyDuration).SetEase(Ease.InCubic));
             }
 
             float kbT = 0f;
-            Vector2 kbEnd = toCenter - dir * knockbackDist;
+            Vector2 kbEnd = toCenter - dir * AttackKnockbackDistance;
             seq.Append(DOTween.To(() => kbT, v =>
             {
                 kbT = v;
@@ -707,7 +591,7 @@ namespace Main
                     flyingAtk.style.left = pos.x - CardWidth / 2f;
                     flyingAtk.style.top = pos.y - CardHeight / 2f;
                 }
-            }, 1f, knockbackDuration).SetEase(Ease.OutQuad));
+            }, 1f, AttackKnockbackDuration).SetEase(Ease.OutQuad));
 
             seq.OnComplete(() => tcs.TrySetResult());
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });

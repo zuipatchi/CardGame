@@ -92,15 +92,7 @@ namespace Main
                 {
                     await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
                     IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
-                    int idx = -1;
-                    for (int j = 0; j < cpuHand.Count; j++)
-                    {
-                        if (cpuHand[j].Data is CharacterCardData)
-                        {
-                            idx = j;
-                            break;
-                        }
-                    }
+                    int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
 
                     if (idx >= 0)
                     {
@@ -135,18 +127,18 @@ namespace Main
 
         private async UniTask<CardView> WaitForPlayerCharSetInputAsync(CancellationToken ct)
         {
-            _charSetInputTcs = new UniTaskCompletionSource<CardView>();
-            _stagedCharSetCard = null;
+            _charSetInput.Tcs = new UniTaskCompletionSource<CardView>();
+            _charSetInput.Card = null;
             ShowActionButtons();
-            UpdateStagedButtons(_stagedCharSetCard != null);
+            UpdateStagedButtons(false);
 
             try
             {
-                return await _charSetInputTcs.Task.AttachExternalCancellation(ct);
+                return await _charSetInput.Tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
-                _charSetInputTcs = null;
+                _charSetInput.Tcs = null;
                 HideActionButtons();
             }
         }
@@ -217,20 +209,20 @@ namespace Main
         private async UniTask<CardView> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
         {
             _isLocalPreBattleActive = true;
-            _preBattleInputTcs = new UniTaskCompletionSource<CardView>();
-            _stagedPreBattleCard = null;
+            _preBattleInput.Tcs = new UniTaskCompletionSource<CardView>();
+            _preBattleInput.Card = null;
             ShowActionButtons();
-            UpdateStagedButtons(_stagedPreBattleCard != null);
+            UpdateStagedButtons(false);
 
             CardView result = null;
             try
             {
-                result = await _preBattleInputTcs.Task.AttachExternalCancellation(ct);
+                result = await _preBattleInput.Tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
                 _isLocalPreBattleActive = false;
-                _preBattleInputTcs = null;
+                _preBattleInput.Tcs = null;
                 HideActionButtons();
             }
 
@@ -320,18 +312,18 @@ namespace Main
 
         private async UniTask<CardView> WaitForPlayerPreBattle2InputAsync(CancellationToken ct)
         {
-            _prepInputTcs = new UniTaskCompletionSource<CardView>();
-            _stagedPrepCard = null;
+            _prepInput.Tcs = new UniTaskCompletionSource<CardView>();
+            _prepInput.Card = null;
             ShowActionButtons();
-            UpdateStagedButtons(_stagedPrepCard != null);
+            UpdateStagedButtons(false);
 
             try
             {
-                return await _prepInputTcs.Task.AttachExternalCancellation(ct);
+                return await _prepInput.Tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
-                _prepInputTcs = null;
+                _prepInput.Tcs = null;
             }
         }
 

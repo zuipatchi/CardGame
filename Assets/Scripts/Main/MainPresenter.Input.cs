@@ -18,9 +18,9 @@ namespace Main
                 return false;
             }
 
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null)
             {
-                if (card.Data is not CharacterCardData || _stagedCharSetCard != null)
+                if (card.Data is not CharacterCardData || _charSetInput.Card != null)
                 {
                     return false;
                 }
@@ -31,16 +31,16 @@ namespace Main
                 }
 
                 _playerCharacterSlot.PlaceCard(card);
-                _stagedCharSetCard = card;
+                _charSetInput.Card = card;
                 card.FlipAsync(destroyCancellationToken).Forget();
-                UpdateStagedButtons(_stagedCharSetCard != null);
-                UpdateCostWarning(_stagedCharSetCard);
+                UpdateStagedButtons(_charSetInput.Card != null);
+                UpdateCostWarning(_charSetInput.Card);
                 return true;
             }
 
             if (_gameModel.Phase == TurnPhase.PreBattle1 && _isLocalPreBattleActive)
             {
-                if ((card.Data is not SkillCardData && card.Data is not CharacterCardData) || _stagedPreBattleCard != null)
+                if ((card.Data is not SkillCardData && card.Data is not CharacterCardData) || _preBattleInput.Card != null)
                 {
                     return false;
                 }
@@ -48,17 +48,17 @@ namespace Main
                 bool placed = _playerFieldView.TryPlace(card, worldPos);
                 if (placed)
                 {
-                    _stagedPreBattleCard = card;
+                    _preBattleInput.Card = card;
                     card.FlipAsync(destroyCancellationToken).Forget();
-                    UpdateStagedButtons(_stagedPreBattleCard != null);
-                    UpdateCostWarning(_stagedPreBattleCard);
+                    UpdateStagedButtons(_preBattleInput.Card != null);
+                    UpdateCostWarning(_preBattleInput.Card);
                 }
                 return placed;
             }
 
             if (_gameModel.Phase == TurnPhase.PreBattle2 && _gameModel.IsLocalPreparationTurn)
             {
-                if (card.Data is not EventCardData || _stagedPrepCard != null)
+                if (card.Data is not EventCardData || _prepInput.Card != null)
                 {
                     return false;
                 }
@@ -66,9 +66,9 @@ namespace Main
                 bool placed = _playerFieldView.TryPlace(card, worldPos);
                 if (placed)
                 {
-                    _stagedPrepCard = card;
+                    _prepInput.Card = card;
                     UpdateStagedButtons(true);
-                    UpdateCostWarning(_stagedPrepCard);
+                    UpdateCostWarning(_prepInput.Card);
                 }
                 return placed;
             }
@@ -92,27 +92,27 @@ namespace Main
 
         private bool TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card)
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null && _stagedCharSetCard != null)
+            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null && _charSetInput.Card != null)
             {
-                tcs = _charSetInputTcs;
-                card = _stagedCharSetCard;
-                _stagedCharSetCard = null;
+                tcs = _charSetInput.Tcs;
+                card = _charSetInput.Card;
+                _charSetInput.Card = null;
                 return true;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInputTcs != null && _stagedPreBattleCard != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInput.Tcs != null && _preBattleInput.Card != null)
             {
-                tcs = _preBattleInputTcs;
-                card = _stagedPreBattleCard;
-                _stagedPreBattleCard = null;
+                tcs = _preBattleInput.Tcs;
+                card = _preBattleInput.Card;
+                _preBattleInput.Card = null;
                 return true;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInputTcs != null && _stagedPrepCard != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInput.Tcs != null && _prepInput.Card != null)
             {
-                tcs = _prepInputTcs;
-                card = _stagedPrepCard;
-                _stagedPrepCard = null;
+                tcs = _prepInput.Tcs;
+                card = _prepInput.Card;
+                _prepInput.Card = null;
                 return true;
             }
 
@@ -123,41 +123,41 @@ namespace Main
 
         private void OnBackClicked()
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null)
             {
-                if (_stagedCharSetCard != null)
+                if (_charSetInput.Card != null)
                 {
-                    CardView card = _stagedCharSetCard;
-                    _stagedCharSetCard = null;
+                    CardView card = _charSetInput.Card;
+                    _charSetInput.Card = null;
                     ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: true);
                 }
                 return;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInput.Tcs != null)
             {
-                if (_stagedPreBattleCard != null)
+                if (_preBattleInput.Card != null)
                 {
-                    CardView card = _stagedPreBattleCard;
-                    _stagedPreBattleCard = null;
+                    CardView card = _preBattleInput.Card;
+                    _preBattleInput.Card = null;
                     ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: true);
                 }
                 return;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInputTcs != null)
+            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInput.Tcs != null)
             {
-                if (_stagedPrepCard != null)
+                if (_prepInput.Card != null)
                 {
-                    CardView card = _stagedPrepCard;
-                    _stagedPrepCard = null;
+                    CardView card = _prepInput.Card;
+                    _prepInput.Card = null;
                     ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                     return;
                 }
 
                 // ステージなし = パス
                 HideActionButtons();
-                _prepInputTcs.TrySetResult(null);
+                _prepInput.Tcs.TrySetResult(null);
             }
         }
 
@@ -174,22 +174,22 @@ namespace Main
 
         private void OnPassClicked()
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInputTcs != null && _stagedCharSetCard == null)
+            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null && _charSetInput.Card == null)
             {
-                _charSetInputTcs.TrySetResult(null);
+                _charSetInput.Tcs.TrySetResult(null);
                 return;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInputTcs != null && _stagedPreBattleCard == null)
+            if (_gameModel.Phase == TurnPhase.PreBattle1 && _preBattleInput.Tcs != null && _preBattleInput.Card == null)
             {
-                _preBattleInputTcs.TrySetResult(null);
+                _preBattleInput.Tcs.TrySetResult(null);
                 return;
             }
 
-            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInputTcs != null && _stagedPrepCard == null)
+            if (_gameModel.Phase == TurnPhase.PreBattle2 && _prepInput.Tcs != null && _prepInput.Card == null)
             {
                 HideActionButtons();
-                _prepInputTcs.TrySetResult(null);
+                _prepInput.Tcs.TrySetResult(null);
             }
         }
 
