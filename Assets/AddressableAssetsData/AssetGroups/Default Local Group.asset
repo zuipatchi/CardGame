@@ -90,8 +90,7 @@ MonoBehaviour:
   - m_GUID: e0c55e8aa624c6f46a691581f55bb6cf
     m_Address: Image/Logo
     m_ReadOnly: 0
-    m_SerializedLabels:
-    - default
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e5d36d0e1ccf9d242ab44ec7e23f651c
     m_Address: Card/CardTemplate

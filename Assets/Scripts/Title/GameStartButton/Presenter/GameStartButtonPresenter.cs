@@ -54,7 +54,6 @@ namespace Title.GameStartButton
 
         private void OnClick(ClickEvent evt)
         {
-            _touchArea.UnregisterCallback<ClickEvent>(OnClick);
             _sceneTransitioner.Transit(_nextScene).Forget();
         }
     }
