@@ -611,6 +611,60 @@
     border-bottom-right-radius: 6px;
 }
 
+.type-match-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(255, 120, 50);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(60, 20, 0, 0.7);
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    -unity-text-align: middle-center;
+}
+
+.no-effect-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(160, 160, 180);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(20, 20, 30, 0.7);
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    -unity-text-align: middle-center;
+}
+
+.weakness-hit-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(255, 210, 80);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(60, 40, 0, 0.7);
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    -unity-text-align: middle-center;
+}
+
 .game-end-overlay {
     position: absolute;
     left: 0;

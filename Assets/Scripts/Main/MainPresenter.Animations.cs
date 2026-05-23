@@ -134,6 +134,45 @@ namespace Main
             // overlays はここで非表示にしない — 呼び出し側（Phases.cs）が処理する
         }
 
+        // ─── 戦闘ボーナスラベル（技タイプ一致・弱点を突いた）────────────────────
+
+        private async UniTask PlayBattleLabelAsync(
+            string text, string cssClass, Label atkCounterLabel, float yOffset, CancellationToken ct)
+        {
+            Rect counterRect = atkCounterLabel.worldBound;
+            const float gap = 16f;
+            const float slideOffset = 30f;
+            const float estimatedH = 80f;
+
+            Label label = new Label(text);
+            label.AddToClassList(cssClass);
+            label.pickingMode = PickingMode.Ignore;
+            label.style.position = Position.Absolute;
+            label.style.opacity = 0f;
+
+            float finalLeft = counterRect.xMax + gap;
+            float finalTop = counterRect.center.y - estimatedH / 2f + yOffset;
+            float currentLeft = finalLeft + slideOffset;
+            label.style.left = currentLeft;
+            label.style.top = finalTop;
+            _dragLayer.Add(label);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => currentLeft, v => { currentLeft = v; label.style.left = v; }, finalLeft, 0.2f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, 0.2f))
+                .AppendInterval(0.7f)
+                .Append(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, 0.3f))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            label.RemoveFromHierarchy();
+        }
+
         // ─── 技カード+ATK数字をキャラスロットへ同時飛翔 ────────────────────
 
         private async UniTask FlySkillsWithAtkAsync(

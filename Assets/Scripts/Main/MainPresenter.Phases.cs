@@ -587,6 +587,54 @@ namespace Main
             // ATKカウントアップ表示（技カードはフィールドに残ったまま）
             await PlayAtkCounterAsync(playerATK, opponentATK, effectiveOpponentDef, effectivePlayerDef, ct);
 
+            if (playerTypeMatch || playerWeaknessHit || playerStrengthBlocked
+                || opponentTypeMatch || opponentWeaknessHit || opponentStrengthBlocked)
+            {
+                const float labelH = 80f;
+                const float labelGap = 8f;
+                const float stackOffset = labelH / 2f + labelGap / 2f;
+
+                List<UniTask> battleLabelTasks = new List<UniTask>();
+
+                if (playerStrengthBlocked)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", _playerAtkCounterLabel, 0f, ct));
+                }
+                else if (playerTypeMatch && playerWeaknessHit)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _playerAtkCounterLabel, -stackOffset, ct));
+                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _playerAtkCounterLabel, stackOffset, ct));
+                }
+                else if (playerTypeMatch)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _playerAtkCounterLabel, 0f, ct));
+                }
+                else if (playerWeaknessHit)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _playerAtkCounterLabel, 0f, ct));
+                }
+
+                if (opponentStrengthBlocked)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", _opponentAtkCounterLabel, 0f, ct));
+                }
+                else if (opponentTypeMatch && opponentWeaknessHit)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _opponentAtkCounterLabel, -stackOffset, ct));
+                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _opponentAtkCounterLabel, stackOffset, ct));
+                }
+                else if (opponentTypeMatch)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", _opponentAtkCounterLabel, 0f, ct));
+                }
+                else if (opponentWeaknessHit)
+                {
+                    battleLabelTasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", _opponentAtkCounterLabel, 0f, ct));
+                }
+
+                await UniTask.WhenAll(battleLabelTasks);
+            }
+
             _playerAtkCounterOverlay.style.display = DisplayStyle.None;
             _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
             _playerDeckView.DefOverlay.style.display = DisplayStyle.None;
