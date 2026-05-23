@@ -287,7 +287,7 @@
     right: 0;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
-    background-image: url("project://database/Assets/AddressableAssets/Image/OKButtn.png");
+    background-image: url("project://database/Assets/AddressableAssets/Image/OKButton.png");
     -unity-background-scale-mode: scale-to-fit;
     border-left-width: 0;
     border-right-width: 0;
@@ -300,7 +300,7 @@
     right: 108px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
-    background-image: url("project://database/Assets/AddressableAssets/Image/ReturnButtn.png");
+    background-image: url("project://database/Assets/AddressableAssets/Image/returnButton.png");
     -unity-background-scale-mode: scale-to-fit;
     border-left-width: 0;
     border-right-width: 0;
@@ -344,8 +344,10 @@
 }
 
 .turn-announcement-label--character {
-    color: rgb(80, 160, 240);
-    background-color: rgba(0, 20, 50, 0.65);
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
 }
 
 .turn-announcement-label--event {

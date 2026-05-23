@@ -329,7 +329,7 @@ namespace Main
                 return;
             }
 
-            await PlayAnnouncementAsync("MULLIGAN", "turn-announcement-label--mulligan", ct);
+            await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
             await PlayReturnHandToDeckAsync(hand, deck, ct);
 
             CardData[] reshuffled = Shuffle((CardData[])fullDeck.Clone());
