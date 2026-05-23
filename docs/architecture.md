@@ -415,7 +415,7 @@ RunBattlePhaseAsync
   → フィールドの技カードを FlySkillToSlotAsync でキャラスロットへ移動（キャラの下に重なる）
   → ATK = 戦闘前1で出した技カードの Damage 合計 + AtkBoost
     （スロット空 or 今ターン新キャラ配置の場合は 0）
-  → PlayAtkCounterAsync: 両サイドに 0→ATK のカウントアップ表示（常時）、デッキ上と**キャラスロット**に DEF アイコン＆DEF値をフェードイン表示
+  → PlayAtkCounterAsync: 両サイドに 0→ATK のカウントアップ表示（常時）、**キャラスロット**に DEF アイコン＆DEF値をフェードイン表示
   → 技カードを墓地へ
   → PlayCharacterSlotAttackAsync: ATK > 0 かつ新キャラ未配置の場合のみ突撃・戻る（両者並行）
   → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行、ダメージ > 0 の場合のみ）
