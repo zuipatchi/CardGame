@@ -28,17 +28,13 @@ namespace Home
             _sceneTransitioner = sceneTransitioner;
             _deckModel = deckModel;
             _deckRepository = deckRepository;
+            _deckModel.Clear();
+            _deckRepository.Load(_deckModel);
         }
 
         private void Awake()
         {
             _uiDocument = GetComponent<UIDocument>();
-        }
-
-        private void Start()
-        {
-            _deckModel.Clear();
-            _deckRepository.Load(_deckModel);
         }
 
         private void OnEnable()

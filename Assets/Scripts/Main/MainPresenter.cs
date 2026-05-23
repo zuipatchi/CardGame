@@ -13,7 +13,7 @@ using VContainer.Unity;
 
 namespace Main
 {
-    public sealed partial class MainPresenter : MonoBehaviour, IStartable
+    public sealed partial class MainPresenter : MonoBehaviour, IStartable, ISceneReady
     {
         private const int InitialHandSize = 5;
         private const float DrawStagger = 0.12f;
@@ -84,6 +84,9 @@ namespace Main
         }
 
         private CpuDeckRepository _cpuDeckRepository;
+        private readonly UniTaskCompletionSource _readyTcs = new UniTaskCompletionSource();
+
+        public UniTask ReadyAsync(CancellationToken ct) => _readyTcs.Task.AttachExternalCancellation(ct);
 
         [Inject]
         public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, CpuDeckRepository cpuDeckRepository, GameModel gameModel, SceneTransitioner sceneTransitioner)
@@ -121,6 +124,7 @@ namespace Main
                 VisualElement opponentCharacterArea = root.Q<VisualElement>("OpponentCharacterArea");
 
                 mainRoot.style.backgroundImage = new StyleBackground(_cardStore.BattleField);
+                _readyTcs.TrySetResult();
 
                 _dragLayer = new VisualElement();
                 _dragLayer.AddToClassList("main-drag-layer");
@@ -318,7 +322,10 @@ namespace Main
 
                 RunGameAsync(ct).Forget();
             }
-            catch (System.OperationCanceledException) { }
+            catch (System.OperationCanceledException)
+            {
+                _readyTcs.TrySetCanceled();
+            }
         }
 
         private async UniTask RunMulliganIfNeededAsync(

@@ -67,6 +67,16 @@ namespace Common.SceneManagement
                     await SceneManager.UnloadSceneAsync(activeScene).WithCancellation(ct);
                 }
 
+                foreach (GameObject rootGo in nextScene.GetRootGameObjects())
+                {
+                    ISceneReady sceneReady = rootGo.GetComponentInChildren<ISceneReady>(true);
+                    if (sceneReady != null)
+                    {
+                        await sceneReady.ReadyAsync(ct);
+                        break;
+                    }
+                }
+
                 // RevealAsync 前にゲートを解放して新シーンのボタンをすぐ有効化
                 gateReleased = true;
                 _gate.Release();
