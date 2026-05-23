@@ -37,6 +37,9 @@ namespace Main.Card
             AddToClassList("character-slot-view");
             style.width = CardWidth;
             style.height = CardHeight;
+            style.alignItems = Align.Center;
+            style.justifyContent = Justify.Center;
+            style.overflow = Overflow.Hidden;
 
             _atkOverlay = new VisualElement();
             _atkOverlay.AddToClassList("char-slot-atk-overlay");
@@ -79,8 +82,8 @@ namespace Main.Card
             card.style.left = StyleKeyword.Null;
             card.style.top = StyleKeyword.Null;
             card.style.bottom = StyleKeyword.Null;
-            card.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
-            card.style.height = new StyleLength(new Length(100f, LengthUnit.Percent));
+            card.style.width = StyleKeyword.Null;
+            card.style.height = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);
             card.style.scale = new Scale(Vector3.one);
             card.style.transformOrigin = StyleKeyword.Null;

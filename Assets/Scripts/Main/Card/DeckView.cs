@@ -6,8 +6,8 @@ namespace Main.Card
 {
     public sealed class DeckView : VisualElement
     {
-        private const float StackOffsetX = 3f;
-        private const float StackOffsetY = -3f;
+        private const float StackOffsetX = 1f;
+        private const float StackOffsetY = -1f;
         private const float CardWidth = 160f;
         private const float CardHeight = 220f;
 
