@@ -23,20 +23,20 @@ MonoBehaviour:
     _description: 
   - _id: E002
     _cardName: "\u672C\u5F53\u306E\u529B"
-    _cost: 2
+    _cost: 1
     _image: {fileID: 21300000, guid: 31ee299044fab7446b99680238cf93ac, type: 3}
     _attribute: 0
     _eventType: 1
-    _eventValue: 5
-    _description: "\u653B\u6483\u529B + 5"
+    _eventValue: 4
+    _description: "\u653B\u6483\u529B + 4"
   - _id: E003
     _cardName: "\u5B88\u308A\u306E\u5370"
-    _cost: 2
+    _cost: 1
     _image: {fileID: 21300000, guid: c6b59c92104212b4c889692d5e1b2cd8, type: 3}
     _attribute: 0
     _eventType: 2
-    _eventValue: 5
-    _description: "\u9632\u5FA1\u529B + 5"
+    _eventValue: 4
+    _description: "\u9632\u5FA1\u529B + 4"
   - _id: E004
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
     _cost: 1
@@ -47,7 +47,7 @@ MonoBehaviour:
     _description: "2\u30C9\u30ED\u30FC"
   - _id: E005
     _cardName: "\u3061\u3087\u3063\u3068\u5F85\u3063\u305F"
-    _cost: 3
+    _cost: 2
     _image: {fileID: 21300000, guid: d49d4ced848d5bf4d908b5bec5e3479b, type: 3}
     _attribute: 0
     _eventType: 4
