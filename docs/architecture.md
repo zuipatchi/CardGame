@@ -444,32 +444,34 @@ RunBattlePhaseAsync
 
 プレイヤーの操作入力は `UniTaskCompletionSource<CardView>` で待機し、ボタンイベントで完了させる。
 
+入力状態は `StagedInput` ネストクラス（`Tcs` + `Card` フィールド）で管理。フェーズごとに `_charSetInput` / `_preBattleInput` / `_prepInput` の3インスタンスを保持する。
+
 **キャラセットフェーズ（WaitForPlayerCharSetInputAsync）:**
 ```
-_charSetInputTcs を作成して ShowActionButtons()
-  → キャラカードをスロットへドロップ → _stagedCharSetCard にセット → 即座に FlipAsync（裏向き）→ OK/戻るボタン表示
-  → OK ボタン                       → _charSetInputTcs.TrySetResult(card)
-  → 戻るボタン（ステージ中）         → カードを手札へ返却
-  → パスボタン（ステージなし）       → _charSetInputTcs.TrySetResult(null)
+_charSetInput.Tcs を作成して ShowActionButtons()
+  → キャラカードをスロットへドロップ → _charSetInput.Card にセット → 即座に FlipAsync（裏向き）→ OK/戻るボタン表示
+  → OK ボタン（TryTakeStagedInput）  → _charSetInput.Tcs.TrySetResult(card)
+  → 戻るボタン（ステージ中）         → カードを手札へ返却（ReturnStagedCardToHand）
+  → パスボタン（ステージなし）       → _charSetInput.Tcs.TrySetResult(null)
 ```
 
 **戦闘前1フェーズ（WaitForPlayerPreBattle1TurnAsync）:**
 ```
-_preBattleInputTcs を作成して ShowActionButtons()
-  → キャラ/技カードをドロップ      → _stagedPreBattleCard にセット → FlipAsync → OK/戻るボタン表示
-  → OK ボタン                     → _preBattleInputTcs.TrySetResult(card)
-  → 戻るボタン（ステージ中）       → カードを手札へ返却
-  → パスボタン（ステージなし）     → _preBattleInputTcs.TrySetResult(null)
+_preBattleInput.Tcs を作成して ShowActionButtons()
+  → キャラ/技カードをドロップ      → _preBattleInput.Card にセット → FlipAsync → OK/戻るボタン表示
+  → OK ボタン（TryTakeStagedInput）→ _preBattleInput.Tcs.TrySetResult(card)
+  → 戻るボタン（ステージ中）       → カードを手札へ返却（ReturnStagedCardToHand）
+  → パスボタン（ステージなし）     → _preBattleInput.Tcs.TrySetResult(null)
 戻り値 UniTask<bool>: true = カード配置, false = パス（呼び出し元でパス時に PlayPassAnimationAsync を呼ぶ）
 ```
 
 **戦闘前2フェーズ（WaitForPlayerPreBattle2InputAsync）:**
 ```
-_prepInputTcs を作成して ShowActionButtons()
-  → イベントカードをドロップ        → _stagedPrepCard にセット → OK/戻るボタン表示
-  → OK ボタン                      → _prepInputTcs.TrySetResult(card)
+_prepInput.Tcs を作成して ShowActionButtons()
+  → イベントカードをドロップ        → _prepInput.Card にセット → OK/戻るボタン表示
+  → OK ボタン（TryTakeStagedInput） → _prepInput.Tcs.TrySetResult(card)
   → 戻るボタン（ステージ中）        → カードを AddCardBackAsync で手札へ返却 → パスボタンに戻る
-  → 戻る/パスボタン（ステージなし） → _prepInputTcs.TrySetResult(null) ← null = パス
+  → 戻る/パスボタン（ステージなし） → _prepInput.Tcs.TrySetResult(null) ← null = パス
 ```
 
 ボタン表示状態は `UpdateStagedButtons(bool hasStaged)` で一元管理する。
@@ -479,11 +481,12 @@ _prepInputTcs を作成して ShowActionButtons()
 ゲームループの各フェーズで CPU の行動を決定する。
 
 ```
+CpuAgent.ChooseCharacterSetCardIndex(hand) キャラセットフェーズ：キャラカードのインデックスを返す（なければ -1）
 CpuAgent.ChoosePreBattle1CardIndex(hand)   戦闘前1フェーズ：キャラ優先→技カードのインデックスを返す（なければ -1）
 CpuAgent.ChooseEventCardIndex(hand)        戦闘前2フェーズ：イベントカード1枚のインデックスを返す（なければ -1）
 ```
 
-- キャラセットフェーズ: キャラカードを選択して `CharacterSlotView` へ裏向きで飛翔配置
+- キャラセットフェーズ: `ChooseCharacterSetCardIndex` でキャラカードを選択して `CharacterSlotView` へ裏向きで飛翔配置
 - 戦闘前1フェーズ: `ChoosePreBattle1CardIndex` でキャラまたは技カードを選択し `FieldView` へ裏向きで飛翔配置（`RunCpuPreBattle1SubTurnAsync`）
 - 戦闘前2フェーズ: `ChooseEventCardIndex` でイベントカードを選択し `FieldView` へ飛翔・Ready 化（`RunCpuPreBattle2SubTurnAsync`）
 
