@@ -101,3 +101,6 @@ InitTestScene*.unity*
 Assets/AssetStore/*
 
 .claude/settings.local.json
+
+Windows/*
+Patchi.zip
