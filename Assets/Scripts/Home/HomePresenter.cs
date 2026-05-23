@@ -14,6 +14,7 @@ namespace Home
     {
         private SceneTransitioner _sceneTransitioner;
         private DeckModel _deckModel;
+        private DeckRepository _deckRepository;
         private UIDocument _uiDocument;
         private Button _deckBuilderButton;
         private Button _battleButton;
@@ -22,15 +23,22 @@ namespace Home
         private CancellationTokenSource _toastCts;
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel)
+        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel, DeckRepository deckRepository)
         {
             _sceneTransitioner = sceneTransitioner;
             _deckModel = deckModel;
+            _deckRepository = deckRepository;
         }
 
         private void Awake()
         {
             _uiDocument = GetComponent<UIDocument>();
+        }
+
+        private void Start()
+        {
+            _deckModel.Clear();
+            _deckRepository.Load(_deckModel);
         }
 
         private void OnEnable()
