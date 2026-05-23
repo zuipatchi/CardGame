@@ -73,7 +73,8 @@ namespace Common.Transition
                     _overlay.style.display = DisplayStyle.None;
                 }
                 tcs.TrySetResult();
-            });
+            })
+            .OnKill(() => tcs.TrySetResult());
 
             await tcs.Task;
         }

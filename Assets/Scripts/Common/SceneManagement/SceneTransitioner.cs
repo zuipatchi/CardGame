@@ -37,6 +37,7 @@ namespace Common.SceneManagement
             // 遷移中なら無視（ゲートをすぐ取れない = 別の遷移が実行中）
             if (!await _gate.WaitAsync(0)) return;
 
+            bool gateReleased = false;
             try
             {
                 CancellationToken ct = this.GetCancellationTokenOnDestroy();
@@ -66,12 +67,18 @@ namespace Common.SceneManagement
                     await SceneManager.UnloadSceneAsync(activeScene).WithCancellation(ct);
                 }
 
+                // RevealAsync 前にゲートを解放して新シーンのボタンをすぐ有効化
+                gateReleased = true;
+                _gate.Release();
                 await _transitionPresenter.RevealAsync();
             }
             catch (OperationCanceledException) { }
             finally
             {
-                _gate.Release();
+                if (!gateReleased)
+                {
+                    _gate.Release();
+                }
             }
         }
     }
