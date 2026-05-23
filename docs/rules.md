@@ -21,10 +21,10 @@
 ### その他
 
 - デッキは DeckModel に保持され、DeckBuilder → Main 遷移をまたいで引き継がれる
-- CPU デッキは `CpuDeckRepository`（PlayerPrefs キー `"SavedCpuDeck"`）から読み込む
-  - 保存済みデッキがある場合：そのカードIDリストで `CardDatabase.BuildDeck` を呼び出したカード群をシャッフルして使用する
-  - 保存済みデッキがない場合：カードDB全カードをシャッフルした全枚数をフォールバックとして使用する
-- CPU デッキの編集は Unity Editor 専用の `CpuDeckBuilder` シーンで行う（タイトル画面の「CPU デッキ編集」ボタン、`#if UNITY_EDITOR` でのみ表示）
+- CPU デッキは `CpuDeckSO`（ScriptableObject・Addressables キー `"Card/CpuDeck"`）から読み込む
+  - カードIDリストが 1 件以上の場合：`CardDatabase.BuildDeck` を呼び出したカード群をシャッフルして使用する
+  - カードIDリストが空の場合：カードDB全カードをシャッフルした全枚数をフォールバックとして使用する
+- CPU デッキの編集は Unity Editor 専用の `CpuDeckBuilder` シーンで行う（タイトル画面の「CPU デッキ編集」ボタン、`#if UNITY_EDITOR` でのみ表示）。編集内容は `CpuDeckSO`（`Assets/Data/CpuDeck.asset`）に保存され、ビルドに含まれる
 
 ---
 
