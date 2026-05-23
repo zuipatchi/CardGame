@@ -127,6 +127,43 @@ namespace Tests.PlayMode
             );
         }
 
+        [UnityTest]
+        public IEnumerator 食べ物がない初期状態ではCurrentFoodがnull()
+        {
+            HomeFoodSpawner spawner = FindInHomeScene<HomeFoodSpawner>();
+            Assume.That(spawner, Is.Not.Null, "HomeFoodSpawner が見つかりません");
+
+            FieldInfo field = typeof(HomeFoodSpawner)
+                .GetField("_currentFood", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assume.That(field, Is.Not.Null, "_currentFood フィールドが見つかりません");
+
+            Assert.That((GameObject)field.GetValue(spawner) == null, Is.True,
+                "初期状態で _currentFood が null ではありません");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator Food破棄後にCurrentFoodがnullになりスポーン可能になる()
+        {
+            HomeFoodSpawner spawner = FindInHomeScene<HomeFoodSpawner>();
+            Assume.That(spawner, Is.Not.Null, "HomeFoodSpawner が見つかりません");
+
+            FieldInfo field = typeof(HomeFoodSpawner)
+                .GetField("_currentFood", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assume.That(field, Is.Not.Null, "_currentFood フィールドが見つかりません");
+
+            GameObject dummyFood = new GameObject("DummyFood");
+            field.SetValue(spawner, dummyFood);
+            Assert.That((GameObject)field.GetValue(spawner) == null, Is.False,
+                "Food を設定したのに _currentFood が null です");
+
+            Object.Destroy(dummyFood);
+            yield return null;
+
+            Assert.That((GameObject)field.GetValue(spawner) == null, Is.True,
+                "Food 破棄後に _currentFood が null になっていません");
+        }
+
         private static Button FindButton(string name)
         {
             Scene homeScene = SceneManager.GetSceneByName("Home");

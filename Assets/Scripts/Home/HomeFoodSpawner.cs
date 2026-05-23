@@ -17,6 +17,8 @@ namespace Home
         [SerializeField]
         private HomeLive2DPresenter _dogPresenter;
 
+        private GameObject _currentFood;
+
         private void Update()
         {
             if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame)
@@ -30,10 +32,16 @@ namespace Home
                 return;
             }
 
+            if (_currentFood != null)
+            {
+                return;
+            }
+
             Vector3 worldPos = _camera.ScreenToWorldPoint(
                 new Vector3(mousePos.x, mousePos.y, _spawnDepth)
             );
             GameObject food = Instantiate(_foodPrefab, worldPos, Quaternion.identity);
+            _currentFood = food;
             Animator foodAnimator = food.GetComponentInChildren<Animator>();
 
             // CubismFadeController  : FadeMotionList 未設定による NullRef を防ぐため無効化
