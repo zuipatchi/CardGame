@@ -12,6 +12,119 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
+        // ─── コイントス演出 ──────────────────────────────────────────────
+
+        private async UniTask PlayCoinTossAsync(bool isLocalFirst, CancellationToken ct)
+        {
+            const float overlayFadeIn = 0.25f;
+            const float holdDuration = 0.8f;
+            const float fadeOutDuration = 0.4f;
+
+            VisualElement overlay = new VisualElement();
+            overlay.pickingMode = PickingMode.Ignore;
+            overlay.style.position = Position.Absolute;
+            overlay.style.left = 0;
+            overlay.style.right = 0;
+            overlay.style.top = 0;
+            overlay.style.bottom = 0;
+            overlay.style.backgroundColor = new Color(0f, 0f, 0f, 0.6f);
+            overlay.style.alignItems = Align.Center;
+            overlay.style.justifyContent = Justify.Center;
+            overlay.style.flexDirection = FlexDirection.Column;
+            overlay.style.opacity = 0f;
+
+            VisualElement coin = new VisualElement();
+            coin.pickingMode = PickingMode.Ignore;
+            coin.style.width = 160f;
+            coin.style.height = 160f;
+            coin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
+            coin.style.marginBottom = 32f;
+
+            Label resultLabel = new Label(isLocalFirst ? "YOU GO FIRST" : "ENEMY GOES FIRST");
+            resultLabel.AddToClassList("turn-announcement-label");
+            resultLabel.AddToClassList(isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy");
+            resultLabel.pickingMode = PickingMode.Ignore;
+            resultLabel.style.opacity = 0f;
+            resultLabel.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            overlay.Add(coin);
+            overlay.Add(resultLabel);
+            _dragLayer.Add(overlay);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            float scaleX = 1f;
+            bool showFront = true;
+
+            // 各半周期の秒数（高速→低速でコインが減速しながら停止する）
+            float[] halfPeriods = { 0.07f, 0.07f, 0.07f, 0.07f, 0.07f, 0.07f, 0.09f, 0.09f, 0.12f, 0.12f, 0.15f, 0.15f, 0.18f };
+
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 1f, overlayFadeIn).SetEase(Ease.OutQuad));
+
+            for (int i = 0; i < halfPeriods.Length; i++)
+            {
+                float target = (i % 2 == 0) ? 0f : 1f;
+                float duration = halfPeriods[i];
+                seq.Append(DOTween.To(() => scaleX, v =>
+                {
+                    scaleX = v;
+                    coin.style.scale = new Scale(new Vector3(v, 1f, 1f));
+                }, target, duration).SetEase(Ease.Linear));
+
+                // scaleX が 0 になったタイミング（コインが横向き）で表裏を入れ替え
+                if (i % 2 == 0)
+                {
+                    seq.AppendCallback(() =>
+                    {
+                        showFront = !showFront;
+                        coin.style.backgroundImage = showFront
+                            ? Background.FromSprite(_cardStore.CoinFront)
+                            : Background.FromSprite(_cardStore.CoinBack);
+                    });
+                }
+            }
+
+            // halfPeriods が奇数個 → ループ終了時 scaleX=0 なので 1 まで戻す（settle）
+            // settle 直前に isLocalFirst に合わせた面を確定する
+            if (halfPeriods.Length % 2 != 0)
+            {
+                seq.AppendCallback(() =>
+                {
+                    showFront = isLocalFirst;
+                    coin.style.backgroundImage = isLocalFirst
+                        ? Background.FromSprite(_cardStore.CoinFront)
+                        : Background.FromSprite(_cardStore.CoinBack);
+                });
+                seq.Append(DOTween.To(() => scaleX, v =>
+                {
+                    scaleX = v;
+                    coin.style.scale = new Scale(new Vector3(v, 1f, 1f));
+                }, 1f, 0.18f).SetEase(Ease.OutBack));
+            }
+
+            // settle 完了後 0.5 秒待ってから結果テキストをスケールイン
+            seq.AppendInterval(0.5f);
+            seq.Append(DOTween.To(
+                () => resultLabel.style.opacity.value,
+                v => resultLabel.style.opacity = v,
+                1f, 0.25f).SetEase(Ease.OutQuad));
+            seq.Join(DOTween.To(
+                () => resultLabel.style.scale.value.value.x,
+                v => resultLabel.style.scale = new Scale(new Vector3(v, v, 1f)),
+                1f, 0.25f).SetEase(Ease.OutBack));
+
+            seq.AppendInterval(holdDuration);
+            seq.Append(DOTween.To(() => overlay.style.opacity.value, v => overlay.style.opacity = v, 0f, fadeOutDuration).SetEase(Ease.InQuad));
+            seq.OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            overlay.RemoveFromHierarchy();
+        }
+
         // ─── ターン・フェーズ告知アニメーション ────────────────────────────
 
         private async UniTask PlayTurnAnnouncementAsync(bool isLocalTurn, CancellationToken ct)

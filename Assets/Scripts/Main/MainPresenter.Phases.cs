@@ -19,6 +19,10 @@ namespace Main
         {
             try
             {
+                bool isLocalFirst = UnityEngine.Random.value > 0.5f;
+                _gameModel.SetInitialTurn(isLocalFirst);
+                await PlayCoinTossAsync(isLocalFirst, ct);
+
                 await RunCharacterSetPhaseAsync(ct);
                 while (!_isGameOver)
                 {

@@ -17,18 +17,24 @@ namespace Main.Card
         private readonly string _battleFieldAddressable = "Image/BattleField";
         private readonly string _deckBuilderBackgroundAddressable = "Image/DeckBuilderBackground";
         private readonly string _attributeDatabaseAddressable = "Card/AttributeDatabase";
+        private readonly string _coinFrontAddressable = "Image/Coin1";
+        private readonly string _coinBackAddressable = "Image/Coin2";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
         public Texture2D BattleField => _battleField;
         public Texture2D DeckBuilderBackground => _deckBuilderBackground;
         public AttributeDatabaseSO AttributeDatabase => _attributeDatabase;
+        public Sprite CoinFront => _coinFront;
+        public Sprite CoinBack => _coinBack;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
         private Texture2D _battleField;
         private Texture2D _deckBuilderBackground;
         private AttributeDatabaseSO _attributeDatabase;
+        private Sprite _coinFront;
+        private Sprite _coinBack;
 
         public void Start()
         {
@@ -52,6 +58,9 @@ namespace Main.Card
                 {
                     Debug.LogWarning($"属性アイコンデータベースのロードをスキップ: {e.Message}");
                 }
+
+                _coinFront = await Addressables.LoadAssetAsync<Sprite>(_coinFrontAddressable).ToUniTask();
+                _coinBack = await Addressables.LoadAssetAsync<Sprite>(_coinBackAddressable).ToUniTask();
 
                 _loadedTcs.TrySetResult();
             }

@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 2296e1af91e62c84eb2f51cf913da5c3
   m_SerializeEntries:
+  - m_GUID: bd8f5ee9a6e2ac3438f2aa912e2ce312
+    m_Address: Image/Coin1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 161b0b24487d857418e130681331223b
+    m_Address: Image/Coin2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0ac14884a55a36147a6b23dc7ab6f88b
     m_Address: Sound/BGM/Title
     m_ReadOnly: 0

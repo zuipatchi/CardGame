@@ -20,6 +20,35 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void SetInitialTurn_trueを渡すとIsLocalTurnがtrue()
+        {
+            GameModel model = new GameModel();
+            model.SetInitialTurn(true);
+
+            Assert.IsTrue(model.IsLocalTurn);
+        }
+
+        [Test]
+        public void SetInitialTurn_falseを渡すとIsLocalTurnがfalse()
+        {
+            GameModel model = new GameModel();
+            model.SetInitialTurn(false);
+
+            Assert.IsFalse(model.IsLocalTurn);
+        }
+
+        [Test]
+        public void SetInitialTurn後もEndTurnでIsLocalTurnが反転する()
+        {
+            GameModel model = new GameModel();
+            model.SetInitialTurn(false);
+
+            model.EndTurn();
+
+            Assert.IsTrue(model.IsLocalTurn);
+        }
+
+        [Test]
         public void 初期PhaseはCharacterSetである()
         {
             GameModel model = new GameModel();

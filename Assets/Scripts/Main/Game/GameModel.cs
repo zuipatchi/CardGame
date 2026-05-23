@@ -16,6 +16,8 @@ namespace Main.Game
 
         public IReadOnlyList<CardView> ReadyQueue => _readyQueue;
 
+        public void SetInitialTurn(bool isLocalFirst) { IsLocalTurn = isLocalFirst; }
+
         public void BeginCharacterSet() { Phase = TurnPhase.CharacterSet; }
 
         public void BeginPreBattle1() { Phase = TurnPhase.PreBattle1; }
