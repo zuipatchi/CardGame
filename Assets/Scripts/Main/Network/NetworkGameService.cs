@@ -112,11 +112,15 @@ namespace Main.Network
             CardData[] clientRemaining = Slice(clientShuffled, handSize, clientShuffled.Length - handSize);
 
             bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
+            bool hostNeedsMulligan = !HasCharacterCard(hostHand);
+            bool clientNeedsMulligan = !HasCharacterCard(clientHand);
 
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
                 hostHand.Length, hostRemaining.Length,
-                isLocalFirst: !hostGoesFirst);
+                isLocalFirst: !hostGoesFirst,
+                localNeedsMulligan: clientNeedsMulligan,
+                opponentNeedsMulligan: hostNeedsMulligan);
 
             return new OnlineInitialState
             {
@@ -124,7 +128,9 @@ namespace Main.Network
                 LocalDeck = hostRemaining,
                 OpponentHandCount = clientHand.Length,
                 OpponentDeckCount = clientRemaining.Length,
-                IsLocalFirst = hostGoesFirst
+                IsLocalFirst = hostGoesFirst,
+                LocalNeedsMulligan = hostNeedsMulligan,
+                OpponentNeedsMulligan = clientNeedsMulligan
             };
         }
 
@@ -146,7 +152,9 @@ namespace Main.Network
                     LocalDeck = _cardDatabase.BuildDeck(payload.localDeckIds),
                     OpponentHandCount = payload.opponentHandCount,
                     OpponentDeckCount = payload.opponentDeckCount,
-                    IsLocalFirst = payload.isLocalFirst
+                    IsLocalFirst = payload.isLocalFirst,
+                    LocalNeedsMulligan = payload.localNeedsMulligan,
+                    OpponentNeedsMulligan = payload.opponentNeedsMulligan
                 });
             }
 
@@ -187,6 +195,18 @@ namespace Main.Network
             return await stateTcs.Task.AttachExternalCancellation(ct);
         }
 
+        private static bool HasCharacterCard(CardData[] hand)
+        {
+            foreach (CardData card in hand)
+            {
+                if (card is CharacterCardData)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static void SendInitialStateToClient(
             CustomMessagingManager messaging,
             ulong clientId,
@@ -194,7 +214,9 @@ namespace Main.Network
             CardData[] clientDeck,
             int opponentHandCount,
             int opponentDeckCount,
-            bool isLocalFirst)
+            bool isLocalFirst,
+            bool localNeedsMulligan,
+            bool opponentNeedsMulligan)
         {
             InitialStatePayload payload = new InitialStatePayload
             {
@@ -202,7 +224,9 @@ namespace Main.Network
                 localDeckIds = clientDeck.Select(c => c.Id).ToArray(),
                 opponentHandCount = opponentHandCount,
                 opponentDeckCount = opponentDeckCount,
-                isLocalFirst = isLocalFirst
+                isLocalFirst = isLocalFirst,
+                localNeedsMulligan = localNeedsMulligan,
+                opponentNeedsMulligan = opponentNeedsMulligan
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
@@ -421,6 +445,8 @@ namespace Main.Network
             public int opponentHandCount;
             public int opponentDeckCount;
             public bool isLocalFirst;
+            public bool localNeedsMulligan;
+            public bool opponentNeedsMulligan;
         }
     }
 }

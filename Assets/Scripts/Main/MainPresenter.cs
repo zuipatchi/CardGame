@@ -148,6 +148,8 @@ namespace Main
                 _isOnline = isOnline;
 
                 bool isLocalFirst = false;
+                bool onlineLocalNeedsMulligan = false;
+                bool onlineOpponentNeedsMulligan = false;
                 CardData[] playerDeckFull = null;
                 CardData[] playerHandCards;
                 CardData[] playerDeckCards;
@@ -162,6 +164,8 @@ namespace Main
                         : allCards.Select(c => c.Id).ToList();
                     OnlineInitialState state = await _networkGameService.PrepareDecksAsync(deckIds, destroyCancellationToken);
                     isLocalFirst = state.IsLocalFirst;
+                    onlineLocalNeedsMulligan = state.LocalNeedsMulligan;
+                    onlineOpponentNeedsMulligan = state.OpponentNeedsMulligan;
                     handSize = state.LocalHand.Length;
                     playerHandCards = state.LocalHand;
                     playerDeckCards = state.LocalDeck;
@@ -352,7 +356,21 @@ namespace Main
                 }
                 await UniTask.WhenAll(drawTasks);
 
-                if (!isOnline)
+                if (isOnline)
+                {
+                    if (onlineLocalNeedsMulligan)
+                    {
+                        CardData[] onlinePlayerFull = playerHandCards.Concat(playerDeckCards).ToArray();
+                        await RunMulliganIfNeededAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
+                    }
+
+                    if (onlineOpponentNeedsMulligan)
+                    {
+                        CardData opponentPlaceholder = allCards.Length > 0 ? allCards[0] : null;
+                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, ct);
+                    }
+                }
+                else
                 {
                     await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
                     await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
@@ -368,6 +386,22 @@ namespace Main
             {
                 Debug.LogError($"BuildAsync 例外: {e}");
             }
+        }
+
+        private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CancellationToken ct)
+        {
+            await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
+            await PlayReturnHandToDeckAsync(_opponentHandView, _opponentDeckView, ct);
+
+            await UniTask.NextFrame(ct);
+
+            Rect deckRect = _opponentDeckView.worldBound;
+            UniTask[] drawTasks = new UniTask[handSize];
+            for (int i = 0; i < handSize; i++)
+            {
+                drawTasks[i] = _opponentHandView.AddCardAnimatedAsync(placeholder, deckRect, i * DrawStagger, ct);
+            }
+            await UniTask.WhenAll(drawTasks);
         }
 
         private async UniTask RunMulliganIfNeededAsync(

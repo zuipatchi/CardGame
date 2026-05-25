@@ -9,5 +9,7 @@ namespace Main.Network
         public int OpponentHandCount;
         public int OpponentDeckCount;
         public bool IsLocalFirst;
+        public bool LocalNeedsMulligan;
+        public bool OpponentNeedsMulligan;
     }
 }
