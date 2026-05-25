@@ -225,6 +225,10 @@ namespace Main
                 if (isLocalAct)
                 {
                     CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
+                    if (_isOnline)
+                    {
+                        _networkGameService.SendPreBattle1Action(placed?.Data.Id);
+                    }
                     if (placed == null)
                     {
                         await PlayPassAnimationAsync(true, ct);
@@ -232,7 +236,15 @@ namespace Main
                 }
                 else
                 {
-                    await RunCpuPreBattle1SubTurnAsync(ct);
+                    if (_isOnline)
+                    {
+                        string cardId = await _networkGameService.WaitForOpponentPreBattle1Async(ct);
+                        await PlayOpponentPreBattle1OnlineAsync(cardId, ct);
+                    }
+                    else
+                    {
+                        await RunCpuPreBattle1SubTurnAsync(ct);
+                    }
                 }
             }
         }
@@ -275,6 +287,30 @@ namespace Main
             CardView card = cpuHand[idx];
             Rect fromRect = card.worldBound;
             _opponentHandView.RemoveCard(card);
+            await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
+            _opponentFieldView.PlaceCard(card);
+            await PlayOkFlashAsync(false, ct);
+        }
+
+        private async UniTask PlayOpponentPreBattle1OnlineAsync(string cardId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return;
+            }
+            if (!_cardDatabase.TryGet(cardId, out CardData cardData))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return;
+            }
+            IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+            Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+            if (hand.Count > 0)
+            {
+                _opponentHandView.RemoveCard(hand[0]);
+            }
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(card);
             await PlayOkFlashAsync(false, ct);
