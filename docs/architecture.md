@@ -424,6 +424,9 @@ RunPreBattle1PhaseAsync
 RunPreBattle2PhaseAsync
   → "イベントフェーズ" 告知
   → プレイヤーとCPUが交互にイベントカードをReadyにする（2連続パスで終了）。パス時は PlayPassAnimationAsync で PASS 表示
+      オフライン: 自分 → WaitForPlayerPreBattle2InputAsync / CPU → CpuAgent で選択
+      オンライン: 自分のターン → WaitForPlayerPreBattle2InputAsync → SendPreBattle2Action で送信
+                  相手のターン → WaitForOpponentPreBattle2Async で受信 → PlayOpponentPreBattle2OnlineAsync でアニメーション（FlipAsync・ReadyCard・PayCost）
 
 RunResolutionPhaseAsync
   → Readyカードを逆順で解決（"RESOLVE" 演出）
