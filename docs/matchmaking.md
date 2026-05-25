@@ -60,7 +60,9 @@ Title → Matching → Main
    → JoinSessionByIdAsync(sessionId)
    → Main シーンへ遷移
 
-3. Main シーン開始
+3. Main シーン開始（オンラインゲーム）
+   → NetworkGameService.PrepareDecksAsync でデッキ交換プロトコルを実行
+   → 初期手札 5 枚をドロー・ゲームループ開始
 ```
 
 ---
@@ -75,7 +77,8 @@ Title → Matching → Main
 | `MatchingPresenter` | UI とマッチング状態のバインド（`IStartable` 実装） |
 | `MatchingService` | UGS Session API 呼び出し |
 | `MatchingLifetimeScope` | Matching シーン固有 DI 登録 |
-| `GameSessionModel` | `ISession` を Common シーン跨ぎで保持（Singleton） |
+| `GameSessionModel` | `ISession` を Common シーン跨ぎで保持（Singleton）。`HasSession` でオンライン/オフライン判定 |
+| `NetworkGameService` | Main シーンでのホスト/クライアント間デッキ交換プロトコル |
 
 ### DI 登録
 
@@ -87,6 +90,9 @@ MatchingLifetimeScope（Matching シーン）
   ├── MatchingModel
   ├── MatchingService
   └── MatchingPresenter（IStartable）
+
+MainLifetimeScope（Main シーン）
+  └── NetworkGameService（Scoped）
 ```
 
 ### IStartable の理由
@@ -124,13 +130,37 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 
 ---
 
+## デッキ交換プロトコル（NetworkGameService）
+
+Main シーン遷移後、`MainPresenter.BuildAsync` から呼ばれる。NGO の `CustomMessagingManager` を使って JSON メッセージを送受信する。
+
+```
+ホスト側                                         クライアント側
+  ├─ k_ClientReady ハンドラ登録
+  ├─ k_DeckSubmit  ハンドラ登録                   ├─ k_InitialState ハンドラ登録
+  │                                               ├─ k_RequestDeck  ハンドラ登録
+  │                                               └─ NGS_ClientReady を 200ms 間隔でリトライ送信
+  │                                                   （NGS_RequestDeck 受信まで繰り返す）
+  ├─ NGS_ClientReady 受信 → NGS_RequestDeck 送信 →
+  │
+  ←──────────────────────────── NGS_DeckSubmit 受信（クライアントのデッキ ID 配列）
+  │
+  ├─ 両デッキをシャッフル・初期手札(最大5枚)を決定
+  └─ NGS_InitialState 送信（クライアントの手札/デッキ・先攻後攻）→ クライアント受信
+```
+
+- リトライ送信はリレートランスポートの安定化前にメッセージが届かないケースへの対応
+- 先攻判定: ホストが `IsLocalFirst=true`、クライアントが `IsLocalFirst=false`
+
+---
+
 ## ファイル配置
 
 ```
 Assets/Scripts/
   Common/
     GameSession/
-      GameSessionModel.cs       # ISession 保持・全シーン共有
+      GameSessionModel.cs       # ISession 保持・全シーン共有（HasSession でオンライン判定）
   Matching/
     Injector/
       MatchingLifetimeScope.cs
@@ -141,6 +171,10 @@ Assets/Scripts/
     MatchingPresenter.cs
     MatchingService.cs
     MatchingState.cs
+  Main/
+    Network/
+      NetworkGameService.cs     # デッキ交換プロトコル
+      OnlineInitialState.cs     # 初期状態データ（LocalHand / LocalDeck / OpponentHandCount 等）
 Assets/Scenes/
   Matching.unity
 ```
@@ -149,6 +183,5 @@ Assets/Scenes/
 
 ## 未決事項
 
-- [ ] Main シーン側の NGO 同期実装
 - [ ] ゲームロール（ナビゲーター / アーティスト）の割り当て
-- [ ] オフライン時のフォールバック
+- [ ] オンライン対戦のゲームループ（現状: デッキ交換・初期ドローまで実装済み）
