@@ -417,6 +417,9 @@ RunDrawPhaseAsync
 RunPreBattle1PhaseAsync
   → "準備フェーズ" 告知
   → 先攻・後攻の順にキャラカードまたは技カードを1枚だけ裏向きでフィールドにセット。パス時は PlayPassAnimationAsync で PASS 表示
+      オフライン: 自分 → WaitForPlayerPreBattle1TurnAsync / CPU → CpuAgent で選択
+      オンライン: 自分のターン → WaitForPlayerPreBattle1TurnAsync → SendPreBattle1Action で送信
+                  相手のターン → WaitForOpponentPreBattle1Async で受信 → PlayOpponentPreBattle1OnlineAsync でアニメーション
 
 RunPreBattle2PhaseAsync
   → "イベントフェーズ" 告知
