@@ -19,6 +19,7 @@ namespace Main.Network
         private const string k_ClientReady = "NGS_ClientReady";
         private const string k_CharSet = "NGS_CharSet";
         private const string k_PreBattle1 = "NGS_PreBattle1";
+        private const string k_PreBattle2 = "NGS_PreBattle2";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
@@ -301,6 +302,48 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
+        public void SendPreBattle2Action(string cardId)
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            CharSetPayload payload = new CharSetPayload
+            {
+                passed = string.IsNullOrEmpty(cardId),
+                cardId = cardId ?? string.Empty
+            };
+            string json = JsonUtility.ToJson(payload);
+            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
+            {
+                writer.WriteValueSafe(json);
+                messaging.SendNamedMessage(k_PreBattle2, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask<string> WaitForOpponentPreBattle2Async(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
+
+            void OnPreBattle2(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_PreBattle2);
+                reader.ReadValueSafe(out string json);
+                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
+                tcs.TrySetResult(payload.passed ? null : payload.cardId);
+            }
+
+            messaging.RegisterNamedMessageHandler(k_PreBattle2, OnPreBattle2);
+            return await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void Dispose()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -319,6 +362,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_InitialState);
             m.UnregisterNamedMessageHandler(k_CharSet);
             m.UnregisterNamedMessageHandler(k_PreBattle1);
+            m.UnregisterNamedMessageHandler(k_PreBattle2);
         }
 
         [Serializable]

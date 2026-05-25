@@ -327,6 +327,10 @@ namespace Main
                 if (_gameModel.IsLocalPreparationTurn)
                 {
                     CardView readied = await WaitForPlayerPreBattle2InputAsync(ct);
+                    if (_isOnline)
+                    {
+                        _networkGameService.SendPreBattle2Action(readied?.Data.Id);
+                    }
                     if (readied == null)
                     {
                         await PlayPassAnimationAsync(true, ct);
@@ -345,36 +349,78 @@ namespace Main
                 }
                 else
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
-                    IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
-                    int idx = CpuAgent.ChooseEventCardIndex(cpuHand.Select(c => c.Data).ToList());
-
-                    if (idx >= 0)
+                    if (_isOnline)
                     {
-                        CardView card = cpuHand[idx];
-                        Rect fromRect = card.worldBound;
-                        _opponentHandView.RemoveCard(card);
-                        await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
-                        _opponentFieldView.PlaceCard(card);
-                        await card.FlipAsync(ct);
-                        _gameModel.ReadyCard(card);
-                        card.SetChainNumber(_gameModel.ReadyQueue.Count);
-                        await PlayOkFlashAsync(false, ct);
-                        await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
-                        if (_isGameOver) break;
+                        string cardId = await _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                        if (string.IsNullOrEmpty(cardId))
+                        {
+                            await PlayPassAnimationAsync(false, ct);
+                            if (_gameModel.Pass())
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            await PlayOpponentPreBattle2OnlineAsync(cardId, ct);
+                            if (_isGameOver) break;
+                        }
                     }
                     else
                     {
-                        await PlayPassAnimationAsync(false, ct);
-                        if (_gameModel.Pass())
+                        await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
+                        IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
+                        int idx = CpuAgent.ChooseEventCardIndex(cpuHand.Select(c => c.Data).ToList());
+
+                        if (idx >= 0)
                         {
-                            break;
+                            CardView card = cpuHand[idx];
+                            Rect fromRect = card.worldBound;
+                            _opponentHandView.RemoveCard(card);
+                            await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
+                            _opponentFieldView.PlaceCard(card);
+                            await card.FlipAsync(ct);
+                            _gameModel.ReadyCard(card);
+                            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+                            await PlayOkFlashAsync(false, ct);
+                            await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
+                            if (_isGameOver) break;
+                        }
+                        else
+                        {
+                            await PlayPassAnimationAsync(false, ct);
+                            if (_gameModel.Pass())
+                            {
+                                break;
+                            }
                         }
                     }
                 }
             }
 
             HideActionButtons();
+        }
+
+        private async UniTask PlayOpponentPreBattle2OnlineAsync(string cardId, CancellationToken ct)
+        {
+            if (!_cardDatabase.TryGet(cardId, out CardData cardData))
+            {
+                return;
+            }
+            IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+            Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+            if (hand.Count > 0)
+            {
+                _opponentHandView.RemoveCard(hand[0]);
+            }
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
+            await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
+            _opponentFieldView.PlaceCard(card);
+            await card.FlipAsync(ct);
+            _gameModel.ReadyCard(card);
+            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+            await PlayOkFlashAsync(false, ct);
+            await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
         }
 
         private async UniTask<CardView> WaitForPlayerPreBattle2InputAsync(CancellationToken ct)
