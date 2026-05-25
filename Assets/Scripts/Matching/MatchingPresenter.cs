@@ -14,8 +14,8 @@ namespace Matching
 {
     public class MatchingPresenter : MonoBehaviour, IStartable
     {
-        private static readonly TimeSpan QuickMatchTimeoutDuration = TimeSpan.FromSeconds(30);
-        private static readonly TimeSpan CreateRoomTimeoutDuration = TimeSpan.FromSeconds(120);
+        private static readonly TimeSpan _quickMatchTimeoutDuration = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan _createRoomTimeoutDuration = TimeSpan.FromSeconds(120);
 
         private MatchingModel _model;
         private MatchingService _matchingService;
@@ -193,10 +193,10 @@ namespace Matching
                 else
                 {
                     _model.State.Value = MatchingState.CreatingRoom;
-                    IHostSession session = await _matchingService.CreateRoomAsync("QuickMatch", destroyCancellationToken);
+                    IHostSession session = await _matchingService.CreateRoomAsync(MatchingService.QuickMatchName, destroyCancellationToken);
                     _model.State.Value = MatchingState.WaitingForPlayer;
 
-                    bool found = await _matchingService.WaitForPlayerAsync(session, QuickMatchTimeoutDuration, destroyCancellationToken);
+                    bool found = await _matchingService.WaitForPlayerAsync(session, _quickMatchTimeoutDuration, destroyCancellationToken);
                     if (found)
                     {
                         _model.State.Value = MatchingState.Starting;
@@ -226,7 +226,7 @@ namespace Matching
                 IHostSession session = await _matchingService.CreateRoomAsync("Room", destroyCancellationToken);
                 _model.State.Value = MatchingState.WaitingInCreatedRoom;
 
-                bool found = await _matchingService.WaitForPlayerAsync(session, CreateRoomTimeoutDuration, destroyCancellationToken);
+                bool found = await _matchingService.WaitForPlayerAsync(session, _createRoomTimeoutDuration, destroyCancellationToken);
                 if (found)
                 {
                     _model.State.Value = MatchingState.Starting;

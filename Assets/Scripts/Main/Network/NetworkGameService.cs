@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Common.GameSession;
 using Cysharp.Threading.Tasks;
@@ -28,7 +29,6 @@ namespace Main.Network
 
         public async UniTask<OnlineInitialState> PrepareDecksAsync(IReadOnlyList<string> localDeckIds, CancellationToken ct)
         {
-            // NGO が起動して接続が確立するまで待機
             // JoinSessionByIdAsync 直後はまだ CustomMessagingManager が null の場合がある
             NetworkManager nm = NetworkManager.Singleton;
             if (nm == null)
@@ -78,14 +78,12 @@ namespace Main.Network
                 readyTcs.TrySetResult();
             }
 
-            // 1. DeckSubmit と ClientReady 両方のハンドラを先に登録
             messaging.RegisterNamedMessageHandler(k_DeckSubmit, OnDeckSubmit);
             messaging.RegisterNamedMessageHandler(k_ClientReady, OnClientReady);
 
-            // 2. クライアントが PrepareAsClientAsync に到達してハンドラ登録済みになるまで待つ
+            // クライアントのハンドラ登録完了を待ってからリクエストを送信（競合防止）
             await readyTcs.Task.AttachExternalCancellation(ct);
 
-            // 3. クライアントに NGS_RequestDeck を送信
             using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
             {
                 messaging.SendNamedMessage(k_RequestDeck, readyClientId, writer);
@@ -98,8 +96,8 @@ namespace Main.Network
 
             int handSize = Mathf.Min(5, Mathf.Min(hostDeck.Length, clientDeck.Length));
 
-            CardData[] hostShuffled = Shuffle(hostDeck);
-            CardData[] clientShuffled = Shuffle(clientDeck);
+            CardData[] hostShuffled = CardArrayUtils.Shuffle(hostDeck);
+            CardData[] clientShuffled = CardArrayUtils.Shuffle(clientDeck);
 
             CardData[] hostHand = Slice(hostShuffled, 0, handSize);
             CardData[] hostRemaining = Slice(hostShuffled, handSize, hostShuffled.Length - handSize);
@@ -127,7 +125,6 @@ namespace Main.Network
             CancellationToken ct)
         {
             UniTaskCompletionSource<OnlineInitialState> stateTcs = new UniTaskCompletionSource<OnlineInitialState>();
-            UniTaskCompletionSource requestTcs = new UniTaskCompletionSource();
 
             void OnInitialState(ulong senderId, FastBufferReader reader)
             {
@@ -150,7 +147,6 @@ namespace Main.Network
             {
                 messaging.UnregisterNamedMessageHandler(k_RequestDeck);
                 requestReceived = true;
-                requestTcs.TrySetResult();
             }
 
             // ハンドラを先に登録してから ClientReady をホストに送信
@@ -168,14 +164,7 @@ namespace Main.Network
                 await UniTask.Delay(200, cancellationToken: ct);
             }
 
-            await requestTcs.Task.AttachExternalCancellation(ct);
-
-            string[] ids = new string[localDeckIds.Count];
-            for (int i = 0; i < localDeckIds.Count; i++)
-            {
-                ids[i] = localDeckIds[i];
-            }
-
+            string[] ids = localDeckIds.ToArray();
             DeckSubmitPayload submitPayload = new DeckSubmitPayload { deckIds = ids };
             string submitJson = JsonUtility.ToJson(submitPayload);
             using (FastBufferWriter writer = new FastBufferWriter(submitJson.Length * 2 + 8, Allocator.Temp))
@@ -198,8 +187,8 @@ namespace Main.Network
         {
             InitialStatePayload payload = new InitialStatePayload
             {
-                localHandIds = GetIds(clientHand),
-                localDeckIds = GetIds(clientDeck),
+                localHandIds = clientHand.Select(c => c.Id).ToArray(),
+                localDeckIds = clientDeck.Select(c => c.Id).ToArray(),
                 opponentHandCount = opponentHandCount,
                 opponentDeckCount = opponentDeckCount,
                 isLocalFirst = isLocalFirst
@@ -212,31 +201,11 @@ namespace Main.Network
             }
         }
 
-        private static string[] GetIds(CardData[] cards)
-        {
-            string[] ids = new string[cards.Length];
-            for (int i = 0; i < cards.Length; i++)
-            {
-                ids[i] = cards[i].Id;
-            }
-            return ids;
-        }
-
         private static CardData[] Slice(CardData[] arr, int start, int length)
         {
             CardData[] result = new CardData[length];
             Array.Copy(arr, start, result, 0, length);
             return result;
-        }
-
-        private static CardData[] Shuffle(CardData[] cards)
-        {
-            for (int i = cards.Length - 1; i > 0; i--)
-            {
-                int j = UnityEngine.Random.Range(0, i + 1);
-                (cards[i], cards[j]) = (cards[j], cards[i]);
-            }
-            return cards;
         }
 
         public void Dispose()
@@ -246,10 +215,15 @@ namespace Main.Network
             {
                 return;
             }
-            nm.CustomMessagingManager?.UnregisterNamedMessageHandler(k_ClientReady);
-            nm.CustomMessagingManager?.UnregisterNamedMessageHandler(k_RequestDeck);
-            nm.CustomMessagingManager?.UnregisterNamedMessageHandler(k_DeckSubmit);
-            nm.CustomMessagingManager?.UnregisterNamedMessageHandler(k_InitialState);
+            CustomMessagingManager m = nm.CustomMessagingManager;
+            if (m == null)
+            {
+                return;
+            }
+            m.UnregisterNamedMessageHandler(k_ClientReady);
+            m.UnregisterNamedMessageHandler(k_RequestDeck);
+            m.UnregisterNamedMessageHandler(k_DeckSubmit);
+            m.UnregisterNamedMessageHandler(k_InitialState);
         }
 
         [Serializable]

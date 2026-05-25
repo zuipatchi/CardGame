@@ -59,7 +59,6 @@ namespace Common.SceneManagement
                     nextScene = SceneManager.GetSceneByBuildIndex((int)next);
                 }
 
-                // 各プレイヤーが自分のスコープをビルド（Container != null のスコープはスキップ）
                 nextScene.BuildLifetimeScopes();
 
                 if (SceneManager.GetActiveScene().buildIndex != (int)next)
@@ -107,10 +106,7 @@ namespace Common.SceneManagement
             }
             foreach (Scene s in toUnload)
             {
-                if (s.isLoaded)
-                {
-                    await SceneManager.UnloadSceneAsync(s);
-                }
+                await SceneManager.UnloadSceneAsync(s);
             }
         }
     }

@@ -174,14 +174,14 @@ namespace Main
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
                         : allCards;
                     handSize = Mathf.Min(InitialHandSize, playerDeckFull.Length);
-                    CardData[] playerShuffled = Shuffle((CardData[])playerDeckFull.Clone());
+                    CardData[] playerShuffled = CardArrayUtils.Shuffle((CardData[])playerDeckFull.Clone());
                     playerHandCards = playerShuffled.Take(handSize).ToArray();
                     playerDeckCards = playerShuffled.Skip(handSize).ToArray();
                     CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
                     CardData[] cpuPool = cpuDeckSo != null && cpuDeckSo.CardIds.Count > 0
                         ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
                         : allCards;
-                    CardData[] cpuShuffled = Shuffle((CardData[])cpuPool.Clone());
+                    CardData[] cpuShuffled = CardArrayUtils.Shuffle((CardData[])cpuPool.Clone());
                     cpuHandCards = cpuShuffled.Take(handSize).ToArray();
                     cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
                 }

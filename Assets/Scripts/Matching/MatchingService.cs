@@ -7,12 +7,13 @@ using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Multiplayer;
-using UnityEngine;
 
 namespace Matching
 {
     public class MatchingService
     {
+        public const string QuickMatchName = "QuickMatch";
+
         private readonly GameSessionModel _gameSessionModel;
 
         public MatchingService(GameSessionModel gameSessionModel)
@@ -86,7 +87,7 @@ namespace Matching
             IReadOnlyList<LobbyInfo> rooms = await GetRoomsAsync(ct);
             foreach (LobbyInfo room in rooms)
             {
-                if (room.Name == "QuickMatch" && room.PlayerCount < room.MaxPlayers)
+                if (room.Name == QuickMatchName && room.PlayerCount < room.MaxPlayers)
                 {
                     return room;
                 }
