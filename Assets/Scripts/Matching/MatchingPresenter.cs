@@ -31,8 +31,7 @@ namespace Matching
         private VisualElement _waitingOverlay;
         private Label _waitingLabel;
         private Button _cancelWaitButton;
-        private Button _retryButton;
-        private Button _backToTitleButton;
+        private Button _timeoutCloseButton;
         private VisualElement _errorOverlay;
         private Button _errorCloseButton;
 
@@ -63,8 +62,7 @@ namespace Matching
             _waitingOverlay = root.Q<VisualElement>("WaitingOverlay");
             _waitingLabel = root.Q<Label>("WaitingLabel");
             _cancelWaitButton = root.Q<Button>("CancelWaitButton");
-            _retryButton = root.Q<Button>("RetryButton");
-            _backToTitleButton = root.Q<Button>("BackToTitleButton");
+            _timeoutCloseButton = root.Q<Button>("TimeoutCloseButton");
             _errorOverlay = root.Q<VisualElement>("ErrorOverlay");
             _errorCloseButton = root.Q<Button>("ErrorCloseButton");
         }
@@ -75,8 +73,7 @@ namespace Matching
             _createButton.clicked += () => OnCreateButtonClickedAsync().Forget();
             _refreshButton.clicked += () => RefreshWithCooldownAsync(destroyCancellationToken).Forget();
             _cancelWaitButton.clicked += () => CancelWaitAsync().Forget();
-            _retryButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
-            _backToTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+            _timeoutCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
             _errorCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
 
             _model.State
@@ -118,8 +115,7 @@ namespace Matching
                     _ => "プレイヤーを待っています..."
                 };
                 _cancelWaitButton.style.display = isTimedOut ? DisplayStyle.None : DisplayStyle.Flex;
-                _retryButton.style.display = isTimedOut ? DisplayStyle.Flex : DisplayStyle.None;
-                _backToTitleButton.style.display = isTimedOut ? DisplayStyle.Flex : DisplayStyle.None;
+                _timeoutCloseButton.style.display = isTimedOut ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

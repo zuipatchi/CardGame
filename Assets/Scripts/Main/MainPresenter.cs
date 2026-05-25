@@ -186,7 +186,12 @@ namespace Main
                     playerHandCards = playerShuffled.Take(handSize).ToArray();
                     playerDeckCards = playerShuffled.Skip(handSize).ToArray();
                     CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
-                    CardData[] cpuPool = cpuDeckSo != null && cpuDeckSo.CardIds.Count > 0
+                    bool cpuDeckEmpty = cpuDeckSo == null || cpuDeckSo.CardIds.Count == 0;
+                    if (cpuDeckEmpty)
+                    {
+                        Debug.LogError("CPUのデッキが空です");
+                    }
+                    CardData[] cpuPool = !cpuDeckEmpty
                         ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
                         : allCards;
                     CardData[] cpuShuffled = CardArrayUtils.Shuffle((CardData[])cpuPool.Clone());

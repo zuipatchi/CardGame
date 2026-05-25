@@ -26,15 +26,14 @@
             <ui:VisualElement class="card" style="min-width: 300px; align-items: center;">
                 <ui:Label name="WaitingLabel" text="プレイヤーを待っています..." class="overlay-label" />
                 <ui:Button name="CancelWaitButton" text="キャンセル" class="btn-secondary" style="width: 200px; margin-bottom: 8px;" />
-                <ui:Button name="RetryButton" text="リトライ" class="btn-accent" style="width: 200px; margin-bottom: 8px; display: none;" />
-                <ui:Button name="BackToTitleButton" text="タイトルへ戻る" class="btn-secondary" style="width: 200px; display: none;" />
+                <ui:Button name="TimeoutCloseButton" text="閉じる" class="btn-secondary" style="width: 200px; display: none;" />
             </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- エラーオーバーレイ（ネットワーク切断・UGS エラー） -->
         <ui:VisualElement name="ErrorOverlay" class="overlay-bg" style="display: none;">
             <ui:VisualElement class="card" style="min-width: 300px; align-items: center;">
-                <ui:Label name="ErrorLabel" text="ネットワークが切断されました" class="overlay-label overlay-label--error" />
+                <ui:Label name="ErrorLabel" text="ネットワークエラー" class="overlay-label overlay-label--error" />
                 <ui:Button name="ErrorCloseButton" text="閉じる" class="btn-secondary" style="width: 200px;" />
             </ui:VisualElement>
         </ui:VisualElement>

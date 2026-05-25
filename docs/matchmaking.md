@@ -48,13 +48,13 @@ Title → Matching → Main
    → 見つかった → JoinSessionByIdAsync → Main シーンへ遷移
    → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2)
      → PlayerJoined イベント待機（30秒タイムアウト）
-     → タイムアウト → リトライ確認ダイアログ
+     → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2b. ルームを手動作成
    → CreateSessionAsync(MaxPlayers=2)
    → PlayerJoined イベント待機（120秒タイムアウト）
    → 待機中は「2分で自動解散します」を表示
-   → タイムアウト → リトライ確認ダイアログ
+   → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2c. ルームに手動参加
    → JoinSessionByIdAsync(sessionId)
@@ -116,7 +116,7 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 | `WaitingInCreatedRoom` | 相手待ち・手動ルーム作成ホスト（120秒タイムアウト、「2分で自動解散します」表示） |
 | `Starting` | Main シーンへ遷移中 |
 | `Ready` | 全員準備完了、遷移待ち |
-| `TimedOut` | タイムアウト（リトライ確認中） |
+| `TimedOut` | タイムアウト（「閉じる」ボタン表示中） |
 | `Error` | エラー発生（ネットワーク切断、UGS エラー） |
 
 ---
@@ -135,10 +135,16 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 - `OnRoomSelectedAsync`: ルーム参加 失敗
 - `CancelWaitAsync`: 待機キャンセル 失敗
 
+### WaitingOverlay タイムアウト時
+
+`TimedOut` 状態時に待機オーバーレイ内で表示が切り替わる:
+- **メッセージ**: 「タイムアウトしました」
+- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）
+
 ### ErrorOverlay UI
 
 `Error` 状態時に表示:
-- **メッセージ**: 「ネットワークが切断されました」（赤色テキスト）
+- **メッセージ**: 「ネットワークエラー」（赤色テキスト）
 - **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）
 
 ---
