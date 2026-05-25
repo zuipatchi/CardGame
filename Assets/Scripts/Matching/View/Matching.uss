@@ -133,3 +133,7 @@
     -unity-text-align: middle-center;
     margin-bottom: 24px;
 }
+
+.overlay-label--error {
+    color: rgb(230, 100, 100);
+}

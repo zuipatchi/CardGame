@@ -33,6 +33,9 @@ namespace Matching
         private Button _cancelWaitButton;
         private Button _retryButton;
         private Button _backToTitleButton;
+        private VisualElement _errorOverlay;
+        private Button _errorRetryButton;
+        private Button _errorBackToTitleButton;
 
         [Inject]
         public void Construct(
@@ -63,6 +66,9 @@ namespace Matching
             _cancelWaitButton = root.Q<Button>("CancelWaitButton");
             _retryButton = root.Q<Button>("RetryButton");
             _backToTitleButton = root.Q<Button>("BackToTitleButton");
+            _errorOverlay = root.Q<VisualElement>("ErrorOverlay");
+            _errorRetryButton = root.Q<Button>("ErrorRetryButton");
+            _errorBackToTitleButton = root.Q<Button>("ErrorBackToTitleButton");
         }
 
         void IStartable.Start()
@@ -73,6 +79,8 @@ namespace Matching
             _cancelWaitButton.clicked += () => CancelWaitAsync().Forget();
             _retryButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
             _backToTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+            _errorRetryButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
+            _errorBackToTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
 
             _model.State
                 .Subscribe(ApplyState)
@@ -89,9 +97,11 @@ namespace Matching
                 or MatchingState.Starting;
             bool isWaiting = state is MatchingState.WaitingForPlayer or MatchingState.WaitingInCreatedRoom or MatchingState.TimedOut;
             bool isTimedOut = state == MatchingState.TimedOut;
+            bool isError = state == MatchingState.Error;
 
             _loadingOverlay.style.display = isLoading ? DisplayStyle.Flex : DisplayStyle.None;
             _waitingOverlay.style.display = isWaiting ? DisplayStyle.Flex : DisplayStyle.None;
+            _errorOverlay.style.display = isError ? DisplayStyle.Flex : DisplayStyle.None;
 
             _loadingLabel.text = state switch
             {
@@ -214,7 +224,6 @@ namespace Matching
                 Debug.LogError($"クイックマッチに失敗: {e}");
                 if (this == null) return;
                 _model.State.Value = MatchingState.Error;
-                await RefreshRoomsAsync(destroyCancellationToken);
             }
         }
 
@@ -242,7 +251,6 @@ namespace Matching
             {
                 Debug.LogError($"ルーム作成に失敗: {e}");
                 _model.State.Value = MatchingState.Error;
-                await RefreshRoomsAsync(destroyCancellationToken);
             }
         }
 
@@ -260,7 +268,6 @@ namespace Matching
             {
                 Debug.LogError($"ルーム参加に失敗: {e}");
                 _model.State.Value = MatchingState.Error;
-                await RefreshRoomsAsync(destroyCancellationToken);
             }
         }
 
