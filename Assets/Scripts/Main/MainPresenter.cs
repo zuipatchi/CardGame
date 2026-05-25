@@ -69,7 +69,6 @@ namespace Main
 
         private CardDetailModal _cardDetailModal;
         private AttributeCompatibilityModal _attrCompatibilityModal;
-        private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
         private bool _isOnline;
 
@@ -243,7 +242,7 @@ namespace Main
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeDatabase);
+                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeDatabase, isOpponent: true);
                 opponentHandArea.Add(_opponentHandView);
 
                 _handView = new HandView(
@@ -357,11 +356,6 @@ namespace Main
                 {
                     await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
                     await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
-
-                    foreach (CardView cpuCard in _opponentHandView.Cards)
-                    {
-                        _cpuCards.Add(cpuCard);
-                    }
                 }
 
                 RunGameAsync(isLocalFirst, ct).Forget();

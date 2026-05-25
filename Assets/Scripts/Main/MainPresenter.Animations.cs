@@ -621,7 +621,7 @@ namespace Main
         {
             const float FlyDuration = 0.35f;
 
-            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase);
+            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             card.style.position = Position.Absolute;
             card.style.left = deckRect.center.x - CardWidth / 2f;
             card.style.top = deckRect.center.y - CardHeight / 2f;

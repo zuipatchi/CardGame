@@ -23,12 +23,14 @@ namespace Main.Card
         private readonly AttributeDatabaseSO _attrIconDb;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
+        public bool IsOpponent { get; private set; }
         public CardData Data { get; }
         public CardState State { get; private set; }
 
-        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeDatabaseSO attrIconDb = null)
+        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeDatabaseSO attrIconDb = null, bool isOpponent = false)
         {
             Data = data;
+            IsOpponent = isOpponent;
             _attrIconDb = attrIconDb;
             template.CloneTree(this);
             _cardRoot = this.Q<VisualElement>("CardRoot");

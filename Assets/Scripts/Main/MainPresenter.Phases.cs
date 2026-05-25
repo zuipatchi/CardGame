@@ -176,7 +176,7 @@ namespace Main
                 _opponentHandView.RemoveCard(hand[0]);
             }
 
-            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase);
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
             _opponentCharacterSlot.PlaceCard(card);
             await PlayOkFlashAsync(false, ct);
@@ -208,14 +208,6 @@ namespace Main
                     : PlayCpuDrawAsync(drawn, deckRect, ct));
             }
 
-            if (!isLocalTurn && drawn != null)
-            {
-                IReadOnlyList<CardView> cards = _opponentHandView.Cards;
-                if (cards.Count > 0)
-                {
-                    _cpuCards.Add(cards[cards.Count - 1]);
-                }
-            }
         }
 
         // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────
@@ -387,7 +379,7 @@ namespace Main
                 card.SetState(CardState.Resolve);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
-                bool isLocal = !_cpuCards.Contains(card);
+                bool isLocal = !card.IsOpponent;
 
                 if (card.Data is CharacterCardData)
                 {
@@ -507,11 +499,6 @@ namespace Main
                 else
                 {
                     await PlayCpuDrawAsync(drawn, deckRect, ct);
-                    IReadOnlyList<CardView> cards = _opponentHandView.Cards;
-                    if (cards.Count > 0)
-                    {
-                        _cpuCards.Add(cards[cards.Count - 1]);
-                    }
                 }
             }
         }
