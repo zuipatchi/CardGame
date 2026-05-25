@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Common.GameSession;
 using Cysharp.Threading.Tasks;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Multiplayer;
@@ -51,12 +52,13 @@ namespace Matching
         public async UniTask<IHostSession> CreateRoomAsync(string roomName, CancellationToken ct = default)
         {
             await _gameSessionModel.LeaveCurrentSessionAsync();
+            DisableNgoSceneManagement();
 
             SessionOptions options = new SessionOptions
             {
                 Name = roomName,
                 MaxPlayers = 2
-            };
+            }.WithRelayNetwork();
             IHostSession session = await MultiplayerService.Instance
                 .CreateSessionAsync(options)
                 .AsUniTask()
@@ -69,6 +71,7 @@ namespace Matching
         public async UniTask JoinRoomAsync(string sessionId, CancellationToken ct = default)
         {
             await _gameSessionModel.LeaveCurrentSessionAsync();
+            DisableNgoSceneManagement();
 
             ISession session = await MultiplayerService.Instance
                 .JoinSessionByIdAsync(sessionId)
@@ -91,6 +94,15 @@ namespace Matching
             return null;
         }
 
+        private static void DisableNgoSceneManagement()
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm != null)
+            {
+                nm.NetworkConfig.EnableSceneManagement = false;
+            }
+        }
+
         public async UniTask<bool> WaitForPlayerAsync(ISession session, TimeSpan timeout, CancellationToken ct = default)
         {
             UniTaskCompletionSource tcs = new();
@@ -101,7 +113,15 @@ namespace Matching
                 tcs.TrySetResult();
             }
 
+            // ハンドラを先に登録してからセッション状態を確認（競合防止）
+            // CreateRoomAsync 返却直後に参加された場合、PlayerJoined が登録前に発火する
             session.PlayerJoined += OnPlayerJoined;
+
+            if (session.AvailableSlots == 0)
+            {
+                session.PlayerJoined -= OnPlayerJoined;
+                return true;
+            }
 
             using CancellationTokenSource timeoutCts = new(timeout);
             using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);

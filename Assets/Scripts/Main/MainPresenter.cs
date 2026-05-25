@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Common.Deck;
+using Common.GameSession;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
+using Main.Network;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -33,6 +36,8 @@ namespace Main
         private DeckModel _deckModel;
         private GameModel _gameModel;
         private SceneTransitioner _sceneTransitioner;
+        private GameSessionModel _gameSessionModel;
+        private NetworkGameService _networkGameService;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -88,13 +93,22 @@ namespace Main
         public UniTask ReadyAsync(CancellationToken ct) => _readyTcs.Task.AttachExternalCancellation(ct);
 
         [Inject]
-        public void Construct(CardStore cardStore, CardDatabase cardDatabase, DeckModel deckModel, GameModel gameModel, SceneTransitioner sceneTransitioner)
+        public void Construct(
+            CardStore cardStore,
+            CardDatabase cardDatabase,
+            DeckModel deckModel,
+            GameModel gameModel,
+            SceneTransitioner sceneTransitioner,
+            GameSessionModel gameSessionModel,
+            NetworkGameService networkGameService)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
             _gameModel = gameModel;
             _sceneTransitioner = sceneTransitioner;
+            _gameSessionModel = gameSessionModel;
+            _networkGameService = networkGameService;
         }
 
         void IStartable.Start()
@@ -130,22 +144,47 @@ namespace Main
                 mainRoot.Add(_dragLayer);
 
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
-                CardData[] playerDeckFull = _deckModel.Count > 0
-                    ? _cardDatabase.BuildDeck(_deckModel.CardIds)
-                    : allCards;
-                int handSize = Mathf.Min(InitialHandSize, playerDeckFull.Length);
+                bool isOnline = _gameSessionModel.HasSession;
 
-                CardData[] playerShuffled = Shuffle((CardData[])playerDeckFull.Clone());
-                CardData[] playerHandCards = playerShuffled.Take(handSize).ToArray();
-                CardData[] playerDeckCards = playerShuffled.Skip(handSize).ToArray();
+                CardData[] playerDeckFull = null;
+                CardData[] playerHandCards;
+                CardData[] playerDeckCards;
+                CardData[] cpuHandCards;
+                CardData[] cpuDeckCards;
+                int handSize;
 
-                CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
-                CardData[] cpuPool = cpuDeckSo != null && cpuDeckSo.CardIds.Count > 0
-                    ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
-                    : allCards;
-                CardData[] cpuShuffled = Shuffle((CardData[])cpuPool.Clone());
-                CardData[] cpuHandCards = cpuShuffled.Take(handSize).ToArray();
-                CardData[] cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
+                if (isOnline)
+                {
+                    IReadOnlyList<string> deckIds = _deckModel.Count > 0
+                        ? _deckModel.CardIds
+                        : allCards.Select(c => c.Id).ToList();
+                    OnlineInitialState state = await _networkGameService.PrepareDecksAsync(deckIds, destroyCancellationToken);
+                    handSize = state.LocalHand.Length;
+                    playerHandCards = state.LocalHand;
+                    playerDeckCards = state.LocalDeck;
+                    CardData placeholder = allCards.Length > 0 ? allCards[0] : null;
+                    cpuHandCards = new CardData[state.OpponentHandCount];
+                    for (int i = 0; i < cpuHandCards.Length; i++) cpuHandCards[i] = placeholder;
+                    cpuDeckCards = new CardData[state.OpponentDeckCount];
+                    for (int i = 0; i < cpuDeckCards.Length; i++) cpuDeckCards[i] = placeholder;
+                }
+                else
+                {
+                    playerDeckFull = _deckModel.Count > 0
+                        ? _cardDatabase.BuildDeck(_deckModel.CardIds)
+                        : allCards;
+                    handSize = Mathf.Min(InitialHandSize, playerDeckFull.Length);
+                    CardData[] playerShuffled = Shuffle((CardData[])playerDeckFull.Clone());
+                    playerHandCards = playerShuffled.Take(handSize).ToArray();
+                    playerDeckCards = playerShuffled.Skip(handSize).ToArray();
+                    CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
+                    CardData[] cpuPool = cpuDeckSo != null && cpuDeckSo.CardIds.Count > 0
+                        ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
+                        : allCards;
+                    CardData[] cpuShuffled = Shuffle((CardData[])cpuPool.Clone());
+                    cpuHandCards = cpuShuffled.Take(handSize).ToArray();
+                    cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
+                }
 
                 _playerCharacterSlot = new CharacterSlotView();
                 _playerCharacterSlot.OnCardDisplaced += card => _playerGraveyardView.AddCard(card);
@@ -309,19 +348,26 @@ namespace Main
                 }
                 await UniTask.WhenAll(drawTasks);
 
-                await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
-                await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
-
-                foreach (CardView cpuCard in _opponentHandView.Cards)
+                if (!isOnline)
                 {
-                    _cpuCards.Add(cpuCard);
-                }
+                    await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
+                    await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
 
-                RunGameAsync(ct).Forget();
+                    foreach (CardView cpuCard in _opponentHandView.Cards)
+                    {
+                        _cpuCards.Add(cpuCard);
+                    }
+
+                    RunGameAsync(ct).Forget();
+                }
             }
             catch (System.OperationCanceledException)
             {
                 _readyTcs.TrySetCanceled();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"BuildAsync 例外: {e}");
             }
         }
 

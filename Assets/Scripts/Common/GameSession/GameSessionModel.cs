@@ -8,6 +8,7 @@ namespace Common.GameSession
     public class GameSessionModel : IDisposable
     {
         public ISession Session { get; private set; }
+        public bool HasSession => Session != null;
         public bool IsHost => Session?.IsHost ?? false;
 
         public void SetSession(ISession session)

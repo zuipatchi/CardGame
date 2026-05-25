@@ -186,9 +186,9 @@ namespace Matching
 
                 if (room.HasValue)
                 {
-                    await _matchingService.JoinRoomAsync(room.Value.LobbyId, destroyCancellationToken);
+                    await _matchingService.JoinRoomAsync(room.Value.LobbyId);
                     _model.State.Value = MatchingState.Starting;
-                    await _sceneTransitioner.Transit(Scenes.Main);
+                    await TransitToMainAsync();
                 }
                 else
                 {
@@ -200,7 +200,7 @@ namespace Matching
                     if (found)
                     {
                         _model.State.Value = MatchingState.Starting;
-                        await _sceneTransitioner.Transit(Scenes.Main);
+                        await TransitToMainAsync();
                     }
                     else
                     {
@@ -212,6 +212,7 @@ namespace Matching
             catch (Exception e)
             {
                 Debug.LogError($"クイックマッチに失敗: {e}");
+                if (this == null) return;
                 _model.State.Value = MatchingState.Error;
                 await RefreshRoomsAsync(destroyCancellationToken);
             }
@@ -229,7 +230,7 @@ namespace Matching
                 if (found)
                 {
                     _model.State.Value = MatchingState.Starting;
-                    await _sceneTransitioner.Transit(Scenes.Main);
+                    await TransitToMainAsync();
                 }
                 else
                 {
@@ -250,9 +251,9 @@ namespace Matching
             try
             {
                 _model.State.Value = MatchingState.JoiningRoom;
-                await _matchingService.JoinRoomAsync(sessionId, destroyCancellationToken);
+                await _matchingService.JoinRoomAsync(sessionId);
                 _model.State.Value = MatchingState.Starting;
-                await _sceneTransitioner.Transit(Scenes.Main);
+                await TransitToMainAsync();
             }
             catch (OperationCanceledException) { }
             catch (Exception e)
@@ -261,6 +262,11 @@ namespace Matching
                 _model.State.Value = MatchingState.Error;
                 await RefreshRoomsAsync(destroyCancellationToken);
             }
+        }
+
+        private async UniTask TransitToMainAsync()
+        {
+            await _sceneTransitioner.Transit(Scenes.Main);
         }
 
         private async UniTaskVoid CancelWaitAsync()
