@@ -411,8 +411,8 @@ RunDrawPhaseAsync
   → "YOUR TURN" / "ENEMY TURN" 告知（完了まで待機）
   → sourceDeck.RefreshCount() でデッキ枚数ラベルを更新
   → ターンプレイヤーのデッキから1枚ドロー
-    - プレイヤー: AddCardAnimatedAsync（飛翔→フリップ）
-    - CPU: PlayCpuDrawAsync（デッキから手札エリア上部へ飛翔、AcceptCard で手札に追加）
+    - 自分のターン: AddCardAnimatedAsync（飛翔→フリップ）。オンライン時はアニメーション後に NGS_Draw 通知を送信
+    - 相手のターン: オンライン時は WaitForOpponentDrawAsync で NGS_Draw 受信を待ってから PlayCpuDrawAsync（裏向き飛翔）
 
 RunPreBattle1PhaseAsync
   → "準備フェーズ" 告知
