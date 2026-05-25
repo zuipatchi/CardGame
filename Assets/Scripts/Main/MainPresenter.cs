@@ -71,6 +71,7 @@ namespace Main
         private AttributeCompatibilityModal _attrCompatibilityModal;
         private readonly HashSet<CardView> _cpuCards = new HashSet<CardView>();
         private bool _isGameOver;
+        private bool _isOnline;
 
         private int _playerAtkBoost;
         private int _opponentAtkBoost;
@@ -145,6 +146,7 @@ namespace Main
 
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
                 bool isOnline = _gameSessionModel.HasSession;
+                _isOnline = isOnline;
 
                 bool isLocalFirst = false;
                 CardData[] playerDeckFull = null;

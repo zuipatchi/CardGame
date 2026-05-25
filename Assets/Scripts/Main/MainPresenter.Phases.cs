@@ -85,7 +85,20 @@ namespace Main
                     if (placed == null)
                     {
                         await PlayPassAnimationAsync(true, ct);
+                        if (_isOnline)
+                        {
+                            _networkGameService.SendCharSetAction(null);
+                        }
                     }
+                    else if (_isOnline)
+                    {
+                        _networkGameService.SendCharSetAction(placed.Data.Id);
+                    }
+                }
+                else if (_isOnline)
+                {
+                    string opponentCardId = await _networkGameService.WaitForOpponentCharSetAsync(ct);
+                    await PlayOpponentCharSetOnlineAsync(opponentCardId, ct);
                 }
                 else
                 {
@@ -140,6 +153,33 @@ namespace Main
                 _charSetInput.Tcs = null;
                 HideActionButtons();
             }
+        }
+
+        private async UniTask PlayOpponentCharSetOnlineAsync(string cardId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return;
+            }
+
+            if (!_cardDatabase.TryGet(cardId, out CardData cardData))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return;
+            }
+
+            IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+            Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+            if (hand.Count > 0)
+            {
+                _opponentHandView.RemoveCard(hand[0]);
+            }
+
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase);
+            await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
+            _opponentCharacterSlot.PlaceCard(card);
+            await PlayOkFlashAsync(false, ct);
         }
 
         // ─── ドローフェーズ ─────────────────────────────────────────────

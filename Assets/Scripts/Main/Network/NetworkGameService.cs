@@ -17,9 +17,11 @@ namespace Main.Network
         private const string k_DeckSubmit = "NGS_DeckSubmit";
         private const string k_InitialState = "NGS_InitialState";
         private const string k_ClientReady = "NGS_ClientReady";
+        private const string k_CharSet = "NGS_CharSet";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
+        private ulong _opponentClientId;
 
         public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase)
         {
@@ -90,6 +92,8 @@ namespace Main.Network
             }
 
             await receivedTcs.Task.AttachExternalCancellation(ct);
+
+            _opponentClientId = remoteClientId;
 
             CardData[] hostDeck = _cardDatabase.BuildDeck(localDeckIds);
             CardData[] clientDeck = _cardDatabase.BuildDeck(receivedIds);
@@ -166,6 +170,8 @@ namespace Main.Network
                 await UniTask.Delay(200, cancellationToken: ct);
             }
 
+            _opponentClientId = NetworkManager.ServerClientId;
+
             string[] ids = localDeckIds.ToArray();
             DeckSubmitPayload submitPayload = new DeckSubmitPayload { deckIds = ids };
             string submitJson = JsonUtility.ToJson(submitPayload);
@@ -210,6 +216,48 @@ namespace Main.Network
             return result;
         }
 
+        public void SendCharSetAction(string cardId)
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            CharSetPayload payload = new CharSetPayload
+            {
+                passed = string.IsNullOrEmpty(cardId),
+                cardId = cardId ?? string.Empty
+            };
+            string json = JsonUtility.ToJson(payload);
+            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
+            {
+                writer.WriteValueSafe(json);
+                messaging.SendNamedMessage(k_CharSet, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask<string> WaitForOpponentCharSetAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
+
+            void OnCharSet(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_CharSet);
+                reader.ReadValueSafe(out string json);
+                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
+                tcs.TrySetResult(payload.passed ? null : payload.cardId);
+            }
+
+            messaging.RegisterNamedMessageHandler(k_CharSet, OnCharSet);
+            return await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void Dispose()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -226,12 +274,20 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_RequestDeck);
             m.UnregisterNamedMessageHandler(k_DeckSubmit);
             m.UnregisterNamedMessageHandler(k_InitialState);
+            m.UnregisterNamedMessageHandler(k_CharSet);
         }
 
         [Serializable]
         private sealed class DeckSubmitPayload
         {
             public string[] deckIds;
+        }
+
+        [Serializable]
+        private sealed class CharSetPayload
+        {
+            public bool passed;
+            public string cardId;
         }
 
         [Serializable]
