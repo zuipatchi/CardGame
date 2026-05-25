@@ -203,11 +203,23 @@ namespace Main
             sourceDeck.RefreshCount();
             if (drawn != null)
             {
-                await (isLocalTurn
-                    ? _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct)
-                    : PlayCpuDrawAsync(drawn, deckRect, ct));
+                if (isLocalTurn)
+                {
+                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                    if (_isOnline)
+                    {
+                        _networkGameService.SendDrawNotification();
+                    }
+                }
+                else
+                {
+                    if (_isOnline)
+                    {
+                        await _networkGameService.WaitForOpponentDrawAsync(ct);
+                    }
+                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                }
             }
-
         }
 
         // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────

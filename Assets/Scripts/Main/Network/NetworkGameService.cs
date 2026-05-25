@@ -20,6 +20,7 @@ namespace Main.Network
         private const string k_CharSet = "NGS_CharSet";
         private const string k_PreBattle1 = "NGS_PreBattle1";
         private const string k_PreBattle2 = "NGS_PreBattle2";
+        private const string k_Draw = "NGS_Draw";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
@@ -302,6 +303,39 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
+        public void SendDrawNotification()
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
+            {
+                messaging.SendNamedMessage(k_Draw, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask WaitForOpponentDrawAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+
+            void OnDraw(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_Draw);
+                tcs.TrySetResult();
+            }
+
+            messaging.RegisterNamedMessageHandler(k_Draw, OnDraw);
+            await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void SendPreBattle2Action(string cardId)
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -363,6 +397,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_CharSet);
             m.UnregisterNamedMessageHandler(k_PreBattle1);
             m.UnregisterNamedMessageHandler(k_PreBattle2);
+            m.UnregisterNamedMessageHandler(k_Draw);
         }
 
         [Serializable]
