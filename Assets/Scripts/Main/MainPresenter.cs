@@ -146,6 +146,7 @@ namespace Main
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
                 bool isOnline = _gameSessionModel.HasSession;
 
+                bool isLocalFirst = false;
                 CardData[] playerDeckFull = null;
                 CardData[] playerHandCards;
                 CardData[] playerDeckCards;
@@ -159,6 +160,7 @@ namespace Main
                         ? _deckModel.CardIds
                         : allCards.Select(c => c.Id).ToList();
                     OnlineInitialState state = await _networkGameService.PrepareDecksAsync(deckIds, destroyCancellationToken);
+                    isLocalFirst = state.IsLocalFirst;
                     handSize = state.LocalHand.Length;
                     playerHandCards = state.LocalHand;
                     playerDeckCards = state.LocalDeck;
@@ -170,6 +172,7 @@ namespace Main
                 }
                 else
                 {
+                    isLocalFirst = UnityEngine.Random.value > 0.5f;
                     playerDeckFull = _deckModel.Count > 0
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
                         : allCards;
@@ -357,9 +360,9 @@ namespace Main
                     {
                         _cpuCards.Add(cpuCard);
                     }
-
-                    RunGameAsync(ct).Forget();
                 }
+
+                RunGameAsync(isLocalFirst, ct).Forget();
             }
             catch (System.OperationCanceledException)
             {

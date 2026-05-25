@@ -15,11 +15,10 @@ namespace Main
     {
         // ─── ゲームループ ───────────────────────────────────────────────
 
-        private async UniTaskVoid RunGameAsync(CancellationToken ct)
+        private async UniTaskVoid RunGameAsync(bool isLocalFirst, CancellationToken ct)
         {
             try
             {
-                bool isLocalFirst = UnityEngine.Random.value > 0.5f;
                 _gameModel.SetInitialTurn(isLocalFirst);
                 await PlayCoinTossAsync(isLocalFirst, ct);
 

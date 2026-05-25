@@ -104,10 +104,12 @@ namespace Main.Network
             CardData[] clientHand = Slice(clientShuffled, 0, handSize);
             CardData[] clientRemaining = Slice(clientShuffled, handSize, clientShuffled.Length - handSize);
 
+            bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
+
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
                 hostHand.Length, hostRemaining.Length,
-                isLocalFirst: false);
+                isLocalFirst: !hostGoesFirst);
 
             return new OnlineInitialState
             {
@@ -115,7 +117,7 @@ namespace Main.Network
                 LocalDeck = hostRemaining,
                 OpponentHandCount = clientHand.Length,
                 OpponentDeckCount = clientRemaining.Length,
-                IsLocalFirst = true
+                IsLocalFirst = hostGoesFirst
             };
         }
 
