@@ -152,11 +152,11 @@
     border-right-width: 3px;
     border-top-width: 3px;
     border-bottom-width: 3px;
-    border-left-color: rgba(100, 200, 100, 0.7);
-    border-right-color: rgba(100, 200, 100, 0.7);
-    border-top-color: rgba(100, 200, 100, 0.7);
-    border-bottom-color: rgba(100, 200, 100, 0.7);
-    background-color: rgba(20, 60, 20, 0.45);
+    border-left-color: rgba(70, 130, 230, 0.7);
+    border-right-color: rgba(70, 130, 230, 0.7);
+    border-top-color: rgba(70, 130, 230, 0.7);
+    border-bottom-color: rgba(70, 130, 230, 0.7);
+    background-color: rgba(20, 40, 80, 0.45);
 }
 
 .main-drag-layer {
