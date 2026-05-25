@@ -34,8 +34,7 @@ namespace Matching
         private Button _retryButton;
         private Button _backToTitleButton;
         private VisualElement _errorOverlay;
-        private Button _errorRetryButton;
-        private Button _errorBackToTitleButton;
+        private Button _errorCloseButton;
 
         [Inject]
         public void Construct(
@@ -67,8 +66,7 @@ namespace Matching
             _retryButton = root.Q<Button>("RetryButton");
             _backToTitleButton = root.Q<Button>("BackToTitleButton");
             _errorOverlay = root.Q<VisualElement>("ErrorOverlay");
-            _errorRetryButton = root.Q<Button>("ErrorRetryButton");
-            _errorBackToTitleButton = root.Q<Button>("ErrorBackToTitleButton");
+            _errorCloseButton = root.Q<Button>("ErrorCloseButton");
         }
 
         void IStartable.Start()
@@ -79,8 +77,7 @@ namespace Matching
             _cancelWaitButton.clicked += () => CancelWaitAsync().Forget();
             _retryButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
             _backToTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
-            _errorRetryButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
-            _errorBackToTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+            _errorCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
 
             _model.State
                 .Subscribe(ApplyState)

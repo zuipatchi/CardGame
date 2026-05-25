@@ -35,8 +35,7 @@
         <ui:VisualElement name="ErrorOverlay" class="overlay-bg" style="display: none;">
             <ui:VisualElement class="card" style="min-width: 300px; align-items: center;">
                 <ui:Label name="ErrorLabel" text="ネットワークが切断されました" class="overlay-label overlay-label--error" />
-                <ui:Button name="ErrorRetryButton" text="リトライ" class="btn-accent" style="width: 200px; margin-bottom: 8px;" />
-                <ui:Button name="ErrorBackToTitleButton" text="タイトルへ戻る" class="btn-secondary" style="width: 200px;" />
+                <ui:Button name="ErrorCloseButton" text="閉じる" class="btn-secondary" style="width: 200px;" />
             </ui:VisualElement>
         </ui:VisualElement>
 
