@@ -117,7 +117,30 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 | `Starting` | Main シーンへ遷移中 |
 | `Ready` | 全員準備完了、遷移待ち |
 | `TimedOut` | タイムアウト（リトライ確認中） |
-| `Error` | エラー発生 |
+| `Error` | エラー発生（ネットワーク切断、UGS エラー） |
+
+---
+
+## エラーハンドリング
+
+ネットワークエラーや UGS API エラーが発生した場合、`Error` 状態に遷移し、エラーオーバーレイが表示される。
+
+### エラー状態の遷移
+
+以下のいずれかでエラーが発生すると、catch ブロックで `_model.State.Value = MatchingState.Error` が設定される:
+
+- `InitializeAsync`: 認証・ルーム検索 失敗
+- `OnQuickMatchButtonClickedAsync`: クイックマッチ 失敗
+- `OnCreateButtonClickedAsync`: ルーム作成 失敗
+- `OnRoomSelectedAsync`: ルーム参加 失敗
+- `CancelWaitAsync`: 待機キャンセル 失敗
+
+### ErrorOverlay UI
+
+`Error` 状態時に表示:
+- **メッセージ**: 「ネットワークが切断されました」（赤色テキスト）
+- **リトライボタン**: `InitializeAsync` を呼び出し（再認証・ルーム検索）
+- **タイトルへ戻るボタン**: Title シーンへ遷移
 
 ---
 
