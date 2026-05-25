@@ -393,7 +393,7 @@ namespace Main
             await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
             await PlayReturnHandToDeckAsync(hand, deck, ct);
 
-            CardData[] reshuffled = Shuffle((CardData[])fullDeck.Clone());
+            CardData[] reshuffled = CardArrayUtils.Shuffle((CardData[])fullDeck.Clone());
             CardData[] newHandCards = reshuffled.Take(handSize).ToArray();
             CardData[] newDeckCards = reshuffled.Skip(handSize).ToArray();
 
