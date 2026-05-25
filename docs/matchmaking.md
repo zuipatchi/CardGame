@@ -139,8 +139,7 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 
 `Error` 状態時に表示:
 - **メッセージ**: 「ネットワークが切断されました」（赤色テキスト）
-- **リトライボタン**: `InitializeAsync` を呼び出し（再認証・ルーム検索）
-- **タイトルへ戻るボタン**: Title シーンへ遷移
+- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）
 
 ---
 
