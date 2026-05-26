@@ -770,6 +770,7 @@ namespace Main
             if (!playerStats.TypeMatch && !playerStats.WeaknessHit && !playerStats.StrengthBlocked
                 && !opponentStats.TypeMatch && !opponentStats.WeaknessHit && !opponentStats.StrengthBlocked)
             {
+                await UniTask.Delay(TimeSpan.FromSeconds(1.2f), cancellationToken: ct);
                 return;
             }
 
