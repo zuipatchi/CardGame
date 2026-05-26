@@ -44,6 +44,10 @@ namespace Matching
             List<LobbyInfo> rooms = new(results.Sessions.Count);
             foreach (ISessionInfo info in results.Sessions)
             {
+                if (info.AvailableSlots == 0)
+                {
+                    continue;
+                }
                 int playerCount = info.MaxPlayers - info.AvailableSlots;
                 rooms.Add(new LobbyInfo(info.Id, info.Name, playerCount, info.MaxPlayers));
             }
