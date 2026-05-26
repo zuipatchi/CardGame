@@ -289,6 +289,7 @@ namespace Main
                     _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeDatabase);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
+                _handView.CanDrag = CanPlayerDragCard;
 
                 _attrCompatibilityModal = new AttributeCompatibilityModal(mainRoot, _cardStore.AttributeDatabase);
                 Button attrCompatibilityButton = new Button(() => _attrCompatibilityModal.Show());

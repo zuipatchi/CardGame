@@ -115,6 +115,7 @@ namespace Main
                 tcs = _charSetInput.Tcs;
                 card = _charSetInput.Card;
                 _charSetInput.Card = null;
+                _charSetInput.Tcs = null;
                 return true;
             }
 
@@ -123,6 +124,7 @@ namespace Main
                 tcs = _preBattleInput.Tcs;
                 card = _preBattleInput.Card;
                 _preBattleInput.Card = null;
+                _preBattleInput.Tcs = null;
                 return true;
             }
 
@@ -131,6 +133,7 @@ namespace Main
                 tcs = _prepInput.Tcs;
                 card = _prepInput.Card;
                 _prepInput.Card = null;
+                _prepInput.Tcs = null;
                 return true;
             }
 
@@ -209,6 +212,34 @@ namespace Main
                 HideActionButtons();
                 _prepInput.Tcs.TrySetResult(null);
             }
+        }
+
+        // ─── ドラッグ可否判定 ────────────────────────────────────────────
+
+        private bool CanPlayerDragCard()
+        {
+            if (_isGameOver)
+            {
+                return false;
+            }
+
+            TurnPhase phase = _gameModel.Phase;
+            if (phase == TurnPhase.CharacterSet)
+            {
+                return _charSetInput.Tcs != null && _charSetInput.Card == null;
+            }
+
+            if (phase == TurnPhase.PreBattle1)
+            {
+                return _preBattleInput.Tcs != null && _isLocalPreBattleActive && _preBattleInput.Card == null;
+            }
+
+            if (phase == TurnPhase.PreBattle2)
+            {
+                return _prepInput.Tcs != null && _gameModel.IsLocalPreparationTurn && _prepInput.Card == null;
+            }
+
+            return false;
         }
 
         // ─── UI ヘルパー ─────────────────────────────────────────────────

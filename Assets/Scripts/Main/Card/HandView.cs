@@ -28,6 +28,7 @@ namespace Main.Card
 
         public Func<CardView, Vector2, bool> OnCardDropped;
         public Action<CardView> OnCardClicked { get; set; }
+        public Func<bool> CanDrag { get; set; }
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
@@ -343,6 +344,7 @@ namespace Main.Card
 
             CardView capturedCard = card;
             CardDragManipulator manipulator = new CardDragManipulator(_dragLayer);
+            manipulator.CanDrag = CanDrag;
             manipulator.OnDrop = worldPos =>
             {
                 bool placed = OnCardDropped?.Invoke(capturedCard, worldPos) ?? false;

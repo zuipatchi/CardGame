@@ -10,6 +10,7 @@ namespace Main.Card
         public Action OnClick;
         public Action OnRightClick;
         public Func<VisualElement> CreateGhost;
+        public Func<bool> CanDrag;
 
         private const float ClickMovementThreshold = 8f;
 
@@ -26,6 +27,7 @@ namespace Main.Card
         private Vector2 _startElementPosition;
         private bool _isDragging;
         private bool _moved;
+        private bool _clickTrackingOnly;
         private VisualElement _ghost;
 
         public CardDragManipulator(VisualElement dragLayer)
@@ -64,10 +66,21 @@ namespace Main.Card
                 return;
             }
 
-            _isDragging = true;
             _moved = false;
             _startPointerPosition = evt.position;
             _startElementPosition = target.worldBound.position;
+
+            if (CanDrag != null && !CanDrag())
+            {
+                _clickTrackingOnly = true;
+                _isDragging = false;
+                target.CapturePointer(evt.pointerId);
+                evt.StopPropagation();
+                return;
+            }
+
+            _clickTrackingOnly = false;
+            _isDragging = true;
 
             if (CreateGhost != null)
             {
@@ -103,6 +116,16 @@ namespace Main.Card
 
         private void OnPointerMove(PointerMoveEvent evt)
         {
+            if (_clickTrackingOnly && target.HasPointerCapture(evt.pointerId))
+            {
+                Vector2 clickDelta = (Vector2)evt.position - _startPointerPosition;
+                if (clickDelta.magnitude > ClickMovementThreshold)
+                {
+                    _moved = true;
+                }
+                return;
+            }
+
             if (!_isDragging || !target.HasPointerCapture(evt.pointerId))
             {
                 return;
@@ -121,6 +144,18 @@ namespace Main.Card
 
         private void OnPointerUp(PointerUpEvent evt)
         {
+            if (_clickTrackingOnly && target.HasPointerCapture(evt.pointerId))
+            {
+                _clickTrackingOnly = false;
+                target.ReleasePointer(evt.pointerId);
+                if (!_moved)
+                {
+                    OnClick?.Invoke();
+                }
+                evt.StopPropagation();
+                return;
+            }
+
             if (!_isDragging || !target.HasPointerCapture(evt.pointerId))
             {
                 return;
@@ -157,6 +192,12 @@ namespace Main.Card
 
         private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
         {
+            if (_clickTrackingOnly)
+            {
+                _clickTrackingOnly = false;
+                return;
+            }
+
             if (_isDragging)
             {
                 _isDragging = false;
