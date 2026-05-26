@@ -44,10 +44,20 @@ namespace DeckBuilder
         {
             try
             {
-                await _cardStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
-
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 VisualElement deckBuilderRoot = root.Q<VisualElement>("DeckBuilderRoot");
+
+                VisualElement loadingOverlay = new VisualElement();
+                loadingOverlay.AddToClassList("deckbuilder-loading-overlay");
+                Label loadingLabel = new Label("読み込み中...");
+                loadingLabel.AddToClassList("deckbuilder-loading-label");
+                loadingLabel.pickingMode = PickingMode.Ignore;
+                loadingOverlay.Add(loadingLabel);
+                deckBuilderRoot.Add(loadingOverlay);
+
+                await _cardStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
+
+                loadingOverlay.style.display = DisplayStyle.None;
                 if (_cardStore.DeckBuilderBackground != null)
                 {
                     deckBuilderRoot.style.backgroundImage = new StyleBackground(_cardStore.DeckBuilderBackground);

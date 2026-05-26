@@ -484,6 +484,27 @@
     white-space: normal;
 }
 
+/* ─── 読み込みオーバーレイ ───────────────────────────────────────────────── */
+
+.deckbuilder-loading-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.deckbuilder-loading-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 220);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+}
+
 .deckbuilder-drag-layer {
     position: absolute;
     left: 0;
