@@ -80,6 +80,9 @@ namespace Main
         private bool _isOnline;
         private bool _characterSetDone;
         private VisualElement _waitingOverlay;
+        private VisualElement _toastContainer;
+        private Label _toastLabel;
+        private CancellationTokenSource _toastCts;
 
         private int _playerAtkBoost;
         private int _opponentAtkBoost;
@@ -159,6 +162,16 @@ namespace Main
                 _dragLayer.AddToClassList("main-drag-layer");
                 _dragLayer.pickingMode = PickingMode.Ignore;
                 mainRoot.Add(_dragLayer);
+
+                _toastContainer = new VisualElement();
+                _toastContainer.AddToClassList("main-toast-container");
+                _toastContainer.pickingMode = PickingMode.Ignore;
+                _toastContainer.style.display = DisplayStyle.None;
+                _toastLabel = new Label();
+                _toastLabel.AddToClassList("main-toast-label");
+                _toastLabel.pickingMode = PickingMode.Ignore;
+                _toastContainer.Add(_toastLabel);
+                mainRoot.Add(_toastContainer);
 
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
                 bool isOnline = _gameSessionModel.HasSession;

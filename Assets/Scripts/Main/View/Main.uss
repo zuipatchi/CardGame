@@ -701,6 +701,41 @@
     -unity-text-align: middle-center;
 }
 
+/* ─── トースト ──────────────────────────────────────────────────────── */
+
+.main-toast-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 220px;
+    align-items: center;
+}
+
+.main-toast-label {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(255, 200, 80);
+    background-color: rgba(10, 10, 20, 0.88);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.12);
+    border-right-color: rgba(255, 255, 255, 0.12);
+    border-top-color: rgba(255, 255, 255, 0.12);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+}
+
 .game-end-overlay {
     position: absolute;
     left: 0;

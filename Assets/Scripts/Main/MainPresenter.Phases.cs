@@ -793,12 +793,12 @@ namespace Main
             }
             else if (stats.TypeMatch && stats.WeaknessHit)
             {
-                tasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", counterLabel, -stackOffset, ct));
+                tasks.Add(PlayBattleLabelAsync("スキルタイプ一致", "type-match-label", counterLabel, -stackOffset, ct));
                 tasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", counterLabel, stackOffset, ct));
             }
             else if (stats.TypeMatch)
             {
-                tasks.Add(PlayBattleLabelAsync("技タイプ一致", "type-match-label", counterLabel, 0f, ct));
+                tasks.Add(PlayBattleLabelAsync("スキルタイプ一致", "type-match-label", counterLabel, 0f, ct));
             }
             else if (stats.WeaknessHit)
             {

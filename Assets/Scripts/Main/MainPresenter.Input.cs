@@ -20,12 +20,18 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null)
             {
-                if (card.Data is not CharacterCardData || _charSetInput.Card != null)
+                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
                 {
                     return false;
                 }
 
-                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                if (card.Data is not CharacterCardData)
+                {
+                    ShowToast("キャラカードのみセットできます");
+                    return false;
+                }
+
+                if (_charSetInput.Card != null)
                 {
                     return false;
                 }
@@ -40,8 +46,14 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.PreBattle1 && _isLocalPreBattleActive)
             {
-                if ((card.Data is not SkillCardData && card.Data is not CharacterCardData) || _preBattleInput.Card != null)
+                if (!_playerFieldView.worldBound.Contains(worldPos) || _preBattleInput.Card != null)
                 {
+                    return false;
+                }
+
+                if (card.Data is EventCardData)
+                {
+                    ShowToast("スキルまたはキャラカードのみ使えます");
                     return false;
                 }
 
@@ -58,8 +70,14 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.PreBattle2 && _gameModel.IsLocalPreparationTurn)
             {
-                if (card.Data is not EventCardData || _prepInput.Card != null)
+                if (!_playerFieldView.worldBound.Contains(worldPos) || _prepInput.Card != null)
                 {
+                    return false;
+                }
+
+                if (card.Data is not EventCardData)
+                {
+                    ShowToast("イベントカードのみ使えます");
                     return false;
                 }
 

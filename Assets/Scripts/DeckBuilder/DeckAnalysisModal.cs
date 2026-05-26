@@ -170,7 +170,7 @@ namespace DeckBuilder
             float eventRatio = hasCards ? (float)eventCount / maxCount : 0f;
 
             chart.Add(BuildBarColumn("キャラ", charCount, charRatio, "deck-analysis-bar--character"));
-            chart.Add(BuildBarColumn("技", skillCount, skillRatio, "deck-analysis-bar--skill"));
+            chart.Add(BuildBarColumn("スキル", skillCount, skillRatio, "deck-analysis-bar--skill"));
             chart.Add(BuildBarColumn("イベント", eventCount, eventRatio, "deck-analysis-bar--event"));
             return chart;
         }
