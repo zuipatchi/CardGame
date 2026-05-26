@@ -78,6 +78,7 @@ namespace Main
         private AttributeCompatibilityModal _attrCompatibilityModal;
         private bool _isGameOver;
         private bool _isOnline;
+        private bool _characterSetDone;
 
         private int _playerAtkBoost;
         private int _opponentAtkBoost;
@@ -465,6 +466,13 @@ namespace Main
 
         private void UpdatePhaseIndicator(TurnPhase phase)
         {
+            if (phase != TurnPhase.CharacterSet)
+            {
+                _characterSetDone = true;
+            }
+
+            _phaseRowCharacterSet.style.display = _characterSetDone ? DisplayStyle.None : DisplayStyle.Flex;
+
             VisualElement[] rows =
             {
                 _phaseRowCharacterSet, _phaseRowDraw, _phaseRowPreBattle1,
