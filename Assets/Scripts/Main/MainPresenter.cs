@@ -327,10 +327,10 @@ namespace Main
                 _gameEndLabel.pickingMode = PickingMode.Ignore;
                 _gameEndOverlay.Add(_gameEndLabel);
                 _gameEndTitleButton = new Button();
-                _gameEndTitleButton.text = "タイトルに戻る";
+                _gameEndTitleButton.text = "ホームに戻る";
                 _gameEndTitleButton.AddToClassList("game-end-button");
                 _gameEndTitleButton.style.opacity = 0f;
-                _gameEndTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Title).Forget();
+                _gameEndTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
                 _gameEndOverlay.Add(_gameEndTitleButton);
                 mainRoot.Add(_gameEndOverlay);
 
