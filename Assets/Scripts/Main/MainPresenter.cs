@@ -79,6 +79,7 @@ namespace Main
         private bool _isGameOver;
         private bool _isOnline;
         private bool _characterSetDone;
+        private VisualElement _waitingOverlay;
 
         private int _playerAtkBoost;
         private int _opponentAtkBoost;
@@ -145,6 +146,14 @@ namespace Main
 
                 mainRoot.style.backgroundImage = new StyleBackground(_cardStore.BattleField);
                 _readyTcs.TrySetResult();
+
+                _waitingOverlay = new VisualElement();
+                _waitingOverlay.AddToClassList("waiting-overlay");
+                Label waitingLabel = new Label("対戦相手を待っています...");
+                waitingLabel.AddToClassList("waiting-label");
+                waitingLabel.pickingMode = PickingMode.Ignore;
+                _waitingOverlay.Add(waitingLabel);
+                mainRoot.Add(_waitingOverlay);
 
                 _dragLayer = new VisualElement();
                 _dragLayer.AddToClassList("main-drag-layer");
@@ -366,6 +375,8 @@ namespace Main
 
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
+
+                _waitingOverlay.style.display = DisplayStyle.None;
 
                 Rect deckWorldRect = _playerDeckView.worldBound;
                 Rect opponentDeckWorldRect = _opponentDeckView.worldBound;
