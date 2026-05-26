@@ -137,7 +137,7 @@ namespace Main.Card
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;
                 _deckCards.Add(card);
-                Insert(childCount - 1, card);
+                Insert(i, card);
             }
 
             UpdateSize();
