@@ -242,10 +242,47 @@ namespace Main
             return false;
         }
 
+        // ─── ハイライト ─────────────────────────────────────────────────
+
+        private bool IsCardPlayable(CardView card)
+        {
+            if (_isGameOver)
+            {
+                return false;
+            }
+
+            TurnPhase phase = _gameModel.Phase;
+            if (phase == TurnPhase.CharacterSet && _charSetInput.Tcs != null && _charSetInput.Card == null)
+            {
+                return card.Data is CharacterCardData;
+            }
+
+            if (phase == TurnPhase.PreBattle1 && _preBattleInput.Tcs != null && _isLocalPreBattleActive && _preBattleInput.Card == null)
+            {
+                return card.Data is not EventCardData;
+            }
+
+            if (phase == TurnPhase.PreBattle2 && _prepInput.Tcs != null && _gameModel.IsLocalPreparationTurn && _prepInput.Card == null)
+            {
+                return card.Data is EventCardData;
+            }
+
+            return false;
+        }
+
+        private void RefreshHandHighlights()
+        {
+            foreach (CardView card in _handView.Cards)
+            {
+                card.SetPlayableHighlight(IsCardPlayable(card));
+            }
+        }
+
         // ─── UI ヘルパー ─────────────────────────────────────────────────
 
         private void UpdateStagedButtons(bool hasStaged)
         {
+            RefreshHandHighlights();
             _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
             _backButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
             _okButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;

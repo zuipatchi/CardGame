@@ -22,6 +22,7 @@ namespace Main.Card
         private readonly VisualElement _attributeIcon;
         private readonly AttributeDatabaseSO _attrIconDb;
         private CardDragManipulator _dragManipulator;
+        private Tween _playableHighlightTween;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
         public CardData Data { get; }
@@ -67,6 +68,42 @@ namespace Main.Card
             {
                 ApplyTypeFrame(true);
             }
+        }
+
+        public void SetPlayableHighlight(bool playable)
+        {
+            _playableHighlightTween?.Kill();
+            _playableHighlightTween = null;
+            _cardRoot.style.borderTopColor = StyleKeyword.Null;
+            _cardRoot.style.borderRightColor = StyleKeyword.Null;
+            _cardRoot.style.borderBottomColor = StyleKeyword.Null;
+            _cardRoot.style.borderLeftColor = StyleKeyword.Null;
+            if (!playable)
+            {
+                return;
+            }
+
+            Color typeColor = Data is CharacterCardData
+                ? new Color(0.274f, 0.510f, 0.902f, 1f)
+                : Data is SkillCardData
+                    ? new Color(0.863f, 0.235f, 0.235f, 1f)
+                    : new Color(0.824f, 0.725f, 0.196f, 1f);
+
+            float t = 0f;
+            _playableHighlightTween = DOTween.To(
+                () => t,
+                v =>
+                {
+                    t = v;
+                    Color c = Color.Lerp(typeColor, Color.white, v);
+                    _cardRoot.style.borderTopColor = new StyleColor(c);
+                    _cardRoot.style.borderRightColor = new StyleColor(c);
+                    _cardRoot.style.borderBottomColor = new StyleColor(c);
+                    _cardRoot.style.borderLeftColor = new StyleColor(c);
+                },
+                1f,
+                0.5f
+            ).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
         }
 
         public void AttachDragManipulator(CardDragManipulator manipulator)

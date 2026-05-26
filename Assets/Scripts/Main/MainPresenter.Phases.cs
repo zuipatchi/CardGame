@@ -153,6 +153,7 @@ namespace Main
             {
                 _charSetInput.Tcs = null;
                 HideActionButtons();
+                RefreshHandHighlights();
             }
         }
 
@@ -282,6 +283,7 @@ namespace Main
                 _isLocalPreBattleActive = false;
                 _preBattleInput.Tcs = null;
                 HideActionButtons();
+                RefreshHandHighlights();
             }
 
             return result;
@@ -453,6 +455,7 @@ namespace Main
             finally
             {
                 _prepInput.Tcs = null;
+                RefreshHandHighlights();
             }
         }
 
