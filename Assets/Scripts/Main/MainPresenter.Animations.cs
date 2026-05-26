@@ -276,7 +276,7 @@ namespace Main
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => currentLeft, v => { currentLeft = v; label.style.left = v; }, finalLeft, 0.2f).SetEase(Ease.OutQuad))
                 .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, 0.2f))
-                .AppendInterval(0.7f)
+                .AppendInterval(0.5f)
                 .Append(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, 0.3f))
                 .OnComplete(() => tcs.TrySetResult());
 
@@ -640,9 +640,9 @@ namespace Main
         private async UniTask PlayDamageNumberFlyAsync(
             int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
         {
-            const float AppearDuration = 0.2f;
-            const float HoldDuration = 0.2f;
-            const float FlyDuration = 0.45f;
+            const float AppearDuration = 0.3f;
+            const float HoldDuration = 0.3f;
+            const float FlyDuration = 0.75f;
             const float LabelW = 320f;
             const float LabelH = 90f;
 
