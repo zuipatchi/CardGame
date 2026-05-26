@@ -81,9 +81,9 @@ namespace Home
 
         private void OnBattleClicked()
         {
-            if (_deckModel.IsOver)
+            if (!_deckModel.IsReady)
             {
-                ShowCostOverToastAsync().Forget();
+                ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
             }
             _sceneTransitioner.Transit(Scenes.Main).Forget();
@@ -91,20 +91,26 @@ namespace Home
 
         private void OnMatchingClicked()
         {
-            if (_deckModel.IsOver)
+            if (!_deckModel.IsReady)
             {
-                ShowCostOverToastAsync().Forget();
+                ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
             }
             _sceneTransitioner.Transit(Scenes.Matching).Forget();
         }
 
-        private async UniTaskVoid ShowCostOverToastAsync()
+        private string GetDeckErrorMessage()
+        {
+            return _deckModel.IsOver ? "デッキがコストオーバーしています" : "デッキのコストが足りません";
+        }
+
+        private async UniTaskVoid ShowDeckToastAsync(string message)
         {
             _toastCts?.Cancel();
             _toastCts?.Dispose();
             _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
             CancellationToken token = _toastCts.Token;
+            _costOverToastLabel.text = message;
             _costOverToastLabel.style.display = DisplayStyle.Flex;
             try
             {

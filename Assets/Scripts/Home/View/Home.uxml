@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="Home.uss"/>
     <ui:VisualElement name="HomeRoot" class="home-root">
-        <ui:Label name="CostOverToastLabel" class="home-cost-over-toast" text="デッキがコストオーバーしています" />
+        <ui:Label name="CostOverToastLabel" class="home-cost-over-toast" />
         <ui:VisualElement class="home-buttons">
             <ui:Button name="DeckBuilderButton" class="home-button home-button--deck">
                 <ui:VisualElement class="home-button-content">
