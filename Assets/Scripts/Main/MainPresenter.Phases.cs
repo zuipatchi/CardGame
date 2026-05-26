@@ -696,11 +696,6 @@ namespace Main
             await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
             await PlayBattleLabelsAsync(playerStats, opponentStats, ct);
 
-            _playerAtkCounterOverlay.style.display = DisplayStyle.None;
-            _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
-            _playerCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
-            _opponentCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
-
             // 技カードが相手キャラへ突撃
             await UniTask.WhenAll(
                 playerSkill.Count > 0
@@ -710,6 +705,11 @@ namespace Main
                     ? PlaySkillsAttackCharacterAsync(opponentSkill, _opponentFieldView, _playerCharacterSlot, ct)
                     : UniTask.CompletedTask
             );
+
+            _playerAtkCounterOverlay.style.display = DisplayStyle.None;
+            _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
+            _playerCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
+            _opponentCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
 
             // デッキダメージ
             if (damageToOpponent > 0 || damageToPlayer > 0)
