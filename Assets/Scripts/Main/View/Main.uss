@@ -468,6 +468,14 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
+.damage-number-label {
+    font-size: 80px;
+    -unity-font-style: bold;
+    color: rgb(255, 70, 70);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
 .deck-def-overlay {
     position: absolute;
     left: 0;

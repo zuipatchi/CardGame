@@ -615,6 +615,72 @@ namespace Main
             }
         }
 
+        // ─── ダメージ数字飛翔演出 ──────────────────────────────────────────
+
+        private async UniTask PlayDamageNumbersFlyAsync(
+            int damageToOpponent, int damageToPlayer,
+            Vector2 damageToOpponentFrom, Vector2 damageToPlayerFrom,
+            CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            if (damageToOpponent > 0)
+            {
+                tasks.Add(PlayDamageNumberFlyAsync(damageToOpponent, damageToOpponentFrom, _opponentDeckView, ct));
+            }
+            if (damageToPlayer > 0)
+            {
+                tasks.Add(PlayDamageNumberFlyAsync(damageToPlayer, damageToPlayerFrom, _playerDeckView, ct));
+            }
+            if (tasks.Count > 0)
+            {
+                await UniTask.WhenAll(tasks);
+            }
+        }
+
+        private async UniTask PlayDamageNumberFlyAsync(
+            int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
+        {
+            const float AppearDuration = 0.2f;
+            const float HoldDuration = 0.2f;
+            const float FlyDuration = 0.45f;
+            const float LabelW = 320f;
+            const float LabelH = 90f;
+
+            Label label = new Label($"{damage}ダメージ");
+            label.AddToClassList("damage-number-label");
+            label.pickingMode = PickingMode.Ignore;
+            label.style.position = Position.Absolute;
+            label.style.opacity = 0f;
+            label.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            Vector2 fromLocal = _dragLayer.WorldToLocal(fromWorldCenter);
+            float left = fromLocal.x - LabelW / 2f;
+            float top = fromLocal.y - LabelH / 2f;
+            label.style.left = left;
+            label.style.top = top;
+            _dragLayer.Add(label);
+
+            Vector2 deckLocal = _dragLayer.WorldToLocal(targetDeck.worldBound.center);
+            float targetLeft = deckLocal.x - LabelW / 2f;
+            float targetTop = deckLocal.y - LabelH / 2f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => left, v => { left = v; label.style.left = v; }, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                .Join(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            label.RemoveFromHierarchy();
+        }
+
         // ─── CPU ドロー演出 ──────────────────────────────────────────────
 
         private async UniTask PlayCpuDrawAsync(CardData data, Rect deckRect, CancellationToken ct)

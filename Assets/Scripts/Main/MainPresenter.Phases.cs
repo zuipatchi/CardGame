@@ -714,6 +714,12 @@ namespace Main
             _playerCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
             _opponentCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
 
+            await PlayDamageNumbersFlyAsync(
+                damageToOpponent, damageToPlayer,
+                _opponentCharacterSlot.worldBound.center,
+                _playerCharacterSlot.worldBound.center,
+                ct);
+
             // デッキダメージ
             if (damageToOpponent > 0 || damageToPlayer > 0)
             {
