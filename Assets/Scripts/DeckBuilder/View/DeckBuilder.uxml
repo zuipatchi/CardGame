@@ -19,7 +19,7 @@
                         <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" />
                         <ui:VisualElement class="deckbuilder-deck-count-container">
                             <ui:VisualElement class="deckbuilder-deck-count-row">
-                                <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/30" />
+                                <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/--" />
                                 <ui:Label name="DeckCardCountLabel" class="deckbuilder-deck-card-count" text="0枚" />
                             </ui:VisualElement>
                         </ui:VisualElement>

@@ -4,7 +4,7 @@ namespace Common.Deck
 {
     public sealed class DeckModel
     {
-        public const int TargetCost = 30;
+        public const int TargetCost = 50;
 
         private readonly List<(string id, int cost)> _entries = new List<(string id, int cost)>();
 
