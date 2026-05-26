@@ -71,6 +71,7 @@ namespace Main
 
         private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.CharacterSet);
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
             bool isLocalFirst = _gameModel.IsLocalTurn;
@@ -186,6 +187,7 @@ namespace Main
 
         private async UniTask RunDrawPhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.Draw);
             DeckView sourceDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
 
             if (sourceDeck.Count == 0)
@@ -226,6 +228,7 @@ namespace Main
 
         private async UniTask RunPreBattle1PhaseAsync(bool isLocalTurn, CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.PreBattle1);
             await PlayAnnouncementAsync("準備フェーズ", "turn-announcement-label--skill", ct);
 
             bool isLocalFirst = isLocalTurn;
@@ -332,6 +335,7 @@ namespace Main
 
         private async UniTask RunPreBattle2PhaseAsync(CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.PreBattle2);
             await PlayAnnouncementAsync("イベントフェーズ", "turn-announcement-label--event", ct);
 
             while (true)
@@ -456,6 +460,7 @@ namespace Main
 
         private async UniTask RunResolutionPhaseAsync(CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.Resolution);
             IReadOnlyList<CardView> queue = _gameModel.ReadyQueue;
             if (queue.Count == 0)
             {
@@ -601,6 +606,7 @@ namespace Main
 
         private async UniTask RunBattlePhaseAsync(CancellationToken ct)
         {
+            UpdatePhaseIndicator(TurnPhase.Battle);
             List<CardView> playerCards = _playerFieldView.Cards.ToList();
             List<CardView> opponentCards = _opponentFieldView.Cards.ToList();
 

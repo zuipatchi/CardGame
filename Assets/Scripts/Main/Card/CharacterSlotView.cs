@@ -42,6 +42,7 @@ namespace Main.Card
             AddToClassList("character-slot-view");
             style.width = CardWidth;
             style.height = CardHeight;
+            style.flexShrink = 0f;
             style.alignItems = Align.Center;
             style.justifyContent = Justify.Center;
             style.overflow = Overflow.Hidden;

@@ -67,6 +67,13 @@ namespace Main
         private Label _gameEndLabel;
         private Button _gameEndTitleButton;
 
+        private VisualElement _phaseRowCharacterSet;
+        private VisualElement _phaseRowDraw;
+        private VisualElement _phaseRowPreBattle1;
+        private VisualElement _phaseRowPreBattle2;
+        private VisualElement _phaseRowResolution;
+        private VisualElement _phaseRowBattle;
+
         private CardDetailModal _cardDetailModal;
         private AttributeCompatibilityModal _attrCompatibilityModal;
         private bool _isGameOver;
@@ -319,6 +326,14 @@ namespace Main
                 _costWarningLabel.style.display = DisplayStyle.None;
                 mainRoot.Add(_costWarningLabel);
 
+                VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
+                _phaseRowCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowCharacterSet");
+                _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
+                _phaseRowPreBattle1 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle1");
+                _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
+                _phaseRowResolution = phaseIndicator.Q<VisualElement>("PhaseRowResolution");
+                _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
+
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
                 _gameEndOverlay.style.display = DisplayStyle.None;
@@ -446,6 +461,31 @@ namespace Main
                 drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
             }
             await UniTask.WhenAll(drawTasks);
+        }
+
+        private void UpdatePhaseIndicator(TurnPhase phase)
+        {
+            VisualElement[] rows =
+            {
+                _phaseRowCharacterSet, _phaseRowDraw, _phaseRowPreBattle1,
+                _phaseRowPreBattle2, _phaseRowResolution, _phaseRowBattle,
+            };
+            TurnPhase[] phases =
+            {
+                TurnPhase.CharacterSet, TurnPhase.Draw, TurnPhase.PreBattle1,
+                TurnPhase.PreBattle2, TurnPhase.Resolution, TurnPhase.Battle,
+            };
+            for (int i = 0; i < rows.Length; i++)
+            {
+                if (phases[i] == phase)
+                {
+                    rows[i].AddToClassList("phase-row--active");
+                }
+                else
+                {
+                    rows[i].RemoveFromClassList("phase-row--active");
+                }
+            }
         }
     }
 }

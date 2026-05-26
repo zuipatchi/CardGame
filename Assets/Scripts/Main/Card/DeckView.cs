@@ -45,6 +45,7 @@ namespace Main.Card
 
             VisualElement badgeContainer = new VisualElement();
             badgeContainer.AddToClassList("deck-count-badge-container");
+            badgeContainer.pickingMode = PickingMode.Ignore;
 
             VisualElement badge = new VisualElement();
             badge.AddToClassList("deck-count-badge");
