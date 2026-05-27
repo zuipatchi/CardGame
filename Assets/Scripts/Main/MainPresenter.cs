@@ -70,7 +70,6 @@ namespace Main
 
         [SerializeField] private GameObject _fireworkPrefab;
 
-        private VisualElement _phaseRowCharacterSet;
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;
         private VisualElement _phaseRowPreBattle2;
@@ -81,7 +80,6 @@ namespace Main
         private AttributeCompatibilityModal _attrCompatibilityModal;
         private bool _isGameOver;
         private bool _isOnline;
-        private bool _characterSetDone;
         private VisualElement _waitingOverlay;
         private VisualElement _toastContainer;
         private Label _toastLabel;
@@ -356,7 +354,6 @@ namespace Main
                 mainRoot.Add(_costWarningLabel);
 
                 VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
-                _phaseRowCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowCharacterSet");
                 _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
                 _phaseRowPreBattle1 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle1");
                 _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
@@ -520,21 +517,14 @@ namespace Main
 
         private void UpdatePhaseIndicator(TurnPhase phase)
         {
-            if (phase != TurnPhase.CharacterSet)
-            {
-                _characterSetDone = true;
-            }
-
-            _phaseRowCharacterSet.style.display = _characterSetDone ? DisplayStyle.None : DisplayStyle.Flex;
-
             VisualElement[] rows =
             {
-                _phaseRowCharacterSet, _phaseRowDraw, _phaseRowPreBattle1,
+                _phaseRowDraw, _phaseRowPreBattle1,
                 _phaseRowPreBattle2, _phaseRowResolution, _phaseRowBattle,
             };
             TurnPhase[] phases =
             {
-                TurnPhase.CharacterSet, TurnPhase.Draw, TurnPhase.PreBattle1,
+                TurnPhase.Draw, TurnPhase.PreBattle1,
                 TurnPhase.PreBattle2, TurnPhase.Resolution, TurnPhase.Battle,
             };
             for (int i = 0; i < rows.Length; i++)

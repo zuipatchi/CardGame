@@ -15,14 +15,17 @@ namespace Main
     {
         // ─── ゲームループ ───────────────────────────────────────────────
 
-        private async UniTaskVoid RunGameAsync(bool isLocalFirst, CancellationToken ct)
+        private async UniTaskVoid RunGameAsync(bool onlineIsLocalFirst, CancellationToken ct)
         {
             try
             {
+                await RunCharacterSetPhaseAsync(onlineIsLocalFirst, ct);
+                if (_isGameOver) return;
+
+                bool isLocalFirst = _isOnline ? onlineIsLocalFirst : (UnityEngine.Random.value > 0.5f);
                 _gameModel.SetInitialTurn(isLocalFirst);
                 await PlayCoinTossAsync(isLocalFirst, ct);
 
-                await RunCharacterSetPhaseAsync(ct);
                 while (!_isGameOver)
                 {
                     await RunTurnAsync(ct);
@@ -69,58 +72,21 @@ namespace Main
 
         // ─── キャラセットフェーズ（ゲーム開始時1回のみ） ───────────────────────
 
-        private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
+        private async UniTask RunCharacterSetPhaseAsync(bool onlineIsLocalFirst, CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.CharacterSet);
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
-            bool isLocalFirst = _gameModel.IsLocalTurn;
-
-            for (int i = 0; i < 2; i++)
+            if (_isOnline)
             {
-                bool isLocalTurn = (i == 0) ? isLocalFirst : !isLocalFirst;
-
-                if (isLocalTurn)
-                {
-                    CardView placed = await WaitForPlayerCharSetInputAsync(ct);
-                    if (placed == null)
-                    {
-                        await PlayPassAnimationAsync(true, ct);
-                        if (_isOnline)
-                        {
-                            _networkGameService.SendCharSetAction(null);
-                        }
-                    }
-                    else if (_isOnline)
-                    {
-                        _networkGameService.SendCharSetAction(placed.Data.Id);
-                    }
-                }
-                else if (_isOnline)
-                {
-                    string opponentCardId = await _networkGameService.WaitForOpponentCharSetAsync(ct);
-                    await PlayOpponentCharSetOnlineAsync(opponentCardId, ct);
-                }
-                else
-                {
-                    await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
-                    IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
-                    int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
-
-                    if (idx >= 0)
-                    {
-                        CardView card = cpuHand[idx];
-                        Rect fromRect = card.worldBound;
-                        _opponentHandView.RemoveCard(card);
-                        await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
-                        _opponentCharacterSlot.PlaceCard(card);
-                        await PlayOkFlashAsync(false, ct);
-                    }
-                    else
-                    {
-                        await PlayPassAnimationAsync(false, ct);
-                    }
-                }
+                await OnlineCharSetAsync(ct);
+            }
+            else
+            {
+                await UniTask.WhenAll(
+                    PlayerCharSetLocalAsync(ct),
+                    CpuCharSetAsync(ct)
+                );
             }
 
             await PlayResolveAnimationAsync(ct);
@@ -136,6 +102,62 @@ namespace Main
                 await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
                 await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
             }
+        }
+
+        private async UniTask PlayerCharSetLocalAsync(CancellationToken ct)
+        {
+            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+            }
+        }
+
+        private async UniTask CpuCharSetAsync(CancellationToken ct)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
+            IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
+            int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
+
+            if (idx >= 0)
+            {
+                CardView card = cpuHand[idx];
+                Rect fromRect = card.worldBound;
+                _opponentHandView.RemoveCard(card);
+                await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
+                _opponentCharacterSlot.PlaceCard(card);
+                await PlayOkFlashAsync(false, ct);
+            }
+            else
+            {
+                await PlayPassAnimationAsync(false, ct);
+            }
+        }
+
+        // オンライン：ホスト・クライアント共通。相手カード受信を並列起動し、自分の入力後即送信。
+        // 両者ともに receiveTask が完了してから処理を継続するので k_CharSetComplete 不要。
+        private async UniTask OnlineCharSetAsync(CancellationToken ct)
+        {
+            UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
+
+            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+                _networkGameService.SendCharSetAction(null);
+            }
+            else
+            {
+                _networkGameService.SendCharSetAction(placed.Data.Id);
+            }
+
+            await receiveTask;
+        }
+
+        private async UniTask ReceiveAndPlaceOpponentCharSetAsync(CancellationToken ct)
+        {
+            string cardId = await _networkGameService.WaitForOpponentCharSetAsync(ct);
+            await PlayOpponentCharSetOnlineAsync(cardId, ct);
         }
 
         private async UniTask<CardView> WaitForPlayerCharSetInputAsync(CancellationToken ct)

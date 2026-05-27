@@ -19,14 +19,7 @@
             <ui:Button name="OkButton" class="action-button action-button--ok" />
         </ui:VisualElement>
         <ui:VisualElement name="PhaseIndicator" class="phase-indicator">
-            <ui:VisualElement name="PhaseRowCharacterSet" class="phase-row">
-                <ui:VisualElement class="phase-dot-col">
-                    <ui:VisualElement class="phase-dot" />
-                    <ui:VisualElement class="phase-line" />
-                </ui:VisualElement>
-                <ui:Label class="phase-label" text="キャラセット" />
-            </ui:VisualElement>
-            <ui:VisualElement name="PhaseRowDraw" class="phase-row">
+<ui:VisualElement name="PhaseRowDraw" class="phase-row">
                 <ui:VisualElement class="phase-dot-col">
                     <ui:VisualElement class="phase-dot" />
                     <ui:VisualElement class="phase-line" />
