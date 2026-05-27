@@ -17,6 +17,7 @@
   - 背景画像（TitleBackgroundPresenter）：Addressables から背景をロードし、カメラ画角に合わせてSpriteRenderer で全画面表示。透明度（_alpha）を Inspector で調整可能
   - ロゴ表示（TitleLogoPresenter）：Addressables からロゴをロードし球の中心Z座標に配置。前半カードがロゴの手前・後半カードがロゴの奥に自然に重なるビルボード表示
   - スタートボタン（GameStartButtonPresenter）：画面全体タッチ対応・「PRESS START」ゴールドパルス点滅演出（USS transition + schedule）
+  - Ambient Glows エフェクト（TitleAmbientGlowPresenter）：CFXR3 Ambient Glows を背景の上（SortingOrder=-50）・UI Toolkit の下にスポーン。EmissionRate 調整は ParticleSystem コンポーネントまたはスクリプトで multiplier 指定
 - ホームシーン（Title → Home → DeckBuilder / Main / Matching の中継ハブ）
   - 「デッキ編集」「CPU対戦」「オンライン対戦」への遷移ボタン（カードパネル風デザイン・ホバーアニメーション・右寄せ配置）。コスト不足・コストオーバー時に対戦・マッチングボタンを押すとトーストを表示して遷移をブロック
   - Live2D キャラクター（Dog-kid）表示：画面左側に配置。登録した全モーションからランダムに再生→終了後に次をランダム選択のループ（AnimatorController 使用・FadeMotionList なし・CubismFadeController 無効化）
