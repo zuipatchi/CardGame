@@ -445,7 +445,8 @@ RunBattlePhaseAsync
   → 全フィールドカードを同時に表向き
   → フィールドのキャラカードを FlyCharToSlotAsync でスロットへ移動（既存キャラは墓地へ）
   → フィールドの技カードを FlySkillToSlotAsync でキャラスロットへ移動（キャラの下に重なる）
-  → ATK = 戦闘前1で出した技カードの Damage 合計 + AtkBoost
+  → ATK = (技カードの Damage 合計 + AtkBoost) × タイプ倍率 × 弱点倍率
+    （技属性 == 自キャラ属性(None以外) でタイプ倍率=2、技属性 == 相手キャラ弱点で弱点倍率=3、技属性 == 相手キャラ得意属性で ATK=0）
     （スロット空 or 今ターン新キャラ配置の場合は 0）
   → PlayAtkCounterAsync: 両サイドに 0→ATK のカウントアップ表示（常時）、**キャラスロット**に DEF アイコン＆DEF値をフェードイン表示
   → 技カードを墓地へ
