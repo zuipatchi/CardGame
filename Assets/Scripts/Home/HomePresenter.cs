@@ -12,6 +12,8 @@ namespace Home
     [RequireComponent(typeof(UIDocument))]
     public sealed class HomePresenter : MonoBehaviour
     {
+        [SerializeField] private GameObject _rainEffectPrefab;
+
         private SceneTransitioner _sceneTransitioner;
         private DeckModel _deckModel;
         private DeckRepository _deckRepository;
@@ -20,6 +22,7 @@ namespace Home
         private Button _battleButton;
         private Button _matchingButton;
         private Label _costOverToastLabel;
+        private VisualElement _darkOverlay;
         private CancellationTokenSource _toastCts;
 
         [Inject]
@@ -37,6 +40,22 @@ namespace Home
             _uiDocument = GetComponent<UIDocument>();
         }
 
+        private void Start()
+        {
+            bool isRainy = UnityEngine.Random.value < 0.5f;
+            if (isRainy)
+            {
+                if (_rainEffectPrefab != null)
+                {
+                    Instantiate(_rainEffectPrefab, new Vector3(0f, 15f, 0f), Quaternion.identity);
+                }
+                if (_darkOverlay != null)
+                {
+                    _darkOverlay.style.display = DisplayStyle.Flex;
+                }
+            }
+        }
+
         private void OnEnable()
         {
             VisualElement root = _uiDocument.rootVisualElement;
@@ -44,6 +63,7 @@ namespace Home
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
+            _darkOverlay = root.Q<VisualElement>("DarkOverlay");
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
             _matchingButton.clicked += OnMatchingClicked;
@@ -67,6 +87,7 @@ namespace Home
             _battleButton = null;
             _matchingButton = null;
             _costOverToastLabel = null;
+            _darkOverlay = null;
         }
 
         private void OnDestroy()
