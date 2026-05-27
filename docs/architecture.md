@@ -427,10 +427,10 @@ RunDrawPhaseAsync
 
 RunPreBattle1PhaseAsync
   → "準備フェーズ" 告知
-  → 先攻・後攻の順にキャラカードまたは技カードを1枚だけ裏向きでフィールドにセット。パス時は PlayPassAnimationAsync で PASS 表示
-      オフライン: 自分 → WaitForPlayerPreBattle1TurnAsync / CPU → CpuAgent で選択
-      オンライン: 自分のターン → WaitForPlayerPreBattle1TurnAsync → SendPreBattle1Action で送信
-                  相手のターン → WaitForOpponentPreBattle1Async で受信 → PlayOpponentPreBattle1OnlineAsync でアニメーション
+  → 両プレイヤーが同時にキャラカードまたは技カードを1枚だけ裏向きでフィールドにセット。パス時は PlayPassAnimationAsync で PASS 表示
+      オフライン: UniTask.WhenAll(PlayerPreBattle1LocalAsync, CpuPreBattle1Async) で並列実行
+      オンライン: OnlinePreBattle1Async（CharSet と同様の対称プロトコル）
+                  受信タスク(ReceiveAndPlaceOpponentPreBattle1Async)をホットタスクで起動 → 自分の入力 → SendPreBattle1Action → 受信完了を await
 
 RunPreBattle2PhaseAsync
   → "イベントフェーズ" 告知
@@ -526,7 +526,7 @@ CpuAgent.ChooseEventCardIndex(hand)        戦闘前2フェーズ：イベント
 ```
 
 - キャラセットフェーズ: `ChooseCharacterSetCardIndex` でキャラカードを選択して `CharacterSlotView` へ裏向きで飛翔配置
-- 戦闘前1フェーズ: `ChoosePreBattle1CardIndex` でキャラまたは技カードを選択し `FieldView` へ裏向きで飛翔配置（`RunCpuPreBattle1SubTurnAsync`）
+- 戦闘前1フェーズ: `ChoosePreBattle1CardIndex` でキャラまたは技カードを選択し `FieldView` へ裏向きで飛翔配置（`CpuPreBattle1Async`）
 - 戦闘前2フェーズ: `ChooseEventCardIndex` でイベントカードを選択し `FieldView` へ飛翔・Ready 化（`RunCpuPreBattle2SubTurnAsync`）
 
 ### ゲームロジック（GameModel）
