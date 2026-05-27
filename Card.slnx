@@ -59,11 +59,13 @@
   <Project Path="Unity.VisualScripting.Flow.csproj" />
   <Project Path="Unity.Splines.Editor.csproj" />
   <Project Path="Unity.PerformanceTesting.csproj" />
+  <Project Path="Tests.PlayMode.csproj" />
   <Project Path="Unity.Services.Multiplayer.Editor.Matchmaker.Authoring.csproj" />
   <Project Path="Unity.TextMeshPro.csproj" />
   <Project Path="UniTask.Linq.csproj" />
   <Project Path="Tests.EditMode.csproj" />
   <Project Path="Live2D.Cubism.Editor.csproj" />
+  <Project Path="ToonyColorsPro.Demo.Editor.csproj" />
   <Project Path="Unity.TextMeshPro.Editor.csproj" />
   <Project Path="Unity.Burst.Editor.csproj" />
   <Project Path="VContainer.Editor.csproj" />
@@ -84,7 +86,6 @@
   <Project Path="Unity.Netcode.Editor.CodeGen.csproj" />
   <Project Path="Unity.Services.Multiplayer.Editor.Matchmaker.Authoring.Core.csproj" />
   <Project Path="Unity.Services.Core.Configuration.Editor.csproj" />
-  <Project Path="Tests.PlayMode.csproj" />
   <Project Path="Unity.Services.Core.Configuration.csproj" />
   <Project Path="Unity.Multiplayer.Center.Common.csproj" />
   <Project Path="DOTween.Modules.csproj" />
@@ -114,11 +115,15 @@
   <Project Path="Unity.Profiling.Core.csproj" />
   <Project Path="Unity.Services.Core.Device.csproj" />
   <Project Path="Unity.Services.Core.Analytics.csproj" />
+  <Project Path="CFXRRuntime.csproj" />
+  <Project Path="CFXRDemo.csproj" />
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Services.Authentication.Editor.Shared.csproj" />
   <Project Path="UniTask.Editor.csproj" />
+  <Project Path="CFXR.WelcomeScreen.csproj" />
   <Project Path="DeckBuilder.csproj" />
+  <Project Path="KinoBloom.Runtime.csproj" />
   <Project Path="Unity.Services.Core.Registration.csproj" />
   <Project Path="R3.Unity.XRInteractionToolkit.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
@@ -133,6 +138,7 @@
   <Project Path="CpuDeckBuilder.csproj" />
   <Project Path="Unity.VisualScripting.DocCodeExamples.csproj" />
   <Project Path="Unity.PlasticSCM.Editor.Entities.csproj" />
+  <Project Path="CFXREditor.csproj" />
   <Project Path="UniTask.Addressables.csproj" />
   <Project Path="Unity.Rendering.LightTransport.Editor.csproj" />
   <Project Path="Unity.Services.Core.Environments.csproj" />
