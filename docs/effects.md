@@ -115,56 +115,43 @@ Blend One One
 
 ### 原因
 
-UI Toolkit の `backgroundImage` は UI レンダリングの一部として描画される。RenderTexture の RawImage は Canvas に乗っているが、それでも UI Toolkit のルート要素の background は「UI の底」にあるため、加算合成が正しく機能しない場合がある。
+UI Toolkit の `backgroundImage` は UI レンダリングの一部として描画される。RenderTexture の RawImage は Canvas に乗っているが、UI Toolkit のルート要素の background は「UI の底」にあるため、加算合成が正しく機能しない場合がある。
 
 ### 対処法：背景を `SpriteRenderer`（ワールド空間）に移す
 
 ```csharp
-private void SpawnBattleFieldBackground(Texture2D texture)
-{
-    Camera cam = Camera.main;
-    float dist = Mathf.Abs(cam.transform.position.z);
-    float halfHeight = Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * dist;
-    float halfWidth = halfHeight * cam.aspect;
+Camera cam = Camera.main;
+float dist = Mathf.Abs(cam.transform.position.z);
+float halfHeight = Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * dist;
+float halfWidth = halfHeight * cam.aspect;
 
-    Sprite sprite = Sprite.Create(
-        texture,
-        new Rect(0f, 0f, texture.width, texture.height),
-        new Vector2(0.5f, 0.5f),
-        100f);
+// Addressables 等で Texture2D としてロードした場合は Sprite に変換する
+Sprite sprite = Sprite.Create(
+    texture,
+    new Rect(0f, 0f, texture.width, texture.height),
+    new Vector2(0.5f, 0.5f),
+    100f);
 
-    GameObject bgObj = new GameObject("Background");
-    SpriteRenderer sr = bgObj.AddComponent<SpriteRenderer>();
-    sr.sprite = sprite;
-    sr.sortingOrder = -10; // エフェクトより後ろ
+GameObject bgObj = new GameObject("Background");
+SpriteRenderer sr = bgObj.AddComponent<SpriteRenderer>();
+sr.sprite = sprite;
+sr.sortingOrder = -10; // エフェクトより後ろ
 
-    // アート素材にパース感がある場合は X 軸回転で調整
-    bgObj.transform.SetPositionAndRotation(
-        new Vector3(0f, 1.5f, -0.5f),
-        Quaternion.Euler(10f, 0f, 0f));
-
-    // カメラ画角にフィットするようスケール
-    Vector2 spriteSize = sprite.bounds.size;
-    float scale = Mathf.Max(halfWidth * 2f / spriteSize.x, halfHeight * 2f / spriteSize.y);
-    bgObj.transform.localScale = new Vector3(scale, scale, 1f);
-}
+// カメラ画角にフィットするようスケール
+Vector2 spriteSize = sprite.bounds.size;
+float scale = Mathf.Max(halfWidth * 2f / spriteSize.x, halfHeight * 2f / spriteSize.y);
+bgObj.transform.localScale = new Vector3(scale, scale, 1f);
 ```
 
-**注意:** `_cardStore.BattleField` は `Texture2D` 型。`SpriteRenderer.sprite` に直接代入できないため `Sprite.Create(...)` で変換する。
+**注意:** Addressables や `Texture2D` としてロードしたアセットは `SpriteRenderer.sprite` に直接代入できない。`Sprite.Create(...)` で変換する。
 
 ---
 
-## 4. レイヤー設定（TagManager.asset）
+## 4. パーティクルプレハブのレイヤー設定
 
-エフェクト専用レイヤーを `ProjectSettings/TagManager.asset` に追加する。現在の割り当て:
+エフェクト専用レイヤーを `ProjectSettings/TagManager.asset` に追加し、カリングマスクで使う。
 
-| レイヤー番号 | 名前 |
-|---|---|
-| 6 | Firework |
-
-カリングマスクはレイヤー番号を直接使う: `1 << 6`
-
-プレハブは子オブジェクト含め再帰的にレイヤーを設定する必要がある（パーティクルの子エミッターも含む）:
+プレハブは子オブジェクト（サブエミッターなど）も含めて再帰的にレイヤーを設定する必要がある:
 
 ```csharp
 private static void SetLayerRecursive(GameObject go, int layer)
@@ -177,13 +164,20 @@ private static void SetLayerRecursive(GameObject go, int layer)
 
 ---
 
-## 5. ワールド座標と画面端の対応
+## 5. パースペクティブカメラのワールド座標と画面端の計算式
 
-カメラ設定（Main シーン）:
-- 位置: `(0, 3.15, -10)`
-- FOV: 60°、パースペクティブ
-- Z=0 平面での画面半高さ: `tan(30°) × 10 ≈ 5.77`
-- **画面下端 Y ≈ 3.15 − 5.77 = −2.62**
-- **画面上端 Y ≈ 3.15 + 5.77 = +8.92**
+エフェクトのスポーン位置を画面端に合わせたいときは以下の式で求める:
 
-エフェクトを画面外の下から打ち上げる場合は `Y = -5 〜 -7` が目安。
+```csharp
+Camera cam = Camera.main;
+float dist = Mathf.Abs(cam.transform.position.z - spawnZ);
+float halfHeight = Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * dist;
+float halfWidth  = halfHeight * cam.aspect;
+
+float screenBottom = cam.transform.position.y - halfHeight;
+float screenTop    = cam.transform.position.y + halfHeight;
+float screenLeft   = cam.transform.position.x - halfWidth;
+float screenRight  = cam.transform.position.x + halfWidth;
+```
+
+画面外から打ち上げる場合は `screenBottom` より小さい Y 値を使う。
