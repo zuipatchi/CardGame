@@ -323,7 +323,7 @@ HandView          VisualElement サブクラス。手札を扇状に表示（60%
 FieldView         VisualElement サブクラス。横長フィールドエリア（最大 5 枚、中央寄せ）
                   配置済みカードはドラッグ不可。TryGetCardAt() でワールド座標からカードを取得
 DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き、60% スケール）
-                  deck-view CSS クラス付き（GraveyardView と同じ背景・枠線スタイルを共有）
+                  deck-view CSS クラス付き（背景・枠線は透明）
                   デッキ上方に HeartIcon.png + 残り枚数を重ねた 80×80px バッジを表示
                   DrawTop() で一番上の CardData を取り出してデッキから除去（枚数ラベルは更新しない）
                   RefreshCount() で枚数ラベルを現在の _deckCards.Count に同期（RunDrawPhaseAsync がドロー直前に呼ぶ）
