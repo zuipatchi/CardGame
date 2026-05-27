@@ -103,4 +103,4 @@ Assets/AssetStore/*
 .claude/settings.local.json
 
 Windows/*
-Patchi.zip
+Build/*
