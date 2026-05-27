@@ -372,6 +372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d89b894b99718884e835762b710ad578, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::Main.MainPresenter
+  _fireworkPrefab: {fileID: 1978689737715041617, guid: afa54037ffe627545886e2741abb365d, type: 3}
 --- !u!114 &2068653631
 MonoBehaviour:
   m_ObjectHideFlags: 0

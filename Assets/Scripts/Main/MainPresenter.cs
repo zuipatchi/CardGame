@@ -61,11 +61,14 @@ namespace Main
         private Label _playerAtkCounterLabel;
         private VisualElement _opponentAtkCounterOverlay;
         private Label _opponentAtkCounterLabel;
+        private VisualElement _mainRoot;
         private VisualElement _dragLayer;
         private Label _costWarningLabel;
         private VisualElement _gameEndOverlay;
         private Label _gameEndLabel;
         private Button _gameEndTitleButton;
+
+        [SerializeField] private GameObject _fireworkPrefab;
 
         private VisualElement _phaseRowCharacterSet;
         private VisualElement _phaseRowDraw;
@@ -135,7 +138,8 @@ namespace Main
                 await _cardStore.Loaded;
 
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-                VisualElement mainRoot = root.Q<VisualElement>("MainRoot");
+                _mainRoot = root.Q<VisualElement>("MainRoot");
+                VisualElement mainRoot = _mainRoot;
                 VisualElement deckArea = root.Q<VisualElement>("DeckArea");
                 VisualElement graveyardArea = root.Q<VisualElement>("GraveyardArea");
                 VisualElement opponentDeckArea = root.Q<VisualElement>("OpponentDeckArea");
@@ -147,7 +151,7 @@ namespace Main
                 VisualElement playerCharacterArea = root.Q<VisualElement>("PlayerCharacterArea");
                 VisualElement opponentCharacterArea = root.Q<VisualElement>("OpponentCharacterArea");
 
-                mainRoot.style.backgroundImage = new StyleBackground(_cardStore.BattleField);
+                SpawnBattleFieldBackground(_cardStore.BattleField);
                 _readyTcs.TrySetResult();
 
                 _waitingOverlay = new VisualElement();
@@ -433,6 +437,30 @@ namespace Main
             {
                 Debug.LogError($"BuildAsync 例外: {e}");
             }
+        }
+
+        private void SpawnBattleFieldBackground(Texture2D texture)
+        {
+            Camera cam = Camera.main;
+            float dist = Mathf.Abs(cam.transform.position.z);
+            float halfHeight = Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * dist;
+            float halfWidth = halfHeight * cam.aspect;
+
+            Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+
+            GameObject bgObj = new GameObject("BattleFieldBackground");
+            SpriteRenderer sr = bgObj.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.sortingOrder = -10;
+            bgObj.transform.SetPositionAndRotation(
+                new Vector3(0f, 1.5f, -0.5f),
+                Quaternion.Euler(10f, 0f, 0f));
+
+            Vector2 spriteSize = sprite.bounds.size;
+            float scaleX = halfWidth * 2f / spriteSize.x;
+            float scaleY = halfHeight * 2f / spriteSize.y;
+            float scale = Mathf.Max(scaleX, scaleY);
+            bgObj.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
         private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CancellationToken ct)

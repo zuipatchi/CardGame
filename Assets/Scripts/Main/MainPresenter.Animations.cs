@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Main.Card;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Main
@@ -962,6 +963,14 @@ namespace Main
 
         private async UniTask PlayGameEndAsync(bool? playerWins, CancellationToken ct)
         {
+            if (playerWins == true && _fireworkPrefab != null)
+            {
+                SpawnFireworksAsync(destroyCancellationToken).Forget();
+                // オーバーレイを見せる前に花火を視認させる
+                try { await UniTask.Delay(300, cancellationToken: ct); }
+                catch (OperationCanceledException) { }
+            }
+
             string text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
             string labelClass = playerWins == null ? "game-end-label--draw"
                 : playerWins.Value ? "game-end-label--win" : "game-end-label--lose";
@@ -998,6 +1007,78 @@ namespace Main
 
             try { await tcs.Task; }
             catch (OperationCanceledException) { }
+        }
+
+        private async UniTaskVoid SpawnFireworksAsync(CancellationToken ct)
+        {
+            const int FireworkLayer = 6;
+
+            // 花火を RenderTexture に描画し、加算ブレンドの RawImage で UI の上に重ねる
+            Camera mainCam = Camera.main;
+            int originalCullingMask = mainCam.cullingMask;
+            mainCam.cullingMask &= ~(1 << FireworkLayer);
+
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 0);
+            rt.Create();
+
+            GameObject camObj = new GameObject("FireworkCamera");
+            Camera fwCam = camObj.AddComponent<Camera>();
+            fwCam.clearFlags = CameraClearFlags.SolidColor;
+            fwCam.backgroundColor = Color.black;
+            fwCam.cullingMask = 1 << FireworkLayer;
+            fwCam.targetTexture = rt;
+            fwCam.fieldOfView = mainCam.fieldOfView;
+            fwCam.nearClipPlane = mainCam.nearClipPlane;
+            fwCam.farClipPlane = mainCam.farClipPlane;
+            camObj.transform.SetPositionAndRotation(mainCam.transform.position, mainCam.transform.rotation);
+
+            GameObject canvasObj = new GameObject("FireworkCanvas");
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+
+            GameObject imgObj = new GameObject("FireworkImage");
+            imgObj.transform.SetParent(canvasObj.transform, false);
+            RawImage img = imgObj.AddComponent<RawImage>();
+            img.texture = rt;
+
+            Material mat = new Material(Shader.Find("Custom/FireworkAdditiveUI"));
+            img.material = mat;
+
+            RectTransform rect = imgObj.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+            rect.anchoredPosition = Vector2.zero;
+
+            float[] xPositions = { -2.5f, 2.5f, -1f, 2f, 0f, -2f, 1.5f };
+            foreach (float x in xPositions)
+            {
+                if (ct.IsCancellationRequested) break;
+                GameObject fw = Instantiate(_fireworkPrefab, new Vector3(x, -7f, 0f), Quaternion.identity);
+                SetLayerRecursive(fw, FireworkLayer);
+                try { await UniTask.Delay(400, cancellationToken: ct); }
+                catch (OperationCanceledException) { break; }
+            }
+
+            try { await UniTask.Delay(4000, cancellationToken: ct); }
+            catch (OperationCanceledException) { }
+
+            mainCam.cullingMask = originalCullingMask;
+            Destroy(canvasObj);
+            Destroy(camObj);
+            Destroy(mat);
+            rt.Release();
+            Destroy(rt);
+        }
+
+        private static void SetLayerRecursive(GameObject go, int layer)
+        {
+            go.layer = layer;
+            foreach (Transform child in go.transform)
+            {
+                SetLayerRecursive(child.gameObject, layer);
+            }
         }
 
         // ─── OK フラッシュ演出 ──────────────────────────────────────────
