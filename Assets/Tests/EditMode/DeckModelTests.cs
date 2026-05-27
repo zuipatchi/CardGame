@@ -29,18 +29,18 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void Add_コスト合計が30を超えても追加できる()
+        public void Add_コスト合計が50を超えても追加できる()
         {
             DeckModel model = new DeckModel();
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 11; i++)
             {
                 model.Add("C001", 5);
             }
 
             model.Add("C001", 5);
 
-            Assert.AreEqual(8, model.Count);
-            Assert.AreEqual(40, model.TotalCost);
+            Assert.AreEqual(12, model.Count);
+            Assert.AreEqual(60, model.TotalCost);
         }
 
         [Test]
@@ -55,17 +55,17 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsReady_TotalCostが30のときtrue()
+        public void IsReady_TotalCostが50のときtrue()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 15);
-            model.Add("S001", 15);
+            model.Add("C001", 25);
+            model.Add("S001", 25);
 
             Assert.IsTrue(model.IsReady);
         }
 
         [Test]
-        public void IsReady_TotalCostが30未満のときfalse()
+        public void IsReady_TotalCostが50未満のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", 10);
@@ -74,37 +74,37 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsReady_TotalCostが30を超えるときfalse()
+        public void IsReady_TotalCostが50を超えるときfalse()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 20);
-            model.Add("S001", 15);
+            model.Add("C001", 30);
+            model.Add("S001", 25);
 
             Assert.IsFalse(model.IsReady);
         }
 
         [Test]
-        public void IsOver_TotalCostが30を超えるときtrue()
+        public void IsOver_TotalCostが50を超えるときtrue()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 20);
-            model.Add("S001", 15);
+            model.Add("C001", 30);
+            model.Add("S001", 25);
 
             Assert.IsTrue(model.IsOver);
         }
 
         [Test]
-        public void IsOver_TotalCostが30のときfalse()
+        public void IsOver_TotalCostが50のときfalse()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 15);
-            model.Add("S001", 15);
+            model.Add("C001", 25);
+            model.Add("S001", 25);
 
             Assert.IsFalse(model.IsOver);
         }
 
         [Test]
-        public void IsOver_TotalCostが30未満のときfalse()
+        public void IsOver_TotalCostが50未満のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", 10);
@@ -190,8 +190,8 @@ namespace Tests.EditMode
         public void Clear_IsReadyがfalseになる()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 15);
-            model.Add("S001", 15);
+            model.Add("C001", 25);
+            model.Add("S001", 25);
 
             model.Clear();
 

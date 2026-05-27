@@ -44,7 +44,7 @@ namespace Main
             }
 
             _gameModel.BeginPreBattle1();
-            await RunPreBattle1PhaseAsync(isLocalTurn, ct);
+            await RunPreBattle1PhaseAsync(ct);
             if (_isGameOver)
             {
                 return;
@@ -126,7 +126,6 @@ namespace Main
                 _opponentHandView.RemoveCard(card);
                 await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
                 _opponentCharacterSlot.PlaceCard(card);
-                await PlayOkFlashAsync(false, ct);
             }
             else
             {
@@ -203,7 +202,6 @@ namespace Main
             CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
             _opponentCharacterSlot.PlaceCard(card);
-            await PlayOkFlashAsync(false, ct);
         }
 
         // ─── ドローフェーズ ─────────────────────────────────────────────
@@ -249,42 +247,56 @@ namespace Main
 
         // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────
 
-        private async UniTask RunPreBattle1PhaseAsync(bool isLocalTurn, CancellationToken ct)
+        private async UniTask RunPreBattle1PhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.PreBattle1);
             await PlayAnnouncementAsync("準備フェーズ", "turn-announcement-label--skill", ct);
 
-            bool isLocalFirst = isLocalTurn;
-
-            for (int i = 0; i < 2; i++)
+            if (_isOnline)
             {
-                bool isLocalAct = (i == 0) ? isLocalFirst : !isLocalFirst;
-
-                if (isLocalAct)
-                {
-                    CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
-                    if (_isOnline)
-                    {
-                        _networkGameService.SendPreBattle1Action(placed?.Data.Id);
-                    }
-                    if (placed == null)
-                    {
-                        await PlayPassAnimationAsync(true, ct);
-                    }
-                }
-                else
-                {
-                    if (_isOnline)
-                    {
-                        string cardId = await _networkGameService.WaitForOpponentPreBattle1Async(ct);
-                        await PlayOpponentPreBattle1OnlineAsync(cardId, ct);
-                    }
-                    else
-                    {
-                        await RunCpuPreBattle1SubTurnAsync(ct);
-                    }
-                }
+                await OnlinePreBattle1Async(ct);
             }
+            else
+            {
+                await UniTask.WhenAll(
+                    PlayerPreBattle1LocalAsync(ct),
+                    CpuPreBattle1Async(ct)
+                );
+            }
+        }
+
+        private async UniTask PlayerPreBattle1LocalAsync(CancellationToken ct)
+        {
+            CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+            }
+        }
+
+        // オンライン：CharSet と同様の対称プロトコル。相手カード受信を並列起動し、自分の入力後即送信。
+        private async UniTask OnlinePreBattle1Async(CancellationToken ct)
+        {
+            UniTask receiveTask = ReceiveAndPlaceOpponentPreBattle1Async(ct);
+
+            CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+                _networkGameService.SendPreBattle1Action(null);
+            }
+            else
+            {
+                _networkGameService.SendPreBattle1Action(placed.Data.Id);
+            }
+
+            await receiveTask;
+        }
+
+        private async UniTask ReceiveAndPlaceOpponentPreBattle1Async(CancellationToken ct)
+        {
+            string cardId = await _networkGameService.WaitForOpponentPreBattle1Async(ct);
+            await PlayOpponentPreBattle1OnlineAsync(cardId, ct);
         }
 
         private async UniTask<CardView> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
@@ -311,7 +323,7 @@ namespace Main
             return result;
         }
 
-        private async UniTask RunCpuPreBattle1SubTurnAsync(CancellationToken ct)
+        private async UniTask CpuPreBattle1Async(CancellationToken ct)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
             IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
@@ -328,7 +340,6 @@ namespace Main
             _opponentHandView.RemoveCard(card);
             await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(card);
-            await PlayOkFlashAsync(false, ct);
         }
 
         private async UniTask PlayOpponentPreBattle1OnlineAsync(string cardId, CancellationToken ct)
@@ -352,7 +363,6 @@ namespace Main
             CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(card);
-            await PlayOkFlashAsync(false, ct);
         }
 
         // ─── 戦闘前2フェーズ（Event のみ・交互・2連続パス）──────────────────

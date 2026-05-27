@@ -104,7 +104,11 @@ namespace Main
             }
 
             HideActionButtons();
-            await PlayOkFlashAsync(true, destroyCancellationToken);
+            TurnPhase phase = _gameModel.Phase;
+            if (phase != TurnPhase.CharacterSet && phase != TurnPhase.PreBattle1)
+            {
+                await PlayOkFlashAsync(true, destroyCancellationToken);
+            }
             tcs.TrySetResult(card);
         }
 
