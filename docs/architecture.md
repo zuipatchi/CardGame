@@ -455,7 +455,7 @@ RunResolutionPhaseAsync
      BanishChar: 先に PlayBanishCharEffectAsync で対象キャラスロット上に「BANISH!」フローティングラベル（赤・上昇フェード）+ パーティクルを再生。ApplyEventEffectAsync 内で FlyCardToDestAsync によりキャラカードを墓地へ飛翔させてから AddCard
      AtkBoost:   ApplyEventEffectAsync 適用後に「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルを PlayAtkBoostEffectAsync で同時再生
      DefBoost:   ApplyEventEffectAsync 適用後に「DEF +{value}」フローティングラベル（水色・上昇フェード）+ パーティクルを PlayDefBoostEffectAsync で同時再生
-     Negate:     skipNextEffect = true をセット後、打ち消し対象（queue[i-1]）に PlayNegateEffectAsync で「NEGATE!」フローティングラベル（青・上昇フェード）+ パーティクルを再生。スキップされる側（skipNextEffect == true の card）には PlayNegatedEffectAsync で「NEGATED!」フローティングラベル（くすんだ水色・上昇フェード）+ パーティクルを再生
+     Negate:     skipNextEffect = true をセット後、打ち消し対象（queue[i-1]）に PlayNegateEffectAsync で「NEGATE!」フローティングラベル（青・上昇フェード）+ パーティクルを再生。スキップされる側（skipNextEffect == true の card）は演出なしでスキップ
 
 RunBattlePhaseAsync
   → "FIGHT" 告知
