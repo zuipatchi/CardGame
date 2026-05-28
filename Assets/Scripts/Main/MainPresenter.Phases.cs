@@ -541,7 +541,6 @@ namespace Main
                         if (skipNextEffect)
                         {
                             skipNextEffect = false;
-                            await PlayNegatedEffectAsync(card, ct);
                         }
                         else if (eventData.EventType == CardEventType.Negate)
                         {

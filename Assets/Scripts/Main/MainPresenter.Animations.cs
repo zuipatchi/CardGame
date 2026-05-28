@@ -802,17 +802,6 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayNegatedEffectAsync(CardView card, CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayNegateFloatingLabelAsync(card, "NEGATED!", "negated-label", ct));
-            if (_negateEffectPrefab != null)
-            {
-                tasks.Add(PlayParticleAtCardAsync(card, _negateEffectPrefab, ct));
-            }
-            await UniTask.WhenAll(tasks);
-        }
-
         private async UniTask PlayNegateFloatingLabelAsync(CardView card, string text, string cssClass, CancellationToken ct)
         {
             const float LabelW = 200f;
