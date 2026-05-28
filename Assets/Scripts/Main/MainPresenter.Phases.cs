@@ -691,7 +691,11 @@ namespace Main
             string firstCostClass = isLocalTurn ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
             int firstCost = firstCards.Sum(c => c.Data.Cost);
             {
-                List<UniTask> tasks = new List<UniTask> { PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct) };
+                List<UniTask> tasks = new List<UniTask>
+                {
+                    UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
+                        .ContinueWith(() => PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct))
+                };
                 foreach (CardView c in firstCards)
                 {
                     tasks.Add(PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false));
@@ -706,7 +710,11 @@ namespace Main
             string secondCostClass = isLocalTurn ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
             int secondCost = secondCards.Sum(c => c.Data.Cost);
             {
-                List<UniTask> tasks = new List<UniTask> { PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct) };
+                List<UniTask> tasks = new List<UniTask>
+                {
+                    UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
+                        .ContinueWith(() => PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct))
+                };
                 foreach (CardView c in secondCards)
                 {
                     tasks.Add(PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false));

@@ -1124,7 +1124,8 @@ namespace Main
                 string costClass = deck == _playerDeckView
                     ? "turn-announcement-label--cost"
                     : "turn-announcement-label--cost-opponent";
-                tasks.Add(PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct));
+                tasks.Add(UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
+                    .ContinueWith(() => PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct)));
             }
             await UniTask.WhenAll(tasks);
 
