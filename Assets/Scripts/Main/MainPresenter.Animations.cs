@@ -941,7 +941,8 @@ namespace Main
                 card.style.transformOrigin = StyleKeyword.Null;
                 card.style.marginLeft = StyleKeyword.Null;
                 card.style.marginRight = StyleKeyword.Null;
-                _dragLayer.Add(card);
+                _dragLayer.Add(card);           // UI Toolkit が DeckView から自動除去
+                sourceDeck.OnCardRemovedVisually(); // デッキ表示を1枚分縮小
                 card.FaceUp();
 
                 UniTaskCompletionSource tcs = new UniTaskCompletionSource();
@@ -964,7 +965,6 @@ namespace Main
                     _dragLayer.Remove(card);
                 }
                 graveyard.AddCard(card);
-                sourceDeck.DecrementDisplayCount();
 
                 if (i < cards.Count - 1)
                 {

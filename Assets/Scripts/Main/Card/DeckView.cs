@@ -18,6 +18,7 @@ namespace Main.Card
         private readonly Label _countLabel;
         private readonly VisualElement _defOverlay;
         private readonly Label _defLabel;
+        private int _visualCount;
 
         public int Count => _deckCards.Count;
         public VisualElement DefOverlay => _defOverlay;
@@ -41,6 +42,7 @@ namespace Main.Card
                 Add(card);
             }
 
+            _visualCount = cards.Length;
             UpdateSize();
 
             VisualElement badgeContainer = new VisualElement();
@@ -107,15 +109,17 @@ namespace Main.Card
             {
                 CardView top = _deckCards[_deckCards.Count - 1];
                 _deckCards.RemoveAt(_deckCards.Count - 1);
-                top.RemoveFromHierarchy();
+                // RemoveFromHierarchy は呼ばない。アニメーション側が1枚ずつ移動させる
                 taken.Add(top);
             }
-            UpdateSize();
             return taken;
         }
 
-        public void DecrementDisplayCount()
+        // アニメーションで1枚デッキから取り出したタイミングで呼ぶ（サイズ縮小 + カウント減算）
+        public void OnCardRemovedVisually()
         {
+            _visualCount = Mathf.Max(0, _visualCount - 1);
+            UpdateSize(_visualCount);
             if (int.TryParse(_countLabel.text, out int current))
             {
                 _countLabel.text = Mathf.Max(0, current - 1).ToString();
@@ -140,13 +144,15 @@ namespace Main.Card
                 Insert(i, card);
             }
 
+            _visualCount = cards.Length;
             UpdateSize();
             RefreshCount();
         }
 
-        private void UpdateSize()
+        private void UpdateSize() => UpdateSize(_deckCards.Count);
+
+        private void UpdateSize(int count)
         {
-            int count = _deckCards.Count;
             style.width = count > 1 ? CardWidth + (count - 1) * StackOffsetX : CardWidth;
             style.height = count > 1 ? CardHeight + (count - 1) * Mathf.Abs(StackOffsetY) : CardHeight;
         }
