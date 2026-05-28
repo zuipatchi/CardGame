@@ -70,6 +70,7 @@ namespace Main
 
         [SerializeField] private GameObject _fireworkPrefab;
         [SerializeField] private GameObject _costEffectPrefab;
+        [SerializeField] private GameObject _atkBoostEffectPrefab;
 
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;

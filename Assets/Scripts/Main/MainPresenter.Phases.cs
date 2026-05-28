@@ -532,6 +532,10 @@ namespace Main
                         else
                         {
                             await ApplyEventEffectAsync(eventData, isLocal, ct);
+                            if (eventData.EventType == CardEventType.AtkBoost)
+                            {
+                                await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
+                            }
                         }
                     }
 

@@ -788,6 +788,11 @@ namespace Main
                 return;
             }
 
+            await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
+        }
+
+        private async UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct)
+        {
             const int EffectLayer = 6;
 
             // UI Toolkit の worldBound はパネル空間座標（Y=0 が上）
@@ -808,7 +813,7 @@ namespace Main
             RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 0);
             rt.Create();
 
-            GameObject camObj = new GameObject("CostEffectCamera");
+            GameObject camObj = new GameObject("EffectCamera");
             Camera effectCam = camObj.AddComponent<Camera>();
             effectCam.clearFlags = CameraClearFlags.SolidColor;
             effectCam.backgroundColor = Color.black;
@@ -819,12 +824,12 @@ namespace Main
             effectCam.farClipPlane = mainCam.farClipPlane;
             camObj.transform.SetPositionAndRotation(mainCam.transform.position, mainCam.transform.rotation);
 
-            GameObject canvasObj = new GameObject("CostEffectCanvas");
+            GameObject canvasObj = new GameObject("EffectCanvas");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
 
-            GameObject imgObj = new GameObject("CostEffectImage");
+            GameObject imgObj = new GameObject("EffectImage");
             imgObj.transform.SetParent(canvasObj.transform, false);
             RawImage img = imgObj.AddComponent<RawImage>();
             img.texture = rt;
@@ -837,7 +842,7 @@ namespace Main
             effectRect.sizeDelta = Vector2.zero;
             effectRect.anchoredPosition = Vector2.zero;
 
-            GameObject effect = Instantiate(_costEffectPrefab, worldPos, Quaternion.identity);
+            GameObject effect = Instantiate(prefab, worldPos, Quaternion.identity);
             SetLayerRecursive(effect, EffectLayer);
 
             float waitSeconds = 2f;
@@ -868,6 +873,60 @@ namespace Main
             Destroy(mat);
             rt.Release();
             Destroy(rt);
+        }
+
+        // ─── AtkBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
+
+        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            tasks.Add(PlayAtkBoostLabelAsync(card, value, ct));
+            if (_atkBoostEffectPrefab != null)
+            {
+                tasks.Add(PlayParticleAtCardAsync(card, _atkBoostEffectPrefab, ct));
+            }
+            await UniTask.WhenAll(tasks);
+        }
+
+        private async UniTask PlayAtkBoostLabelAsync(CardView card, int value, CancellationToken ct)
+        {
+            const float LabelW = 200f;
+            const float LabelH = 60f;
+            const float RiseDist = 70f;
+            const float AppearDuration = 0.2f;
+            const float HoldDuration = 0.3f;
+            const float FadeDuration = 0.5f;
+
+            Label label = new Label($"ATK +{value}");
+            label.AddToClassList("atk-boost-label");
+            label.pickingMode = PickingMode.Ignore;
+            label.style.position = Position.Absolute;
+            label.style.opacity = 0f;
+            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
+
+            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
+            float left = cardLocal.x - LabelW / 2f;
+            float top = cardLocal.y - LabelH / 2f;
+            float targetTop = top - RiseDist;
+            label.style.left = left;
+            label.style.top = top;
+            _dragLayer.Add(label);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            label.RemoveFromHierarchy();
         }
 
         // ─── コスト払い（デッキ上から→墓地）───────────────────────────────
