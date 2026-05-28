@@ -392,9 +392,10 @@ namespace Main
                     else
                     {
                         _gameModel.ReadyCard(readied);
-                        readied.SetChainNumber(_gameModel.ReadyQueue.Count);
+                        await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
                         await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
                         if (_isGameOver) break;
+                        readied.SetChainNumber(_gameModel.ReadyQueue.Count);
                     }
                 }
                 else
@@ -431,9 +432,10 @@ namespace Main
                             _opponentFieldView.PlaceCard(card);
                             await card.FlipAsync(ct);
                             _gameModel.ReadyCard(card);
-                            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+                            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
                             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                             if (_isGameOver) break;
+                            card.SetChainNumber(_gameModel.ReadyQueue.Count);
                         }
                         else
                         {
@@ -467,8 +469,9 @@ namespace Main
             _opponentFieldView.PlaceCard(card);
             await card.FlipAsync(ct);
             _gameModel.ReadyCard(card);
-            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
+            card.SetChainNumber(_gameModel.ReadyQueue.Count);
         }
 
         private async UniTask<CardView> WaitForPlayerPreBattle2InputAsync(CancellationToken ct)
@@ -595,17 +598,17 @@ namespace Main
                     await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.BanishChar:
-                {
-                    CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-                    CardView charCard = targetSlot.CurrentCard;
-                    if (charCard != null)
                     {
-                        targetSlot.RemoveCard();
-                        targetGraveyard.AddCard(charCard);
+                        CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                        GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+                        CardView charCard = targetSlot.CurrentCard;
+                        if (charCard != null)
+                        {
+                            targetSlot.RemoveCard();
+                            targetGraveyard.AddCard(charCard);
+                        }
+                        break;
                     }
-                    break;
-                }
             }
         }
 
