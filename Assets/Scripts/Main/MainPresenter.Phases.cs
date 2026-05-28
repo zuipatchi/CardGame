@@ -538,6 +538,11 @@ namespace Main
                             {
                                 await PlayDrawEffectAsync(card, eventData.EventValue, ct);
                             }
+                            else if (eventData.EventType == CardEventType.BanishChar)
+                            {
+                                CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                                await PlayBanishCharEffectAsync(banishTarget, ct);
+                            }
                             await ApplyEventEffectAsync(eventData, isLocal, ct);
                             if (eventData.EventType == CardEventType.AtkBoost)
                             {
@@ -604,7 +609,9 @@ namespace Main
                         CardView charCard = targetSlot.CurrentCard;
                         if (charCard != null)
                         {
+                            Rect fromRect = charCard.worldBound;
                             targetSlot.RemoveCard();
+                            await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
                             targetGraveyard.AddCard(charCard);
                         }
                         break;

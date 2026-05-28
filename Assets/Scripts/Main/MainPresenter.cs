@@ -73,6 +73,7 @@ namespace Main
         [SerializeField] private GameObject _atkBoostEffectPrefab;
         [SerializeField] private GameObject _defBoostEffectPrefab;
         [SerializeField] private GameObject _drawEffectPrefab;
+        [SerializeField] private GameObject _banishCharEffectPrefab;
 
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;
