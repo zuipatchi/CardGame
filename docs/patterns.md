@@ -85,9 +85,11 @@ public enum EventType
 
 `ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EventType == CardEventType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる。
 
+演出もこの `else if` ブロック内に追加する。打ち消し対象（`queue[i - 1]`）への演出は `i > 0` をガードしてから呼ぶ。スキップされる側（`if (skipNextEffect)` ブロック）にも演出を追加できる。`Negate` は `PlayNegateEffectAsync` / `PlayNegatedEffectAsync` が参考実装。
+
 **Resolve 時に演出を追加する場合**
 
-演出のタイミングによって2パターンある：
+演出のタイミングによって3パターンある：
 
 - **効果適用後に演出**（AtkBoost / DefBoost）: `await ApplyEventEffectAsync(...)` の直後に `else if` で効果種別を判定して演出メソッドを呼ぶ。`PlayAtkBoostEffectAsync` が参考実装。
 - **効果適用前に演出**（Draw / BanishChar）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラスロット上に「BANISH!」ラベル+パーティクルを表示してから破壊する。
@@ -95,6 +97,7 @@ public enum EventType
 
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。
 フローティングラベルのみの場合は `PlayAtkBoostLabelAsync` のパターンをコピーして `_dragLayer` に Label を追加する。
+ラベル + パーティクルの組み合わせは `PlayNegateFloatingLabelAsync` のような共有ラベルメソッドを切り出し、`PlayNegateEffectAsync` / `PlayNegatedEffectAsync` のように `UniTask.WhenAll` で並列実行するパターンが使いやすい。
 
 ---
 
