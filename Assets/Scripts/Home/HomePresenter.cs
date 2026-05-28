@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Common.Deck;
+using Common.GameSession;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace Home
         private SceneTransitioner _sceneTransitioner;
         private DeckModel _deckModel;
         private DeckRepository _deckRepository;
+        private GameSessionModel _gameSessionModel;
         private UIDocument _uiDocument;
         private Button _deckBuilderButton;
         private Button _battleButton;
@@ -27,11 +29,12 @@ namespace Home
         private CancellationTokenSource _toastCts;
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel, DeckRepository deckRepository)
+        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel)
         {
             _sceneTransitioner = sceneTransitioner;
             _deckModel = deckModel;
             _deckRepository = deckRepository;
+            _gameSessionModel = gameSessionModel;
             _deckModel.Clear();
             _deckRepository.Load(_deckModel);
         }
@@ -108,7 +111,13 @@ namespace Home
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
             }
-            _sceneTransitioner.Transit(Scenes.Main).Forget();
+            StartCpuBattleAsync().Forget();
+        }
+
+        private async UniTaskVoid StartCpuBattleAsync()
+        {
+            await _gameSessionModel.LeaveCurrentSessionAsync();
+            await _sceneTransitioner.Transit(Scenes.Main);
         }
 
         private void OnMatchingClicked()
