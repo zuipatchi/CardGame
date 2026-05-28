@@ -327,7 +327,8 @@ DeckView          VisualElement サブクラス。デッキを積み重ねで表
                   デッキ上方に HeartIcon.png + 残り枚数を重ねた 80×80px バッジを表示
                   DrawTop() で一番上の CardData を取り出してデッキから除去（枚数ラベルは更新しない）
                   RefreshCount() で枚数ラベルを現在の _deckCards.Count に同期（RunDrawPhaseAsync がドロー直前に呼ぶ）
-                  TakeFromTop(n) で上から n 枚を CardView リストとして取り出す（ダメージアニメーション連携用）。Count と枚数バッジを更新
+                  TakeFromTop(n) で上から n 枚を CardView リストとして取り出す（ダメージアニメーション連携用）。ビジュアル除去は行わずリストのみ更新
+                  OnCardRemovedVisually() でアニメーションが1枚取り出すたびにデッキ表示サイズと枚数バッジを1減算
 CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のドラッグ実装
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
 AttackArrowManipulator  PointerManipulator サブクラス。フィールドカードに装着する攻撃矢印マニピュレーター
@@ -470,6 +471,7 @@ RunBattlePhaseAsync
 
 **ダメージ墓地送りアニメーション（PlayDeckDamageAsync）:**
 - `TakeFromTop(n)` で取り出した CardView を 1 枚ずつ逐次処理（0.06 秒間隔）
+- DragLayer に移動（UI Toolkit が DeckView から自動除去）直後に `OnCardRemovedVisually()` を呼んでデッキ表示を縮小
 - DragLayer に絶対配置してデッキ位置から墓地アイコン中央へ飛翔（0.3 秒、InQuad）しながらスケールを 0 に縮小
 - 到着後に `graveyard.AddCard(card)` で登録
 - 両プレイヤーの処理は `UniTask.WhenAll` で並行実行
