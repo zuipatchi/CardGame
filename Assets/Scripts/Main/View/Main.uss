@@ -1238,3 +1238,69 @@
 .phase-row--active .phase-line {
     background-color: rgba(240, 240, 255, 0.4);
 }
+
+/* ─── マッチタイムアウトモーダル ─────────────────────────────────────────── */
+
+.match-timeout-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.match-timeout-panel {
+    background-color: rgb(25, 25, 45);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-top: 48px;
+    padding-bottom: 48px;
+    padding-left: 64px;
+    padding-right: 64px;
+    align-items: center;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(100, 100, 160, 0.5);
+    border-right-color: rgba(100, 100, 160, 0.5);
+    border-top-color: rgba(100, 100, 160, 0.5);
+    border-bottom-color: rgba(100, 100, 160, 0.5);
+}
+
+.match-timeout-title {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(220, 220, 240);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 40px;
+}
+
+.match-timeout-close-button {
+    font-size: 22px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(70, 70, 140);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 48px;
+    padding-right: 48px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    -unity-font-style: bold;
+}
+
+.match-timeout-close-button:hover {
+    background-color: rgb(90, 90, 170);
+}

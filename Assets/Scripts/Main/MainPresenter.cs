@@ -195,7 +195,19 @@ namespace Main
                     IReadOnlyList<string> deckIds = _deckModel.Count > 0
                         ? _deckModel.CardIds
                         : allCards.Select(c => c.Id).ToList();
-                    OnlineInitialState state = await _networkGameService.PrepareDecksAsync(deckIds, destroyCancellationToken);
+                    using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+                    using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, destroyCancellationToken);
+                    OnlineInitialState state;
+                    try
+                    {
+                        state = await _networkGameService.PrepareDecksAsync(deckIds, linkedCts.Token);
+                    }
+                    catch (OperationCanceledException) when (!destroyCancellationToken.IsCancellationRequested)
+                    {
+                        _waitingOverlay.style.display = DisplayStyle.None;
+                        ShowMatchTimeoutModal(mainRoot);
+                        return;
+                    }
                     isLocalFirst = state.IsLocalFirst;
                     onlineLocalNeedsMulligan = state.LocalNeedsMulligan;
                     onlineOpponentNeedsMulligan = state.OpponentNeedsMulligan;
@@ -459,6 +471,28 @@ namespace Main
             float scaleY = halfHeight * 2f / spriteSize.y;
             float scale = Mathf.Max(scaleX, scaleY);
             bgObj.transform.localScale = new Vector3(scale, scale, 1f);
+        }
+
+        private void ShowMatchTimeoutModal(VisualElement root)
+        {
+            VisualElement overlay = new VisualElement();
+            overlay.AddToClassList("match-timeout-overlay");
+
+            VisualElement panel = new VisualElement();
+            panel.AddToClassList("match-timeout-panel");
+
+            Label title = new Label("対戦が成立しませんでした");
+            title.AddToClassList("match-timeout-title");
+            panel.Add(title);
+
+            Button closeButton = new Button();
+            closeButton.text = "閉じる";
+            closeButton.AddToClassList("match-timeout-close-button");
+            closeButton.clicked += () => _sceneTransitioner.Transit(Scenes.Matching).Forget();
+            panel.Add(closeButton);
+
+            overlay.Add(panel);
+            root.Add(overlay);
         }
 
         private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CancellationToken ct)
