@@ -195,7 +195,7 @@ namespace Main
                     IReadOnlyList<string> deckIds = _deckModel.Count > 0
                         ? _deckModel.CardIds
                         : allCards.Select(c => c.Id).ToList();
-                    using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+                    using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
                     using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, destroyCancellationToken);
                     OnlineInitialState state;
                     try
