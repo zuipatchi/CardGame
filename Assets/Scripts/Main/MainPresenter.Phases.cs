@@ -24,7 +24,17 @@ namespace Main
 
                 bool isLocalFirst = _isOnline ? onlineIsLocalFirst : (UnityEngine.Random.value > 0.5f);
                 _gameModel.SetInitialTurn(isLocalFirst);
-                await PlayCoinTossAsync(isLocalFirst, ct);
+                try
+                {
+                    await PlayCoinTossAsync(isLocalFirst, ct);
+                }
+                catch (OperationCanceledException) { return; }
+                catch (Exception e)
+                {
+                    Debug.LogError($"PlayCoinTossAsync 例外（ビルドでコイン演出をスキップ）: {e}");
+                    await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
+                        isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
+                }
 
                 while (!_isGameOver)
                 {
@@ -32,6 +42,10 @@ namespace Main
                 }
             }
             catch (OperationCanceledException) { }
+            catch (Exception e)
+            {
+                Debug.LogError($"RunGameAsync 例外: {e}");
+            }
         }
 
         private async UniTask RunTurnAsync(CancellationToken ct)

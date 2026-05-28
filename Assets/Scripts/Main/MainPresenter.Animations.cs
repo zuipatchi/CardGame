@@ -34,11 +34,17 @@ namespace Main
             overlay.style.flexDirection = FlexDirection.Column;
             overlay.style.opacity = 0f;
 
+            Sprite coinFront = _cardStore.CoinFront;
+            Sprite coinBack = _cardStore.CoinBack;
+
             VisualElement coin = new VisualElement();
             coin.pickingMode = PickingMode.Ignore;
             coin.style.width = 160f;
             coin.style.height = 160f;
-            coin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
+            if (coinFront != null)
+            {
+                coin.style.backgroundImage = Background.FromSprite(coinFront);
+            }
             coin.style.marginBottom = 32f;
 
             Label resultLabel = new Label(isLocalFirst ? "先攻" : "後攻");
@@ -78,9 +84,11 @@ namespace Main
                     seq.AppendCallback(() =>
                     {
                         showFront = !showFront;
-                        coin.style.backgroundImage = showFront
-                            ? Background.FromSprite(_cardStore.CoinFront)
-                            : Background.FromSprite(_cardStore.CoinBack);
+                        Sprite next = showFront ? coinFront : coinBack;
+                        if (next != null)
+                        {
+                            coin.style.backgroundImage = Background.FromSprite(next);
+                        }
                     });
                 }
             }
@@ -92,9 +100,11 @@ namespace Main
                 seq.AppendCallback(() =>
                 {
                     showFront = isLocalFirst;
-                    coin.style.backgroundImage = isLocalFirst
-                        ? Background.FromSprite(_cardStore.CoinFront)
-                        : Background.FromSprite(_cardStore.CoinBack);
+                    Sprite settle = isLocalFirst ? coinFront : coinBack;
+                    if (settle != null)
+                    {
+                        coin.style.backgroundImage = Background.FromSprite(settle);
+                    }
                 });
                 seq.Append(DOTween.To(() => scaleX, v =>
                 {
