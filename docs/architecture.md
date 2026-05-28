@@ -278,10 +278,12 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 CardData              抽象基底クラス。id / name / cost / Attack / Defense / image(Sprite)
   CharacterCardData   キャラカード。Attack / Defense 値を保持。キャラセットフェーズでスロットに配置、戦闘前1フェーズでフィールドに配置（配置ターンは攻撃しない）
   SkillCardData       技カード。Damage（= Attack）値を保持。戦闘前1フェーズで裏向きフィールドに配置
-  EventCardData       イベントカード。EffectType（None/AtkBoost/DefBoost）と EffectValue を保持
+  EventCardData       イベントカード。EventType（None/AtkBoost/DefBoost/Draw/Negate/BanishChar）と EventValue を保持
                       戦闘前2フェーズで Ready 化、解決フェーズで効果を適用後に墓地へ
 
-EffectType        enum。None / AtkBoost（ATK を加算）/ DefBoost（DEF を加算）。効果は次の戦闘フェーズまで有効
+EventType         enum（EffectType.cs）。
+                  None / AtkBoost（ATK を加算）/ DefBoost（DEF を加算）→ 効果は次の戦闘フェーズまで有効
+                  Draw（EventValue 枚ドロー）/ Negate（チェーン上の次の効果を無効化）/ BanishChar（相手キャラをスロットから墓地へ）
 
 CharacterCardSO / SkillCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
 
@@ -442,9 +444,10 @@ RunPreBattle2PhaseAsync
 
 RunResolutionPhaseAsync
   → Readyカードを逆順で解決（"RESOLVE" 演出）
-  → イベントカード効果を ApplyEventEffectAsync で適用後、効果種別に応じて演出を再生
-     AtkBoost: 「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルプレハブを PlayAtkBoostEffectAsync で同時再生
-     DefBoost: 「DEF +{value}」フローティングラベル（水色・上昇フェード）+ パーティクルプレハブを PlayDefBoostEffectAsync で同時再生
+  → イベントカード効果を効果種別に応じて演出＋適用
+     Draw:     先に PlayDrawEffectAsync で「DRAW +{value}」フローティングラベル（緑・上昇フェード）+ パーティクルを再生し、その後 ApplyEventEffectAsync でドロー実行
+     AtkBoost: ApplyEventEffectAsync 適用後に「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルを PlayAtkBoostEffectAsync で同時再生
+     DefBoost: ApplyEventEffectAsync 適用後に「DEF +{value}」フローティングラベル（水色・上昇フェード）+ パーティクルを PlayDefBoostEffectAsync で同時再生
 
 RunBattlePhaseAsync
   → "FIGHT" 告知

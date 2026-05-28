@@ -66,6 +66,9 @@ public enum EventType
     None,
     AtkBoost,
     DefBoost,
+    Draw,
+    Negate,
+    BanishChar,
     YourNewEffect,  // ← 追加
 }
 ```
@@ -84,7 +87,11 @@ public enum EventType
 
 **Resolve 時に演出を追加する場合**
 
-`RunResolutionPhaseAsync` 内の `await ApplyEventEffectAsync(...)` の直後に効果種別を判定して演出メソッドを呼ぶ（AtkBoost の `PlayAtkBoostEffectAsync` が参考実装）。
+演出のタイミングによって2パターンある：
+
+- **効果適用後に演出**（AtkBoost / DefBoost）: `await ApplyEventEffectAsync(...)` の直後に `else if` で効果種別を判定して演出メソッドを呼ぶ。`PlayAtkBoostEffectAsync` が参考実装。
+- **効果適用前に演出**（Draw）: `await ApplyEventEffectAsync(...)` の直前に `if (eventData.EventType == CardEventType.Draw)` で演出を先に呼ぶ。ドロー結果が見える前に予告演出を出したい場合に使う。
+
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。
 フローティングラベルのみの場合は `PlayAtkBoostLabelAsync` のパターンをコピーして `_dragLayer` に Label を追加する。
 
