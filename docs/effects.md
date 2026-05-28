@@ -56,11 +56,13 @@ canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 canvas.sortingOrder = 100; // UI Toolkit より上
 
 // 5. RawImage で RT を表示（カスタムシェーダー必須）
+// ※ Shader.Find はビルドに含まれないため [SerializeField] で参照を保持すること
+// [SerializeField] private Shader _fireworkAdditiveUIShader;
 GameObject imgObj = new GameObject("EffectImage");
 imgObj.transform.SetParent(canvasObj.transform, false);
 RawImage img = imgObj.AddComponent<RawImage>();
 img.texture = rt;
-img.material = new Material(Shader.Find("Custom/FireworkAdditiveUI"));
+img.material = new Material(_fireworkAdditiveUIShader);
 
 RectTransform rect = imgObj.GetComponent<RectTransform>();
 rect.anchorMin = Vector2.zero;
