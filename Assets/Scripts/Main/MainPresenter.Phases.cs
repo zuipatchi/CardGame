@@ -531,6 +531,10 @@ namespace Main
                         }
                         else
                         {
+                            if (eventData.EventType == CardEventType.Draw)
+                            {
+                                await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+                            }
                             await ApplyEventEffectAsync(eventData, isLocal, ct);
                             if (eventData.EventType == CardEventType.AtkBoost)
                             {
