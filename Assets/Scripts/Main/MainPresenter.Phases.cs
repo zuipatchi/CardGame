@@ -527,10 +527,15 @@ namespace Main
                         if (skipNextEffect)
                         {
                             skipNextEffect = false;
+                            await PlayNegatedEffectAsync(card, ct);
                         }
                         else if (eventData.EventType == CardEventType.Negate)
                         {
                             skipNextEffect = true;
+                            if (i > 0)
+                            {
+                                await PlayNegateEffectAsync(queue[i - 1], ct);
+                            }
                         }
                         else
                         {

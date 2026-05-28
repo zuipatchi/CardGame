@@ -779,6 +779,71 @@ namespace Main
             _dragLayer.Remove(card);
         }
 
+        // ─── Negate エフェクト（ラベル上昇 + パーティクル同時再生）─────────────
+
+        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            tasks.Add(PlayNegateFloatingLabelAsync(targetCard, "NEGATE!", "negate-label", ct));
+            if (_negateEffectPrefab != null)
+            {
+                tasks.Add(PlayParticleAtCardAsync(targetCard, _negateEffectPrefab, ct));
+            }
+            await UniTask.WhenAll(tasks);
+        }
+
+        private async UniTask PlayNegatedEffectAsync(CardView card, CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            tasks.Add(PlayNegateFloatingLabelAsync(card, "NEGATED!", "negated-label", ct));
+            if (_negateEffectPrefab != null)
+            {
+                tasks.Add(PlayParticleAtCardAsync(card, _negateEffectPrefab, ct));
+            }
+            await UniTask.WhenAll(tasks);
+        }
+
+        private async UniTask PlayNegateFloatingLabelAsync(CardView card, string text, string cssClass, CancellationToken ct)
+        {
+            const float LabelW = 200f;
+            const float LabelH = 60f;
+            const float RiseDist = 70f;
+            const float AppearDuration = 0.2f;
+            const float HoldDuration = 0.3f;
+            const float FadeDuration = 0.5f;
+
+            Label label = new Label(text);
+            label.AddToClassList(cssClass);
+            label.pickingMode = PickingMode.Ignore;
+            label.style.position = Position.Absolute;
+            label.style.opacity = 0f;
+            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
+
+            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
+            float left = cardLocal.x - LabelW / 2f;
+            float top = cardLocal.y - LabelH / 2f;
+            float targetTop = top - RiseDist;
+            label.style.left = left;
+            label.style.top = top;
+            _dragLayer.Add(label);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            label.RemoveFromHierarchy();
+        }
+
         // ─── BanishChar エフェクト（対象キャラスロット位置にラベル + パーティクル同時再生）────
 
         private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct)

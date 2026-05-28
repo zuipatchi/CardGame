@@ -1341,6 +1341,29 @@
     height: 60px;
 }
 
+/* ─── Negate フローティングラベル ────────────────────────────────────────── */
+.negate-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(60, 160, 255);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}
+
+.negated-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(130, 180, 220);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}
+
 /* ─── Draw フローティングラベル ──────────────────────────────────────────── */
 .draw-label {
     font-size: 36px;
