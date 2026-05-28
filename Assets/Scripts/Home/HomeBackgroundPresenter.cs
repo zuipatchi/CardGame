@@ -15,7 +15,15 @@ namespace Home
         private float _alpha = 1f;
 
         private const string BackgroundAddress = "Image/HomeBackground";
+        private const string RainBackgroundAddress = "Image/HomeBackgroundRain";
         private const float BackgroundDepth = 20f;
+
+        public bool IsRainy { get; private set; }
+
+        private void Awake()
+        {
+            IsRainy = UnityEngine.Random.value < 0.5f;
+        }
 
         private void Start()
         {
@@ -30,10 +38,11 @@ namespace Home
                 return;
             }
 
+            string address = IsRainy ? RainBackgroundAddress : BackgroundAddress;
             Sprite sprite;
             try
             {
-                sprite = await Addressables.LoadAssetAsync<Sprite>(BackgroundAddress)
+                sprite = await Addressables.LoadAssetAsync<Sprite>(address)
                     .ToUniTask(cancellationToken: destroyCancellationToken);
             }
             catch (OperationCanceledException)

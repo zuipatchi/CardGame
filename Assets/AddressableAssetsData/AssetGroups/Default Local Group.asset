@@ -27,6 +27,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1c00d1005110da64a8d7d3921c35ea13
+    m_Address: Image/HomeBackgroundRain
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3811412f7661ec640a60eb192332f10c
     m_Address: Image/CardBack
     m_ReadOnly: 0

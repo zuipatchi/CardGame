@@ -12,6 +12,7 @@ namespace Home
     [RequireComponent(typeof(UIDocument))]
     public sealed class HomePresenter : MonoBehaviour
     {
+        [SerializeField] private HomeBackgroundPresenter _backgroundPresenter;
         [SerializeField] private GameObject _rainEffectPrefab;
 
         private SceneTransitioner _sceneTransitioner;
@@ -42,7 +43,7 @@ namespace Home
 
         private void Start()
         {
-            bool isRainy = UnityEngine.Random.value < 0.5f;
+            bool isRainy = _backgroundPresenter != null && _backgroundPresenter.IsRainy;
             if (isRainy)
             {
                 if (_rainEffectPrefab != null)
