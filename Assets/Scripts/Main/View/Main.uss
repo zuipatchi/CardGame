@@ -1316,3 +1316,15 @@
     width: 200px;
     height: 60px;
 }
+
+/* ─── DefBoost フローティングラベル ─────────────────────────────────────── */
+.def-boost-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(80, 200, 255);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}

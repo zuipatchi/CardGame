@@ -536,6 +536,10 @@ namespace Main
                             {
                                 await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
                             }
+                            else if (eventData.EventType == CardEventType.DefBoost)
+                            {
+                                await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
+                            }
                         }
                     }
 
