@@ -82,6 +82,12 @@ public enum EventType
 
 `ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EventType == CardEventType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる。
 
+**Resolve 時に演出を追加する場合**
+
+`RunResolutionPhaseAsync` 内の `await ApplyEventEffectAsync(...)` の直後に効果種別を判定して演出メソッドを呼ぶ（AtkBoost の `PlayAtkBoostEffectAsync` が参考実装）。
+パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。
+フローティングラベルのみの場合は `PlayAtkBoostLabelAsync` のパターンをコピーして `_dragLayer` に Label を追加する。
+
 ---
 
 ## 3. 新しいターンフェーズを追加する

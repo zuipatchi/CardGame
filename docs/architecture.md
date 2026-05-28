@@ -442,6 +442,8 @@ RunPreBattle2PhaseAsync
 
 RunResolutionPhaseAsync
   → Readyカードを逆順で解決（"RESOLVE" 演出）
+  → イベントカード効果を ApplyEventEffectAsync で適用後、効果種別に応じて演出を再生
+     AtkBoost: 「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルプレハブを PlayAtkBoostEffectAsync で同時再生
 
 RunBattlePhaseAsync
   → "FIGHT" 告知
