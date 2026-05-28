@@ -379,6 +379,7 @@ MonoBehaviour:
   _drawEffectPrefab: {fileID: 8771972552311404799, guid: bbf9e36a48d6c5648a13889afab076fd, type: 3}
   _banishCharEffectPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
   _negateEffectPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
+  _fireworkAdditiveUIShader: {fileID: 4800000, guid: e9ab961048e8dce4e8b0c4fa2d4686dd, type: 3}
 --- !u!114 &2068653631
 MonoBehaviour:
   m_ObjectHideFlags: 0
