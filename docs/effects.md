@@ -181,3 +181,34 @@ float screenRight  = cam.transform.position.x + halfWidth;
 ```
 
 画面外から打ち上げる場合は `screenBottom` より小さい Y 値を使う。
+
+---
+
+## 6. UI Toolkit の worldBound をワールド座標に変換する
+
+### 問題
+
+`VisualElement.worldBound.center` は **パネル空間の座標**（Y=0 が上）で、`Screen.width` / `Screen.height`（実際の画面ピクセル数）と縮尺が異なる場合がある。
+
+`PanelSettings` の Scale Mode が「Scale With Screen Size」かつ参照解像度とゲームビュー解像度が異なる場合、`worldBound` の値はゲームビューの実解像度より小さくなるため、`ScreenToWorldPoint` に直接渡すと位置がずれる。
+
+### 対処法：パネル全体サイズで正規化してビューポート経由で変換
+
+```csharp
+Camera cam = Camera.main;
+
+// パネル全体の幅・高さを取得して [0,1] のビューポート座標に正規化
+Rect panelBounds = element.panel.visualTree.worldBound;
+Vector2 uiCenter = element.worldBound.center;
+float nx = uiCenter.x / panelBounds.width;
+float ny = 1f - uiCenter.y / panelBounds.height; // UI は Y=0 が上なので反転
+
+// ビューポート座標 → レイ → Z=0 平面との交差でワールド座標を求める
+Ray ray = cam.ViewportPointToRay(new Vector3(nx, ny, 0f));
+float t = -ray.origin.z / ray.direction.z;
+Vector3 worldPos = ray.origin + ray.direction * t;
+```
+
+これでゲームビュー解像度・パネルスケール・カメラ位置を問わず正確なワールド座標が得られる。
+
+**注意:** `ray.direction.z` がほぼ 0 のとき（カメラが Z 軸と水平）は交差しないため、このプロジェクトのようにカメラが Z 方向を向いている前提で使用する。
