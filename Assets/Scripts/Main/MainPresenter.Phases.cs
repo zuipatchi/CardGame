@@ -432,7 +432,6 @@ namespace Main
                             await card.FlipAsync(ct);
                             _gameModel.ReadyCard(card);
                             card.SetChainNumber(_gameModel.ReadyQueue.Count);
-                            await PlayOkFlashAsync(false, ct);
                             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                             if (_isGameOver) break;
                         }
@@ -469,7 +468,6 @@ namespace Main
             await card.FlipAsync(ct);
             _gameModel.ReadyCard(card);
             card.SetChainNumber(_gameModel.ReadyQueue.Count);
-            await PlayOkFlashAsync(false, ct);
             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
         }
 
@@ -670,8 +668,14 @@ namespace Main
 
             string firstCostClass = isLocalTurn ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
             int firstCost = firstCards.Sum(c => c.Data.Cost);
-            await PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct);
-            await UniTask.WhenAll(firstCards.Select(c => PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false)));
+            {
+                List<UniTask> tasks = new List<UniTask> { PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct) };
+                foreach (CardView c in firstCards)
+                {
+                    tasks.Add(PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false));
+                }
+                await UniTask.WhenAll(tasks);
+            }
             if (_isGameOver)
             {
                 return;
@@ -679,8 +683,14 @@ namespace Main
 
             string secondCostClass = isLocalTurn ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
             int secondCost = secondCards.Sum(c => c.Data.Cost);
-            await PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct);
-            await UniTask.WhenAll(secondCards.Select(c => PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false)));
+            {
+                List<UniTask> tasks = new List<UniTask> { PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct) };
+                foreach (CardView c in secondCards)
+                {
+                    tasks.Add(PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false));
+                }
+                await UniTask.WhenAll(tasks);
+            }
             if (_isGameOver)
             {
                 return;

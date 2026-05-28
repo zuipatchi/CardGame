@@ -69,6 +69,7 @@ namespace Main
         private Button _gameEndTitleButton;
 
         [SerializeField] private GameObject _fireworkPrefab;
+        [SerializeField] private GameObject _costEffectPrefab;
 
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;

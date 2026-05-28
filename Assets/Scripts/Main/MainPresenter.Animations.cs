@@ -779,6 +779,97 @@ namespace Main
             _dragLayer.Remove(card);
         }
 
+        // ─── コストエフェクト（カード中心に Prefab を再生）──────────────────
+
+        private async UniTask PlayCostEffectAtCardAsync(CardView card, CancellationToken ct)
+        {
+            if (_costEffectPrefab == null)
+            {
+                return;
+            }
+
+            const int EffectLayer = 6;
+
+            // UI Toolkit の worldBound はパネル空間座標（Y=0 が上）
+            // パネル全体サイズで正規化してビューポート [0,1] に変換し、
+            // ViewportPointToRay → Z=0 平面交差でワールド座標を求める
+            Camera mainCam = Camera.main;
+
+            Rect panelBounds = card.panel.visualTree.worldBound;
+            Vector2 uiCenter = card.worldBound.center;
+            float nx = uiCenter.x / panelBounds.width;
+            float ny = 1f - uiCenter.y / panelBounds.height;
+            Ray ray = mainCam.ViewportPointToRay(new Vector3(nx, ny, 0f));
+            float tDist = -ray.origin.z / ray.direction.z;
+            Vector3 worldPos = ray.origin + ray.direction * tDist;
+            int originalCullingMask = mainCam.cullingMask;
+            mainCam.cullingMask &= ~(1 << EffectLayer);
+
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 0);
+            rt.Create();
+
+            GameObject camObj = new GameObject("CostEffectCamera");
+            Camera effectCam = camObj.AddComponent<Camera>();
+            effectCam.clearFlags = CameraClearFlags.SolidColor;
+            effectCam.backgroundColor = Color.black;
+            effectCam.cullingMask = 1 << EffectLayer;
+            effectCam.targetTexture = rt;
+            effectCam.fieldOfView = mainCam.fieldOfView;
+            effectCam.nearClipPlane = mainCam.nearClipPlane;
+            effectCam.farClipPlane = mainCam.farClipPlane;
+            camObj.transform.SetPositionAndRotation(mainCam.transform.position, mainCam.transform.rotation);
+
+            GameObject canvasObj = new GameObject("CostEffectCanvas");
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+
+            GameObject imgObj = new GameObject("CostEffectImage");
+            imgObj.transform.SetParent(canvasObj.transform, false);
+            RawImage img = imgObj.AddComponent<RawImage>();
+            img.texture = rt;
+            Material mat = new Material(Shader.Find("Custom/FireworkAdditiveUI"));
+            img.material = mat;
+
+            RectTransform effectRect = imgObj.GetComponent<RectTransform>();
+            effectRect.anchorMin = Vector2.zero;
+            effectRect.anchorMax = Vector2.one;
+            effectRect.sizeDelta = Vector2.zero;
+            effectRect.anchoredPosition = Vector2.zero;
+
+            GameObject effect = Instantiate(_costEffectPrefab, worldPos, Quaternion.identity);
+            SetLayerRecursive(effect, EffectLayer);
+
+            float waitSeconds = 2f;
+            ParticleSystem ps = effect.GetComponentInChildren<ParticleSystem>();
+            if (ps != null)
+            {
+                ParticleSystem.MainModule main = ps.main;
+                float lifetime = main.startLifetime.mode == ParticleSystemCurveMode.Constant
+                    ? main.startLifetime.constant
+                    : main.startLifetime.constantMax;
+                float duration = main.duration + lifetime;
+                if (duration > 0f)
+                {
+                    waitSeconds = duration;
+                }
+            }
+
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
+
+            mainCam.cullingMask = originalCullingMask;
+            Destroy(effect);
+            Destroy(canvasObj);
+            Destroy(camObj);
+            Destroy(mat);
+            rt.Release();
+            Destroy(rt);
+        }
+
         // ─── コスト払い（デッキ上から→墓地）───────────────────────────────
 
         private async UniTask PayCostAsync(CardView card, DeckView deck, GraveyardView graveyard, CancellationToken ct, bool announce = true)
@@ -796,17 +887,20 @@ namespace Main
 
             bool willLose = cost > deck.Count;
 
+            Rect deckRect = deck.worldBound;
+            List<CardView> costCards = deck.TakeFromTop(cost);
+
+            List<UniTask> tasks = new List<UniTask>();
+            tasks.Add(PlayDeckDamageAsync(costCards, deckRect, graveyard, deck, ct));
+            tasks.Add(PlayCostEffectAtCardAsync(card, ct));
             if (announce)
             {
                 string costClass = deck == _playerDeckView
                     ? "turn-announcement-label--cost"
                     : "turn-announcement-label--cost-opponent";
-                await PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct);
+                tasks.Add(PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct));
             }
-
-            Rect deckRect = deck.worldBound;
-            List<CardView> costCards = deck.TakeFromTop(cost);
-            await PlayDeckDamageAsync(costCards, deckRect, graveyard, deck, ct);
+            await UniTask.WhenAll(tasks);
 
             if (willLose)
             {

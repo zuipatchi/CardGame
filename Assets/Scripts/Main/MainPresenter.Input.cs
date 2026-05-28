@@ -105,7 +105,7 @@ namespace Main
 
             HideActionButtons();
             TurnPhase phase = _gameModel.Phase;
-            if (phase != TurnPhase.CharacterSet && phase != TurnPhase.PreBattle1)
+            if (phase != TurnPhase.CharacterSet && phase != TurnPhase.PreBattle1 && phase != TurnPhase.PreBattle2)
             {
                 await PlayOkFlashAsync(true, destroyCancellationToken);
             }
