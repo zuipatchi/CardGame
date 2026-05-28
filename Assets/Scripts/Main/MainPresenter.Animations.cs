@@ -1021,7 +1021,7 @@ namespace Main
             imgObj.transform.SetParent(canvasObj.transform, false);
             RawImage img = imgObj.AddComponent<RawImage>();
             img.texture = rt;
-            Material mat = new Material(Shader.Find("Custom/FireworkAdditiveUI"));
+            Material mat = new Material(_fireworkAdditiveUIShader);
             img.material = mat;
 
             RectTransform effectRect = imgObj.GetComponent<RectTransform>();
@@ -1438,7 +1438,7 @@ namespace Main
             RawImage img = imgObj.AddComponent<RawImage>();
             img.texture = rt;
 
-            Material mat = new Material(Shader.Find("Custom/FireworkAdditiveUI"));
+            Material mat = new Material(_fireworkAdditiveUIShader);
             img.material = mat;
 
             RectTransform rect = imgObj.GetComponent<RectTransform>();

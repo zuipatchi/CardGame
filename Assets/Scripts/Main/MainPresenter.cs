@@ -75,6 +75,7 @@ namespace Main
         [SerializeField] private GameObject _drawEffectPrefab;
         [SerializeField] private GameObject _banishCharEffectPrefab;
         [SerializeField] private GameObject _negateEffectPrefab;
+        [SerializeField] private Shader _fireworkAdditiveUIShader;
 
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;
