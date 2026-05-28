@@ -445,9 +445,10 @@ RunPreBattle2PhaseAsync
 RunResolutionPhaseAsync
   → Readyカードを逆順で解決（"RESOLVE" 演出）
   → イベントカード効果を効果種別に応じて演出＋適用
-     Draw:     先に PlayDrawEffectAsync で「DRAW +{value}」フローティングラベル（緑・上昇フェード）+ パーティクルを再生し、その後 ApplyEventEffectAsync でドロー実行
-     AtkBoost: ApplyEventEffectAsync 適用後に「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルを PlayAtkBoostEffectAsync で同時再生
-     DefBoost: ApplyEventEffectAsync 適用後に「DEF +{value}」フローティングラベル（水色・上昇フェード）+ パーティクルを PlayDefBoostEffectAsync で同時再生
+     Draw:       先に PlayDrawEffectAsync で「DRAW +{value}」フローティングラベル（緑・上昇フェード）+ パーティクルを再生し、その後 ApplyEventEffectAsync でドロー実行
+     BanishChar: 先に PlayBanishCharEffectAsync で対象キャラスロット上に「BANISH!」フローティングラベル（赤・上昇フェード）+ パーティクルを再生。ApplyEventEffectAsync 内で FlyCardToDestAsync によりキャラカードを墓地へ飛翔させてから AddCard
+     AtkBoost:   ApplyEventEffectAsync 適用後に「ATK +{value}」フローティングラベル（金色・上昇フェード）+ パーティクルを PlayAtkBoostEffectAsync で同時再生
+     DefBoost:   ApplyEventEffectAsync 適用後に「DEF +{value}」フローティングラベル（水色・上昇フェード）+ パーティクルを PlayDefBoostEffectAsync で同時再生
 
 RunBattlePhaseAsync
   → "FIGHT" 告知

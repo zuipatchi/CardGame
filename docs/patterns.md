@@ -90,7 +90,8 @@ public enum EventType
 演出のタイミングによって2パターンある：
 
 - **効果適用後に演出**（AtkBoost / DefBoost）: `await ApplyEventEffectAsync(...)` の直後に `else if` で効果種別を判定して演出メソッドを呼ぶ。`PlayAtkBoostEffectAsync` が参考実装。
-- **効果適用前に演出**（Draw）: `await ApplyEventEffectAsync(...)` の直前に `if (eventData.EventType == CardEventType.Draw)` で演出を先に呼ぶ。ドロー結果が見える前に予告演出を出したい場合に使う。
+- **効果適用前に演出**（Draw / BanishChar）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラスロット上に「BANISH!」ラベル+パーティクルを表示してから破壊する。
+- **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内で `await FlyCardToDestAsync(...)` 等を呼ぶ。`worldBound` はスロット除去前に記録すること。
 
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。
 フローティングラベルのみの場合は `PlayAtkBoostLabelAsync` のパターンをコピーして `_dragLayer` に Label を追加する。
