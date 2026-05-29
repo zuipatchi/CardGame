@@ -304,12 +304,13 @@ TurnPhase         enum。CharacterSet / Draw / PreBattle1 / PreBattle2 / Resolut
 ```
 CardView          VisualElement サブクラス。Card.uxml をクローンしてデータをバインド
                   イラスト（Sprite）をカード全面背景の ImageArea に表示
-                  カード情報は左上に縦一列表示：カード名（NamePlate背景・中央寄せ・全幅）→ コストバッジ → HPバッジ → 速さバッジ（キャラのみ）/ 攻撃力バッジ（技のみ）
+                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 防御 → 素早さ / （技）攻撃力
                   コスト：CostIcon.png にコスト数字を重ねた 36×36px バッジ
                   HP：HeartIcon.png に HP 数字を重ねた 36×36px バッジ（キャラカードのみ表示）
                   速さ：SpeedIcon.png に速さ数字を重ねた 36×36px バッジ（キャラカードのみ表示）
-                  攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（技カードのみ表示）
-                  防御力・属性アイコンは UI 上非表示（データ・ゲームロジックは維持）
+                  防御：ShieldIcon.png に防御数字を重ねた 36×36px バッジ（キャラカードのみ表示）
+                  攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（キャラ・技カードに表示。イベントは非表示）
+                  属性アイコンは UI 上非表示（データ・ゲームロジックは維持）
                   カード種別フレーム（キャラ=青 / 技=赤 / イベント=黄の 2px ボーダー）を ApplyTypeFrame(bool) で制御。裏向き時は非表示、ImageArea も非表示になりカード内容が見えない
                   State（Normal/Resolve）を持ち、Resolve 時は黄色枠で表示
                   IsOpponent フラグ（コンストラクタで設定）で相手カードかどうかを表す。バトル解決フェーズの isLocal 判定に使用
