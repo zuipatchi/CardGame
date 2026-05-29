@@ -97,6 +97,9 @@ namespace Main
         private int _playerDefBoost;
         private int _opponentDefBoost;
 
+        private bool _onlineIsLocalFirst;
+        private bool? _lastSpeedTieBreakerWasLocal;
+
         private readonly StagedInput _charSetInput = new StagedInput();
         private readonly StagedInput _prepInput = new StagedInput();
         private readonly StagedInput _preBattleInput = new StagedInput();
@@ -104,8 +107,8 @@ namespace Main
 
         private sealed class StagedInput
         {
-            internal UniTaskCompletionSource<CardView> Tcs;
-            internal CardView Card;
+            internal UniTaskCompletionSource<CardView> _tcs;
+            internal CardView _card;
         }
 
         private readonly UniTaskCompletionSource _readyTcs = new UniTaskCompletionSource();
@@ -186,7 +189,6 @@ namespace Main
                 bool isOnline = _gameSessionModel.HasSession;
                 _isOnline = isOnline;
 
-                bool isLocalFirst = false;
                 bool onlineLocalNeedsMulligan = false;
                 bool onlineOpponentNeedsMulligan = false;
                 CardData[] playerDeckFull = null;
@@ -214,7 +216,7 @@ namespace Main
                         ShowMatchTimeoutModal(mainRoot);
                         return;
                     }
-                    isLocalFirst = state.IsLocalFirst;
+                    _onlineIsLocalFirst = state.IsLocalFirst;
                     onlineLocalNeedsMulligan = state.LocalNeedsMulligan;
                     onlineOpponentNeedsMulligan = state.OpponentNeedsMulligan;
                     handSize = state.LocalHand.Length;
@@ -228,7 +230,6 @@ namespace Main
                 }
                 else
                 {
-                    isLocalFirst = UnityEngine.Random.value > 0.5f;
                     playerDeckFull = _deckModel.Count > 0
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
                         : allCards;
@@ -443,7 +444,7 @@ namespace Main
                     await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
                 }
 
-                RunGameAsync(isLocalFirst, ct).Forget();
+                RunGameAsync(ct).Forget();
             }
             catch (System.OperationCanceledException)
             {

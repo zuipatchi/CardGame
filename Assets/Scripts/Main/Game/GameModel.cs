@@ -51,7 +51,6 @@ namespace Main.Game
         public void EndTurn()
         {
             _readyQueue.Clear();
-            IsLocalTurn = !IsLocalTurn;
             Phase = TurnPhase.Draw;
             _consecutivePasses = 0;
         }

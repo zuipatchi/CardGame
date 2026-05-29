@@ -15,44 +15,12 @@ namespace Main
     {
         // ─── ゲームループ ───────────────────────────────────────────────
 
-        private async UniTaskVoid RunGameAsync(bool onlineIsLocalFirst, CancellationToken ct)
+        private async UniTaskVoid RunGameAsync(CancellationToken ct)
         {
             try
             {
                 await RunCharacterSetPhaseAsync(ct);
                 if (_isGameOver) return;
-
-                int localSpeed = _playerCharacterSlot.Speed;
-                int opponentSpeed = _opponentCharacterSlot.Speed;
-                bool speedsTied = localSpeed == opponentSpeed;
-                bool isLocalFirst = localSpeed > opponentSpeed
-                    || (speedsTied && (_isOnline ? onlineIsLocalFirst : UnityEngine.Random.value > 0.5f));
-
-                _gameModel.SetInitialTurn(isLocalFirst);
-
-                if (speedsTied)
-                {
-                    try
-                    {
-                        await PlayCoinTossAsync(isLocalFirst, ct);
-                    }
-                    catch (OperationCanceledException) { return; }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"PlayCoinTossAsync 例外（ビルドでコイン演出をスキップ）: {e}");
-                        await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
-                            isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
-                            isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
-                    }
-                    catch (OperationCanceledException) { return; }
-                }
 
                 while (!_isGameOver)
                 {
@@ -68,38 +36,51 @@ namespace Main
 
         private async UniTask RunTurnAsync(CancellationToken ct)
         {
-            bool isLocalTurn = _gameModel.IsLocalTurn;
-            await RunDrawPhaseAsync(isLocalTurn, ct);
-            if (_isGameOver)
-            {
-                return;
-            }
+            await RunDrawPhaseAsync(ct);
+            if (_isGameOver) return;
 
             _gameModel.BeginPreBattle1();
             await RunPreBattle1PhaseAsync(ct);
-            if (_isGameOver)
-            {
-                return;
-            }
+            if (_isGameOver) return;
+
+            bool isLocalFirst = DetermineFirstMover();
+            _gameModel.SetInitialTurn(isLocalFirst);
+            await PlayTurnAnnouncementAsync(isLocalFirst, ct);
 
             _gameModel.BeginPreBattle2();
             await RunPreBattle2PhaseAsync(ct);
-            if (_isGameOver)
-            {
-                return;
-            }
+            if (_isGameOver) return;
 
             _gameModel.BeginResolution();
             await RunResolutionPhaseAsync(ct);
-            if (_isGameOver)
-            {
-                return;
-            }
+            if (_isGameOver) return;
 
             _gameModel.BeginBattle();
             await RunBattlePhaseAsync(ct);
 
             _gameModel.EndTurn();
+        }
+
+        // Speed 比較で先攻後攻を決定する。同値の場合は初回ランダム・以降交互
+        private bool DetermineFirstMover()
+        {
+            int localSpeed = _playerCharacterSlot.Speed;
+            int opponentSpeed = _opponentCharacterSlot.Speed;
+            if (localSpeed != opponentSpeed)
+            {
+                return localSpeed > opponentSpeed;
+            }
+
+            if (_lastSpeedTieBreakerWasLocal == null)
+            {
+                bool first = _isOnline ? _onlineIsLocalFirst : UnityEngine.Random.value > 0.5f;
+                _lastSpeedTieBreakerWasLocal = first;
+                return first;
+            }
+
+            bool alternate = !_lastSpeedTieBreakerWasLocal.Value;
+            _lastSpeedTieBreakerWasLocal = alternate;
+            return alternate;
         }
 
         // ─── キャラセットフェーズ（ゲーム開始時1回のみ） ───────────────────────
@@ -166,7 +147,6 @@ namespace Main
         }
 
         // オンライン：ホスト・クライアント共通。相手カード受信を並列起動し、自分の入力後即送信。
-        // 両者ともに receiveTask が完了してから処理を継続するので k_CharSetComplete 不要。
         private async UniTask OnlineCharSetAsync(CancellationToken ct)
         {
             UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
@@ -193,18 +173,18 @@ namespace Main
 
         private async UniTask<CardView> WaitForPlayerCharSetInputAsync(CancellationToken ct)
         {
-            _charSetInput.Tcs = new UniTaskCompletionSource<CardView>();
-            _charSetInput.Card = null;
+            _charSetInput._tcs = new UniTaskCompletionSource<CardView>();
+            _charSetInput._card = null;
             ShowActionButtons();
             UpdateStagedButtons(false);
 
             try
             {
-                return await _charSetInput.Tcs.Task.AttachExternalCancellation(ct);
+                return await _charSetInput._tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
-                _charSetInput.Tcs = null;
+                _charSetInput._tcs = null;
                 HideActionButtons();
                 RefreshHandHighlights();
             }
@@ -236,48 +216,68 @@ namespace Main
             _opponentCharacterSlot.PlaceCard(card);
         }
 
-        // ─── ドローフェーズ ─────────────────────────────────────────────
+        // ─── ドローフェーズ（両プレイヤーが毎ターン1枚ドロー）────────────────
 
-        private async UniTask RunDrawPhaseAsync(bool isLocalTurn, CancellationToken ct)
+        private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Draw);
-            DeckView sourceDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
 
-            if (sourceDeck.Count == 0)
+            bool playerDeckEmpty = _playerDeckView.Count == 0;
+            bool opponentDeckEmpty = _opponentDeckView.Count == 0;
+            if (playerDeckEmpty || opponentDeckEmpty)
             {
                 _isGameOver = true;
-                OnGameEnd(isLocalTurn ? (bool?)false : true);
-                return;
-            }
-
-            Rect deckRect = sourceDeck.worldBound;
-            CardData drawn = sourceDeck.DrawTop();
-
-            await PlayTurnAnnouncementAsync(isLocalTurn, ct);
-
-            sourceDeck.RefreshCount();
-            if (drawn != null)
-            {
-                if (isLocalTurn)
+                if (playerDeckEmpty && opponentDeckEmpty)
                 {
-                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
-                    if (_isOnline)
-                    {
-                        _networkGameService.SendDrawNotification();
-                    }
+                    OnGameEnd(null);
                 }
                 else
                 {
-                    if (_isOnline)
-                    {
-                        await _networkGameService.WaitForOpponentDrawAsync(ct);
-                    }
-                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    OnGameEnd(!playerDeckEmpty);
+                }
+                return;
+            }
+
+            Rect playerDeckRect = _playerDeckView.worldBound;
+            Rect opponentDeckRect = _opponentDeckView.worldBound;
+            CardData playerDrawn = _playerDeckView.DrawTop();
+            CardData opponentDrawn = _opponentDeckView.DrawTop();
+            _playerDeckView.RefreshCount();
+            _opponentDeckView.RefreshCount();
+
+            if (_isOnline)
+            {
+                UniTask receiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                if (playerDrawn != null)
+                {
+                    await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
+                }
+                _networkGameService.SendDrawNotification();
+                await receiveTask;
+                if (opponentDrawn != null)
+                {
+                    await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);
+                }
+            }
+            else
+            {
+                List<UniTask> tasks = new List<UniTask>();
+                if (playerDrawn != null)
+                {
+                    tasks.Add(_handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct));
+                }
+                if (opponentDrawn != null)
+                {
+                    tasks.Add(PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct));
+                }
+                if (tasks.Count > 0)
+                {
+                    await UniTask.WhenAll(tasks);
                 }
             }
         }
 
-        // ─── 戦闘前1フェーズ（Skill/Character 裏向き1枚）─────────────────────
+        // ─── 戦闘前1フェーズ（Skill のみ裏向き1枚）────────────────────────
 
         private async UniTask RunPreBattle1PhaseAsync(CancellationToken ct)
         {
@@ -306,7 +306,7 @@ namespace Main
             }
         }
 
-        // オンライン：CharSet と同様の対称プロトコル。相手カード受信を並列起動し、自分の入力後即送信。
+        // オンライン：CharSet と同様の対称プロトコル。
         private async UniTask OnlinePreBattle1Async(CancellationToken ct)
         {
             UniTask receiveTask = ReceiveAndPlaceOpponentPreBattle1Async(ct);
@@ -334,20 +334,20 @@ namespace Main
         private async UniTask<CardView> WaitForPlayerPreBattle1TurnAsync(CancellationToken ct)
         {
             _isLocalPreBattleActive = true;
-            _preBattleInput.Tcs = new UniTaskCompletionSource<CardView>();
-            _preBattleInput.Card = null;
+            _preBattleInput._tcs = new UniTaskCompletionSource<CardView>();
+            _preBattleInput._card = null;
             ShowActionButtons();
             UpdateStagedButtons(false);
 
             CardView result = null;
             try
             {
-                result = await _preBattleInput.Tcs.Task.AttachExternalCancellation(ct);
+                result = await _preBattleInput._tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
                 _isLocalPreBattleActive = false;
-                _preBattleInput.Tcs = null;
+                _preBattleInput._tcs = null;
                 HideActionButtons();
                 RefreshHandHighlights();
             }
@@ -508,18 +508,18 @@ namespace Main
 
         private async UniTask<CardView> WaitForPlayerPreBattle2InputAsync(CancellationToken ct)
         {
-            _prepInput.Tcs = new UniTaskCompletionSource<CardView>();
-            _prepInput.Card = null;
+            _prepInput._tcs = new UniTaskCompletionSource<CardView>();
+            _prepInput._card = null;
             ShowActionButtons();
             UpdateStagedButtons(false);
 
             try
             {
-                return await _prepInput.Tcs.Task.AttachExternalCancellation(ct);
+                return await _prepInput._tcs.Task.AttachExternalCancellation(ct);
             }
             finally
             {
-                _prepInput.Tcs = null;
+                _prepInput._tcs = null;
                 RefreshHandHighlights();
             }
         }
@@ -548,59 +548,52 @@ namespace Main
 
                 bool isLocal = !card.IsOpponent;
 
-                if (card.Data is CharacterCardData)
+                if (card.Data is EventCardData eventData)
                 {
-                    // 準備フェーズでスロット配置済み（プレイヤー・CPU 共通）
-                }
-                else
-                {
-                    if (card.Data is EventCardData eventData)
+                    if (skipNextEffect)
                     {
-                        if (skipNextEffect)
+                        skipNextEffect = false;
+                    }
+                    else if (eventData.EventType == CardEventType.Negate)
+                    {
+                        skipNextEffect = true;
+                        if (i > 0)
                         {
-                            skipNextEffect = false;
-                        }
-                        else if (eventData.EventType == CardEventType.Negate)
-                        {
-                            skipNextEffect = true;
-                            if (i > 0)
-                            {
-                                await PlayNegateEffectAsync(queue[i - 1], ct);
-                            }
-                        }
-                        else
-                        {
-                            if (eventData.EventType == CardEventType.Draw)
-                            {
-                                await PlayDrawEffectAsync(card, eventData.EventValue, ct);
-                            }
-                            else if (eventData.EventType == CardEventType.BanishChar)
-                            {
-                                CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                                await PlayBanishCharEffectAsync(banishTarget, ct);
-                            }
-                            await ApplyEventEffectAsync(eventData, isLocal, ct);
-                            if (eventData.EventType == CardEventType.AtkBoost)
-                            {
-                                await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
-                            }
-                            else if (eventData.EventType == CardEventType.DefBoost)
-                            {
-                                await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
-                            }
+                            await PlayNegateEffectAsync(queue[i - 1], ct);
                         }
                     }
-
-                    if (_isGameOver)
+                    else
                     {
-                        break;
+                        if (eventData.EventType == CardEventType.Draw)
+                        {
+                            await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+                        }
+                        else if (eventData.EventType == CardEventType.BanishChar)
+                        {
+                            CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                            await PlayBanishCharEffectAsync(banishTarget, ct);
+                        }
+                        await ApplyEventEffectAsync(eventData, isLocal, ct);
+                        if (eventData.EventType == CardEventType.AtkBoost)
+                        {
+                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
+                        }
+                        else if (eventData.EventType == CardEventType.DefBoost)
+                        {
+                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
+                        }
                     }
-
-                    FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
-                    field.RemoveCard(card);
-                    GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-                    graveyard.AddCard(card);
                 }
+
+                if (_isGameOver)
+                {
+                    break;
+                }
+
+                FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+                field.RemoveCard(card);
+                GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+                graveyard.AddCard(card);
 
                 card.SetState(CardState.Normal);
 
@@ -709,13 +702,12 @@ namespace Main
 
             await PlayAnnouncementAsync("FIGHT", "turn-announcement-label--fight", ct);
 
-            // 全フィールドカードを同時に表向き
             UniTask[] flipTasks = playerCards.Concat(opponentCards).Select(c => c.FlipAsync(ct)).ToArray();
             await UniTask.WhenAll(flipTasks);
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
-            // コスト払い（キャラ・技カード：ターンプレイヤー→相手の順にアナウンス＋支払い）
+            // コスト払い（ターンプレイヤー→相手の順）
             bool isLocalTurn = _gameModel.IsLocalTurn;
             List<CardView> firstCards = isLocalTurn ? playerCards : opponentCards;
             DeckView firstDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
@@ -738,10 +730,7 @@ namespace Main
                 }
                 await UniTask.WhenAll(tasks);
             }
-            if (_isGameOver)
-            {
-                return;
-            }
+            if (_isGameOver) return;
 
             string secondCostClass = isLocalTurn ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
             int secondCost = secondCards.Sum(c => c.Data.Cost);
@@ -757,57 +746,26 @@ namespace Main
                 }
                 await UniTask.WhenAll(tasks);
             }
-            if (_isGameOver)
-            {
-                return;
-            }
+            if (_isGameOver) return;
 
-            List<CardView> playerFieldChar = playerCards.Where(c => c.Data is CharacterCardData).ToList();
-            List<CardView> opponentFieldChar = opponentCards.Where(c => c.Data is CharacterCardData).ToList();
             List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
             List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
 
-            // フィールドのキャラをスロットへ飛翔
-            List<UniTask> charMoveTasks = new List<UniTask>();
-            foreach (CardView c in playerFieldChar)
-            {
-                Rect fromRect = c.worldBound;
-                _playerFieldView.RemoveCard(c);
-                charMoveTasks.Add(FlyCharToSlotAsync(c, fromRect, _playerCharacterSlot, ct));
-            }
-            foreach (CardView c in opponentFieldChar)
-            {
-                Rect fromRect = c.worldBound;
-                _opponentFieldView.RemoveCard(c);
-                charMoveTasks.Add(FlyCharToSlotAsync(c, fromRect, _opponentCharacterSlot, ct));
-            }
-            if (charMoveTasks.Count > 0)
-            {
-                await UniTask.WhenAll(charMoveTasks);
-            }
-
-            // 戦闘前1でキャラを出した場合は攻撃しない（ATK=0・モーションなし）
-            bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null && playerFieldChar.Count == 0;
-            bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null && opponentFieldChar.Count == 0;
-
-            CardAttribute playerCharAttr = _playerCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
-            CardAttribute opponentCharAttr = _opponentCharacterSlot.CurrentCard?.Data.Attribute ?? CardAttribute.None;
+            bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null;
+            bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null;
 
             BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
-                playerSkill, playerCharAttr, opponentCharAttr, _playerAtkBoost, playerHasAttackingChar, _cardStore.AttributeDatabase);
+                playerSkill, _playerAtkBoost, playerHasAttackingChar);
             BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
-                opponentSkill, opponentCharAttr, playerCharAttr, _opponentAtkBoost, opponentHasAttackingChar, _cardStore.AttributeDatabase);
+                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar);
 
             int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
             int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
             int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
             int damageToPlayer = Mathf.Max(0, opponentStats.ATK - effectivePlayerDef);
 
-            // ATKカウントアップ表示（技カードはフィールドに残ったまま）
             await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
-            await PlayBattleLabelsAsync(playerStats, opponentStats, ct);
 
-            // 技カードが相手キャラへ突撃
             await UniTask.WhenAll(
                 playerSkill.Count > 0
                     ? PlaySkillsAttackCharacterAsync(playerSkill, _playerFieldView, _opponentCharacterSlot, ct)
@@ -828,7 +786,6 @@ namespace Main
                 _playerCharacterSlot.worldBound.center,
                 ct);
 
-            // デッキダメージ
             if (damageToOpponent > 0 || damageToPlayer > 0)
             {
                 Rect opponentDeckRect = _opponentDeckView.worldBound;
@@ -859,7 +816,6 @@ namespace Main
                 }
             }
 
-            // 技カードを墓地へ
             SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
             SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
 
@@ -875,54 +831,6 @@ namespace Main
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
-
-        private async UniTask PlayBattleLabelsAsync(
-            BattleCalculator.SideBattleStats playerStats,
-            BattleCalculator.SideBattleStats opponentStats,
-            CancellationToken ct)
-        {
-            if (!playerStats.TypeMatch && !playerStats.WeaknessHit && !playerStats.StrengthBlocked
-                && !opponentStats.TypeMatch && !opponentStats.WeaknessHit && !opponentStats.StrengthBlocked)
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(1.2f), cancellationToken: ct);
-                return;
-            }
-
-            const float labelH = 80f;
-            const float labelGap = 8f;
-            const float stackOffset = labelH / 2f + labelGap / 2f;
-
-            List<UniTask> tasks = new List<UniTask>();
-            CollectBattleLabelTasks(tasks, playerStats, _playerAtkCounterLabel, stackOffset, ct);
-            CollectBattleLabelTasks(tasks, opponentStats, _opponentAtkCounterLabel, stackOffset, ct);
-            await UniTask.WhenAll(tasks);
-        }
-
-        private void CollectBattleLabelTasks(
-            List<UniTask> tasks,
-            BattleCalculator.SideBattleStats stats,
-            Label counterLabel,
-            float stackOffset,
-            CancellationToken ct)
-        {
-            if (stats.StrengthBlocked)
-            {
-                tasks.Add(PlayBattleLabelAsync("効果がない", "no-effect-label", counterLabel, 0f, ct));
-            }
-            else if (stats.TypeMatch && stats.WeaknessHit)
-            {
-                tasks.Add(PlayBattleLabelAsync("スキルタイプ一致", "type-match-label", counterLabel, -stackOffset, ct));
-                tasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", counterLabel, stackOffset, ct));
-            }
-            else if (stats.TypeMatch)
-            {
-                tasks.Add(PlayBattleLabelAsync("スキルタイプ一致", "type-match-label", counterLabel, 0f, ct));
-            }
-            else if (stats.WeaknessHit)
-            {
-                tasks.Add(PlayBattleLabelAsync("弱点を突いた", "weakness-hit-label", counterLabel, 0f, ct));
-            }
-        }
 
         private void SendSkillsToGraveyard(IEnumerable<CardView> skills, GraveyardView graveyard)
         {

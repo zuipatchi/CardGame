@@ -11,15 +11,9 @@ namespace Main.Game
             return FindFirst<CharacterCardData>(hand);
         }
 
-        // 戦闘前1フェーズ：キャラカード優先、なければ技カードのインデックスを返す
+        // 戦闘前1フェーズ：技カードのインデックスを返す（キャラカードは出せない）
         public static int ChoosePreBattle1CardIndex(IReadOnlyList<CardData> hand)
         {
-            int charIdx = FindFirst<CharacterCardData>(hand);
-            if (charIdx >= 0)
-            {
-                return charIdx;
-            }
-
             return FindFirst<SkillCardData>(hand);
         }
 
