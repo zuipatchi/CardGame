@@ -1366,7 +1366,7 @@ namespace Main
             card.style.width = StyleKeyword.Null;
             card.style.height = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);
-            card.style.scale = new Scale(Vector3.one);
+            card.style.scale = new Scale(new Vector3(0.6f, 0.6f, 1f));
             card.style.transformOrigin = StyleKeyword.Null;
             card.style.marginLeft = StyleKeyword.Null;
             card.style.marginRight = StyleKeyword.Null;
