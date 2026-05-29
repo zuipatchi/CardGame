@@ -178,6 +178,10 @@
     -unity-text-align: middle-center;
 }
 
+.game-card__def-spd-row {
+    flex-direction: row;
+}
+
 .game-card__def-area {
     position: relative;
     width: 36px;
