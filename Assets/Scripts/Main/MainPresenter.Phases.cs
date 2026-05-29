@@ -707,16 +707,16 @@ namespace Main
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
-            // コスト払い（ターンプレイヤー→相手の順）
-            bool isLocalTurn = _gameModel.IsLocalTurn;
-            List<CardView> firstCards = isLocalTurn ? playerCards : opponentCards;
-            DeckView firstDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
-            GraveyardView firstGraveyard = isLocalTurn ? _playerGraveyardView : _opponentGraveyardView;
-            List<CardView> secondCards = isLocalTurn ? opponentCards : playerCards;
-            DeckView secondDeck = isLocalTurn ? _opponentDeckView : _playerDeckView;
-            GraveyardView secondGraveyard = isLocalTurn ? _opponentGraveyardView : _playerGraveyardView;
+            // コスト払い（先攻→後攻の順）
+            bool isLocalFirst = _gameModel.IsLocalTurn;
+            List<CardView> firstCards = isLocalFirst ? playerCards : opponentCards;
+            DeckView firstDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
+            GraveyardView firstGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
+            List<CardView> secondCards = isLocalFirst ? opponentCards : playerCards;
+            DeckView secondDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
+            GraveyardView secondGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
-            string firstCostClass = isLocalTurn ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
+            string firstCostClass = isLocalFirst ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
             int firstCost = firstCards.Sum(c => c.Data.Cost);
             {
                 List<UniTask> tasks = new List<UniTask>
@@ -732,7 +732,7 @@ namespace Main
             }
             if (_isGameOver) return;
 
-            string secondCostClass = isLocalTurn ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
+            string secondCostClass = isLocalFirst ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
             int secondCost = secondCards.Sum(c => c.Data.Cost);
             {
                 List<UniTask> tasks = new List<UniTask>
@@ -766,52 +766,77 @@ namespace Main
 
             await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
 
-            await UniTask.WhenAll(
-                playerSkill.Count > 0
-                    ? PlaySkillsAttackCharacterAsync(playerSkill, _playerFieldView, _opponentCharacterSlot, ct)
-                    : UniTask.CompletedTask,
-                opponentSkill.Count > 0
-                    ? PlaySkillsAttackCharacterAsync(opponentSkill, _opponentFieldView, _playerCharacterSlot, ct)
-                    : UniTask.CompletedTask
-            );
+            // 先攻→後攻の順で攻撃・ダメージを処理
+            List<CardView> firstSkill = isLocalFirst ? playerSkill : opponentSkill;
+            FieldView firstField = isLocalFirst ? _playerFieldView : _opponentFieldView;
+            CharacterSlotView firstTarget = isLocalFirst ? _opponentCharacterSlot : _playerCharacterSlot;
+            VisualElement firstAtkOverlay = isLocalFirst ? _playerAtkCounterOverlay : _opponentAtkCounterOverlay;
+            int firstDamage = isLocalFirst ? damageToOpponent : damageToPlayer;
+            DeckView firstTargetDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
+            GraveyardView firstTargetGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
-            _playerAtkCounterOverlay.style.display = DisplayStyle.None;
-            _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
-            _playerCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
-            _opponentCharacterSlot.DefOverlay.style.display = DisplayStyle.None;
+            List<CardView> secondSkill = isLocalFirst ? opponentSkill : playerSkill;
+            FieldView secondField = isLocalFirst ? _opponentFieldView : _playerFieldView;
+            CharacterSlotView secondTarget = isLocalFirst ? _playerCharacterSlot : _opponentCharacterSlot;
+            VisualElement secondAtkOverlay = isLocalFirst ? _opponentAtkCounterOverlay : _playerAtkCounterOverlay;
+            int secondDamage = isLocalFirst ? damageToPlayer : damageToOpponent;
+            DeckView secondTargetDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
+            GraveyardView secondTargetGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
 
-            await PlayDamageNumbersFlyAsync(
-                damageToOpponent, damageToPlayer,
-                _opponentCharacterSlot.worldBound.center,
-                _playerCharacterSlot.worldBound.center,
-                ct);
-
-            if (damageToOpponent > 0 || damageToPlayer > 0)
+            // 1人目（先攻）の攻撃
+            if (firstSkill.Count > 0)
             {
-                Rect opponentDeckRect = _opponentDeckView.worldBound;
-                Rect playerDeckRect = _playerDeckView.worldBound;
-                List<CardView> opponentDamageCards = _opponentDeckView.TakeFromTop(damageToOpponent);
-                List<CardView> playerDamageCards = _playerDeckView.TakeFromTop(damageToPlayer);
-                await UniTask.WhenAll(
-                    PlayDeckDamageAsync(opponentDamageCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct),
-                    PlayDeckDamageAsync(playerDamageCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct)
-                );
+                await PlaySkillsAttackCharacterAsync(firstSkill, firstField, firstTarget, ct);
+            }
+            firstAtkOverlay.style.display = DisplayStyle.None;
+            firstTarget.DefOverlay.style.display = DisplayStyle.None;
 
-                bool playerDeckEmpty = damageToPlayer > 0 && _playerDeckView.Count == 0;
-                bool opponentDeckEmpty = damageToOpponent > 0 && _opponentDeckView.Count == 0;
-                if (playerDeckEmpty || opponentDeckEmpty)
+            if (firstDamage > 0)
+            {
+                Rect firstTargetDeckRect = firstTargetDeck.worldBound;
+                await PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct);
+                List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
+                await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
+
+                if (firstTargetDeck.Count == 0)
                 {
                     SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
                     SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
                     _isGameOver = true;
-                    if (playerDeckEmpty && opponentDeckEmpty)
-                    {
-                        OnGameEnd(null);
-                    }
-                    else
-                    {
-                        OnGameEnd(!playerDeckEmpty);
-                    }
+                    OnGameEnd(isLocalFirst);
+                    _playerAtkBoost = 0;
+                    _opponentAtkBoost = 0;
+                    _playerDefBoost = 0;
+                    _opponentDefBoost = 0;
+                    return;
+                }
+            }
+
+            // 2人目（後攻）の攻撃
+            if (secondSkill.Count > 0)
+            {
+                await PlaySkillsAttackCharacterAsync(secondSkill, secondField, secondTarget, ct);
+            }
+            secondAtkOverlay.style.display = DisplayStyle.None;
+            secondTarget.DefOverlay.style.display = DisplayStyle.None;
+
+            if (secondDamage > 0)
+            {
+                Rect secondTargetDeckRect = secondTargetDeck.worldBound;
+                await PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct);
+                List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
+                await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
+
+                if (secondTargetDeck.Count == 0)
+                {
+                    SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
+                    SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
+                    _isGameOver = true;
+                    OnGameEnd(!isLocalFirst);
+                    _playerAtkBoost = 0;
+                    _opponentAtkBoost = 0;
+                    _playerDefBoost = 0;
+                    _opponentDefBoost = 0;
                     return;
                 }
             }

@@ -589,26 +589,6 @@ namespace Main
 
         // ─── ダメージ数字飛翔演出 ──────────────────────────────────────────
 
-        private async UniTask PlayDamageNumbersFlyAsync(
-            int damageToOpponent, int damageToPlayer,
-            Vector2 damageToOpponentFrom, Vector2 damageToPlayerFrom,
-            CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            if (damageToOpponent > 0)
-            {
-                tasks.Add(PlayDamageNumberFlyAsync(damageToOpponent, damageToOpponentFrom, _opponentDeckView, ct));
-            }
-            if (damageToPlayer > 0)
-            {
-                tasks.Add(PlayDamageNumberFlyAsync(damageToPlayer, damageToPlayerFrom, _playerDeckView, ct));
-            }
-            if (tasks.Count > 0)
-            {
-                await UniTask.WhenAll(tasks);
-            }
-        }
-
         private async UniTask PlayDamageNumberFlyAsync(
             int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
         {
