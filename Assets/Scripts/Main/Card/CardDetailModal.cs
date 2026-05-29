@@ -57,17 +57,6 @@ namespace Main.Card
             nameLabel.AddToClassList("card-detail-name");
             stats.Add(nameLabel);
 
-            if (data is CharacterCardData or SkillCardData)
-            {
-                UnityEngine.Sprite attrIcon = _attrIconDb?.GetIcon(data.Attribute);
-                if (attrIcon != null)
-                {
-                    VisualElement attrIconEl = new VisualElement();
-                    attrIconEl.AddToClassList("card-detail-attr-icon");
-                    attrIconEl.style.backgroundImage = new StyleBackground(attrIcon);
-                    stats.Add(attrIconEl);
-                }
-            }
 
             VisualElement divider = new VisualElement();
             divider.AddToClassList("card-detail-divider");
@@ -75,11 +64,7 @@ namespace Main.Card
 
             AddIconStatRow(stats, "card-detail-stat-icon--cost", data.Cost.ToString());
 
-            if (data is CharacterCardData)
-            {
-                AddIconStatRow(stats, "card-detail-stat-icon--def", data.Defense.ToString());
-            }
-            else if (data is SkillCardData)
+            if (data is SkillCardData)
             {
                 AddIconStatRow(stats, "card-detail-stat-icon--atk", data.Attack.ToString());
             }

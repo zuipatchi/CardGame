@@ -208,6 +208,68 @@
     -unity-text-align: middle-center;
 }
 
+.game-card__spd-area {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+}
+
+.game-card__speed-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../Icon/SpeedIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.game-card__spd {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+}
+
+.game-card__hp-area {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+}
+
+.game-card__hp-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../Icon/HeartIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.game-card__hp {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+}
+
 .game-card__attribute-icon {
     display: none;
     width: 36px;

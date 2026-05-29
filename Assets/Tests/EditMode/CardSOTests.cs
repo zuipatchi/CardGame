@@ -30,6 +30,70 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void CharacterCardData_Speedは設定値を返す()
+        {
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5, speed: 7);
+
+            Assert.AreEqual(7, card.Speed);
+        }
+
+        [Test]
+        public void CharacterCardData_Speed省略時は0を返す()
+        {
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5);
+
+            Assert.AreEqual(0, card.Speed);
+        }
+
+        [Test]
+        public void CharacterCardData_Hpは設定値を返す()
+        {
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5, hp: 10);
+
+            Assert.AreEqual(10, card.Hp);
+        }
+
+        [Test]
+        public void CharacterCardData_Hp省略時は0を返す()
+        {
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5);
+
+            Assert.AreEqual(0, card.Hp);
+        }
+
+        [Test]
+        public void SkillCardData_Hpは0を返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+
+            Assert.AreEqual(0, card.Hp);
+        }
+
+        [Test]
+        public void EventCardData_Hpは0を返す()
+        {
+            EventCardData card = new EventCardData("e1", "回復", 2);
+
+            Assert.AreEqual(0, card.Hp);
+        }
+
+        [Test]
+        public void SkillCardData_Speedは0を返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+
+            Assert.AreEqual(0, card.Speed);
+        }
+
+        [Test]
+        public void EventCardData_Speedは0を返す()
+        {
+            EventCardData card = new EventCardData("e1", "回復", 2);
+
+            Assert.AreEqual(0, card.Speed);
+        }
+
+        [Test]
         public void SkillCardData_AttackはDamageを返す()
         {
             SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);

@@ -18,6 +18,14 @@
                     <ui:VisualElement class="game-card__shield-icon" />
                     <ui:Label name="DefLabel" class="game-card__def" />
                 </ui:VisualElement>
+                <ui:VisualElement class="game-card__hp-area">
+                    <ui:VisualElement class="game-card__hp-icon" />
+                    <ui:Label name="HpLabel" class="game-card__hp" />
+                </ui:VisualElement>
+                <ui:VisualElement class="game-card__spd-area">
+                    <ui:VisualElement class="game-card__speed-icon" />
+                    <ui:Label name="SpdLabel" class="game-card__spd" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="BackFace" class="game-card__face game-card__back" />

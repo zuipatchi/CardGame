@@ -122,7 +122,7 @@ namespace Tests.EditMode
         [Test]
         public void キャラカードのFire属性がAttributeから取得できる()
         {
-            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, 1, CardAttribute.Fire);
+            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, 1, attribute: CardAttribute.Fire);
 
             Assert.AreEqual(CardAttribute.Fire, data.Attribute);
         }

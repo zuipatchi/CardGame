@@ -17,62 +17,71 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061"
     _cost: 2
     _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
+    _attribute: 3
     _attack: 0
     _defense: 2
-    _attribute: 3
+    _speed: 1
   - _id: C002
     _cardName: "\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
+    _attribute: 1
     _attack: 0
     _defense: 3
-    _attribute: 1
+    _speed: 2
   - _id: C003
     _cardName: "\u30B4\u30D6\u30EA\u30F3"
     _cost: 2
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
+    _attribute: 2
     _attack: 0
     _defense: 2
-    _attribute: 2
+    _speed: 0
   - _id: C004
     _cardName: "\u9B54\u6CD5\u4F7F\u3044"
     _cost: 4
     _image: {fileID: 21300000, guid: cc980148a336d0147946c3bc164c869d, type: 3}
+    _attribute: 1
     _attack: 0
     _defense: 4
-    _attribute: 1
+    _speed: 0
   - _id: C005
     _cardName: "\u5927\u86C7\u30D1\u30C1\u2015\u30AF"
     _cost: 4
     _image: {fileID: 21300000, guid: 00a8461bae2d58f49bf58801ed1e8667, type: 3}
+    _attribute: 2
     _attack: 0
     _defense: 4
-    _attribute: 2
+    _speed: 0
   - _id: C006
     _cardName: "\u6BD2\u866B"
     _cost: 1
     _image: {fileID: 21300000, guid: bcec6bde5394392488dac211d96b2002, type: 3}
+    _attribute: 2
     _attack: 0
     _defense: 1
-    _attribute: 2
+    _speed: 0
   - _id: C007
     _cardName: "\u708E\u9B5A"
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
+    _attribute: 1
     _attack: 0
     _defense: 2
-    _attribute: 1
+    _speed: 0
   - _id: C008
     _cardName: "\u5144\u3071\u3063\u3061"
     _cost: 3
     _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
+    _attribute: 3
     _attack: 0
     _defense: 3
-    _attribute: 3
+    _speed: 0
   - _id: C009
     _cardName: "\u5F1F\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
+    _attribute: 3
     _attack: 0
     _defense: 1
-    _attribute: 3
+    _speed: 0
