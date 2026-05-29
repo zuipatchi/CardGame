@@ -860,26 +860,24 @@ namespace Main
             await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
 
             // 先攻→後攻の順で攻撃・ダメージを処理
-            List<CardView> firstSkill = isLocalFirst ? playerSkill : opponentSkill;
-            FieldView firstField = isLocalFirst ? _playerFieldView : _opponentFieldView;
             CharacterSlotView firstTarget = isLocalFirst ? _opponentCharacterSlot : _playerCharacterSlot;
             VisualElement firstAtkOverlay = isLocalFirst ? _playerAtkCounterOverlay : _opponentAtkCounterOverlay;
+            int firstAtk = isLocalFirst ? playerStats.ATK : opponentStats.ATK;
             int firstDamage = isLocalFirst ? damageToOpponent : damageToPlayer;
             DeckView firstTargetDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
             GraveyardView firstTargetGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
-            List<CardView> secondSkill = isLocalFirst ? opponentSkill : playerSkill;
-            FieldView secondField = isLocalFirst ? _opponentFieldView : _playerFieldView;
             CharacterSlotView secondTarget = isLocalFirst ? _playerCharacterSlot : _opponentCharacterSlot;
             VisualElement secondAtkOverlay = isLocalFirst ? _opponentAtkCounterOverlay : _playerAtkCounterOverlay;
+            int secondAtk = isLocalFirst ? opponentStats.ATK : playerStats.ATK;
             int secondDamage = isLocalFirst ? damageToPlayer : damageToOpponent;
             DeckView secondTargetDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
             GraveyardView secondTargetGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
 
             // 1人目（先攻）の攻撃
-            if (firstSkill.Count > 0)
+            if (firstAtk > 0)
             {
-                await PlaySkillsAttackCharacterAsync(firstSkill, firstField, firstTarget, ct);
+                await PlayAttackIconAsync(firstAtkOverlay, firstTarget, firstAtk, ct);
             }
             firstAtkOverlay.style.display = DisplayStyle.None;
             firstTarget.DefOverlay.style.display = DisplayStyle.None;
@@ -916,9 +914,9 @@ namespace Main
             }
 
             // 2人目（後攻）の攻撃
-            if (secondSkill.Count > 0)
+            if (secondAtk > 0)
             {
-                await PlaySkillsAttackCharacterAsync(secondSkill, secondField, secondTarget, ct);
+                await PlayAttackIconAsync(secondAtkOverlay, secondTarget, secondAtk, ct);
             }
             secondAtkOverlay.style.display = DisplayStyle.None;
             secondTarget.DefOverlay.style.display = DisplayStyle.None;
