@@ -9,10 +9,10 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardView MakeCharacter(int attack = 2, int defense = 3)
+        private static CardView MakeCharacter(int attack = 2, int defense = 3, int speed = 0)
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CharacterCardData("C001", "戦士", 2, attack, defense));
+            return new CardView(template, new CharacterCardData("C001", "戦士", 2, attack, defense, speed));
         }
 
         [Test]
@@ -29,6 +29,24 @@ namespace Tests.EditMode
             CharacterSlotView slot = new CharacterSlotView();
 
             Assert.AreEqual(0, slot.Defense);
+        }
+
+        [Test]
+        public void 初期状態のSpeedは0()
+        {
+            CharacterSlotView slot = new CharacterSlotView();
+
+            Assert.AreEqual(0, slot.Speed);
+        }
+
+        [Test]
+        public void PlaceCard後のSpeedはカードの値を返す()
+        {
+            CharacterSlotView slot = new CharacterSlotView();
+
+            slot.PlaceCard(MakeCharacter(speed: 5));
+
+            Assert.AreEqual(5, slot.Speed);
         }
 
         [Test]

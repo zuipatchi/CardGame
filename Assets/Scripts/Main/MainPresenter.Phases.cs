@@ -19,21 +19,39 @@ namespace Main
         {
             try
             {
-                await RunCharacterSetPhaseAsync(onlineIsLocalFirst, ct);
+                await RunCharacterSetPhaseAsync(ct);
                 if (_isGameOver) return;
 
-                bool isLocalFirst = _isOnline ? onlineIsLocalFirst : (UnityEngine.Random.value > 0.5f);
+                int localSpeed = _playerCharacterSlot.Speed;
+                int opponentSpeed = _opponentCharacterSlot.Speed;
+                bool speedsTied = localSpeed == opponentSpeed;
+                bool isLocalFirst = localSpeed > opponentSpeed
+                    || (speedsTied && (_isOnline ? onlineIsLocalFirst : UnityEngine.Random.value > 0.5f));
+
                 _gameModel.SetInitialTurn(isLocalFirst);
-                try
+
+                if (speedsTied)
                 {
-                    await PlayCoinTossAsync(isLocalFirst, ct);
+                    try
+                    {
+                        await PlayCoinTossAsync(isLocalFirst, ct);
+                    }
+                    catch (OperationCanceledException) { return; }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"PlayCoinTossAsync 例外（ビルドでコイン演出をスキップ）: {e}");
+                        await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
+                            isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
+                    }
                 }
-                catch (OperationCanceledException) { return; }
-                catch (Exception e)
+                else
                 {
-                    Debug.LogError($"PlayCoinTossAsync 例外（ビルドでコイン演出をスキップ）: {e}");
-                    await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
-                        isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
+                    try
+                    {
+                        await PlayAnnouncementAsync(isLocalFirst ? "先攻" : "後攻",
+                            isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy", ct);
+                    }
+                    catch (OperationCanceledException) { return; }
                 }
 
                 while (!_isGameOver)
@@ -86,7 +104,7 @@ namespace Main
 
         // ─── キャラセットフェーズ（ゲーム開始時1回のみ） ───────────────────────
 
-        private async UniTask RunCharacterSetPhaseAsync(bool onlineIsLocalFirst, CancellationToken ct)
+        private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.CharacterSet);
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);

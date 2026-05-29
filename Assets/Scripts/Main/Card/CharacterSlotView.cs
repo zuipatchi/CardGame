@@ -20,6 +20,7 @@ namespace Main.Card
 
         public CardView CurrentCard => _current;
         public int Defense => _current?.Data.Defense ?? 0;
+        public int Speed => _current?.Data.Speed ?? 0;
 
         public VisualElement DefOverlay => _defOverlay;
 
