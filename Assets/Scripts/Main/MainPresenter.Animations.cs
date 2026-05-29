@@ -684,34 +684,57 @@ namespace Main
             const float AppearDuration = 0.3f;
             const float HoldDuration = 0.3f;
             const float FlyDuration = 0.75f;
-            const float LabelW = 320f;
-            const float LabelH = 90f;
+            const float ContainerSize = 220f;
 
-            Label label = new Label($"{damage}ダメージ");
-            label.AddToClassList("damage-number-label");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.opacity = 0f;
-            label.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+            // ATKアイコン + ダメージ数字を重ねたコンテナ
+            VisualElement container = new VisualElement();
+            container.pickingMode = PickingMode.Ignore;
+            container.style.position = Position.Absolute;
+            container.style.width = ContainerSize;
+            container.style.height = ContainerSize;
+            container.style.opacity = 0f;
+            container.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
 
             Vector2 fromLocal = _dragLayer.WorldToLocal(fromWorldCenter);
-            float left = fromLocal.x - LabelW / 2f;
-            float top = fromLocal.y - LabelH / 2f;
-            label.style.left = left;
-            label.style.top = top;
-            _dragLayer.Add(label);
+            float left = fromLocal.x - ContainerSize / 2f;
+            float top = fromLocal.y - ContainerSize / 2f;
+            container.style.left = left;
+            container.style.top = top;
+
+            VisualElement iconWrapper = new VisualElement();
+            iconWrapper.pickingMode = PickingMode.Ignore;
+            iconWrapper.AddToClassList("atk-counter-icon-wrapper");
+            container.Add(iconWrapper);
+
+            VisualElement icon = new VisualElement();
+            icon.pickingMode = PickingMode.Ignore;
+            icon.AddToClassList("atk-counter-icon");
+            iconWrapper.Add(icon);
+
+            // ダメージ数字をアイコンに重ねて表示
+            Label label = new Label(damage.ToString());
+            label.pickingMode = PickingMode.Ignore;
+            label.AddToClassList("damage-number-label");
+            label.style.position = Position.Absolute;
+            label.style.left = 0;
+            label.style.right = 0;
+            label.style.top = new StyleLength(new Length(35f, LengthUnit.Percent));
+            label.style.unityTextAlign = TextAnchor.MiddleCenter;
+            container.Add(label);
+
+            _dragLayer.Add(container);
 
             Vector2 deckLocal = _dragLayer.WorldToLocal(targetDeck.worldBound.center);
-            float targetLeft = deckLocal.x - LabelW / 2f;
-            float targetTop = deckLocal.y - LabelH / 2f;
+            float targetLeft = deckLocal.x - ContainerSize / 2f;
+            float targetTop = deckLocal.y - ContainerSize / 2f;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => container.style.scale.value.value.x, v => container.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
                 .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => left, v => { left = v; label.style.left = v; }, targetLeft, FlyDuration).SetEase(Ease.InQuad))
-                .Join(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                .Append(DOTween.To(() => left, v => { left = v; container.style.left = v; }, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                .Join(DOTween.To(() => top, v => { top = v; container.style.top = v; }, targetTop, FlyDuration).SetEase(Ease.InQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
@@ -719,7 +742,7 @@ namespace Main
             try { await tcs.Task; }
             catch (OperationCanceledException) { }
 
-            label.RemoveFromHierarchy();
+            container.RemoveFromHierarchy();
         }
 
         // ─── CPU ドロー演出 ──────────────────────────────────────────────
