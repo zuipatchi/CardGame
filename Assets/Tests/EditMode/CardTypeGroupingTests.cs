@@ -8,10 +8,10 @@ namespace Tests.EditMode
     {
         private static readonly CardData[] MixedCards = new CardData[]
         {
-            new CharacterCardData("c1", "戦士", 1, 0, 2),
+            new CharacterCardData("c1", "戦士", 1, 0),
             new SkillCardData("s1", "ファイア", 1, 3),
             new EventCardData("e1", "バフ", 1),
-            new CharacterCardData("c2", "魔法使い", 2, 1, 1),
+            new CharacterCardData("c2", "魔法使い", 2, 1),
             new SkillCardData("s2", "アイス", 1, 2),
         };
 

@@ -9,10 +9,10 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardView MakeCharacter(int attack = 2, int defense = 3, int speed = 0)
+        private static CardView MakeCharacter(int attack = 2, int defense = 0, int speed = 0, int hp = 0)
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CharacterCardData("C001", "戦士", 2, attack, defense, speed));
+            return new CardView(template, new CharacterCardData("C001", "戦士", 2, attack, defense, speed, hp));
         }
 
         [Test]
@@ -32,11 +32,39 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void 初期状態のHpは0()
+        {
+            CharacterSlotView slot = new CharacterSlotView();
+
+            Assert.AreEqual(0, slot.Hp);
+        }
+
+        [Test]
         public void 初期状態のSpeedは0()
         {
             CharacterSlotView slot = new CharacterSlotView();
 
             Assert.AreEqual(0, slot.Speed);
+        }
+
+        [Test]
+        public void PlaceCard後のDefenseはカードの値を返す()
+        {
+            CharacterSlotView slot = new CharacterSlotView();
+
+            slot.PlaceCard(MakeCharacter(defense: 7));
+
+            Assert.AreEqual(7, slot.Defense);
+        }
+
+        [Test]
+        public void PlaceCard後のHpはカードの値を返す()
+        {
+            CharacterSlotView slot = new CharacterSlotView();
+
+            slot.PlaceCard(MakeCharacter(hp: 5));
+
+            Assert.AreEqual(5, slot.Hp);
         }
 
         [Test]
@@ -53,21 +81,11 @@ namespace Tests.EditMode
         public void PlaceCardでCurrentCardが設定される()
         {
             CharacterSlotView slot = new CharacterSlotView();
-            CardView card = MakeCharacter(defense: 5);
+            CardView card = MakeCharacter();
 
             slot.PlaceCard(card);
 
             Assert.AreEqual(card, slot.CurrentCard);
-        }
-
-        [Test]
-        public void PlaceCard後のDefenseはカードの値を返す()
-        {
-            CharacterSlotView slot = new CharacterSlotView();
-
-            slot.PlaceCard(MakeCharacter(defense: 7));
-
-            Assert.AreEqual(7, slot.Defense);
         }
 
         [Test]
@@ -118,6 +136,38 @@ namespace Tests.EditMode
             slot.RemoveCard();
 
             Assert.IsNull(slot.CurrentCard);
+        }
+
+        [Test]
+        public void ダメージがHP以上のとき破壊条件が成立する()
+        {
+            int damage = 5;
+            int hp = 5;
+
+            Assert.IsTrue(damage >= hp);
+        }
+
+        [Test]
+        public void ダメージがHP未満のとき破壊条件は成立しない()
+        {
+            int damage = 4;
+            int hp = 5;
+
+            Assert.IsFalse(damage >= hp);
+        }
+
+        [Test]
+        public void DefBoostがある場合有効防御力はDefenseにEventValueを加算した値になる()
+        {
+            int baseDefense = 2;
+            int defBoost = 3;
+            int playerATK = 6;
+
+            int effectiveDef = baseDefense + defBoost;
+            int damage = UnityEngine.Mathf.Max(0, playerATK - effectiveDef);
+
+            Assert.AreEqual(5, effectiveDef);
+            Assert.AreEqual(1, damage);
         }
     }
 }

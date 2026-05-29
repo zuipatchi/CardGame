@@ -46,11 +46,22 @@ namespace Tests.EditMode
         public void キャラカードの防御力が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, 3);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, defense: 3);
 
             CardView view = new CardView(template, data);
 
             Assert.AreEqual("3", view.Q<Label>("DefLabel").text);
+        }
+
+        [Test]
+        public void キャラカードの体力が正しくバインドされる()
+        {
+            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, hp: 4);
+
+            CardView view = new CardView(template, data);
+
+            Assert.AreEqual("4", view.Q<Label>("HpLabel").text);
         }
 
         [Test]
@@ -96,7 +107,7 @@ namespace Tests.EditMode
         public void FaceUp_裏向きカードが表向きになる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0, 2);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0);
             CardView view = new CardView(template, data, faceDown: true);
 
             view.FaceUp();
@@ -110,7 +121,7 @@ namespace Tests.EditMode
         public void FaceUp_すでに表向きのカードは変化しない()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0, 2);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 1, 0);
             CardView view = new CardView(template, data, faceDown: false);
 
             view.FaceUp();
@@ -122,7 +133,7 @@ namespace Tests.EditMode
         [Test]
         public void キャラカードのFire属性がAttributeから取得できる()
         {
-            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, 1, attribute: CardAttribute.Fire);
+            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, attribute: CardAttribute.Fire);
 
             Assert.AreEqual(CardAttribute.Fire, data.Attribute);
         }
@@ -139,7 +150,7 @@ namespace Tests.EditMode
         public void キャラカード属性Noneのとき属性アイコンが非表示()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0, 3);
+            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0);
 
             CardView view = new CardView(template, data);
 

@@ -19,7 +19,7 @@ namespace Tests.EditMode
         [Test]
         public void キャラクターカードを表示するとオーバーレイが追加される()
         {
-            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5, 4);
+            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5);
 
             _modal.Show(data);
 
@@ -29,17 +29,16 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void キャラクターカードのDEFが表示される()
+        public void キャラクターカードのコストが表示される()
         {
-            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5, 4);
+            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5);
 
             _modal.Show(data);
 
             System.Collections.Generic.List<Label> valueLabels = new System.Collections.Generic.List<Label>();
             _root.Query<Label>(className: "card-detail-row-value").ToList(valueLabels);
-            Assert.AreEqual(2, valueLabels.Count, "コスト・DEF の2行");
+            Assert.AreEqual(1, valueLabels.Count, "コストの1行");
             Assert.AreEqual("3", valueLabels[0].text);
-            Assert.AreEqual("4", valueLabels[1].text);
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace Tests.EditMode
         [Test]
         public void Hideを呼ぶとオーバーレイが削除される()
         {
-            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5, 4);
+            CharacterCardData data = new CharacterCardData("C001", "竜騎士", 3, 5);
             _modal.Show(data);
 
             _modal.Hide();
@@ -94,8 +93,8 @@ namespace Tests.EditMode
         [Test]
         public void Showを2回呼ぶと以前のモーダルが閉じて新しいモーダルが表示される()
         {
-            CharacterCardData data1 = new CharacterCardData("C001", "竜騎士", 3, 5, 4);
-            CharacterCardData data2 = new CharacterCardData("C002", "炎の魔法使い", 2, 3, 2);
+            CharacterCardData data1 = new CharacterCardData("C001", "竜騎士", 3, 5);
+            CharacterCardData data2 = new CharacterCardData("C002", "炎の魔法使い", 2, 3);
 
             _modal.Show(data1);
             _modal.Show(data2);

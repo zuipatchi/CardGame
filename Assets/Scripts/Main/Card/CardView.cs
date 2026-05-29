@@ -229,7 +229,8 @@ namespace Main.Card
 
             _atkArea.style.display = data is CharacterCardData or EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;
-            _defArea.style.display = DisplayStyle.None;
+            _defArea.style.display = data is CharacterCardData
+                ? DisplayStyle.Flex : DisplayStyle.None;
             _spdArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
             _hpArea.style.display = data is CharacterCardData

@@ -12,7 +12,7 @@ namespace Tests.EditMode
         private static CardView MakeCharacter()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CharacterCardData("C001", "戦士", 2, 3, 5));
+            return new CardView(template, new CharacterCardData("C001", "戦士", 2, 3));
         }
 
         // ApplyEventEffectAsync の BanishChar ロジックをシミュレートする

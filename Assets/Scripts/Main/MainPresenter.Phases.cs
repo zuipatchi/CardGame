@@ -810,6 +810,16 @@ namespace Main
                     _opponentDefBoost = 0;
                     return;
                 }
+
+                // キャラ破壊判定（1ターンに HP 以上のダメージを受けたキャラは墓地へ）
+                if (firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp)
+                {
+                    CardView destroyedChar = firstTarget.CurrentCard;
+                    Rect fromRect = destroyedChar.worldBound;
+                    firstTarget.RemoveCard();
+                    await FlyCardToDestAsync(destroyedChar, fromRect, firstTargetGraveyard, ct);
+                    firstTargetGraveyard.AddCard(destroyedChar);
+                }
             }
 
             // 2人目（後攻）の攻撃
@@ -838,6 +848,16 @@ namespace Main
                     _playerDefBoost = 0;
                     _opponentDefBoost = 0;
                     return;
+                }
+
+                // キャラ破壊判定
+                if (secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp)
+                {
+                    CardView destroyedChar = secondTarget.CurrentCard;
+                    Rect fromRect = destroyedChar.worldBound;
+                    secondTarget.RemoveCard();
+                    await FlyCardToDestAsync(destroyedChar, fromRect, secondTargetGraveyard, ct);
+                    secondTargetGraveyard.AddCard(destroyedChar);
                 }
             }
 

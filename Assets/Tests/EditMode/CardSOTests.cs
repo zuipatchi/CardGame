@@ -16,7 +16,7 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Attackは設定値を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3);
 
             Assert.AreEqual(3, card.Attack);
         }
@@ -24,7 +24,7 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Defenseは設定値を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 0, 5);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 0, defense: 5);
 
             Assert.AreEqual(5, card.Defense);
         }
@@ -32,7 +32,7 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Speedは設定値を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5, speed: 7);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, speed: 7);
 
             Assert.AreEqual(7, card.Speed);
         }
@@ -40,7 +40,7 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Speed省略時は0を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3);
 
             Assert.AreEqual(0, card.Speed);
         }
@@ -48,7 +48,7 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Hpは設定値を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5, hp: 10);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, hp: 10);
 
             Assert.AreEqual(10, card.Hp);
         }
@@ -56,9 +56,17 @@ namespace Tests.EditMode
         [Test]
         public void CharacterCardData_Hp省略時は0を返す()
         {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, 5);
+            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3);
 
             Assert.AreEqual(0, card.Hp);
+        }
+
+        [Test]
+        public void SkillCardData_Defenseは0を返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+
+            Assert.AreEqual(0, card.Defense);
         }
 
         [Test]
@@ -67,6 +75,14 @@ namespace Tests.EditMode
             SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
 
             Assert.AreEqual(0, card.Hp);
+        }
+
+        [Test]
+        public void EventCardData_Defenseは0を返す()
+        {
+            EventCardData card = new EventCardData("e1", "回復", 2);
+
+            Assert.AreEqual(0, card.Defense);
         }
 
         [Test]
@@ -102,14 +118,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void SkillCardData_Defenseは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
-
-            Assert.AreEqual(0, card.Defense);
-        }
-
-        [Test]
         public void EventCardData_Attackは0を返す()
         {
             EventCardData card = new EventCardData("e1", "回復", 2);
@@ -118,19 +126,11 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void EventCardData_Defenseは0を返す()
-        {
-            EventCardData card = new EventCardData("e1", "回復", 2);
-
-            Assert.AreEqual(0, card.Defense);
-        }
-
-        [Test]
         public void BuildDeck_ID順にカードを返す()
         {
             CardDatabase db = MakeDatabase(new CardData[]
             {
-                new CharacterCardData("char_01", "戦士", 2, 0, 5),
+                new CharacterCardData("char_01", "戦士", 2, 0),
                 new SkillCardData("skill_01", "ファイア", 1, 3),
             });
 
@@ -144,7 +144,7 @@ namespace Tests.EditMode
         [Test]
         public void BuildDeck_存在しないIDはスキップされる()
         {
-            CardDatabase db = MakeDatabase(new CardData[] { new CharacterCardData("char_01", "戦士", 2, 0, 5) });
+            CardDatabase db = MakeDatabase(new CardData[] { new CharacterCardData("char_01", "戦士", 2, 0) });
 
             CardData[] deck = db.BuildDeck(new[] { "char_01", "unknown_id" });
 
@@ -154,7 +154,7 @@ namespace Tests.EditMode
         [Test]
         public void BuildDeck_同じIDを複数回指定すると複数枚入る()
         {
-            CardDatabase db = MakeDatabase(new CardData[] { new CharacterCardData("char_01", "戦士", 2, 0, 5) });
+            CardDatabase db = MakeDatabase(new CardData[] { new CharacterCardData("char_01", "戦士", 2, 0) });
 
             CardData[] deck = db.BuildDeck(new[] { "char_01", "char_01", "char_01" });
 

@@ -25,7 +25,7 @@ namespace Tests.EditMode
         {
             CardData[] hand = new CardData[]
             {
-                new CharacterCardData("c1", "戦士", 1, 0, 2),
+                new CharacterCardData("c1", "戦士", 1, 0),
                 new SkillCardData("s1", "ファイア", 1, 3),
             };
 
@@ -39,8 +39,8 @@ namespace Tests.EditMode
         {
             CardData[] hand = new CardData[]
             {
-                new CharacterCardData("c1", "戦士", 1, 0, 2),
-                new CharacterCardData("c2", "魔法使い", 2, 1, 1),
+                new CharacterCardData("c1", "戦士", 1, 0),
+                new CharacterCardData("c2", "魔法使い", 2, 1),
             };
 
             bool needsMulligan = !hand.Any(d => d is CharacterCardData);

@@ -13,7 +13,7 @@ namespace Main.Card
 
         public CharacterCardData() { }
 
-        public CharacterCardData(string id, string name, int cost, int attack, int defense, int speed = 0, int hp = 0, CardAttribute attribute = CardAttribute.None)
+        public CharacterCardData(string id, string name, int cost, int attack, int defense = 0, int speed = 0, int hp = 0, CardAttribute attribute = CardAttribute.None)
             : base(id, name, cost)
         {
             _attack = attack;

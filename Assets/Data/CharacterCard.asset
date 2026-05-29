@@ -39,7 +39,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 2
     _speed: 0
-    _hp: 0
+    _hp: 4
   - _id: C004
     _cardName: "\u9B54\u6CD5\u4F7F\u3044"
     _cost: 4
@@ -57,7 +57,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 4
     _speed: 0
-    _hp: 0
+    _hp: 6
   - _id: C006
     _cardName: "\u6BD2\u866B"
     _cost: 1
@@ -66,7 +66,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 1
     _speed: 0
-    _hp: 0
+    _hp: 3
   - _id: C007
     _cardName: "\u708E\u9B5A"
     _cost: 2

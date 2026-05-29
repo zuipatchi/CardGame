@@ -13,7 +13,7 @@ namespace Tests.EditMode
             List<CardData> hand = new List<CardData>
             {
                 new SkillCardData("s1", "ファイア", 1, damage: 3),
-                new CharacterCardData("c1", "戦士", 2, 0, 5),
+                new CharacterCardData("c1", "戦士", 2, 0),
             };
 
             int idx = CpuAgent.ChoosePreBattle1CardIndex(hand);
@@ -76,7 +76,7 @@ namespace Tests.EditMode
         {
             List<CardData> hand = new List<CardData>
             {
-                new CharacterCardData("c1", "戦士", 2, 0, 5),
+                new CharacterCardData("c1", "戦士", 2, 0),
                 new SkillCardData("s1", "ファイア", 1, damage: 3),
             };
 
