@@ -452,6 +452,14 @@
     opacity: 0.4;
 }
 
+.damage-fly-icon {
+    width: 200px;
+    height: 200px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/DamageIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.4;
+}
+
 .atk-counter-label {
     font-size: 120px;
     -unity-font-style: bold;

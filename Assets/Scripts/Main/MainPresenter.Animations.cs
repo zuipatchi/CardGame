@@ -708,7 +708,7 @@ namespace Main
 
             VisualElement icon = new VisualElement();
             icon.pickingMode = PickingMode.Ignore;
-            icon.AddToClassList("atk-counter-icon");
+            icon.AddToClassList("damage-fly-icon");
             iconWrapper.Add(icon);
 
             // ダメージ数字をアイコンに重ねて表示
