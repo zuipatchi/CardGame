@@ -848,9 +848,9 @@ namespace Main
             bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null;
 
             BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
-                playerSkill, _playerAtkBoost, playerHasAttackingChar);
+                playerSkill, _playerAtkBoost, playerHasAttackingChar, _playerCharacterSlot.Attack);
             BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
-                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar);
+                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar, _opponentCharacterSlot.Attack);
 
             int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
             int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;

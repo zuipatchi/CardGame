@@ -18,7 +18,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
     _attribute: 3
-    _attack: 0
+    _attack: 2
     _defense: 2
     _speed: 2
     _hp: 2
@@ -27,8 +27,8 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
     _attribute: 1
-    _attack: 0
-    _defense: 3
+    _attack: 4
+    _defense: 2
     _speed: 2
     _hp: 3
   - _id: C003
@@ -36,7 +36,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
     _attribute: 2
-    _attack: 0
+    _attack: 2
     _defense: 2
     _speed: 3
     _hp: 1
@@ -54,7 +54,7 @@ MonoBehaviour:
     _cost: 4
     _image: {fileID: 21300000, guid: 00a8461bae2d58f49bf58801ed1e8667, type: 3}
     _attribute: 2
-    _attack: 0
+    _attack: 5
     _defense: 3
     _speed: 2
     _hp: 3

@@ -19,10 +19,11 @@ namespace Main.Game
         internal static SideBattleStats Calculate(
             IReadOnlyList<CardView> skills,
             int atkBoost,
-            bool hasAttackingChar)
+            bool hasAttackingChar,
+            int charAttack)
         {
             int atk = hasAttackingChar
-                ? skills.Sum(c => c.Data.Attack) + atkBoost
+                ? charAttack + skills.Sum(c => c.Data.Attack) + atkBoost
                 : 0;
             return new SideBattleStats(atk);
         }

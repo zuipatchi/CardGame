@@ -19,6 +19,7 @@ namespace Main.Card
         private readonly Label _defLabel;
 
         public CardView CurrentCard => _current;
+        public int Attack => _current?.Data.Attack ?? 0;
         public int Defense => _current?.Data.Defense ?? 0;
         public int Hp => _current?.Data.Hp ?? 0;
         public int Speed => _current?.Data.Speed ?? 0;
