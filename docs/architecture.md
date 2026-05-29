@@ -469,9 +469,8 @@ RunBattlePhaseAsync
   → 全フィールドカードを同時に表向き
   → ATK = 技カードの Damage 合計 + AtkBoost（属性倍率なし）。スロット空の場合は ATK = 0
   → PlayAtkCounterAsync: 両サイドに 0→ATK のカウントアップ表示（常時）、**キャラスロット**に DEF アイコン＆DEF値をフェードイン表示
-  → PlaySkillsAttackCharacterAsync: 技カードを相手キャラスロットへ突撃（両者並行）
-  → PlayDeckDamageAsync: ダメージ枚数分のカードをデッキ上から取り出し墓地アイコンへ飛翔・縮小（両者並行、ダメージ > 0 の場合のみ）
-  → 両デッキ同時0なら引き分け、片方0なら勝敗確定
+  → PlaySkillsAttackCharacterAsync (先攻): 先攻技カードを後攻キャラスロットへ突撃 → PlayDeckDamageAsync で先攻ダメージ適用（後攻デッキが 0 なら OnGameEnd(isLocalFirst) で先攻勝利）
+  → PlaySkillsAttackCharacterAsync (後攻): 後攻技カードを先攻キャラスロットへ突撃 → PlayDeckDamageAsync で後攻ダメージ適用（先攻デッキが 0 なら OnGameEnd(!isLocalFirst) で後攻勝利）
 ```
 
 **技カードスロット移動アニメーション（FlySkillToSlotAsync）:**
@@ -490,7 +489,7 @@ RunBattlePhaseAsync
 - DragLayer に移動（UI Toolkit が DeckView から自動除去）直後に `OnCardRemovedVisually()` を呼んでデッキ表示を縮小
 - DragLayer に絶対配置してデッキ位置から墓地アイコン中央へ飛翔（0.3 秒、InQuad）しながらスケールを 0 に縮小
 - 到着後に `graveyard.AddCard(card)` で登録
-- 両プレイヤーの処理は `UniTask.WhenAll` で並行実行
+- 呼び出し側が先攻→後攻の順に逐次呼び出す
 
 **フライアニメーション（FlyCardToDestAsync）:**
 - `worldBound` をカード除去前にキャプチャ
