@@ -6,7 +6,6 @@ namespace Main.Game
         Draw,
         PreBattle1,
         PreBattle2,
-        Resolution,
         Battle,
         PostBattleCharacterSet,
     }

@@ -80,7 +80,6 @@ namespace Main
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowPreBattle1;
         private VisualElement _phaseRowPreBattle2;
-        private VisualElement _phaseRowResolution;
         private VisualElement _phaseRowBattle;
         private VisualElement _phaseRowPostBattleCharacterSet;
 
@@ -378,7 +377,6 @@ namespace Main
                 _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
                 _phaseRowPreBattle1 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle1");
                 _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
-                _phaseRowResolution = phaseIndicator.Q<VisualElement>("PhaseRowResolution");
                 _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
                 _phaseRowPostBattleCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowPostBattleCharacterSet");
 
@@ -564,13 +562,13 @@ namespace Main
             VisualElement[] rows =
             {
                 _phaseRowDraw, _phaseRowPreBattle1,
-                _phaseRowPreBattle2, _phaseRowResolution, _phaseRowBattle,
+                _phaseRowPreBattle2, _phaseRowBattle,
                 _phaseRowPostBattleCharacterSet,
             };
             TurnPhase[] phases =
             {
                 TurnPhase.Draw, TurnPhase.PreBattle1,
-                TurnPhase.PreBattle2, TurnPhase.Resolution, TurnPhase.Battle,
+                TurnPhase.PreBattle2, TurnPhase.Battle,
                 TurnPhase.PostBattleCharacterSet,
             };
             for (int i = 0; i < rows.Length; i++)

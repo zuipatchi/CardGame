@@ -41,13 +41,6 @@
                 </ui:VisualElement>
                 <ui:Label class="phase-label" text="イベント" />
             </ui:VisualElement>
-            <ui:VisualElement name="PhaseRowResolution" class="phase-row">
-                <ui:VisualElement class="phase-dot-col">
-                    <ui:VisualElement class="phase-dot" />
-                    <ui:VisualElement class="phase-line" />
-                </ui:VisualElement>
-                <ui:Label class="phase-label" text="解決" />
-            </ui:VisualElement>
             <ui:VisualElement name="PhaseRowBattle" class="phase-row">
                 <ui:VisualElement class="phase-dot-col">
                     <ui:VisualElement class="phase-dot" />

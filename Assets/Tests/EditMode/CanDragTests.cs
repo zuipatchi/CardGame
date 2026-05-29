@@ -135,12 +135,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 解決フェーズはドラッグ不可()
-        {
-            Assert.IsFalse(CanPlayerDragCard(false, TurnPhase.Resolution, false, true, false, true, true, false, false, true));
-        }
-
-        [Test]
         public void 戦闘フェーズはドラッグ不可()
         {
             Assert.IsFalse(CanPlayerDragCard(false, TurnPhase.Battle, false, true, false, true, true, false, false, true));

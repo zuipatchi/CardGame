@@ -51,10 +51,6 @@ namespace Main
             await RunPreBattle2PhaseAsync(ct);
             if (_isGameOver) return;
 
-            _gameModel.BeginResolution();
-            await RunResolutionPhaseAsync(ct);
-            if (_isGameOver) return;
-
             _gameModel.BeginBattle();
             await RunBattlePhaseAsync(ct);
             if (_isGameOver) return;
@@ -575,6 +571,8 @@ namespace Main
             }
 
             HideActionButtons();
+
+            await RunResolutionPhaseAsync(ct);
         }
 
         private async UniTask PlayOpponentPreBattle2OnlineAsync(string cardId, CancellationToken ct)
@@ -621,7 +619,6 @@ namespace Main
 
         private async UniTask RunResolutionPhaseAsync(CancellationToken ct)
         {
-            UpdatePhaseIndicator(TurnPhase.Resolution);
             IReadOnlyList<CardView> queue = _gameModel.ReadyQueue;
             if (queue.Count == 0)
             {
