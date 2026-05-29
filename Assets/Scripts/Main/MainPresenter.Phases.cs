@@ -57,6 +57,9 @@ namespace Main
 
             _gameModel.BeginBattle();
             await RunBattlePhaseAsync(ct);
+            if (_isGameOver) return;
+
+            await RunPostBattleCharacterSetPhaseAsync(ct);
 
             _gameModel.EndTurn();
         }
@@ -214,6 +217,99 @@ namespace Main
             CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
             _opponentCharacterSlot.PlaceCard(card);
+        }
+
+        // ─── 戦闘後キャラセットフェーズ（スロットが空のプレイヤーのみ配置可） ──
+
+        private async UniTask RunPostBattleCharacterSetPhaseAsync(CancellationToken ct)
+        {
+            bool playerHadChar = _playerCharacterSlot.CurrentCard != null;
+            bool opponentHadChar = _opponentCharacterSlot.CurrentCard != null;
+
+            if (playerHadChar && opponentHadChar)
+            {
+                return;
+            }
+
+            _gameModel.BeginPostBattleCharacterSet();
+            UpdatePhaseIndicator(TurnPhase.PostBattleCharacterSet);
+            await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
+
+            if (_isOnline)
+            {
+                await OnlinePostBattleCharSetAsync(ct);
+            }
+            else
+            {
+                await UniTask.WhenAll(
+                    PlayerPostBattleCharSetLocalAsync(playerHadChar, ct),
+                    CpuPostBattleCharSetAsync(opponentHadChar, ct)
+                );
+            }
+
+            await PlayResolveAnimationAsync(ct);
+
+            if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
+            {
+                await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
+                await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
+                if (_isGameOver) return;
+            }
+            if (!opponentHadChar && _opponentCharacterSlot.CurrentCard != null)
+            {
+                await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
+                await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
+            }
+        }
+
+        private async UniTask PlayerPostBattleCharSetLocalAsync(bool forcedPass, CancellationToken ct)
+        {
+            if (forcedPass)
+            {
+                await PlayPassAnimationAsync(true, ct);
+                return;
+            }
+            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+            }
+        }
+
+        private async UniTask CpuPostBattleCharSetAsync(bool forcedPass, CancellationToken ct)
+        {
+            if (forcedPass)
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return;
+            }
+            await CpuCharSetAsync(ct);
+        }
+
+        private async UniTask OnlinePostBattleCharSetAsync(CancellationToken ct)
+        {
+            UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
+
+            if (_playerCharacterSlot.CurrentCard != null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+                _networkGameService.SendCharSetAction(null);
+            }
+            else
+            {
+                CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+                if (placed == null)
+                {
+                    await PlayPassAnimationAsync(true, ct);
+                    _networkGameService.SendCharSetAction(null);
+                }
+                else
+                {
+                    _networkGameService.SendCharSetAction(placed.Data.Id);
+                }
+            }
+
+            await receiveTask;
         }
 
         // ─── ドローフェーズ（両プレイヤーが毎ターン1枚ドロー）────────────────

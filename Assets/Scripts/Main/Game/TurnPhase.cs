@@ -8,5 +8,6 @@ namespace Main.Game
         PreBattle2,
         Resolution,
         Battle,
+        PostBattleCharacterSet,
     }
 }

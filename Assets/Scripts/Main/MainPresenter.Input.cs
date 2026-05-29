@@ -18,7 +18,7 @@ namespace Main
                 return false;
             }
 
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null)
+            if ((_gameModel.Phase == TurnPhase.CharacterSet || _gameModel.Phase == TurnPhase.PostBattleCharacterSet) && _charSetInput._tcs != null)
             {
                 if (!_playerCharacterSlot.worldBound.Contains(worldPos))
                 {
@@ -105,7 +105,7 @@ namespace Main
 
             HideActionButtons();
             TurnPhase phase = _gameModel.Phase;
-            if (phase != TurnPhase.CharacterSet && phase != TurnPhase.PreBattle1 && phase != TurnPhase.PreBattle2)
+            if (phase != TurnPhase.CharacterSet && phase != TurnPhase.PostBattleCharacterSet && phase != TurnPhase.PreBattle1 && phase != TurnPhase.PreBattle2)
             {
                 await PlayOkFlashAsync(true, destroyCancellationToken);
             }
@@ -114,7 +114,7 @@ namespace Main
 
         private bool TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card)
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null && _charSetInput._card != null)
+            if ((_gameModel.Phase == TurnPhase.CharacterSet || _gameModel.Phase == TurnPhase.PostBattleCharacterSet) && _charSetInput._tcs != null && _charSetInput._card != null)
             {
                 tcs = _charSetInput._tcs;
                 card = _charSetInput._card;
@@ -148,7 +148,7 @@ namespace Main
 
         private void OnBackClicked()
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null)
+            if ((_gameModel.Phase == TurnPhase.CharacterSet || _gameModel.Phase == TurnPhase.PostBattleCharacterSet) && _charSetInput._tcs != null)
             {
                 if (_charSetInput._card != null)
                 {
@@ -199,7 +199,7 @@ namespace Main
 
         private void OnPassClicked()
         {
-            if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null && _charSetInput._card == null)
+            if ((_gameModel.Phase == TurnPhase.CharacterSet || _gameModel.Phase == TurnPhase.PostBattleCharacterSet) && _charSetInput._tcs != null && _charSetInput._card == null)
             {
                 _charSetInput._tcs.TrySetResult(null);
                 return;
@@ -228,7 +228,7 @@ namespace Main
             }
 
             TurnPhase phase = _gameModel.Phase;
-            if (phase == TurnPhase.CharacterSet)
+            if (phase == TurnPhase.CharacterSet || phase == TurnPhase.PostBattleCharacterSet)
             {
                 return _charSetInput._tcs != null && _charSetInput._card == null;
             }
@@ -256,7 +256,7 @@ namespace Main
             }
 
             TurnPhase phase = _gameModel.Phase;
-            if (phase == TurnPhase.CharacterSet && _charSetInput._tcs != null && _charSetInput._card == null)
+            if ((phase == TurnPhase.CharacterSet || phase == TurnPhase.PostBattleCharacterSet) && _charSetInput._tcs != null && _charSetInput._card == null)
             {
                 return card.Data is CharacterCardData;
             }

@@ -47,6 +47,7 @@ namespace Main.Game
 
         public void BeginResolution() { Phase = TurnPhase.Resolution; }
         public void BeginBattle() { Phase = TurnPhase.Battle; }
+        public void BeginPostBattleCharacterSet() { Phase = TurnPhase.PostBattleCharacterSet; }
 
         public void EndTurn()
         {
