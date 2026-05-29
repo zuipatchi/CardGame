@@ -82,6 +82,7 @@ namespace Main
         private VisualElement _phaseRowPreBattle2;
         private VisualElement _phaseRowResolution;
         private VisualElement _phaseRowBattle;
+        private VisualElement _phaseRowPostBattleCharacterSet;
 
         private CardDetailModal _cardDetailModal;
         private AttributeCompatibilityModal _attrCompatibilityModal;
@@ -379,6 +380,7 @@ namespace Main
                 _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
                 _phaseRowResolution = phaseIndicator.Q<VisualElement>("PhaseRowResolution");
                 _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
+                _phaseRowPostBattleCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowPostBattleCharacterSet");
 
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
@@ -563,11 +565,13 @@ namespace Main
             {
                 _phaseRowDraw, _phaseRowPreBattle1,
                 _phaseRowPreBattle2, _phaseRowResolution, _phaseRowBattle,
+                _phaseRowPostBattleCharacterSet,
             };
             TurnPhase[] phases =
             {
                 TurnPhase.Draw, TurnPhase.PreBattle1,
                 TurnPhase.PreBattle2, TurnPhase.Resolution, TurnPhase.Battle,
+                TurnPhase.PostBattleCharacterSet,
             };
             for (int i = 0; i < rows.Length; i++)
             {
