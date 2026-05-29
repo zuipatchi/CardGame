@@ -227,7 +227,7 @@ namespace Main.Card
             _spdLabel.text = data.Speed.ToString();
             _hpLabel.text = data.Hp.ToString();
 
-            _atkArea.style.display = data is CharacterCardData or EventCardData
+            _atkArea.style.display = data is EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;
             _defArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
