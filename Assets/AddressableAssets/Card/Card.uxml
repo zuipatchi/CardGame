@@ -14,13 +14,13 @@
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />
                 </ui:VisualElement>
-                <ui:VisualElement class="game-card__def-area">
-                    <ui:VisualElement class="game-card__shield-icon" />
-                    <ui:Label name="DefLabel" class="game-card__def" />
-                </ui:VisualElement>
                 <ui:VisualElement class="game-card__hp-area">
                     <ui:VisualElement class="game-card__hp-icon" />
                     <ui:Label name="HpLabel" class="game-card__hp" />
+                </ui:VisualElement>
+                <ui:VisualElement class="game-card__def-area">
+                    <ui:VisualElement class="game-card__shield-icon" />
+                    <ui:Label name="DefLabel" class="game-card__def" />
                 </ui:VisualElement>
                 <ui:VisualElement class="game-card__spd-area">
                     <ui:VisualElement class="game-card__speed-icon" />

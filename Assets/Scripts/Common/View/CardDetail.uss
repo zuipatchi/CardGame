@@ -1,0 +1,188 @@
+.card-detail-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    align-items: center;
+    justify-content: center;
+}
+
+.card-detail-panel {
+    flex-direction: row;
+    background-color: rgb(22, 22, 35);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.2);
+    border-right-color: rgba(255, 255, 255, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
+.card-detail-image {
+    width: 300px;
+    height: 412px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.card-detail-image--character {
+    border-left-color: rgb(70, 130, 230);
+    border-right-color: rgb(70, 130, 230);
+    border-top-color: rgb(70, 130, 230);
+    border-bottom-color: rgb(70, 130, 230);
+}
+
+.card-detail-image--skill {
+    border-left-color: rgb(220, 60, 60);
+    border-right-color: rgb(220, 60, 60);
+    border-top-color: rgb(220, 60, 60);
+    border-bottom-color: rgb(220, 60, 60);
+}
+
+.card-detail-image--event {
+    border-left-color: rgb(210, 185, 50);
+    border-right-color: rgb(210, 185, 50);
+    border-top-color: rgb(210, 185, 50);
+    border-bottom-color: rgb(210, 185, 50);
+}
+
+.card-detail-stats {
+    padding-left: 28px;
+    min-width: 220px;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-detail-type {
+    font-size: 16px;
+    -unity-font-style: bold;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    align-self: flex-start;
+    margin-bottom: 12px;
+}
+
+.card-detail-type--character {
+    color: rgb(70, 130, 230);
+    background-color: rgba(70, 130, 230, 0.15);
+}
+
+.card-detail-type--skill {
+    color: rgb(220, 60, 60);
+    background-color: rgba(220, 60, 60, 0.15);
+}
+
+.card-detail-type--event {
+    color: rgb(210, 185, 50);
+    background-color: rgba(210, 185, 50, 0.15);
+}
+
+.card-detail-name {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 255);
+    margin-bottom: 16px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+}
+
+.card-detail-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 16px;
+}
+
+.card-detail-stats-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.card-detail-stat-block {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.card-detail-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.card-detail-row-label {
+    font-size: 16px;
+    color: rgb(160, 160, 195);
+    margin-bottom: 2px;
+}
+
+.card-detail-row-value {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 255);
+}
+
+.card-detail-stat-icon {
+    width: 64px;
+    height: 64px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.card-detail-stat-icon--cost {
+    background-image: url("../../../AddressableAssets/Icon/CostIcon.png");
+}
+
+.card-detail-stat-icon--atk {
+    background-image: url("../../../AddressableAssets/Icon/AttackIcon.png");
+}
+
+.card-detail-stat-icon--def {
+    background-image: url("../../../AddressableAssets/Icon/ShieldIcon.png");
+}
+
+.card-detail-stat-icon--hp {
+    background-image: url("../../../AddressableAssets/Icon/HeartIcon.png");
+}
+
+.card-detail-stat-icon--spd {
+    background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
+}
+
+.card-detail-attr-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.card-detail-description {
+    font-size: 18px;
+    color: rgb(200, 200, 220);
+    white-space: normal;
+    margin-top: 12px;
+    max-width: 240px;
+}

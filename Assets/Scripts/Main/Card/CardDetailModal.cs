@@ -62,11 +62,20 @@ namespace Main.Card
             divider.AddToClassList("card-detail-divider");
             stats.Add(divider);
 
-            AddIconStatRow(stats, "card-detail-stat-icon--cost", data.Cost.ToString());
+            VisualElement statsGrid = new VisualElement();
+            statsGrid.AddToClassList("card-detail-stats-grid");
 
-            if (data is SkillCardData)
+            AddIconStatRow(statsGrid, "card-detail-stat-icon--cost", data.Cost.ToString(), "コスト");
+
+            if (data is CharacterCardData charData)
             {
-                AddIconStatRow(stats, "card-detail-stat-icon--atk", data.Attack.ToString());
+                AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
+                AddIconStatRow(statsGrid, "card-detail-stat-icon--def", charData.Defense.ToString(), "防御");
+                AddIconStatRow(statsGrid, "card-detail-stat-icon--spd", charData.Speed.ToString(), "素早さ");
+            }
+            else if (data is SkillCardData)
+            {
+                AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", data.Attack.ToString(), "攻撃力");
             }
             else if (data is EventCardData eventData)
             {
@@ -77,6 +86,8 @@ namespace Main.Card
                     stats.Add(descLabel);
                 }
             }
+
+            stats.Add(statsGrid);
 
             panel.Add(stats);
             _overlay.Add(panel);
@@ -94,8 +105,15 @@ namespace Main.Card
             _overlay = null;
         }
 
-        private static void AddIconStatRow(VisualElement container, string iconClass, string valueText)
+        private static void AddIconStatRow(VisualElement container, string iconClass, string valueText, string labelText)
         {
+            VisualElement block = new VisualElement();
+            block.AddToClassList("card-detail-stat-block");
+
+            Label label = new Label(labelText);
+            label.AddToClassList("card-detail-row-label");
+            block.Add(label);
+
             VisualElement row = new VisualElement();
             row.AddToClassList("card-detail-row");
 
@@ -108,7 +126,8 @@ namespace Main.Card
 
             row.Add(icon);
             row.Add(value);
-            container.Add(row);
+            block.Add(row);
+            container.Add(block);
         }
 
     }

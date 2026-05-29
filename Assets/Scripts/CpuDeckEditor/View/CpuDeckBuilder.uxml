@@ -1,5 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="../../DeckBuilder/View/DeckBuilder.uss" />
+    <Style src="../../Common/View/CardDetail.uss" />
     <ui:VisualElement name="DeckBuilderRoot" class="deckbuilder-root">
         <ui:VisualElement class="deckbuilder-bg-overlay" picking-mode="Ignore" />
         <ui:VisualElement class="deckbuilder-top-left-buttons">
