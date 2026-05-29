@@ -54,6 +54,7 @@ namespace Main.Game
             _readyQueue.Clear();
             Phase = TurnPhase.Draw;
             _consecutivePasses = 0;
+            IsLocalTurn = !IsLocalTurn;
         }
     }
 }

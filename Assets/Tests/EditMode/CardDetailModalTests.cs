@@ -37,7 +37,7 @@ namespace Tests.EditMode
 
             System.Collections.Generic.List<Label> valueLabels = new System.Collections.Generic.List<Label>();
             _root.Query<Label>(className: "card-detail-row-value").ToList(valueLabels);
-            Assert.AreEqual(1, valueLabels.Count, "コストの1行");
+            Assert.AreEqual(4, valueLabels.Count, "コスト・体力・防御・素早さの4行");
             Assert.AreEqual("3", valueLabels[0].text);
         }
 

@@ -189,7 +189,7 @@ namespace Tests.EditMode
         public void BeginPreBattle2_IsLocalTurnがfalseならIsLocalPreparationTurnもfalse()
         {
             GameModel model = new GameModel();
-            model.EndTurn(); // IsLocalTurn = false
+            model.SetInitialTurn(false);
 
             model.BeginPreBattle2();
 

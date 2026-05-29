@@ -8,7 +8,7 @@ namespace Tests.EditMode
     public class CpuAgentTests
     {
         [Test]
-        public void ChoosePreBattle1CardIndex_キャラカードがあれば優先して返す()
+        public void ChoosePreBattle1CardIndex_スキルカードを返す()
         {
             List<CardData> hand = new List<CardData>
             {
@@ -18,7 +18,7 @@ namespace Tests.EditMode
 
             int idx = CpuAgent.ChoosePreBattle1CardIndex(hand);
 
-            Assert.AreEqual(1, idx);
+            Assert.AreEqual(0, idx);
         }
 
         [Test]
