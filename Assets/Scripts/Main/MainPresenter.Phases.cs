@@ -266,7 +266,6 @@ namespace Main
         {
             if (forcedPass)
             {
-                await PlayPassAnimationAsync(true, ct);
                 return;
             }
             CardView placed = await WaitForPlayerCharSetInputAsync(ct);
@@ -280,7 +279,6 @@ namespace Main
         {
             if (forcedPass)
             {
-                await PlayPassAnimationAsync(false, ct);
                 return;
             }
             await CpuCharSetAsync(ct);
@@ -292,7 +290,6 @@ namespace Main
 
             if (_playerCharacterSlot.CurrentCard != null)
             {
-                await PlayPassAnimationAsync(true, ct);
                 _networkGameService.SendCharSetAction(null);
             }
             else
