@@ -1040,7 +1040,7 @@ namespace Main
             int originalCullingMask = mainCam.cullingMask;
             mainCam.cullingMask &= ~(1 << EffectLayer);
 
-            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 0);
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             rt.Create();
 
             GameObject camObj = new GameObject("EffectCamera");
@@ -1456,7 +1456,7 @@ namespace Main
             int originalCullingMask = mainCam.cullingMask;
             mainCam.cullingMask &= ~(1 << FireworkLayer);
 
-            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 0);
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             rt.Create();
 
             GameObject camObj = new GameObject("FireworkCamera");
