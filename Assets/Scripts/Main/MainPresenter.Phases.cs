@@ -599,23 +599,23 @@ namespace Main
                         skipNextEffect = true;
                         if (i > 0)
                         {
-                            await PlayNegateEffectAsync(queue[i - 1], ct, !isLocal);
+                            await PlayNegateEffectAsync(queue[i - 1], ct);
                         }
                     }
                     else
                     {
                         if (eventData.EventType == CardEventType.Draw)
                         {
-                            await PlayDrawEffectAsync(card, eventData.EventValue, ct, !isLocal);
+                            await PlayDrawEffectAsync(card, eventData.EventValue, ct);
                         }
                         else if (eventData.EventType == CardEventType.BanishChar)
                         {
                             CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                            await PlayBanishCharEffectAsync(banishTarget, ct, !isLocal);
+                            await PlayBanishCharEffectAsync(banishTarget, ct);
                         }
                         else if (eventData.EventType == CardEventType.Recover)
                         {
-                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct, !isLocal);
+                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
                         }
                         else if (eventData.EventType == CardEventType.Switch)
                         {
@@ -625,11 +625,11 @@ namespace Main
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
-                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct, !isLocal);
+                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
                         }
                         else if (eventData.EventType == CardEventType.DefBoost)
                         {
-                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct, !isLocal);
+                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
                         }
                     }
                 }
@@ -736,6 +736,7 @@ namespace Main
             }
             else
             {
+                await existingChar.FlipAsync(ct);
                 await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
                 int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
@@ -903,7 +904,7 @@ namespace Main
                 Rect firstTargetDeckRect = firstTargetDeck.worldBound;
                 List<UniTask> flyTasks = new List<UniTask>
                 {
-                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct, firstTarget == _opponentCharacterSlot)
+                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct)
                 };
                 if (firstDestroyedChar != null)
                 {
@@ -912,6 +913,7 @@ namespace Main
                 await UniTask.WhenAll(flyTasks);
                 List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
 
                 if (firstTargetDeck.Count == 0)
                 {
@@ -957,7 +959,7 @@ namespace Main
                 Rect secondTargetDeckRect = secondTargetDeck.worldBound;
                 List<UniTask> flyTasks = new List<UniTask>
                 {
-                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct, secondTarget == _opponentCharacterSlot)
+                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct)
                 };
                 if (secondDestroyedChar != null)
                 {
@@ -966,6 +968,7 @@ namespace Main
                 await UniTask.WhenAll(flyTasks);
                 List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
 
                 if (secondTargetDeck.Count == 0)
                 {

@@ -656,7 +656,7 @@ namespace Main
         // ─── ダメージ数字飛翔演出 ──────────────────────────────────────────
 
         private async UniTask PlayDamageNumberFlyAsync(
-            int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct, bool flipped = false)
+            int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
         {
             const float AppearDuration = 0.3f;
             const float HoldDuration = 0.3f;
@@ -671,10 +671,6 @@ namespace Main
             container.style.height = ContainerSize;
             container.style.opacity = 0f;
             container.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
-            if (flipped)
-            {
-                container.style.rotate = new Rotate(new Angle(180f, AngleUnit.Degree));
-            }
 
             Vector2 fromLocal = _dragLayer.WorldToLocal(fromWorldCenter);
             float left = fromLocal.x - ContainerSize / 2f;
@@ -736,6 +732,7 @@ namespace Main
             card.style.position = Position.Absolute;
             card.style.left = deckRect.center.x - CardWidth / 2f;
             card.style.top = deckRect.center.y - CardHeight / 2f;
+            card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
             _dragLayer.Add(card);
 
             Rect handRect = _opponentHandView.worldBound;
@@ -825,10 +822,10 @@ namespace Main
 
         // ─── Negate エフェクト（ラベル上昇 + パーティクル同時再生）─────────────
 
-        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct));
             if (_negateEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetCard, _negateEffectPrefab, ct));
@@ -836,7 +833,7 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
         {
             const float LabelW = 200f;
             const float LabelH = 60f;
@@ -851,15 +848,11 @@ namespace Main
             label.style.position = Position.Absolute;
             label.style.opacity = 0f;
             label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
-            if (flipped)
-            {
-                label.style.rotate = new Rotate(new Angle(180f, AngleUnit.Degree));
-            }
 
             Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
             float left = anchorLocal.x - LabelW / 2f;
             float top = anchorLocal.y - LabelH / 2f;
-            float targetTop = flipped ? top + RiseDist : top - RiseDist;
+            float targetTop = top - RiseDist;
             label.style.left = left;
             label.style.top = top;
             _dragLayer.Add(label);
@@ -894,13 +887,12 @@ namespace Main
             {
                 return;
             }
-            bool flipped = slot == _opponentCharacterSlot;
-            await PlayFloatingLabelAsync("SWITCH!", "switch-label", slot.CurrentCard, ct, flipped);
+            await PlayFloatingLabelAsync("SWITCH!", "switch-label", slot.CurrentCard, ct);
         }
 
         // ─── BanishChar エフェクト（対象キャラスロット位置にラベル + パーティクル同時再生）────
 
-        private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct)
         {
             if (targetSlot.CurrentCard == null)
             {
@@ -908,7 +900,7 @@ namespace Main
             }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct));
             if (_banishCharEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetSlot.CurrentCard, _banishCharEffectPrefab, ct));
@@ -924,9 +916,7 @@ namespace Main
             {
                 return;
             }
-            GameObject prefab = slot == _opponentCharacterSlot
-                ? _charDestroyEffectFlippedPrefab
-                : _charDestroyEffectPrefab;
+            GameObject prefab = _charDestroyEffectPrefab;
             if (prefab == null)
             {
                 return;
@@ -939,10 +929,10 @@ namespace Main
 
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────
 
-        private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct));
             if (_drawEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _drawEffectPrefab, ct));
@@ -952,10 +942,10 @@ namespace Main
 
         // ─── Recover エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct));
             if (_recoverEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _recoverEffectPrefab, ct));
@@ -1163,10 +1153,10 @@ namespace Main
 
         // ─── AtkBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct));
             if (_atkBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _atkBoostEffectPrefab, ct));
@@ -1176,10 +1166,10 @@ namespace Main
 
         // ─── DefBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
+        private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct, flipped));
+            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct));
             if (_defBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _defBoostEffectPrefab, ct));
@@ -1340,7 +1330,7 @@ namespace Main
             card.style.width = StyleKeyword.Null;
             card.style.height = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);
-            card.style.scale = new Scale(new Vector3(0.6f, 0.6f, 1f));
+            card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
             card.style.transformOrigin = StyleKeyword.Null;
             card.style.marginLeft = StyleKeyword.Null;
             card.style.marginRight = StyleKeyword.Null;

@@ -64,11 +64,8 @@ namespace Main.Card
             card.style.left = StyleKeyword.Null;
             card.style.top = StyleKeyword.Null;
             card.style.bottom = StyleKeyword.Null;
-            bool flipCard = _isOpponent && (card.Data is SkillCardData || card.Data is EventCardData);
-            card.style.rotate = flipCard
-                ? new Rotate(new Angle(180f, AngleUnit.Degree))
-                : new Rotate(0);
-            card.style.scale = new Scale(Vector3.one);
+            card.style.rotate = new Rotate(0);
+            card.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
             card.style.transformOrigin = StyleKeyword.Null;
             card.style.marginLeft = 8;
             card.style.marginRight = 8;

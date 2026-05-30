@@ -2,6 +2,7 @@
     <Style src="Main.uss" />
     <Style src="../../Common/View/CardDetail.uss" />
     <ui:VisualElement name="MainRoot" class="main-root">
+        <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="BattleArea" class="main-battle-area">
             <ui:VisualElement name="OpponentFieldArea" class="main-opponent-field-area" />
             <ui:VisualElement name="OpponentCharacterArea" class="main-opponent-character-area" />
@@ -12,7 +13,6 @@
         <ui:VisualElement name="GraveyardArea" class="main-graveyard-area" />
         <ui:VisualElement name="OpponentDeckArea" class="main-opponent-deck-area" />
         <ui:VisualElement name="OpponentGraveyardArea" class="main-opponent-graveyard-area" />
-        <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="HandArea" class="main-hand-area" />
         <ui:VisualElement name="ActionButtonsArea" class="main-action-buttons-area">
             <ui:Button name="PassButton" class="action-button action-button--pass" />

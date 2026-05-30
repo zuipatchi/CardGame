@@ -78,7 +78,6 @@ namespace Main
         [SerializeField] private GameObject _recoverEffectPrefab;
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
-        [SerializeField] private GameObject _charDestroyEffectFlippedPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
         private VisualElement _phaseRowDraw;
@@ -88,7 +87,6 @@ namespace Main
         private VisualElement _phaseRowBattle;
 
         private CardDetailModal _cardDetailModal;
-        private AttributeCompatibilityModal _attrCompatibilityModal;
         private bool _isGameOver;
         private bool _isOnline;
         private VisualElement _waitingOverlay;
@@ -318,12 +316,6 @@ namespace Main
                 _handView.OnCardDropped = HandlePlayerCardDrop;
                 _handView.CanDrag = CanPlayerDragCard;
                 _handView.OnCardAddedBack = card => card.SetPlayableHighlight(IsCardPlayable(card));
-
-                _attrCompatibilityModal = new AttributeCompatibilityModal(mainRoot, _cardStore.AttributeDatabase);
-                Button attrCompatibilityButton = new Button(() => _attrCompatibilityModal.Show());
-                attrCompatibilityButton.AddToClassList("attr-compatibility-button");
-                attrCompatibilityButton.text = "相性";
-                mainRoot.Add(attrCompatibilityButton);
 
                 _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeDatabase);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);

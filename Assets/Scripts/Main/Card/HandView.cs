@@ -82,6 +82,10 @@ namespace Main.Card
             card.style.position = Position.Absolute;
             card.style.left = deckWorldRect.x;
             card.style.top = deckWorldRect.y;
+            if (_isOpponent)
+            {
+                card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
+            }
             _dragLayer.Add(card);
 
             Rect handRect = worldBound;
