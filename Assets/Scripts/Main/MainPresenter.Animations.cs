@@ -397,17 +397,9 @@ namespace Main
             {
                 CardView card = skills[i];
                 Vector2 fromCenter = rects[i].center;
-                Vector2 dir = (toCenter - fromCenter).normalized;
-                float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
-
-                Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
-                float windupLeft = windupCenter.x - CardWidth / 2f;
-                float windupTop = windupCenter.y - CardHeight / 2f;
-                float targetLeft = toCenter.x - CardWidth / 2f;
-                float targetTop = toCenter.y - CardHeight / 2f;
+                (float windupLeft, float windupTop, float targetLeft, float targetTop, float facingAngle, Vector2 kbEnd) = ComputeAttackGeometry(fromCenter, toCenter, CardWidth / 2f, CardHeight / 2f);
                 float rotAngle = 0f;
                 float kbT = 0f;
-                Vector2 kbEnd = toCenter - dir * AttackKnockbackDistance;
 
                 Sequence cardSeq = DOTween.Sequence()
                     .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine))
@@ -494,16 +486,9 @@ namespace Main
 
             Vector2 fromCenter = fromRect.center;
             Vector2 toCenter = toRect.center;
-            Vector2 dir = (toCenter - fromCenter).normalized;
-            float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+            (float windupLeft, float windupTop, float targetLeft, float targetTop, float facingAngle, Vector2 kbEnd) = ComputeAttackGeometry(fromCenter, toCenter, w / 2f, h / 2f);
             float rotAngle = 0f;
             float kbT = 0f;
-            Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
-            float windupLeft = windupCenter.x - w / 2f;
-            float windupTop = windupCenter.y - h / 2f;
-            float targetLeft = toCenter.x - w / 2f;
-            float targetTop = toCenter.y - h / 2f;
-            Vector2 kbEnd = toCenter - dir * AttackKnockbackDistance;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
@@ -605,15 +590,8 @@ namespace Main
 
             Vector2 fromCenter = slotRect.center;
             Vector2 toCenter = targetDeck.worldBound.center;
-            Vector2 dir = (toCenter - fromCenter).normalized;
-            float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+            (float windupLeft, float windupTop, float targetLeft, float targetTop, float facingAngle, Vector2 kbEnd) = ComputeAttackGeometry(fromCenter, toCenter, CardWidth / 2f, CardHeight / 2f);
             float rotAngle = 0f;
-
-            Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
-            float windupLeft = windupCenter.x - CardWidth / 2f;
-            float windupTop = windupCenter.y - CardHeight / 2f;
-            float targetLeft = toCenter.x - CardWidth / 2f;
-            float targetTop = toCenter.y - CardHeight / 2f;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
 
@@ -642,7 +620,6 @@ namespace Main
             }
 
             float kbT = 0f;
-            Vector2 kbEnd = toCenter - dir * AttackKnockbackDistance;
             seq.Append(DOTween.To(() => kbT, v =>
             {
                 kbT = v;
@@ -847,7 +824,7 @@ namespace Main
         private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayNegateFloatingLabelAsync(targetCard, "NEGATE!", "negate-label", ct));
+            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct));
             if (_negateEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetCard, _negateEffectPrefab, ct));
@@ -855,7 +832,7 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayNegateFloatingLabelAsync(CardView card, string text, string cssClass, CancellationToken ct)
+        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
         {
             const float LabelW = 200f;
             const float LabelH = 60f;
@@ -871,9 +848,9 @@ namespace Main
             label.style.opacity = 0f;
             label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
 
-            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
-            float left = cardLocal.x - LabelW / 2f;
-            float top = cardLocal.y - LabelH / 2f;
+            Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
+            float left = anchorLocal.x - LabelW / 2f;
+            float top = anchorLocal.y - LabelH / 2f;
             float targetTop = top - RiseDist;
             label.style.left = left;
             label.style.top = top;
@@ -906,7 +883,7 @@ namespace Main
             }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayBanishCharLabelAsync(targetSlot, ct));
+            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct));
             if (_banishCharEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetSlot.CurrentCard, _banishCharEffectPrefab, ct));
@@ -914,99 +891,17 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayBanishCharLabelAsync(CharacterSlotView targetSlot, CancellationToken ct)
-        {
-            const float LabelW = 200f;
-            const float LabelH = 60f;
-            const float RiseDist = 70f;
-            const float AppearDuration = 0.2f;
-            const float HoldDuration = 0.3f;
-            const float FadeDuration = 0.5f;
-
-            Label label = new Label("BANISH!");
-            label.AddToClassList("banish-char-label");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.opacity = 0f;
-            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
-
-            Vector2 slotLocal = _dragLayer.WorldToLocal(targetSlot.worldBound.center);
-            float left = slotLocal.x - LabelW / 2f;
-            float top = slotLocal.y - LabelH / 2f;
-            float targetTop = top - RiseDist;
-            label.style.left = left;
-            label.style.top = top;
-            _dragLayer.Add(label);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
-                .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            label.RemoveFromHierarchy();
-        }
-
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────
 
         private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayDrawLabelAsync(card, value, ct));
+            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct));
             if (_drawEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _drawEffectPrefab, ct));
             }
             await UniTask.WhenAll(tasks);
-        }
-
-        private async UniTask PlayDrawLabelAsync(CardView card, int value, CancellationToken ct)
-        {
-            const float LabelW = 200f;
-            const float LabelH = 60f;
-            const float RiseDist = 70f;
-            const float AppearDuration = 0.2f;
-            const float HoldDuration = 0.3f;
-            const float FadeDuration = 0.5f;
-
-            Label label = new Label($"DRAW +{value}");
-            label.AddToClassList("draw-label");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.opacity = 0f;
-            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
-
-            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
-            float left = cardLocal.x - LabelW / 2f;
-            float top = cardLocal.y - LabelH / 2f;
-            float targetTop = top - RiseDist;
-            label.style.left = left;
-            label.style.top = top;
-            _dragLayer.Add(label);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
-                .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            label.RemoveFromHierarchy();
         }
 
         // ─── コストエフェクト（カード中心に Prefab を再生）──────────────────
@@ -1110,7 +1005,7 @@ namespace Main
         private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayAtkBoostLabelAsync(card, value, ct));
+            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct));
             if (_atkBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _atkBoostEffectPrefab, ct));
@@ -1118,99 +1013,17 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayAtkBoostLabelAsync(CardView card, int value, CancellationToken ct)
-        {
-            const float LabelW = 200f;
-            const float LabelH = 60f;
-            const float RiseDist = 70f;
-            const float AppearDuration = 0.2f;
-            const float HoldDuration = 0.3f;
-            const float FadeDuration = 0.5f;
-
-            Label label = new Label($"ATK +{value}");
-            label.AddToClassList("atk-boost-label");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.opacity = 0f;
-            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
-
-            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
-            float left = cardLocal.x - LabelW / 2f;
-            float top = cardLocal.y - LabelH / 2f;
-            float targetTop = top - RiseDist;
-            label.style.left = left;
-            label.style.top = top;
-            _dragLayer.Add(label);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
-                .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            label.RemoveFromHierarchy();
-        }
-
         // ─── DefBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
         private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayDefBoostLabelAsync(card, value, ct));
+            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct));
             if (_defBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _defBoostEffectPrefab, ct));
             }
             await UniTask.WhenAll(tasks);
-        }
-
-        private async UniTask PlayDefBoostLabelAsync(CardView card, int value, CancellationToken ct)
-        {
-            const float LabelW = 200f;
-            const float LabelH = 60f;
-            const float RiseDist = 70f;
-            const float AppearDuration = 0.2f;
-            const float HoldDuration = 0.3f;
-            const float FadeDuration = 0.5f;
-
-            Label label = new Label($"DEF +{value}");
-            label.AddToClassList("def-boost-label");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.opacity = 0f;
-            label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
-
-            Vector2 cardLocal = _dragLayer.WorldToLocal(card.worldBound.center);
-            float left = cardLocal.x - LabelW / 2f;
-            float top = cardLocal.y - LabelH / 2f;
-            float targetTop = top - RiseDist;
-            label.style.left = left;
-            label.style.top = top;
-            _dragLayer.Add(label);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.scale.value.value.x, v => label.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
-                .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => top, v => { top = v; label.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => label.style.opacity.value, v => label.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            label.RemoveFromHierarchy();
         }
 
         // ─── コスト払い（デッキ上から→墓地）───────────────────────────────
@@ -1517,6 +1330,20 @@ namespace Main
             {
                 SetLayerRecursive(child.gameObject, layer);
             }
+        }
+
+        private static (float windupLeft, float windupTop, float targetLeft, float targetTop, float facingAngle, Vector2 kbEnd)
+            ComputeAttackGeometry(Vector2 fromCenter, Vector2 toCenter, float halfW, float halfH)
+        {
+            Vector2 dir = (toCenter - fromCenter).normalized;
+            float facingAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f;
+            Vector2 windupCenter = fromCenter - dir * AttackWindupDistance;
+            return (
+                windupCenter.x - halfW, windupCenter.y - halfH,
+                toCenter.x - halfW, toCenter.y - halfH,
+                facingAngle,
+                toCenter - dir * AttackKnockbackDistance
+            );
         }
 
         // ─── OK フラッシュ演出 ──────────────────────────────────────────

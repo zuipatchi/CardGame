@@ -274,33 +274,45 @@ namespace Main
 
             if (_isOnline)
             {
-                UniTask receiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-                if (playerDrawn != null)
-                {
-                    await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
-                }
-                _networkGameService.SendDrawNotification();
-                await receiveTask;
-                if (opponentDrawn != null)
-                {
-                    await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);
-                }
+                await OnlineDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, ct);
             }
             else
             {
-                List<UniTask> tasks = new List<UniTask>();
-                if (playerDrawn != null)
-                {
-                    tasks.Add(_handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct));
-                }
-                if (opponentDrawn != null)
-                {
-                    tasks.Add(PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct));
-                }
-                if (tasks.Count > 0)
-                {
-                    await UniTask.WhenAll(tasks);
-                }
+                await LocalDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, ct);
+            }
+        }
+
+        private async UniTask OnlineDrawAsync(
+            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect, CancellationToken ct)
+        {
+            UniTask receiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+            if (playerDrawn != null)
+            {
+                await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
+            }
+            _networkGameService.SendDrawNotification();
+            await receiveTask;
+            if (opponentDrawn != null)
+            {
+                await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);
+            }
+        }
+
+        private async UniTask LocalDrawAsync(
+            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect, CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            if (playerDrawn != null)
+            {
+                tasks.Add(_handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct));
+            }
+            if (opponentDrawn != null)
+            {
+                tasks.Add(PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct));
+            }
+            if (tasks.Count > 0)
+            {
+                await UniTask.WhenAll(tasks);
             }
         }
 
@@ -745,35 +757,11 @@ namespace Main
             GraveyardView secondGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
             string firstCostClass = isLocalFirst ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
-            int firstCost = firstCards.Sum(c => c.Data.Cost);
-            {
-                List<UniTask> tasks = new List<UniTask>
-                {
-                    UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
-                        .ContinueWith(() => PlayAnnouncementAsync($"PAY {firstCost} COSTS", firstCostClass, ct))
-                };
-                foreach (CardView c in firstCards)
-                {
-                    tasks.Add(PayCostAsync(c, firstDeck, firstGraveyard, ct, announce: false));
-                }
-                await UniTask.WhenAll(tasks);
-            }
+            await PayBattleAtkCostsAsync(firstCards, firstDeck, firstGraveyard, firstCostClass, ct);
             if (_isGameOver) return;
 
             string secondCostClass = isLocalFirst ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
-            int secondCost = secondCards.Sum(c => c.Data.Cost);
-            {
-                List<UniTask> tasks = new List<UniTask>
-                {
-                    UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
-                        .ContinueWith(() => PlayAnnouncementAsync($"PAY {secondCost} COSTS", secondCostClass, ct))
-                };
-                foreach (CardView c in secondCards)
-                {
-                    tasks.Add(PayCostAsync(c, secondDeck, secondGraveyard, ct, announce: false));
-                }
-                await UniTask.WhenAll(tasks);
-            }
+            await PayBattleAtkCostsAsync(secondCards, secondDeck, secondGraveyard, secondCostClass, ct);
             if (_isGameOver) return;
 
             List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
@@ -830,10 +818,7 @@ namespace Main
                     SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(isLocalFirst);
-                    _playerAtkBoost = 0;
-                    _opponentAtkBoost = 0;
-                    _playerDefBoost = 0;
-                    _opponentDefBoost = 0;
+                    ResetBoosts();
                     return;
                 }
 
@@ -869,10 +854,7 @@ namespace Main
                     SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(!isLocalFirst);
-                    _playerAtkBoost = 0;
-                    _opponentAtkBoost = 0;
-                    _playerDefBoost = 0;
-                    _opponentDefBoost = 0;
+                    ResetBoosts();
                     return;
                 }
 
@@ -890,10 +872,7 @@ namespace Main
             SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
             SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
 
-            _playerAtkBoost = 0;
-            _opponentAtkBoost = 0;
-            _playerDefBoost = 0;
-            _opponentDefBoost = 0;
+            ResetBoosts();
         }
 
         private void OnGameEnd(bool? playerWins)
@@ -913,6 +892,30 @@ namespace Main
                 }
                 graveyard.AddCard(c);
             }
+        }
+
+        private void ResetBoosts()
+        {
+            _playerAtkBoost = 0;
+            _opponentAtkBoost = 0;
+            _playerDefBoost = 0;
+            _opponentDefBoost = 0;
+        }
+
+        private async UniTask PayBattleAtkCostsAsync(
+            List<CardView> cards, DeckView deck, GraveyardView graveyard, string costClass, CancellationToken ct)
+        {
+            int totalCost = cards.Sum(c => c.Data.Cost);
+            List<UniTask> tasks = new List<UniTask>
+            {
+                UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
+                    .ContinueWith(() => PlayAnnouncementAsync($"PAY {totalCost} COSTS", costClass, ct))
+            };
+            foreach (CardView c in cards)
+            {
+                tasks.Add(PayCostAsync(c, deck, graveyard, ct, announce: false));
+            }
+            await UniTask.WhenAll(tasks);
         }
     }
 }
