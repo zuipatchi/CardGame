@@ -928,6 +928,12 @@ namespace Main
                 await FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct);
             }
 
+            if (firstDestroyedChar != null)
+            {
+                secondAtk = 0;
+                secondDamage = 0;
+            }
+
             // 2人目（後攻）の攻撃
             if (secondAtk > 0)
             {
