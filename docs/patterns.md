@@ -115,7 +115,6 @@ public enum TurnPhase
     Draw,
     PreBattle1,
     PreBattle2,
-    Resolution,
     Battle,
     YourNewPhase,  // ← 追加
 }
