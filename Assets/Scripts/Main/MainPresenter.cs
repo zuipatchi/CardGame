@@ -76,6 +76,7 @@ namespace Main
         [SerializeField] private GameObject _banishCharEffectPrefab;
         [SerializeField] private GameObject _negateEffectPrefab;
         [SerializeField] private GameObject _recoverEffectPrefab;
+        [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectFlippedPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
@@ -106,6 +107,7 @@ namespace Main
         private readonly StagedInput _charSetInput = new StagedInput();
         private readonly StagedInput _prepInput = new StagedInput();
         private readonly StagedInput _preBattleInput = new StagedInput();
+        private readonly StagedInput _switchInput = new StagedInput();
         private bool _isLocalPreBattleActive;
 
         private sealed class StagedInput

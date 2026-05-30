@@ -825,10 +825,10 @@ namespace Main
 
         // ─── Negate エフェクト（ラベル上昇 + パーティクル同時再生）─────────────
 
-        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct)
+        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct, bool flipped = false)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct));
+            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct, flipped));
             if (_negateEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetCard, _negateEffectPrefab, ct));
@@ -836,7 +836,7 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
+        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct, bool flipped = false)
         {
             const float LabelW = 200f;
             const float LabelH = 60f;
@@ -851,11 +851,15 @@ namespace Main
             label.style.position = Position.Absolute;
             label.style.opacity = 0f;
             label.style.scale = new Scale(new Vector3(0.7f, 0.7f, 1f));
+            if (flipped)
+            {
+                label.style.rotate = new Rotate(new Angle(180f, AngleUnit.Degree));
+            }
 
             Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
             float left = anchorLocal.x - LabelW / 2f;
             float top = anchorLocal.y - LabelH / 2f;
-            float targetTop = top - RiseDist;
+            float targetTop = flipped ? top + RiseDist : top - RiseDist;
             label.style.left = left;
             label.style.top = top;
             _dragLayer.Add(label);
@@ -877,9 +881,26 @@ namespace Main
             label.RemoveFromHierarchy();
         }
 
+        // ─── Switch エフェクト（自分のキャラスロット位置にラベル表示）──────────────
+
+        private async UniTask PlaySwitchEffectAsync(CardView eventCard, CharacterSlotView slot, CancellationToken ct)
+        {
+            if (_switchEffectPrefab != null)
+            {
+                PlayParticleAtCardAsync(eventCard, _switchEffectPrefab, ct).Forget();
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            if (slot.CurrentCard == null)
+            {
+                return;
+            }
+            bool flipped = slot == _opponentCharacterSlot;
+            await PlayFloatingLabelAsync("SWITCH!", "switch-label", slot.CurrentCard, ct, flipped);
+        }
+
         // ─── BanishChar エフェクト（対象キャラスロット位置にラベル + パーティクル同時再生）────
 
-        private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct)
+        private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct, bool flipped = false)
         {
             if (targetSlot.CurrentCard == null)
             {
@@ -887,7 +908,7 @@ namespace Main
             }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct));
+            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct, flipped));
             if (_banishCharEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetSlot.CurrentCard, _banishCharEffectPrefab, ct));
@@ -918,10 +939,10 @@ namespace Main
 
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────
 
-        private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
+        private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct, flipped));
             if (_drawEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _drawEffectPrefab, ct));
@@ -931,10 +952,10 @@ namespace Main
 
         // ─── Recover エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
+        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct, flipped));
             if (_recoverEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _recoverEffectPrefab, ct));
@@ -1142,10 +1163,10 @@ namespace Main
 
         // ─── AtkBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct)
+        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct, flipped));
             if (_atkBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _atkBoostEffectPrefab, ct));
@@ -1155,10 +1176,10 @@ namespace Main
 
         // ─── DefBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct)
+        private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct, bool flipped = false)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct, flipped));
             if (_defBoostEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _defBoostEffectPrefab, ct));

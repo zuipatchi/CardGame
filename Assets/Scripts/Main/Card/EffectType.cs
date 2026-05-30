@@ -9,5 +9,6 @@ namespace Main.Card
         Negate,
         BanishChar,
         Recover,
+        Switch,
     }
 }

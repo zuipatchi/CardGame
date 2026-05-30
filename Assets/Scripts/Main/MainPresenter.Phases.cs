@@ -599,32 +599,37 @@ namespace Main
                         skipNextEffect = true;
                         if (i > 0)
                         {
-                            await PlayNegateEffectAsync(queue[i - 1], ct);
+                            await PlayNegateEffectAsync(queue[i - 1], ct, !isLocal);
                         }
                     }
                     else
                     {
                         if (eventData.EventType == CardEventType.Draw)
                         {
-                            await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+                            await PlayDrawEffectAsync(card, eventData.EventValue, ct, !isLocal);
                         }
                         else if (eventData.EventType == CardEventType.BanishChar)
                         {
                             CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                            await PlayBanishCharEffectAsync(banishTarget, ct);
+                            await PlayBanishCharEffectAsync(banishTarget, ct, !isLocal);
                         }
                         else if (eventData.EventType == CardEventType.Recover)
                         {
-                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
+                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct, !isLocal);
+                        }
+                        else if (eventData.EventType == CardEventType.Switch)
+                        {
+                            CharacterSlotView switchSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+                            await PlaySwitchEffectAsync(card, switchSlot, ct);
                         }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
-                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
+                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct, !isLocal);
                         }
                         else if (eventData.EventType == CardEventType.DefBoost)
                         {
-                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
+                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct, !isLocal);
                         }
                     }
                 }
@@ -702,6 +707,67 @@ namespace Main
                         }
                         break;
                     }
+                case CardEventType.Switch:
+                    await ApplySwitchEffectAsync(isLocal, ct);
+                    break;
+            }
+        }
+
+        private async UniTask ApplySwitchEffectAsync(bool isLocal, CancellationToken ct)
+        {
+            CharacterSlotView ownSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+            CardView existingChar = ownSlot.CurrentCard;
+            if (existingChar == null)
+            {
+                return;
+            }
+
+            Rect charRect = existingChar.worldBound;
+            ownSlot.RemoveCard();
+
+            if (isLocal)
+            {
+                await _handView.AddCardBackAsync(existingChar, charRect, ct);
+                CardView newChar = await WaitForPlayerSwitchInputAsync(ct);
+                if (newChar != null)
+                {
+                    await PayCostAsync(newChar, _playerDeckView, _playerGraveyardView, ct);
+                }
+            }
+            else
+            {
+                await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
+                IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
+                int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
+                if (idx >= 0)
+                {
+                    CardView newChar = cpuHand[idx];
+                    Rect fromRect = newChar.worldBound;
+                    _opponentHandView.RemoveCard(newChar);
+                    await FlyCardToDestAsync(newChar, fromRect, _opponentCharacterSlot, ct);
+                    _opponentCharacterSlot.PlaceCard(newChar);
+                    await newChar.FlipAsync(ct);
+                    await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
+                }
+            }
+        }
+
+        private async UniTask<CardView> WaitForPlayerSwitchInputAsync(CancellationToken ct)
+        {
+            _switchInput._tcs = new UniTaskCompletionSource<CardView>();
+            _switchInput._card = null;
+            ShowActionButtons();
+            UpdateStagedButtons(false);
+
+            try
+            {
+                return await _switchInput._tcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _switchInput._tcs = null;
+                HideActionButtons();
+                RefreshHandHighlights();
             }
         }
 

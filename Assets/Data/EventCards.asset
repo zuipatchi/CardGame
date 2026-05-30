@@ -58,7 +58,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 9d7fe04986b5f1d44bb9dbf52e35af01, type: 3}
     _attribute: 0
-    _eventType: 0
+    _eventType: 7
     _eventValue: 0
     _description: "\u30AD\u30E3\u30E9\u3092\u624B\u672D\u306B\u623B\u3057\u305F\u5F8C\u306B\u30B3\u30B9\u30C8\u3092\u6255\u3063\u3066\u624B\u672D\u304B\u3089\u30AD\u30E3\u30E9\u3092\u51FA\u3059"
   - _id: E007

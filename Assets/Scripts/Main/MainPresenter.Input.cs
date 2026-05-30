@@ -18,6 +18,31 @@ namespace Main
                 return false;
             }
 
+            if (_switchInput._tcs != null)
+            {
+                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                {
+                    return false;
+                }
+
+                if (card.Data is not CharacterCardData)
+                {
+                    ShowToast("キャラカードのみセットできます");
+                    return false;
+                }
+
+                if (_switchInput._card != null)
+                {
+                    return false;
+                }
+
+                _playerCharacterSlot.PlaceCard(card);
+                _switchInput._card = card;
+                UpdateStagedButtons(_switchInput._card != null);
+                UpdateCostWarning(_switchInput._card);
+                return true;
+            }
+
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null)
             {
                 if (!_playerCharacterSlot.worldBound.Contains(worldPos))
@@ -114,6 +139,15 @@ namespace Main
 
         private bool TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card)
         {
+            if (_switchInput._tcs != null && _switchInput._card != null)
+            {
+                tcs = _switchInput._tcs;
+                card = _switchInput._card;
+                _switchInput._card = null;
+                _switchInput._tcs = null;
+                return true;
+            }
+
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null && _charSetInput._card != null)
             {
                 tcs = _charSetInput._tcs;
@@ -148,6 +182,17 @@ namespace Main
 
         private void OnBackClicked()
         {
+            if (_switchInput._tcs != null)
+            {
+                if (_switchInput._card != null)
+                {
+                    CardView card = _switchInput._card;
+                    _switchInput._card = null;
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: false);
+                }
+                return;
+            }
+
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null)
             {
                 if (_charSetInput._card != null)
@@ -199,6 +244,13 @@ namespace Main
 
         private void OnPassClicked()
         {
+            if (_switchInput._tcs != null && _switchInput._card == null)
+            {
+                HideActionButtons();
+                _switchInput._tcs.TrySetResult(null);
+                return;
+            }
+
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null && _charSetInput._card == null)
             {
                 _charSetInput._tcs.TrySetResult(null);
@@ -227,6 +279,11 @@ namespace Main
                 return false;
             }
 
+            if (_switchInput._tcs != null)
+            {
+                return _switchInput._card == null;
+            }
+
             TurnPhase phase = _gameModel.Phase;
             if (phase == TurnPhase.CharacterSet)
             {
@@ -253,6 +310,11 @@ namespace Main
             if (_isGameOver)
             {
                 return false;
+            }
+
+            if (_switchInput._tcs != null && _switchInput._card == null)
+            {
+                return card.Data is CharacterCardData;
             }
 
             TurnPhase phase = _gameModel.Phase;

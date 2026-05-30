@@ -1215,6 +1215,18 @@
     height: 60px;
 }
 
+/* ─── Switch フローティングラベル ───────────────────────────────────────── */
+.switch-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(255, 220, 50);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}
+
 /* ─── Recover フローティングラベル ──────────────────────────────────────── */
 .recover-label {
     font-size: 36px;
