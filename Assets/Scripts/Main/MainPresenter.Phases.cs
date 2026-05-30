@@ -814,8 +814,8 @@ namespace Main
 
                 if (firstTargetDeck.Count == 0)
                 {
-                    SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
-                    SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
+                    SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
+                    SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(isLocalFirst);
                     ResetBoosts();
@@ -850,8 +850,8 @@ namespace Main
 
                 if (secondTargetDeck.Count == 0)
                 {
-                    SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
-                    SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
+                    SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
+                    SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(!isLocalFirst);
                     ResetBoosts();
@@ -869,8 +869,8 @@ namespace Main
                 }
             }
 
-            SendSkillsToGraveyard(playerSkill, _playerGraveyardView);
-            SendSkillsToGraveyard(opponentSkill, _opponentGraveyardView);
+            SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
+            SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
 
             ResetBoosts();
         }
@@ -882,14 +882,11 @@ namespace Main
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
 
-        private void SendSkillsToGraveyard(IEnumerable<CardView> skills, GraveyardView graveyard)
+        private void SendSkillsToGraveyard(IEnumerable<CardView> skills, FieldView field, GraveyardView graveyard)
         {
             foreach (CardView c in skills)
             {
-                if (c.parent != null)
-                {
-                    c.RemoveFromHierarchy();
-                }
+                field.RemoveCard(c);
                 graveyard.AddCard(c);
             }
         }

@@ -918,6 +918,11 @@ namespace Main
 
         private async UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct)
         {
+            if (card.panel == null)
+            {
+                return;
+            }
+
             const int EffectLayer = 6;
 
             // UI Toolkit の worldBound はパネル空間座標（Y=0 が上）

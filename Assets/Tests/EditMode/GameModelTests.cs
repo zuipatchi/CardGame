@@ -49,11 +49,11 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 初期PhaseはCharacterSetである()
+        public void 初期PhaseはDrawである()
         {
             GameModel model = new GameModel();
 
-            Assert.AreEqual(TurnPhase.CharacterSet, model.Phase);
+            Assert.AreEqual(TurnPhase.Draw, model.Phase);
         }
 
         [Test]
