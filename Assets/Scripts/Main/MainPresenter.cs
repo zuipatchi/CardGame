@@ -262,7 +262,7 @@ namespace Main
                 _opponentCharacterSlot.OnCardDisplaced += card => _opponentGraveyardView.AddCard(card);
                 opponentCharacterArea.Add(_opponentCharacterSlot);
 
-                _opponentFieldView = new FieldView();
+                _opponentFieldView = new FieldView(isOpponent: true);
                 opponentFieldArea.Add(_opponentFieldView);
 
                 _playerFieldView = new FieldView();

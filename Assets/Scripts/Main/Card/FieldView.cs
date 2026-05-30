@@ -9,6 +9,7 @@ namespace Main.Card
     {
         private const int MaxCards = 5;
         private readonly List<CardView> _cards = new List<CardView>();
+        private readonly bool _isOpponent;
 
         public bool IsFull => _cards.Count >= MaxCards;
 
@@ -16,8 +17,9 @@ namespace Main.Card
 
         public Action<CardView> OnCardClicked { get; set; }
 
-        public FieldView()
+        public FieldView(bool isOpponent = false)
         {
+            _isOpponent = isOpponent;
             AddToClassList("field-view");
         }
 
@@ -62,7 +64,10 @@ namespace Main.Card
             card.style.left = StyleKeyword.Null;
             card.style.top = StyleKeyword.Null;
             card.style.bottom = StyleKeyword.Null;
-            card.style.rotate = new Rotate(0);
+            bool flipCard = _isOpponent && (card.Data is SkillCardData || card.Data is EventCardData);
+            card.style.rotate = flipCard
+                ? new Rotate(new Angle(180f, AngleUnit.Degree))
+                : new Rotate(0);
             card.style.scale = new Scale(Vector3.one);
             card.style.transformOrigin = StyleKeyword.Null;
             card.style.marginLeft = 8;
