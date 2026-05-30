@@ -290,6 +290,7 @@ CardData              抽象基底クラス。id / name / cost / Attack / Defens
 EventType         enum（EffectType.cs）。
                   None / AtkBoost（ATK を加算）/ DefBoost（DEF を加算）→ 効果は次の戦闘フェーズまで有効
                   Draw（EventValue 枚ドロー）/ Negate（チェーン上の次の効果を無効化）/ BanishChar（相手キャラをスロットから墓地へ）
+                  Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
 
 CharacterCardSO / SkillCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
 

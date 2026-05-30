@@ -69,6 +69,7 @@ public enum EventType
     Draw,
     Negate,
     BanishChar,
+    Recover,
     YourNewEffect,  // ← 追加
 }
 ```
