@@ -8,5 +8,6 @@ namespace Main.Card
         Draw,
         Negate,
         BanishChar,
+        Recover,
     }
 }

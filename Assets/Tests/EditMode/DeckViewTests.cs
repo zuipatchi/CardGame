@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Main.Card;
 using NUnit.Framework;
 using UnityEditor;
@@ -65,6 +66,35 @@ namespace Tests.EditMode
                 }
             }
             Assert.AreEqual(cards.Length, checkedCount);
+        }
+
+        [Test]
+        public void AddCardsAndShuffle後にCountが増える()
+        {
+            CardData[] initial = { MakeCard(), MakeCard() };
+            DeckView deck = new DeckView(LoadTemplate(), initial);
+            List<CardData> added = new List<CardData>
+            {
+                MakeCard(), MakeCard(), MakeCard(),
+            };
+
+            deck.AddCardsAndShuffle(added);
+
+            Assert.AreEqual(5, deck.Count);
+        }
+
+        [Test]
+        public void AddCardsAndShuffle_空デッキに追加するとCountが追加枚数になる()
+        {
+            DeckView deck = new DeckView(LoadTemplate(), System.Array.Empty<CardData>());
+            List<CardData> added = new List<CardData>
+            {
+                MakeCard(), MakeCard(),
+            };
+
+            deck.AddCardsAndShuffle(added);
+
+            Assert.AreEqual(2, deck.Count);
         }
     }
 }

@@ -613,6 +613,10 @@ namespace Main
                             CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
                             await PlayBanishCharEffectAsync(banishTarget, ct);
                         }
+                        else if (eventData.EventType == CardEventType.Recover)
+                        {
+                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
+                        }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
@@ -682,6 +686,19 @@ namespace Main
                             targetSlot.RemoveCard();
                             await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
                             targetGraveyard.AddCard(charCard);
+                        }
+                        break;
+                    }
+                case CardEventType.Recover:
+                    {
+                        GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+                        DeckView targetDeck = isLocal ? _playerDeckView : _opponentDeckView;
+                        List<CardData> recovered = sourceGraveyard.TakeFromTop(data.EventValue);
+                        if (recovered.Count > 0)
+                        {
+                            await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
+                            targetDeck.AddCardsAndShuffle(recovered);
+                            await PlayDeckShufflePulseAsync(targetDeck, ct);
                         }
                         break;
                     }

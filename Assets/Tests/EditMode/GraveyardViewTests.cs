@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Main.Card;
 using NUnit.Framework;
 using UnityEditor;
@@ -57,6 +58,45 @@ namespace Tests.EditMode
             graveyard.AddCard(card);
 
             Assert.IsNull(card.parent);
+        }
+
+        [Test]
+        public void TakeFromTop_n枚取り出すとCountがn減る()
+        {
+            GraveyardView graveyard = MakeGraveyard();
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+
+            graveyard.TakeFromTop(2);
+
+            Assert.AreEqual(1, graveyard.Count);
+        }
+
+        [Test]
+        public void TakeFromTop_指定枚数のカードデータを返す()
+        {
+            GraveyardView graveyard = MakeGraveyard();
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+
+            List<CardData> taken = graveyard.TakeFromTop(2);
+
+            Assert.AreEqual(2, taken.Count);
+        }
+
+        [Test]
+        public void TakeFromTop_墓地枚数より多く指定しても全枚数を返す()
+        {
+            GraveyardView graveyard = MakeGraveyard();
+            graveyard.AddCard(MakeCardView());
+            graveyard.AddCard(MakeCardView());
+
+            List<CardData> taken = graveyard.TakeFromTop(10);
+
+            Assert.AreEqual(2, taken.Count);
+            Assert.AreEqual(0, graveyard.Count);
         }
     }
 }

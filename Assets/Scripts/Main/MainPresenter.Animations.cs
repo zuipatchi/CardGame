@@ -904,6 +904,108 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
+        // ─── Recover エフェクト（ラベル上昇 + パーティクル同時再生）────────────
+
+        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct));
+            if (_recoverEffectPrefab != null)
+            {
+                tasks.Add(PlayParticleAtCardAsync(card, _recoverEffectPrefab, ct));
+            }
+            await UniTask.WhenAll(tasks);
+        }
+
+        // ─── Recover 飛翔アニメーション（墓地 → デッキへ同時飛翔）─────────────
+
+        private async UniTask PlayRecoverFlyAsync(
+            IReadOnlyList<CardData> cards, GraveyardView sourceGraveyard, DeckView targetDeck, CancellationToken ct)
+        {
+            const float FlyDuration = 0.35f;
+            const float CardInterval = 0.05f;
+
+            Rect fromRect = sourceGraveyard.worldBound;
+            float startLeft = fromRect.center.x - CardWidth / 2f;
+            float startTop = fromRect.center.y - CardHeight / 2f;
+            Rect destRect = targetDeck.worldBound;
+            float targetLeft = destRect.center.x - CardWidth / 2f;
+            float targetTop = destRect.center.y - CardHeight / 2f;
+
+            List<CardView> tempCards = new List<CardView>(cards.Count);
+            List<UniTaskCompletionSource> tcsList = new List<UniTaskCompletionSource>(cards.Count);
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CardView tempCard = new CardView(_cardStore.CardTemplate, cards[i], _cardStore.CardBack, faceDown: false, _cardStore.AttributeDatabase);
+                tempCard.style.position = Position.Absolute;
+                tempCard.style.left = startLeft;
+                tempCard.style.top = startTop;
+                tempCard.style.width = StyleKeyword.Null;
+                tempCard.style.height = StyleKeyword.Null;
+                tempCard.style.scale = new Scale(Vector3.one);
+                _dragLayer.Add(tempCard);
+                tempCards.Add(tempCard);
+
+                UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+                tcsList.Add(tcs);
+
+                float delay = i * CardInterval;
+                CardView captured = tempCard;
+                Sequence seq = DOTween.Sequence()
+                    .AppendInterval(delay)
+                    .Append(DOTween.To(() => captured.style.left.value.value, v => captured.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => captured.style.top.value.value, v => captured.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(
+                        () => captured.style.scale.value.value.x,
+                        s => captured.style.scale = new Scale(new Vector3(s, s, 1f)),
+                        0f, FlyDuration).SetEase(Ease.InQuad))
+                    .OnComplete(() => tcs.TrySetResult());
+
+                ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+            }
+
+            try
+            {
+                await UniTask.WhenAll(tcsList.Select(t => t.Task));
+            }
+            catch (OperationCanceledException) { }
+
+            foreach (CardView tempCard in tempCards)
+            {
+                if (tempCard.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(tempCard);
+                }
+            }
+        }
+
+        // ─── デッキシャッフルパルス（デッキがスケールアップしてから戻る）────────
+
+        private async UniTask PlayDeckShufflePulseAsync(DeckView deck, CancellationToken ct)
+        {
+            const float PulseDuration = 0.15f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(
+                    () => deck.style.scale.value.value.x,
+                    s => deck.style.scale = new Scale(new Vector3(s, s, 1f)),
+                    1.15f, PulseDuration).SetEase(Ease.OutQuad))
+                .Append(DOTween.To(
+                    () => deck.style.scale.value.value.x,
+                    s => deck.style.scale = new Scale(new Vector3(s, s, 1f)),
+                    1f, PulseDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            deck.style.scale = new Scale(Vector3.one);
+        }
+
         // ─── コストエフェクト（カード中心に Prefab を再生）──────────────────
 
         private async UniTask PlayCostEffectAtCardAsync(CardView card, CancellationToken ct)

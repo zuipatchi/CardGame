@@ -40,6 +40,18 @@ namespace Main.Card
             _cards.Add(card.Data);
         }
 
+        public List<CardData> TakeFromTop(int count)
+        {
+            int toTake = Mathf.Min(count, _cards.Count);
+            List<CardData> taken = new List<CardData>(toTake);
+            for (int i = 0; i < toTake; i++)
+            {
+                taken.Add(_cards[_cards.Count - 1]);
+                _cards.RemoveAt(_cards.Count - 1);
+            }
+            return taken;
+        }
+
         private void OpenModal()
         {
             if (_modalRoot == null)

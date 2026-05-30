@@ -126,6 +126,25 @@ namespace Main.Card
             }
         }
 
+        public void AddCardsAndShuffle(IReadOnlyList<CardData> cards)
+        {
+            CardData[] combined = new CardData[_deckCards.Count + cards.Count];
+            for (int i = 0; i < _deckCards.Count; i++)
+            {
+                combined[i] = _deckCards[i].Data;
+            }
+            for (int i = 0; i < cards.Count; i++)
+            {
+                combined[_deckCards.Count + i] = cards[i];
+            }
+            for (int i = combined.Length - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (combined[i], combined[j]) = (combined[j], combined[i]);
+            }
+            Rebuild(combined);
+        }
+
         public void Rebuild(CardData[] cards)
         {
             foreach (CardView card in _deckCards)
