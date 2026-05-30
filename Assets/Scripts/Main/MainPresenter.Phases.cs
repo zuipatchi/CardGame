@@ -837,7 +837,7 @@ namespace Main
                 Rect firstTargetDeckRect = firstTargetDeck.worldBound;
                 List<UniTask> flyTasks = new List<UniTask>
                 {
-                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct)
+                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct, firstTarget == _opponentCharacterSlot)
                 };
                 if (firstDestroyedChar != null)
                 {
@@ -885,7 +885,7 @@ namespace Main
                 Rect secondTargetDeckRect = secondTargetDeck.worldBound;
                 List<UniTask> flyTasks = new List<UniTask>
                 {
-                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct)
+                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct, secondTarget == _opponentCharacterSlot)
                 };
                 if (secondDestroyedChar != null)
                 {

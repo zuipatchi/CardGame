@@ -656,7 +656,7 @@ namespace Main
         // ─── ダメージ数字飛翔演出 ──────────────────────────────────────────
 
         private async UniTask PlayDamageNumberFlyAsync(
-            int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
+            int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct, bool flipped = false)
         {
             const float AppearDuration = 0.3f;
             const float HoldDuration = 0.3f;
@@ -671,6 +671,10 @@ namespace Main
             container.style.height = ContainerSize;
             container.style.opacity = 0f;
             container.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+            if (flipped)
+            {
+                container.style.rotate = new Rotate(new Angle(180f, AngleUnit.Degree));
+            }
 
             Vector2 fromLocal = _dragLayer.WorldToLocal(fromWorldCenter);
             float left = fromLocal.x - ContainerSize / 2f;
