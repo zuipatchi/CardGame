@@ -5,7 +5,7 @@ namespace Main.Game
 {
     public sealed class GameModel
     {
-        public TurnPhase Phase { get; private set; } = TurnPhase.CharacterSet;
+        public TurnPhase Phase { get; private set; } = TurnPhase.Draw;
         public bool IsLocalTurn { get; private set; } = true;
 
         // 戦闘前2フェーズでローカルプレイヤーが行動する番か
@@ -46,7 +46,6 @@ namespace Main.Game
         }
 
         public void BeginBattle() { Phase = TurnPhase.Battle; }
-        public void BeginPostBattleCharacterSet() { Phase = TurnPhase.PostBattleCharacterSet; }
 
         public void EndTurn()
         {

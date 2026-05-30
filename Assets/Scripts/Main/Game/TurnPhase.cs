@@ -7,6 +7,5 @@ namespace Main.Game
         PreBattle1,
         PreBattle2,
         Battle,
-        PostBattleCharacterSet,
     }
 }

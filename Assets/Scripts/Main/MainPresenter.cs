@@ -78,10 +78,10 @@ namespace Main
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
         private VisualElement _phaseRowDraw;
+        private VisualElement _phaseRowCharacterSet;
         private VisualElement _phaseRowPreBattle1;
         private VisualElement _phaseRowPreBattle2;
         private VisualElement _phaseRowBattle;
-        private VisualElement _phaseRowPostBattleCharacterSet;
 
         private CardDetailModal _cardDetailModal;
         private AttributeCompatibilityModal _attrCompatibilityModal;
@@ -375,10 +375,10 @@ namespace Main
 
                 VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
                 _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
+                _phaseRowCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowCharacterSet");
                 _phaseRowPreBattle1 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle1");
                 _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
                 _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
-                _phaseRowPostBattleCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowPostBattleCharacterSet");
 
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
@@ -561,15 +561,15 @@ namespace Main
         {
             VisualElement[] rows =
             {
-                _phaseRowDraw, _phaseRowPreBattle1,
-                _phaseRowPreBattle2, _phaseRowBattle,
-                _phaseRowPostBattleCharacterSet,
+                _phaseRowDraw, _phaseRowCharacterSet,
+                _phaseRowPreBattle1, _phaseRowPreBattle2,
+                _phaseRowBattle,
             };
             TurnPhase[] phases =
             {
-                TurnPhase.Draw, TurnPhase.PreBattle1,
-                TurnPhase.PreBattle2, TurnPhase.Battle,
-                TurnPhase.PostBattleCharacterSet,
+                TurnPhase.Draw, TurnPhase.CharacterSet,
+                TurnPhase.PreBattle1, TurnPhase.PreBattle2,
+                TurnPhase.Battle,
             };
             for (int i = 0; i < rows.Length; i++)
             {

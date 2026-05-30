@@ -19,9 +19,6 @@ namespace Main
         {
             try
             {
-                await RunCharacterSetPhaseAsync(ct);
-                if (_isGameOver) return;
-
                 while (!_isGameOver)
                 {
                     await RunTurnAsync(ct);
@@ -39,6 +36,9 @@ namespace Main
             await RunDrawPhaseAsync(ct);
             if (_isGameOver) return;
 
+            await RunCharacterSetPhaseAsync(ct);
+            if (_isGameOver) return;
+
             _gameModel.BeginPreBattle1();
             await RunPreBattle1PhaseAsync(ct);
             if (_isGameOver) return;
@@ -54,8 +54,6 @@ namespace Main
             _gameModel.BeginBattle();
             await RunBattlePhaseAsync(ct);
             if (_isGameOver) return;
-
-            await RunPostBattleCharacterSetPhaseAsync(ct);
 
             _gameModel.EndTurn();
         }
@@ -82,48 +80,6 @@ namespace Main
             return alternate;
         }
 
-        // ─── キャラセットフェーズ（ゲーム開始時1回のみ） ───────────────────────
-
-        private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
-        {
-            UpdatePhaseIndicator(TurnPhase.CharacterSet);
-            await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
-
-            if (_isOnline)
-            {
-                await OnlineCharSetAsync(ct);
-            }
-            else
-            {
-                await UniTask.WhenAll(
-                    PlayerCharSetLocalAsync(ct),
-                    CpuCharSetAsync(ct)
-                );
-            }
-
-            await PlayResolveAnimationAsync(ct);
-
-            if (_playerCharacterSlot.CurrentCard != null)
-            {
-                await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
-                await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
-                if (_isGameOver) return;
-            }
-            if (_opponentCharacterSlot.CurrentCard != null)
-            {
-                await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
-                await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
-            }
-        }
-
-        private async UniTask PlayerCharSetLocalAsync(CancellationToken ct)
-        {
-            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
-            if (placed == null)
-            {
-                await PlayPassAnimationAsync(true, ct);
-            }
-        }
 
         private async UniTask CpuCharSetAsync(CancellationToken ct)
         {
@@ -145,24 +101,6 @@ namespace Main
             }
         }
 
-        // オンライン：ホスト・クライアント共通。相手カード受信を並列起動し、自分の入力後即送信。
-        private async UniTask OnlineCharSetAsync(CancellationToken ct)
-        {
-            UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
-
-            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
-            if (placed == null)
-            {
-                await PlayPassAnimationAsync(true, ct);
-                _networkGameService.SendCharSetAction(null);
-            }
-            else
-            {
-                _networkGameService.SendCharSetAction(placed.Data.Id);
-            }
-
-            await receiveTask;
-        }
 
         private async UniTask ReceiveAndPlaceOpponentCharSetAsync(CancellationToken ct)
         {
@@ -215,9 +153,9 @@ namespace Main
             _opponentCharacterSlot.PlaceCard(card);
         }
 
-        // ─── 戦闘後キャラセットフェーズ（スロットが空のプレイヤーのみ配置可） ──
+        // ─── キャラセットフェーズ（両スロット埋まり時はスキップ・空スロットのみ配置可） ──
 
-        private async UniTask RunPostBattleCharacterSetPhaseAsync(CancellationToken ct)
+        private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
             bool playerHadChar = _playerCharacterSlot.CurrentCard != null;
             bool opponentHadChar = _opponentCharacterSlot.CurrentCard != null;
@@ -227,19 +165,19 @@ namespace Main
                 return;
             }
 
-            _gameModel.BeginPostBattleCharacterSet();
-            UpdatePhaseIndicator(TurnPhase.PostBattleCharacterSet);
+            _gameModel.BeginCharacterSet();
+            UpdatePhaseIndicator(TurnPhase.CharacterSet);
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
             if (_isOnline)
             {
-                await OnlinePostBattleCharSetAsync(ct);
+                await OnlineCharSetAsync(ct);
             }
             else
             {
                 await UniTask.WhenAll(
-                    PlayerPostBattleCharSetLocalAsync(playerHadChar, ct),
-                    CpuPostBattleCharSetAsync(opponentHadChar, ct)
+                    PlayerCharSetLocalAsync(playerHadChar, ct),
+                    CpuCharSetLocalAsync(opponentHadChar, ct)
                 );
             }
 
@@ -258,7 +196,7 @@ namespace Main
             }
         }
 
-        private async UniTask PlayerPostBattleCharSetLocalAsync(bool forcedPass, CancellationToken ct)
+        private async UniTask PlayerCharSetLocalAsync(bool forcedPass, CancellationToken ct)
         {
             if (forcedPass)
             {
@@ -271,7 +209,7 @@ namespace Main
             }
         }
 
-        private async UniTask CpuPostBattleCharSetAsync(bool forcedPass, CancellationToken ct)
+        private async UniTask CpuCharSetLocalAsync(bool forcedPass, CancellationToken ct)
         {
             if (forcedPass)
             {
@@ -280,7 +218,7 @@ namespace Main
             await CpuCharSetAsync(ct);
         }
 
-        private async UniTask OnlinePostBattleCharSetAsync(CancellationToken ct)
+        private async UniTask OnlineCharSetAsync(CancellationToken ct)
         {
             UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
 

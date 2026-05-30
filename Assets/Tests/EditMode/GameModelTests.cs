@@ -176,16 +176,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void BeginPostBattleCharacterSet_PhaseがPostBattleCharacterSetになる()
-        {
-            GameModel model = new GameModel();
-
-            model.BeginPostBattleCharacterSet();
-
-            Assert.AreEqual(TurnPhase.PostBattleCharacterSet, model.Phase);
-        }
-
-        [Test]
         public void BeginPreBattle2_IsLocalTurnがfalseならIsLocalPreparationTurnもfalse()
         {
             GameModel model = new GameModel();
