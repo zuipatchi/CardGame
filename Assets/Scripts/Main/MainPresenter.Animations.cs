@@ -891,6 +891,27 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
+        // ─── キャラ破壊エフェクト（パーティクル再生）────────────────────────────
+
+        private async UniTask PlayCharDestroyEffectAsync(CharacterSlotView slot, CancellationToken ct)
+        {
+            if (slot.CurrentCard == null)
+            {
+                return;
+            }
+            GameObject prefab = slot == _opponentCharacterSlot
+                ? _charDestroyEffectFlippedPrefab
+                : _charDestroyEffectPrefab;
+            if (prefab == null)
+            {
+                return;
+            }
+            CardView card = slot.CurrentCard;
+            Rect bounds = card.worldBound;
+            Vector2 bottomCenter = new Vector2(bounds.center.x, bounds.yMax);
+            await PlayParticleAtUiPositionAsync(card, bottomCenter, prefab, ct);
+        }
+
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────
 
         private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
@@ -1018,9 +1039,18 @@ namespace Main
             await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
         }
 
-        private async UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct)
+        private UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct)
         {
             if (card.panel == null)
+            {
+                return UniTask.CompletedTask;
+            }
+            return PlayParticleAtUiPositionAsync(card, card.worldBound.center, prefab, ct);
+        }
+
+        private async UniTask PlayParticleAtUiPositionAsync(VisualElement panelRef, Vector2 uiPos, GameObject prefab, CancellationToken ct)
+        {
+            if (panelRef.panel == null)
             {
                 return;
             }
@@ -1032,10 +1062,9 @@ namespace Main
             // ViewportPointToRay → Z=0 平面交差でワールド座標を求める
             Camera mainCam = Camera.main;
 
-            Rect panelBounds = card.panel.visualTree.worldBound;
-            Vector2 uiCenter = card.worldBound.center;
-            float nx = uiCenter.x / panelBounds.width;
-            float ny = 1f - uiCenter.y / panelBounds.height;
+            Rect panelBounds = panelRef.panel.visualTree.worldBound;
+            float nx = uiPos.x / panelBounds.width;
+            float ny = 1f - uiPos.y / panelBounds.height;
             Ray ray = mainCam.ViewportPointToRay(new Vector3(nx, ny, 0f));
             float tDist = -ray.origin.z / ray.direction.z;
             Vector3 worldPos = ray.origin + ray.direction * tDist;

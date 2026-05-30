@@ -822,10 +822,28 @@ namespace Main
             firstAtkOverlay.style.display = DisplayStyle.None;
             firstTarget.DefOverlay.style.display = DisplayStyle.None;
 
+            CardView firstDestroyedChar = null;
+            Rect firstDestroyedFromRect = default;
+            if (firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp)
+            {
+                await PlayCharDestroyEffectAsync(firstTarget, ct);
+                firstDestroyedChar = firstTarget.CurrentCard;
+                firstDestroyedFromRect = firstDestroyedChar.worldBound;
+                firstTarget.RemoveCard();
+            }
+
             if (firstDamage > 0)
             {
                 Rect firstTargetDeckRect = firstTargetDeck.worldBound;
-                await PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct);
+                List<UniTask> flyTasks = new List<UniTask>
+                {
+                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct)
+                };
+                if (firstDestroyedChar != null)
+                {
+                    flyTasks.Add(FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct));
+                }
+                await UniTask.WhenAll(flyTasks);
                 List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
 
@@ -838,16 +856,10 @@ namespace Main
                     ResetBoosts();
                     return;
                 }
-
-                // キャラ破壊判定（1ターンに HP 以上のダメージを受けたキャラは墓地へ）
-                if (firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp)
-                {
-                    CardView destroyedChar = firstTarget.CurrentCard;
-                    Rect fromRect = destroyedChar.worldBound;
-                    firstTarget.RemoveCard();
-                    await FlyCardToDestAsync(destroyedChar, fromRect, firstTargetGraveyard, ct);
-                    firstTargetGraveyard.AddCard(destroyedChar);
-                }
+            }
+            else if (firstDestroyedChar != null)
+            {
+                await FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct);
             }
 
             // 2人目（後攻）の攻撃
@@ -858,10 +870,28 @@ namespace Main
             secondAtkOverlay.style.display = DisplayStyle.None;
             secondTarget.DefOverlay.style.display = DisplayStyle.None;
 
+            CardView secondDestroyedChar = null;
+            Rect secondDestroyedFromRect = default;
+            if (secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp)
+            {
+                await PlayCharDestroyEffectAsync(secondTarget, ct);
+                secondDestroyedChar = secondTarget.CurrentCard;
+                secondDestroyedFromRect = secondDestroyedChar.worldBound;
+                secondTarget.RemoveCard();
+            }
+
             if (secondDamage > 0)
             {
                 Rect secondTargetDeckRect = secondTargetDeck.worldBound;
-                await PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct);
+                List<UniTask> flyTasks = new List<UniTask>
+                {
+                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct)
+                };
+                if (secondDestroyedChar != null)
+                {
+                    flyTasks.Add(FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct));
+                }
+                await UniTask.WhenAll(flyTasks);
                 List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
 
@@ -874,16 +904,10 @@ namespace Main
                     ResetBoosts();
                     return;
                 }
-
-                // キャラ破壊判定
-                if (secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp)
-                {
-                    CardView destroyedChar = secondTarget.CurrentCard;
-                    Rect fromRect = destroyedChar.worldBound;
-                    secondTarget.RemoveCard();
-                    await FlyCardToDestAsync(destroyedChar, fromRect, secondTargetGraveyard, ct);
-                    secondTargetGraveyard.AddCard(destroyedChar);
-                }
+            }
+            else if (secondDestroyedChar != null)
+            {
+                await FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct);
             }
 
             SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
@@ -898,6 +922,12 @@ namespace Main
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
+
+        private async UniTask FlyToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct)
+        {
+            await FlyCardToDestAsync(card, fromRect, graveyard, ct);
+            graveyard.AddCard(card);
+        }
 
         private void SendSkillsToGraveyard(IEnumerable<CardView> skills, FieldView field, GraveyardView graveyard)
         {
