@@ -98,7 +98,7 @@ public enum EventType
 - **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内で `await FlyCardToDestAsync(...)` 等を呼ぶ。`worldBound` はスロット除去前に記録すること。
 
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。
-フローティングラベルのみの場合は `PlayFloatingLabelAsync(text, cssClass, anchor, ct, flipped)` を呼ぶ。`anchor` には演出の基準となる `VisualElement`（カードやスロット等）を渡す。CSS クラス名で見た目をカスタマイズする。`flipped: true` を渡すと上下反転＋下方向に流れる（CPU 側演出に使用）。呼び出し側で `!isLocal` を渡すことで自動的に CPU 側を反転できる。
+フローティングラベルのみの場合は `PlayFloatingLabelAsync(text, cssClass, anchor, ct)` を呼ぶ。`anchor` には演出の基準となる `VisualElement`（カードやスロット等）を渡す。CSS クラス名で見た目をカスタマイズする。
 ラベル + パーティクルの組み合わせは `PlayXxxEffectAsync` から `PlayFloatingLabelAsync` と `PlayParticleAtCardAsync` を `UniTask.WhenAll` で並列実行するパターンを使う。`PlayNegateEffectAsync` が参考実装。
 
 **解決フェーズ中にプレイヤー入力が必要な効果（Switch 相当）の場合**
