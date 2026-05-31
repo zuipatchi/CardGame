@@ -448,10 +448,10 @@ RunPreBattle1PhaseAsync
       Speed 同値:   初回ターンはランダム（CPU戦）/ OnlineInitialState.IsLocalFirst（オンライン）、以降は交互
                     (_lastSpeedTieBreakerWasLocal フィールドで前回結果を管理)
   → GameModel.SetInitialTurn(isLocalFirst) で IsLocalTurn をセット
-  → PlayTurnAnnouncementAsync で "YOUR TURN" / "ENEMY TURN" 表示
 
 RunPreBattle2PhaseAsync
   → "イベントフェーズ" 告知
+  → 「あなたが先です」（水色）/ 「相手が先です」（赤）を表示
   → 先攻プレイヤーから交互にイベントカードをReadyにする（2連続パスで終了）。パス時は PlayPassAnimationAsync で PASS 表示
       オフライン: 自分 → WaitForPlayerPreBattle2InputAsync / CPU → CpuAgent で選択
       オンライン: 自分のターン → WaitForPlayerPreBattle2InputAsync → SendPreBattle2Action で送信
