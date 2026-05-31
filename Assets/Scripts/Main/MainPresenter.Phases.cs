@@ -859,8 +859,8 @@ namespace Main
             BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
                 opponentSkill, _opponentAtkBoost, opponentHasAttackingChar, _opponentCharacterSlot.Attack);
 
-            int effectivePlayerDef = _playerCharacterSlot.Defense + _playerDefBoost;
-            int effectiveOpponentDef = _opponentCharacterSlot.Defense + _opponentDefBoost;
+            int effectivePlayerDef = playerHasAttackingChar ? _playerCharacterSlot.Defense + _playerDefBoost : 0;
+            int effectiveOpponentDef = opponentHasAttackingChar ? _opponentCharacterSlot.Defense + _opponentDefBoost : 0;
             int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
             int damageToPlayer = Mathf.Max(0, opponentStats.ATK - effectivePlayerDef);
 
