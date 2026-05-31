@@ -96,18 +96,7 @@ namespace Main.Card
                 {
                     _moved = true;
                 }
-
-                // アニメーション終了などでドラッグ解禁になったらリアルドラッグに昇格
-                if (_moved && CanDrag != null && CanDrag())
-                {
-                    _clickTrackingOnly = false;
-                    StartDrag();
-                    // fall through して即座に位置を更新
-                }
-                else
-                {
-                    return;
-                }
+                return;
             }
 
             if (!_isDragging || !target.HasPointerCapture(evt.pointerId))
