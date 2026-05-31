@@ -559,7 +559,7 @@ namespace Main
                 .Join(DOTween.To(() => rotAngle, v =>
                 {
                     rotAngle = v;
-                    flyingOverlay.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
+                    iconWrapper.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
                 }, facingAngle, AttackWindupDuration).SetEase(Ease.OutSine))
                 .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; flyingOverlay.style.left = v; }, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic))
                 .Join(DOTween.To(() => flyTop, v => { flyTop = v; flyingOverlay.style.top = v; }, targetTop, AttackFlyDuration).SetEase(Ease.InCubic))
