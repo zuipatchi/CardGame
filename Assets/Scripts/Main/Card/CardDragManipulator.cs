@@ -81,45 +81,7 @@ namespace Main.Card
             }
 
             _clickTrackingOnly = false;
-            _isDragging = true;
-
-            if (CreateGhost != null)
-            {
-                _ghost = CreateGhost();
-                _ghost.style.position = Position.Absolute;
-                _ghost.style.left = _startElementPosition.x;
-                _ghost.style.top = _startElementPosition.y;
-                _dragLayer.Add(_ghost);
-            }
-            else
-            {
-                _originalParent = target.parent;
-                _originalIndex = _originalParent.IndexOf(target);
-                _originalPosition = target.style.position;
-                _originalLeft = target.style.left;
-                _originalTop = target.style.top;
-                _originalBottom = target.style.bottom;
-                _originalRotate = target.style.rotate;
-                _originalScale = target.style.scale;
-                _originalTransformOrigin = target.style.transformOrigin;
-
-                float cardWidth = target.layout.width;
-                float cardHeight = target.layout.height;
-
-                _dragLayer.Add(target);
-                target.style.position = Position.Absolute;
-                target.style.bottom = StyleKeyword.Null;
-                target.style.rotate = new Rotate(0);
-                target.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
-                target.style.transformOrigin = new TransformOrigin(new Length(50f, LengthUnit.Percent), new Length(50f, LengthUnit.Percent));
-
-                _startElementPosition = new Vector2(
-                    _startPointerPosition.x - cardWidth / 2f,
-                    _startPointerPosition.y - cardHeight / 2f
-                );
-                target.style.left = _startElementPosition.x;
-                target.style.top = _startElementPosition.y;
-            }
+            StartDrag();
 
             target.CapturePointer(evt.pointerId);
             evt.StopPropagation();
@@ -129,12 +91,23 @@ namespace Main.Card
         {
             if (_clickTrackingOnly && target.HasPointerCapture(evt.pointerId))
             {
-                Vector2 clickDelta = (Vector2)evt.position - _startPointerPosition;
-                if (clickDelta.magnitude > ClickMovementThreshold)
+                Vector2 delta = (Vector2)evt.position - _startPointerPosition;
+                if (delta.magnitude > ClickMovementThreshold)
                 {
                     _moved = true;
                 }
-                return;
+
+                // アニメーション終了などでドラッグ解禁になったらリアルドラッグに昇格
+                if (_moved && CanDrag != null && CanDrag())
+                {
+                    _clickTrackingOnly = false;
+                    StartDrag();
+                    // fall through して即座に位置を更新
+                }
+                else
+                {
+                    return;
+                }
             }
 
             if (!_isDragging || !target.HasPointerCapture(evt.pointerId))
@@ -142,15 +115,15 @@ namespace Main.Card
                 return;
             }
 
-            Vector2 delta = (Vector2)evt.position - _startPointerPosition;
-            if (delta.magnitude > ClickMovementThreshold)
+            Vector2 moveDelta = (Vector2)evt.position - _startPointerPosition;
+            if (moveDelta.magnitude > ClickMovementThreshold)
             {
                 _moved = true;
             }
 
             VisualElement dragTarget = _ghost ?? target;
-            dragTarget.style.left = _startElementPosition.x + delta.x;
-            dragTarget.style.top = _startElementPosition.y + delta.y;
+            dragTarget.style.left = _startElementPosition.x + moveDelta.x;
+            dragTarget.style.top = _startElementPosition.y + moveDelta.y;
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -221,6 +194,49 @@ namespace Main.Card
                 {
                     SnapBack();
                 }
+            }
+        }
+
+        private void StartDrag()
+        {
+            _isDragging = true;
+
+            if (CreateGhost != null)
+            {
+                _ghost = CreateGhost();
+                _ghost.style.position = Position.Absolute;
+                _ghost.style.left = _startElementPosition.x;
+                _ghost.style.top = _startElementPosition.y;
+                _dragLayer.Add(_ghost);
+            }
+            else
+            {
+                _originalParent = target.parent;
+                _originalIndex = _originalParent.IndexOf(target);
+                _originalPosition = target.style.position;
+                _originalLeft = target.style.left;
+                _originalTop = target.style.top;
+                _originalBottom = target.style.bottom;
+                _originalRotate = target.style.rotate;
+                _originalScale = target.style.scale;
+                _originalTransformOrigin = target.style.transformOrigin;
+
+                float cardWidth = target.layout.width;
+                float cardHeight = target.layout.height;
+
+                _dragLayer.Add(target);
+                target.style.position = Position.Absolute;
+                target.style.bottom = StyleKeyword.Null;
+                target.style.rotate = new Rotate(0);
+                target.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
+                target.style.transformOrigin = new TransformOrigin(new Length(50f, LengthUnit.Percent), new Length(50f, LengthUnit.Percent));
+
+                _startElementPosition = new Vector2(
+                    _startPointerPosition.x - cardWidth / 2f,
+                    _startPointerPosition.y - cardHeight / 2f
+                );
+                target.style.left = _startElementPosition.x;
+                target.style.top = _startElementPosition.y;
             }
         }
 
