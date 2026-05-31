@@ -43,7 +43,8 @@ namespace Main
             await RunPreBattle1PhaseAsync(ct);
             if (_isGameOver) return;
 
-            bool isLocalFirst = DetermineFirstMover();
+            bool priorityUsed;
+            bool isLocalFirst = DetermineFirstMover(out priorityUsed);
             _gameModel.SetInitialTurn(isLocalFirst);
             await PlayTurnAnnouncementAsync(isLocalFirst, ct);
 
@@ -52,15 +53,16 @@ namespace Main
             if (_isGameOver) return;
 
             _gameModel.BeginBattle();
-            await RunBattlePhaseAsync(ct);
+            await RunBattlePhaseAsync(priorityUsed, ct);
             if (_isGameOver) return;
 
             _gameModel.EndTurn();
         }
 
-        // Speed 比較で先攻後攻を決定する。同値の場合は初回ランダム・以降交互
-        private bool DetermineFirstMover()
+        // Speed 比較で先攻後攻を決定する。同値の場合は攻撃優先権保持者が先攻
+        private bool DetermineFirstMover(out bool priorityUsed)
         {
+            priorityUsed = false;
             int localSpeed = _playerCharacterSlot.Speed;
             int opponentSpeed = _opponentCharacterSlot.Speed;
             if (localSpeed != opponentSpeed)
@@ -68,16 +70,49 @@ namespace Main
                 return localSpeed > opponentSpeed;
             }
 
-            if (_lastSpeedTieBreakerWasLocal == null)
-            {
-                bool first = _isOnline ? _onlineIsLocalFirst : UnityEngine.Random.value > 0.5f;
-                _lastSpeedTieBreakerWasLocal = first;
-                return first;
-            }
+            // 素早さ同値：優先権を行使（実際の移譲は戦闘フェーズ演出後に行う）
+            priorityUsed = true;
+            return _localHasPriority;
+        }
 
-            bool alternate = !_lastSpeedTieBreakerWasLocal.Value;
-            _lastSpeedTieBreakerWasLocal = alternate;
-            return alternate;
+        private void UpdatePriorityCoinUI()
+        {
+            _playerPriorityCoin.style.display = _localHasPriority ? DisplayStyle.Flex : DisplayStyle.None;
+            _opponentPriorityCoin.style.display = _localHasPriority ? DisplayStyle.None : DisplayStyle.Flex;
+        }
+
+        private async UniTask InitializePriorityAsync(CancellationToken ct)
+        {
+            _localHasPriority = _isOnline ? _onlineIsLocalFirst : UnityEngine.Random.value > 0.5f;
+
+            string resultText = _localHasPriority ? "優先権 獲得！" : "優先権 なし";
+            string resultClass = _localHasPriority ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            await PlayCoinTossAsync(_localHasPriority, resultText, resultClass, ct);
+
+            UpdatePriorityCoinUI();
+
+            // 優先権を得られなかったプレイヤーが1枚ドロー
+            await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
+            if (!_localHasPriority)
+            {
+                CardData drawn = _playerDeckView.DrawTop();
+                if (drawn != null)
+                {
+                    _playerDeckView.RefreshCount();
+                    Rect deckRect = _playerDeckView.worldBound;
+                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                }
+            }
+            else
+            {
+                CardData drawn = _opponentDeckView.DrawTop();
+                if (drawn != null)
+                {
+                    _opponentDeckView.RefreshCount();
+                    Rect deckRect = _opponentDeckView.worldBound;
+                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                }
+            }
         }
 
 
@@ -812,7 +847,7 @@ namespace Main
 
         // ─── 戦闘フェーズ ────────────────────────────────────────────────
 
-        private async UniTask RunBattlePhaseAsync(CancellationToken ct)
+        private async UniTask RunBattlePhaseAsync(bool priorityUsed, CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Battle);
             List<CardView> playerCards = _playerFieldView.Cards.ToList();
@@ -830,6 +865,15 @@ namespace Main
             await UniTask.WhenAll(flipTasks);
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
+
+            // 素早さ同値で優先権を行使した場合：演出後に優先権を移譲
+            if (priorityUsed)
+            {
+                bool localUsedPriority = _localHasPriority;
+                await PlayPriorityCoinTransferAsync(localUsedPriority, ct);
+                _localHasPriority = !_localHasPriority;
+                UpdatePriorityCoinUI();
+            }
 
             // コスト払い（先攻→後攻の順）
             bool isLocalFirst = _gameModel.IsLocalTurn;

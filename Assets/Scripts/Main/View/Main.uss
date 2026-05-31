@@ -1111,3 +1111,35 @@
     width: 220px;
     height: 60px;
 }
+
+/* ─── 攻撃優先権コイン ────────────────────────────────────────────────── */
+.priority-coin {
+    width: 72px;
+    height: 72px;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
+    border-bottom-left-radius: 36px;
+    border-bottom-right-radius: 36px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(255, 200, 50, 0.9);
+    border-right-color: rgba(255, 200, 50, 0.9);
+    border-top-color: rgba(255, 200, 50, 0.9);
+    border-bottom-color: rgba(255, 200, 50, 0.9);
+    background-color: rgba(80, 60, 0, 0.4);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* ─── 攻撃優先権行使フローティングラベル ────────────────────────────── */
+.priority-use-label {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(255, 200, 0);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 220px;
+    height: 60px;
+}

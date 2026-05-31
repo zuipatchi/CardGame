@@ -100,7 +100,9 @@ namespace Main
         private int _opponentDefBoost;
 
         private bool _onlineIsLocalFirst;
-        private bool? _lastSpeedTieBreakerWasLocal;
+        private bool _localHasPriority;
+        private VisualElement _playerPriorityCoin;
+        private VisualElement _opponentPriorityCoin;
 
         private readonly StagedInput _charSetInput = new StagedInput();
         private readonly StagedInput _prepInput = new StagedInput();
@@ -398,13 +400,41 @@ namespace Main
                 _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, _cardStore.AttributeDatabase);
                 opponentDeckArea.Add(_opponentDeckView);
 
+                // プレイヤー墓地エリア：コインを左・墓地を右でrow配置
+                graveyardArea.style.flexDirection = FlexDirection.Row;
+                graveyardArea.style.alignItems = Align.Center;
+                _playerPriorityCoin = new VisualElement();
+                _playerPriorityCoin.AddToClassList("priority-coin");
+                _playerPriorityCoin.pickingMode = PickingMode.Ignore;
+                _playerPriorityCoin.style.marginRight = 8f;
+                if (_cardStore.CoinFront != null)
+                {
+                    _playerPriorityCoin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
+                }
+                _playerPriorityCoin.style.display = DisplayStyle.None;
+                graveyardArea.Add(_playerPriorityCoin);
+
                 _playerGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
                 _playerGraveyardView.OnCardClicked = data => _cardDetailModal.Show(data);
                 graveyardArea.Add(_playerGraveyardView);
 
+                // 相手墓地エリア：墓地を左・コインを右でrow配置
+                opponentGraveyardArea.style.flexDirection = FlexDirection.Row;
+                opponentGraveyardArea.style.alignItems = Align.Center;
                 _opponentGraveyardView = new GraveyardView(_cardStore.CardTemplate, mainRoot);
                 _opponentGraveyardView.OnCardClicked = data => _cardDetailModal.Show(data);
                 opponentGraveyardArea.Add(_opponentGraveyardView);
+
+                _opponentPriorityCoin = new VisualElement();
+                _opponentPriorityCoin.AddToClassList("priority-coin");
+                _opponentPriorityCoin.pickingMode = PickingMode.Ignore;
+                _opponentPriorityCoin.style.marginLeft = 8f;
+                if (_cardStore.CoinFront != null)
+                {
+                    _opponentPriorityCoin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
+                }
+                _opponentPriorityCoin.style.display = DisplayStyle.None;
+                opponentGraveyardArea.Add(_opponentPriorityCoin);
 
                 CancellationToken ct = destroyCancellationToken;
                 await UniTask.NextFrame(ct);
@@ -441,6 +471,7 @@ namespace Main
                     await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
                 }
 
+                await InitializePriorityAsync(ct);
                 RunGameAsync(ct).Forget();
             }
             catch (System.OperationCanceledException)

@@ -15,7 +15,7 @@ namespace Main
     {
         // ─── コイントス演出 ──────────────────────────────────────────────
 
-        private async UniTask PlayCoinTossAsync(bool isLocalFirst, CancellationToken ct)
+        private async UniTask PlayCoinTossAsync(bool isLocalFirst, string resultText, string resultCssClass, CancellationToken ct)
         {
             const float overlayFadeIn = 0.25f;
             const float holdDuration = 0.8f;
@@ -47,9 +47,9 @@ namespace Main
             }
             coin.style.marginBottom = 32f;
 
-            Label resultLabel = new Label(isLocalFirst ? "先攻" : "後攻");
+            Label resultLabel = new Label(resultText);
             resultLabel.AddToClassList("turn-announcement-label");
-            resultLabel.AddToClassList(isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy");
+            resultLabel.AddToClassList(resultCssClass);
             resultLabel.pickingMode = PickingMode.Ignore;
             resultLabel.style.opacity = 0f;
             resultLabel.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
@@ -134,6 +134,85 @@ namespace Main
             catch (OperationCanceledException) { }
 
             overlay.RemoveFromHierarchy();
+        }
+
+        // ─── 攻撃優先権行使演出（コイン飛翔） ────────────────────────────────
+
+        private async UniTask PlayPriorityCoinTransferAsync(bool localUsedPriority, CancellationToken ct)
+        {
+            const float CoinSize = 72f;
+            const float CoinGap = 8f;
+            const float FlyToCenterDuration = 0.45f;
+            const float FlyToDestDuration = 0.45f;
+
+            VisualElement sourceCoin = localUsedPriority ? _playerPriorityCoin : _opponentPriorityCoin;
+            GraveyardView destGraveyard = localUsedPriority ? _opponentGraveyardView : _playerGraveyardView;
+
+            // ゴーストコインをソース位置に作成
+            Vector2 sourceLocal = _dragLayer.WorldToLocal(sourceCoin.worldBound.center);
+            VisualElement ghostCoin = new VisualElement();
+            ghostCoin.AddToClassList("priority-coin");
+            ghostCoin.pickingMode = PickingMode.Ignore;
+            ghostCoin.style.position = Position.Absolute;
+            ghostCoin.style.width = CoinSize;
+            ghostCoin.style.height = CoinSize;
+            if (_cardStore.CoinFront != null)
+            {
+                ghostCoin.style.backgroundImage = Background.FromSprite(_cardStore.CoinFront);
+            }
+            float ghostLeft = sourceLocal.x - CoinSize / 2f;
+            float ghostTop = sourceLocal.y - CoinSize / 2f;
+            ghostCoin.style.left = ghostLeft;
+            ghostCoin.style.top = ghostTop;
+            _dragLayer.Add(ghostCoin);
+            sourceCoin.style.display = DisplayStyle.None;
+
+            // 画面中央のローカル座標
+            Rect dragLayerBounds = _dragLayer.worldBound;
+            Vector2 centerLocal = _dragLayer.WorldToLocal(new Vector2(dragLayerBounds.center.x, dragLayerBounds.center.y));
+            float centerLeft = centerLocal.x - CoinSize / 2f;
+            float centerTop = centerLocal.y - CoinSize / 2f;
+
+            // Phase 1: アナウンス表示と同時にコインを画面中央へ飛翔
+            string announceLabelClass = localUsedPriority
+                ? "turn-announcement-label--player"
+                : "turn-announcement-label--enemy";
+            UniTask announceTask = PlayAnnouncementAsync("優先権 行使！", announceLabelClass, ct);
+
+            UniTaskCompletionSource tcs1 = new UniTaskCompletionSource();
+            Sequence seq1 = DOTween.Sequence()
+                .Append(DOTween.To(() => ghostLeft, v => { ghostLeft = v; ghostCoin.style.left = v; }, centerLeft, FlyToCenterDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => ghostTop, v => { ghostTop = v; ghostCoin.style.top = v; }, centerTop, FlyToCenterDuration).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs1.TrySetResult());
+            ct.Register(() => { seq1.Kill(); tcs1.TrySetCanceled(); });
+
+            bool phase1Done = false;
+            try { await UniTask.WhenAll(announceTask, tcs1.Task); phase1Done = true; }
+            catch (OperationCanceledException) { }
+
+            // Phase 2: アナウンス消去後にコインを相手の墓地隣へ飛翔
+            if (phase1Done)
+            {
+                Rect destBounds = destGraveyard.worldBound;
+                float destWorldX = localUsedPriority
+                    ? (destBounds.xMax + CoinGap + CoinSize / 2f)
+                    : (destBounds.xMin - CoinGap - CoinSize / 2f);
+                Vector2 destLocal = _dragLayer.WorldToLocal(new Vector2(destWorldX, destBounds.center.y));
+                float targetLeft = destLocal.x - CoinSize / 2f;
+                float targetTop = destLocal.y - CoinSize / 2f;
+
+                UniTaskCompletionSource tcs2 = new UniTaskCompletionSource();
+                Sequence seq2 = DOTween.Sequence()
+                    .Append(DOTween.To(() => ghostLeft, v => { ghostLeft = v; ghostCoin.style.left = v; }, targetLeft, FlyToDestDuration).SetEase(Ease.InOutQuad))
+                    .Join(DOTween.To(() => ghostTop, v => { ghostTop = v; ghostCoin.style.top = v; }, targetTop, FlyToDestDuration).SetEase(Ease.InOutQuad))
+                    .OnComplete(() => tcs2.TrySetResult());
+                ct.Register(() => { seq2.Kill(); tcs2.TrySetCanceled(); });
+
+                try { await tcs2.Task; }
+                catch (OperationCanceledException) { }
+            }
+
+            if (ghostCoin.parent != null) { ghostCoin.RemoveFromHierarchy(); }
         }
 
         // ─── ターン・フェーズ告知アニメーション ────────────────────────────
