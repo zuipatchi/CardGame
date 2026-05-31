@@ -48,6 +48,12 @@ namespace Matching
                 {
                     continue;
                 }
+                if (info.Properties != null &&
+                    info.Properties.TryGetValue("started", out SessionProperty startedProp) &&
+                    startedProp.Value == "1")
+                {
+                    continue;
+                }
                 int playerCount = info.MaxPlayers - info.AvailableSlots;
                 rooms.Add(new LobbyInfo(info.Id, info.Name, playerCount, info.MaxPlayers));
             }
@@ -62,7 +68,11 @@ namespace Matching
             SessionOptions options = new SessionOptions
             {
                 Name = roomName,
-                MaxPlayers = 2
+                MaxPlayers = 2,
+                SessionProperties = new Dictionary<string, SessionProperty>
+                {
+                    { "started", new SessionProperty("0", VisibilityPropertyOptions.Public) }
+                }
             }.WithRelayNetwork();
             IHostSession session = await MultiplayerService.Instance
                 .CreateSessionAsync(options)
@@ -84,6 +94,12 @@ namespace Matching
                 .AttachExternalCancellation(ct);
 
             _gameSessionModel.SetSession(session);
+        }
+
+        public async UniTask MarkRoomStartedAsync(IHostSession session, CancellationToken ct = default)
+        {
+            session.SetProperty("started", new SessionProperty("1", VisibilityPropertyOptions.Public));
+            await session.SavePropertiesAsync().AsUniTask().AttachExternalCancellation(ct);
         }
 
         public async UniTask<LobbyInfo?> FindQuickMatchRoomAsync(CancellationToken ct = default)

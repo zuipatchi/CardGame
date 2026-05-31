@@ -161,15 +161,14 @@ namespace Matching
         private void RebuildRoomList(IReadOnlyList<LobbyInfo> rooms)
         {
             _roomList.Clear();
-            if (rooms.Count == 0)
-            {
-                Label emptyLabel = new Label { text = "ルームがありません" };
-                emptyLabel.AddToClassList("empty-state");
-                _roomList.Add(emptyLabel);
-                return;
-            }
+            bool hasVisible = false;
             foreach (LobbyInfo room in rooms)
             {
+                if (room.Name == MatchingService.QuickMatchName)
+                {
+                    continue;
+                }
+                hasVisible = true;
                 string sessionId = room.LobbyId;
                 Button roomButton = new Button(() => OnRoomSelectedAsync(sessionId).Forget())
                 {
@@ -177,6 +176,12 @@ namespace Matching
                 };
                 roomButton.AddToClassList("room-item");
                 _roomList.Add(roomButton);
+            }
+            if (!hasVisible)
+            {
+                Label emptyLabel = new Label { text = "ルームがありません" };
+                emptyLabel.AddToClassList("empty-state");
+                _roomList.Add(emptyLabel);
             }
         }
 
@@ -202,6 +207,7 @@ namespace Matching
                     bool found = await _matchingService.WaitForPlayerAsync(session, _quickMatchTimeoutDuration, destroyCancellationToken);
                     if (found)
                     {
+                        await _matchingService.MarkRoomStartedAsync(session, destroyCancellationToken);
                         _model.State.Value = MatchingState.Starting;
                         await TransitToMainAsync();
                     }
@@ -231,6 +237,7 @@ namespace Matching
                 bool found = await _matchingService.WaitForPlayerAsync(session, _createRoomTimeoutDuration, destroyCancellationToken);
                 if (found)
                 {
+                    await _matchingService.MarkRoomStartedAsync(session, destroyCancellationToken);
                     _model.State.Value = MatchingState.Starting;
                     await TransitToMainAsync();
                 }
