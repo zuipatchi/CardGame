@@ -46,10 +46,9 @@ namespace Main
             bool priorityUsed;
             bool isLocalFirst = DetermineFirstMover(out priorityUsed);
             _gameModel.SetInitialTurn(isLocalFirst);
-            await PlayTurnAnnouncementAsync(isLocalFirst, ct);
 
             _gameModel.BeginPreBattle2();
-            await RunPreBattle2PhaseAsync(ct);
+            await RunPreBattle2PhaseAsync(isLocalFirst, ct);
             if (_isGameOver) return;
 
             _gameModel.BeginBattle();
@@ -474,10 +473,13 @@ namespace Main
 
         // ─── 戦闘前2フェーズ（Event のみ・交互・2連続パス）──────────────────
 
-        private async UniTask RunPreBattle2PhaseAsync(CancellationToken ct)
+        private async UniTask RunPreBattle2PhaseAsync(bool isLocalFirst, CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.PreBattle2);
             await PlayAnnouncementAsync("イベントフェーズ", "turn-announcement-label--event", ct);
+            string firstMoverText = isLocalFirst ? "あなたが先です" : "相手が先です";
+            string firstMoverClass = isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            await PlayAnnouncementAsync(firstMoverText, firstMoverClass, ct);
 
             while (true)
             {

@@ -217,12 +217,6 @@ namespace Main
 
         // ─── ターン・フェーズ告知アニメーション ────────────────────────────
 
-        private async UniTask PlayTurnAnnouncementAsync(bool isLocalTurn, CancellationToken ct)
-        {
-            string labelClass = isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
-            await PlayAnnouncementAsync(isLocalTurn ? "YOUR TURN" : "ENEMY TURN", labelClass, ct);
-        }
-
         private async UniTask PlayPassAnimationAsync(bool isLocal, CancellationToken ct)
         {
             string labelClass = isLocal ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
