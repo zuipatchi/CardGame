@@ -878,7 +878,6 @@ namespace Main
                 UpdatePriorityCoinUI();
             }
 
-            // コスト払い（先攻→後攻の順）
             bool isLocalFirst = _gameModel.IsLocalTurn;
             List<CardView> firstCards = isLocalFirst ? playerCards : opponentCards;
             DeckView firstDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
@@ -886,14 +885,6 @@ namespace Main
             List<CardView> secondCards = isLocalFirst ? opponentCards : playerCards;
             DeckView secondDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
             GraveyardView secondGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
-
-            string firstCostClass = isLocalFirst ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
-            await PayBattleAtkCostsAsync(firstCards, firstDeck, firstGraveyard, firstCostClass, ct);
-            if (_isGameOver) return;
-
-            string secondCostClass = isLocalFirst ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
-            await PayBattleAtkCostsAsync(secondCards, secondDeck, secondGraveyard, secondCostClass, ct);
-            if (_isGameOver) return;
 
             List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
             List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
@@ -911,22 +902,33 @@ namespace Main
             int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
             int damageToPlayer = Mathf.Max(0, opponentStats.ATK - effectivePlayerDef);
 
-            await PlayAtkCounterAsync(playerStats.ATK, opponentStats.ATK, effectiveOpponentDef, effectivePlayerDef, ct);
-
-            // 先攻→後攻の順で攻撃・ダメージを処理
             CharacterSlotView firstTarget = isLocalFirst ? _opponentCharacterSlot : _playerCharacterSlot;
             VisualElement firstAtkOverlay = isLocalFirst ? _playerAtkCounterOverlay : _opponentAtkCounterOverlay;
+            Label firstAtkLabel = isLocalFirst ? _playerAtkCounterLabel : _opponentAtkCounterLabel;
             int firstAtk = isLocalFirst ? playerStats.ATK : opponentStats.ATK;
             int firstDamage = isLocalFirst ? damageToOpponent : damageToPlayer;
+            int firstEffectiveDef = isLocalFirst ? effectiveOpponentDef : effectivePlayerDef;
             DeckView firstTargetDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
             GraveyardView firstTargetGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
             CharacterSlotView secondTarget = isLocalFirst ? _playerCharacterSlot : _opponentCharacterSlot;
             VisualElement secondAtkOverlay = isLocalFirst ? _opponentAtkCounterOverlay : _playerAtkCounterOverlay;
+            Label secondAtkLabel = isLocalFirst ? _opponentAtkCounterLabel : _playerAtkCounterLabel;
             int secondAtk = isLocalFirst ? opponentStats.ATK : playerStats.ATK;
             int secondDamage = isLocalFirst ? damageToPlayer : damageToOpponent;
+            int secondEffectiveDef = isLocalFirst ? effectivePlayerDef : effectiveOpponentDef;
             DeckView secondTargetDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
             GraveyardView secondTargetGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
+
+            // 先攻のコスト払い → ATKカウントアップ
+            if (firstAtk > 0)
+            {
+                string firstCostClass = isLocalFirst ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
+                await PayBattleAtkCostsAsync(firstCards, firstDeck, firstGraveyard, firstCostClass, ct);
+                if (_isGameOver) return;
+            }
+
+            await PlaySingleSideAtkCounterAsync(firstAtkOverlay, firstAtkLabel, firstAtk, firstTarget, firstEffectiveDef, ct);
 
             // 1人目（先攻）の攻撃
             if (firstAtk > 0)
@@ -987,6 +989,16 @@ namespace Main
                 secondAtk = 0;
                 secondDamage = 0;
             }
+
+            // 後攻のコスト払い → ATKカウントアップ
+            if (secondAtk > 0)
+            {
+                string secondCostClass = isLocalFirst ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
+                await PayBattleAtkCostsAsync(secondCards, secondDeck, secondGraveyard, secondCostClass, ct);
+                if (_isGameOver) return;
+            }
+
+            await PlaySingleSideAtkCounterAsync(secondAtkOverlay, secondAtkLabel, secondAtk, secondTarget, secondEffectiveDef, ct);
 
             // 2人目（後攻）の攻撃
             if (secondAtk > 0)
