@@ -44,16 +44,18 @@ Title → Matching → Main
    → ルーム一覧を表示
 
 2a. クイックマッチ（推奨）
-   → QuerySessions で Name="QuickMatch" かつ AvailableSlots>0 を検索
+   → QuerySessions で Name="QuickMatch" かつ AvailableSlots>0 かつ started!=1 を検索
    → 見つかった → JoinSessionByIdAsync → Main シーンへ遷移
-   → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2)
+   → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2, started="0")
      → PlayerJoined イベント待機（30秒タイムアウト）
+     → マッチ成立 → MarkRoomStartedAsync（started="1" に更新）→ Main シーンへ遷移
      → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2b. ルームを手動作成
-   → CreateSessionAsync(MaxPlayers=2)
+   → CreateSessionAsync(MaxPlayers=2, started="0")
    → PlayerJoined イベント待機（120秒タイムアウト）
    → 待機中は「2分で自動解散します」を表示
+   → マッチ成立 → MarkRoomStartedAsync（started="1" に更新）→ Main シーンへ遷移
    → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2c. ルームに手動参加
@@ -75,7 +77,7 @@ Title → Matching → Main
 |---|---|
 | `MatchingModel` | マッチング状態を `ReactiveProperty` で管理 |
 | `MatchingPresenter` | UI とマッチング状態のバインド（`IStartable` 実装） |
-| `MatchingService` | UGS Session API 呼び出し |
+| `MatchingService` | UGS Session API 呼び出し（検索・作成・参加・started フラグ管理）|
 | `MatchingLifetimeScope` | Matching シーン固有 DI 登録 |
 | `GameSessionModel` | `ISession` を Common シーン跨ぎで保持（Singleton）。`HasSession` でオンライン/オフライン判定 |
 | `NetworkGameService` | Main シーンでのホスト/クライアント間デッキ交換プロトコル |

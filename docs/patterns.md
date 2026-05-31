@@ -235,6 +235,37 @@ private async UniTaskVoid BuildAsync()
 
 ---
 
+## 7. DOTween + UI Toolkit でのスタイル値ゲッター（フリーズ対策）
+
+UI Toolkit のスタイルプロパティを DOTween ゲッターに直接渡すと、シーケンス開始フレームでの
+値読み取りが不定になり `OnComplete` が発火しないケースがある。
+
+### NG パターン
+
+```csharp
+DOTween.To(() => _overlay.style.opacity.value, v => _overlay.style.opacity = v, 1f, 0.25f)
+```
+
+スタイルプロパティの `.value` を毎フレーム読み取るため、前フレームの状態に依存して初期値が不正になることがある。
+
+### OK パターン（ローカル float 変数）
+
+```csharp
+float opacity = 0f;
+DOTween.To(
+    () => opacity,
+    v => { opacity = v; _overlay.style.opacity = v; },
+    1f, 0.25f
+)
+```
+
+ローカル float 変数を「仲介」として使うことで初期値が確定し、`OnComplete` が確実に発火する。
+
+`PlayAnnouncementAsync` / `PlayResolveAnimationAsync` はこのパターンで実装済み。
+同様の Sequence を新たに書く場合も必ずこの形式を使うこと。
+
+---
+
 ## 共通ルール（抜粋）
 
 - `var` は使わない。型を明示する
