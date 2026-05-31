@@ -200,6 +200,41 @@ public static int ChooseXxxCardIndex(IReadOnlyList<CardData> hand)
 
 ---
 
+## 6. async MonoBehaviour での destroyCancellationToken の扱い（Unity 6）
+
+Unity 6 では `destroyCancellationToken` を **一度も参照しないまま MonoBehaviour が破棄される** と
+`MissingReferenceException` が発生する（"DestroyCancellation token should be called atleast once before destroying the monobehaviour object"）。
+
+### 対処パターン
+
+async メソッド内で最初の `await` の後に `destroyCancellationToken` を参照する場合、
+`await` 中に MonoBehaviour が破棄されると例外が出る。以下の2点を必ず守る:
+
+**① `await` の直後に `this == null` ガードを入れる**
+
+```csharp
+private async UniTaskVoid BuildAsync()
+{
+    try
+    {
+        await _someTask;
+
+        if (this == null) { return; }   // ← await 後は必ずガード
+
+        CancellationToken ct = destroyCancellationToken;  // ← ガード後に一度だけキャプチャ
+        // 以降は ct を使う
+    }
+    catch (OperationCanceledException) { }
+}
+```
+
+**② キャプチャした `ct` を以降のすべての箇所で使う**
+
+メソッド内で `destroyCancellationToken` を直接参照するのは最初のキャプチャ時のみ。
+`CancellationTokenSource.CreateLinkedTokenSource` や他のメソッドへの引数も `ct` を渡す。
+
+---
+
 ## 共通ルール（抜粋）
 
 - `var` は使わない。型を明示する
