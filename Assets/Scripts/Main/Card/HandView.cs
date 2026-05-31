@@ -334,6 +334,7 @@ namespace Main.Card
                 {
                     HandCardEntry entry = _entries[idx];
                     entry.ScaleTween?.Kill();
+                    capturedCard.style.scale = new Scale(Vector3.one);
                     entry.ScaleTween = null;
                     _entries[idx] = entry;
                 }

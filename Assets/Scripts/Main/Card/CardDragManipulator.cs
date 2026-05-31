@@ -107,7 +107,7 @@ namespace Main.Card
                 target.style.top = _startElementPosition.y;
                 target.style.bottom = StyleKeyword.Null;
                 target.style.rotate = new Rotate(0);
-                target.style.scale = new Scale(Vector3.one);
+                target.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
             }
 
             target.CapturePointer(evt.pointerId);
