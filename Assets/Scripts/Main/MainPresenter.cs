@@ -150,6 +150,13 @@ namespace Main
             {
                 await _cardStore.Loaded;
 
+                if (this == null)
+                {
+                    return;
+                }
+
+                CancellationToken destroyCt = destroyCancellationToken;
+
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 _mainRoot = root.Q<VisualElement>("MainRoot");
                 VisualElement mainRoot = _mainRoot;
@@ -209,13 +216,13 @@ namespace Main
                         ? _deckModel.CardIds
                         : allCards.Select(c => c.Id).ToList();
                     using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-                    using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, destroyCancellationToken);
+                    using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, destroyCt);
                     OnlineInitialState state;
                     try
                     {
                         state = await _networkGameService.PrepareDecksAsync(deckIds, linkedCts.Token);
                     }
-                    catch (OperationCanceledException) when (!destroyCancellationToken.IsCancellationRequested)
+                    catch (OperationCanceledException) when (!destroyCt.IsCancellationRequested)
                     {
                         _waitingOverlay.style.display = DisplayStyle.None;
                         ShowMatchTimeoutModal(mainRoot);
@@ -436,7 +443,7 @@ namespace Main
                 _opponentPriorityCoin.style.display = DisplayStyle.None;
                 opponentGraveyardArea.Add(_opponentPriorityCoin);
 
-                CancellationToken ct = destroyCancellationToken;
+                CancellationToken ct = destroyCt;
                 await UniTask.NextFrame(ct);
 
                 _waitingOverlay.style.display = DisplayStyle.None;
