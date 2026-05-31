@@ -23,6 +23,7 @@ namespace Main.Card
         private StyleLength _originalTop;
         private StyleRotate _originalRotate;
         private StyleScale _originalScale;
+        private StyleTransformOrigin _originalTransformOrigin;
         private Vector2 _startPointerPosition;
         private Vector2 _startElementPosition;
         private bool _isDragging;
@@ -100,14 +101,24 @@ namespace Main.Card
                 _originalBottom = target.style.bottom;
                 _originalRotate = target.style.rotate;
                 _originalScale = target.style.scale;
+                _originalTransformOrigin = target.style.transformOrigin;
+
+                float cardWidth = target.layout.width;
+                float cardHeight = target.layout.height;
 
                 _dragLayer.Add(target);
                 target.style.position = Position.Absolute;
-                target.style.left = _startElementPosition.x;
-                target.style.top = _startElementPosition.y;
                 target.style.bottom = StyleKeyword.Null;
                 target.style.rotate = new Rotate(0);
                 target.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
+                target.style.transformOrigin = new TransformOrigin(new Length(50f, LengthUnit.Percent), new Length(50f, LengthUnit.Percent));
+
+                _startElementPosition = new Vector2(
+                    _startPointerPosition.x - cardWidth / 2f,
+                    _startPointerPosition.y - cardHeight / 2f
+                );
+                target.style.left = _startElementPosition.x;
+                target.style.top = _startElementPosition.y;
             }
 
             target.CapturePointer(evt.pointerId);
@@ -222,6 +233,7 @@ namespace Main.Card
             target.style.bottom = _originalBottom;
             target.style.rotate = _originalRotate;
             target.style.scale = _originalScale;
+            target.style.transformOrigin = _originalTransformOrigin;
         }
     }
 }
