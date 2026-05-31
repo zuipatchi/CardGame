@@ -886,6 +886,11 @@ namespace Main
             {
                 await PlayAttackIconAsync(firstAtkOverlay, firstTarget, firstAtk, ct);
             }
+            else
+            {
+                await PlayFloatingLabelAsync("NO ATTACK", "no-attack-label", firstAtkOverlay, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            }
             firstAtkOverlay.style.display = DisplayStyle.None;
             firstTarget.DefOverlay.style.display = DisplayStyle.None;
 
@@ -940,6 +945,11 @@ namespace Main
             if (secondAtk > 0)
             {
                 await PlayAttackIconAsync(secondAtkOverlay, secondTarget, secondAtk, ct);
+            }
+            else
+            {
+                await PlayFloatingLabelAsync("NO ATTACK", "no-attack-label", secondAtkOverlay, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             }
             secondAtkOverlay.style.display = DisplayStyle.None;
             secondTarget.DefOverlay.style.display = DisplayStyle.None;

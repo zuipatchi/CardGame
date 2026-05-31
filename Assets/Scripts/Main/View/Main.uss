@@ -1099,3 +1099,15 @@
     width: 220px;
     height: 60px;
 }
+
+/* ─── NO ATTACK フローティングラベル ────────────────────────────────────── */
+.no-attack-label {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(160, 160, 160);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 220px;
+    height: 60px;
+}
