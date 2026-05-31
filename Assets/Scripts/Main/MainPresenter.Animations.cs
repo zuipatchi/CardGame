@@ -243,12 +243,15 @@ namespace Main
             _turnOverlay.style.opacity = 0f;
             _turnLabel.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
 
+            float overlayOpacity = 0f;
+            float labelScale = 0.5f;
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => _turnOverlay.style.opacity.value, v => _turnOverlay.style.opacity = v, 1f, 0.25f).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => _turnLabel.style.scale.value.value.x, v => _turnLabel.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, 0.25f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; _turnOverlay.style.opacity = v; }, 1f, 0.25f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => labelScale, v => { labelScale = v; _turnLabel.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.25f).SetEase(Ease.OutBack))
                 .AppendInterval(0.5f)
-                .Append(DOTween.To(() => _turnOverlay.style.opacity.value, v => _turnOverlay.style.opacity = v, 0f, 0.3f).SetEase(Ease.InQuad))
+                .Append(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; _turnOverlay.style.opacity = v; }, 0f, 0.3f).SetEase(Ease.InQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
@@ -265,12 +268,15 @@ namespace Main
             _resolveOverlay.style.opacity = 0f;
             _resolveLabel.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
 
+            float overlayOpacity = 0f;
+            float labelScale = 0.5f;
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => _resolveOverlay.style.opacity.value, v => _resolveOverlay.style.opacity = v, 1f, 0.25f).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => _resolveLabel.style.scale.value.value.x, v => _resolveLabel.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, 0.25f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; _resolveOverlay.style.opacity = v; }, 1f, 0.25f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => labelScale, v => { labelScale = v; _resolveLabel.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.25f).SetEase(Ease.OutBack))
                 .AppendInterval(0.4f)
-                .Append(DOTween.To(() => _resolveOverlay.style.opacity.value, v => _resolveOverlay.style.opacity = v, 0f, 0.3f).SetEase(Ease.InQuad))
+                .Append(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; _resolveOverlay.style.opacity = v; }, 0f, 0.3f).SetEase(Ease.InQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });

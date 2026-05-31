@@ -122,8 +122,8 @@ namespace Main.Card
 
             if (_interactive)
             {
-                await card.FlipAsync(ct);
                 RegisterCardCallbacks(card);
+                card.FlipAsync(ct).Forget();
             }
         }
 
