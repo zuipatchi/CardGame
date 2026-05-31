@@ -365,6 +365,11 @@
     background-color: rgba(60, 45, 0, 0.65);
 }
 
+.turn-announcement-label--draw {
+    color: rgb(180, 230, 255);
+    background-color: rgba(0, 20, 40, 0.65);
+}
+
 .turn-announcement-label--cost {
     color: rgb(80, 210, 240);
     background-color: rgba(0, 30, 50, 0.65);

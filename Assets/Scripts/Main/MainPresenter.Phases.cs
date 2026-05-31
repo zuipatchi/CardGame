@@ -283,6 +283,7 @@ namespace Main
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Draw);
+            await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
             bool playerDeckEmpty = _playerDeckView.Count == 0;
             bool opponentDeckEmpty = _opponentDeckView.Count == 0;

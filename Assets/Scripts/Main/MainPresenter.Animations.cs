@@ -239,6 +239,7 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--skill");
             _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
             _turnLabel.RemoveFromClassList("turn-announcement-label--mulligan");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--draw");
             _turnLabel.RemoveFromClassList("turn-announcement-label--cost");
             _turnLabel.RemoveFromClassList("turn-announcement-label--cost-opponent");
             _turnLabel.RemoveFromClassList("turn-announcement-label--set");
