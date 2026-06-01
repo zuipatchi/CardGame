@@ -10,6 +10,7 @@ namespace Common.GameSession
         public ISession Session { get; private set; }
         public bool HasSession => Session != null;
         public bool IsHost => Session?.IsHost ?? false;
+        public bool ShouldRainOnNextHome { get; set; }
 
         public void SetSession(ISession session)
         {

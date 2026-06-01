@@ -37,6 +37,11 @@ namespace Home
             _gameSessionModel = gameSessionModel;
             _deckModel.Clear();
             _deckRepository.Load(_deckModel);
+            if (_backgroundPresenter != null && _gameSessionModel.ShouldRainOnNextHome)
+            {
+                _backgroundPresenter.IsRainy = true;
+                _gameSessionModel.ShouldRainOnNextHome = false;
+            }
         }
 
         private void Awake()

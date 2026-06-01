@@ -18,12 +18,7 @@ namespace Home
         private const string RainBackgroundAddress = "Image/HomeBackgroundRain";
         private const float BackgroundDepth = 20f;
 
-        public bool IsRainy { get; private set; }
-
-        private void Awake()
-        {
-            IsRainy = UnityEngine.Random.value < 0.5f;
-        }
+        public bool IsRainy { get; set; }
 
         private void Start()
         {

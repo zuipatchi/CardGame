@@ -112,6 +112,7 @@ namespace Main
 
         private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false)
         {
+            _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
             PlayGameEndAsync(playerWins, isSurrenderWin, destroyCancellationToken).Forget();
         }
     }
