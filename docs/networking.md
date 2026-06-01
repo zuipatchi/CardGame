@@ -172,6 +172,24 @@ if (session.AvailableSlots == 0)          // 後から確認
 
 ---
 
+## メッセージ種別一覧
+
+| 定数 | 方向 | 内容 |
+|---|---|---|
+| `NGS_ClientReady` | Client → Host | ハンドシェイク開始 |
+| `NGS_RequestDeck` | Host → Client | デッキ送信要求 |
+| `NGS_DeckSubmit` | Client → Host | デッキ ID 配列送信 |
+| `NGS_InitialState` | Host → Client | 初期手札・デッキ・先攻後攻・マリガン要否 |
+| `NGS_CharSet` | Both | キャラセットフェーズ行動（passed / cardId） |
+| `NGS_PreBattle1` | Both | 戦闘前1フェーズ行動（passed / cardId） |
+| `NGS_PreBattle2` | Both | 戦闘前2フェーズ行動（passed / cardId） |
+| `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
+| `NGS_Surrender` | Both | サレンダー通知（ペイロードなし） |
+
+`NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は即 YOU LOSE を表示してホームへ戻り、受信者は即 YOU WIN + 「対戦相手がサレンダーしました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中のサレンダーも検知できる。
+
+---
+
 ## デッキ交換プロトコルの設計メモ
 
 NGS_ClientReady ハンドシェイクを入れた理由は「ホストがリクエストを送るタイミングをクライアントのハンドラ登録完了に同期させるため」。
