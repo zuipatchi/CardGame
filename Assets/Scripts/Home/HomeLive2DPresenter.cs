@@ -22,6 +22,11 @@ namespace Home
         private AnimationClip _eatClip;
 
         [SerializeField]
+        private AnimationClip _sadClip;
+
+        public bool IsRainy { get; set; }
+
+        [SerializeField]
         private float _walkSpeed = 2f;
 
         private readonly Queue<(Vector3 pos, Animator food)> _foodQueue = new Queue<(Vector3, Animator)>();
@@ -51,7 +56,13 @@ namespace Home
 
         private void Start()
         {
-            if (_animator == null || _motions == null || _motions.Length == 0)
+            if (_animator == null)
+            {
+                return;
+            }
+            bool hasMotions = _motions != null && _motions.Length > 0;
+            bool hasSad = IsRainy && _sadClip != null;
+            if (!hasMotions && !hasSad)
             {
                 return;
             }
@@ -93,7 +104,15 @@ namespace Home
                 }
                 else
                 {
-                    AnimationClip clip = _motions[UnityEngine.Random.Range(0, _motions.Length)];
+                    AnimationClip clip;
+                    if (IsRainy && _sadClip != null)
+                    {
+                        clip = _sadClip;
+                    }
+                    else
+                    {
+                        clip = _motions[UnityEngine.Random.Range(0, _motions.Length)];
+                    }
                     _animator.Play(clip.name);
 
                     // destroyCancellationToken と _idleInterruptCts の両方で中断可能にする

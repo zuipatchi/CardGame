@@ -41,6 +41,11 @@ namespace Home
             {
                 _backgroundPresenter.IsRainy = true;
                 _gameSessionModel.ShouldRainOnNextHome = false;
+                HomeLive2DPresenter live2D = GetComponent<HomeLive2DPresenter>();
+                if (live2D != null)
+                {
+                    live2D.IsRainy = true;
+                }
             }
         }
 
