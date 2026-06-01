@@ -19,6 +19,7 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
 
+        private VisualElement _deckBuilderRoot;
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
@@ -52,7 +53,7 @@ namespace DeckBuilder
             try
             {
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-                VisualElement deckBuilderRoot = root.Q<VisualElement>("DeckBuilderRoot");
+                _deckBuilderRoot = root.Q<VisualElement>("DeckBuilderRoot");
 
                 VisualElement loadingOverlay = new VisualElement();
                 loadingOverlay.AddToClassList("deckbuilder-loading-overlay");
@@ -60,14 +61,14 @@ namespace DeckBuilder
                 loadingLabel.AddToClassList("deckbuilder-loading-label");
                 loadingLabel.pickingMode = PickingMode.Ignore;
                 loadingOverlay.Add(loadingLabel);
-                deckBuilderRoot.Add(loadingOverlay);
+                _deckBuilderRoot.Add(loadingOverlay);
 
                 await _cardStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
 
                 loadingOverlay.style.display = DisplayStyle.None;
                 if (_cardStore.DeckBuilderBackground != null)
                 {
-                    deckBuilderRoot.style.backgroundImage = new StyleBackground(_cardStore.DeckBuilderBackground);
+                    _deckBuilderRoot.style.backgroundImage = new StyleBackground(_cardStore.DeckBuilderBackground);
                 }
                 _cardListScrollView = root.Q<ScrollView>("CardListScrollView");
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
@@ -85,8 +86,8 @@ namespace DeckBuilder
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
                 _cardListDragLayer.pickingMode = PickingMode.Ignore;
-                _cardDetailModal = new CardDetailModal(deckBuilderRoot, _cardStore.AttributeDatabase);
-                _deckAnalysisModal = new DeckAnalysisModal(deckBuilderRoot, _cardDatabase);
+                _cardDetailModal = new CardDetailModal(_deckBuilderRoot, _cardStore.AttributeDatabase);
+                _deckAnalysisModal = new DeckAnalysisModal(_deckBuilderRoot, _cardDatabase);
 
                 Button analyzeButton = root.Q<Button>("AnalyzeButton");
                 analyzeButton.clicked += () => _deckAnalysisModal.Show(_deckModel);
@@ -100,7 +101,7 @@ namespace DeckBuilder
                 AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();
-                deckBuilderRoot.Add(_cardListDragLayer);
+                _deckBuilderRoot.Add(_cardListDragLayer);
             }
             catch (OperationCanceledException) { }
         }
@@ -177,9 +178,43 @@ namespace DeckBuilder
 
         private void OnClearDeckClicked()
         {
-            _deckModel.Clear();
-            RefreshDeckPanel();
-            SaveDeck();
+            VisualElement overlay = new VisualElement();
+            overlay.AddToClassList("deckbuilder-confirm-overlay");
+
+            VisualElement panel = new VisualElement();
+            panel.AddToClassList("deckbuilder-confirm-panel");
+            panel.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+
+            Label message = new Label("本当にデッキを空にしますか？");
+            message.AddToClassList("deckbuilder-confirm-message");
+
+            VisualElement buttons = new VisualElement();
+            buttons.AddToClassList("deckbuilder-confirm-buttons");
+
+            Button yesButton = new Button();
+            yesButton.text = "はい";
+            yesButton.AddToClassList("deckbuilder-confirm-button--yes");
+            yesButton.clicked += () =>
+            {
+                overlay.RemoveFromHierarchy();
+                _deckModel.Clear();
+                RefreshDeckPanel();
+                SaveDeck();
+            };
+
+            Button noButton = new Button();
+            noButton.text = "いいえ";
+            noButton.AddToClassList("deckbuilder-confirm-button--no");
+            noButton.clicked += () => overlay.RemoveFromHierarchy();
+
+            overlay.RegisterCallback<ClickEvent>(_ => overlay.RemoveFromHierarchy());
+
+            buttons.Add(noButton);
+            buttons.Add(yesButton);
+            panel.Add(message);
+            panel.Add(buttons);
+            overlay.Add(panel);
+            _deckBuilderRoot.Add(overlay);
         }
 
         private void RefreshDeckPanel()

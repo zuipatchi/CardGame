@@ -573,6 +573,94 @@
     -unity-font-style: bold;
 }
 
+.deckbuilder-confirm-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+
+.deckbuilder-confirm-panel {
+    background-color: rgb(22, 22, 35);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.2);
+    border-right-color: rgba(255, 255, 255, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    min-width: 400px;
+    align-items: center;
+}
+
+.deckbuilder-confirm-message {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(230, 230, 255);
+    -unity-text-align: middle-center;
+    margin-bottom: 28px;
+}
+
+.deckbuilder-confirm-buttons {
+    flex-direction: row;
+}
+
+.deckbuilder-confirm-button--no {
+    height: 52px;
+    min-width: 120px;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 220);
+    background-color: rgba(80, 80, 110, 0.8);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    margin-right: 16px;
+}
+
+.deckbuilder-confirm-button--no:hover {
+    background-color: rgba(100, 100, 140, 0.9);
+}
+
+.deckbuilder-confirm-button--yes {
+    height: 52px;
+    min-width: 120px;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(255, 200, 200);
+    background-color: rgba(200, 50, 50, 0.5);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.deckbuilder-confirm-button--yes:hover {
+    background-color: rgba(220, 60, 60, 0.8);
+}
+
 .deckbuilder-reorder-indicator {
     position: absolute;
     height: 3px;
