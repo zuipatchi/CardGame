@@ -29,6 +29,13 @@ namespace DeckBuilder
         private CardDetailModal _cardDetailModal;
         private DeckAnalysisModal _deckAnalysisModal;
         private bool _started;
+        private readonly List<string> _deckRowOrder = new List<string>();
+        private string _draggingId;
+        private VisualElement _reorderDragHandle;
+        private int _reorderDragPointerId = -1;
+        private VisualElement _reorderGhost;
+        private VisualElement _reorderIndicator;
+        private int _reorderInsertIndex;
 
         void IStartable.Start()
         {
@@ -184,6 +191,7 @@ namespace DeckBuilder
                 counts[id]++;
             }
 
+            _deckRowOrder.Clear();
             foreach (string id in order)
             {
                 if (!_cardDatabase.TryGet(id, out CardData cardData))
@@ -191,8 +199,15 @@ namespace DeckBuilder
                     continue;
                 }
 
+                _deckRowOrder.Add(id);
+
                 VisualElement row = new VisualElement();
                 row.AddToClassList("deckbuilder-deck-row");
+
+                Label handle = new Label("≡");
+                handle.AddToClassList("deckbuilder-deck-row-handle");
+                string capturedHandleId = id;
+                handle.RegisterCallback<PointerDownEvent>(evt => OnReorderHandlePointerDown(evt, capturedHandleId));
 
                 VisualElement thumbnail = new VisualElement();
                 thumbnail.AddToClassList("deckbuilder-deck-row-thumbnail");
@@ -227,6 +242,7 @@ namespace DeckBuilder
                     SaveDeck();
                 };
 
+                row.Add(handle);
                 row.Add(thumbnail);
                 row.Add(nameLabel);
                 row.Add(subtractButton);
@@ -247,6 +263,166 @@ namespace DeckBuilder
             {
                 _deckCountLabel.RemoveFromClassList("deckbuilder-deck-count--over");
             }
+        }
+
+        private void OnReorderHandlePointerDown(PointerDownEvent evt, string id)
+        {
+            if (evt.button != 0) { return; }
+            if (_draggingId != null) { return; }
+
+            _draggingId = id;
+            _reorderInsertIndex = _deckRowOrder.IndexOf(id);
+
+            _cardDatabase.TryGet(id, out CardData ghostCard);
+            string ghostName = ghostCard != null ? ghostCard.CardName : id;
+
+            _reorderGhost = new VisualElement();
+            _reorderGhost.AddToClassList("deckbuilder-reorder-ghost");
+            _reorderGhost.pickingMode = PickingMode.Ignore;
+            Label ghostLabel = new Label(ghostName);
+            ghostLabel.AddToClassList("deckbuilder-reorder-ghost-label");
+            _reorderGhost.Add(ghostLabel);
+            _cardListDragLayer.Add(_reorderGhost);
+            UpdateReorderGhostPosition(evt.position);
+
+            _reorderIndicator = new VisualElement();
+            _reorderIndicator.AddToClassList("deckbuilder-reorder-indicator");
+            _reorderIndicator.pickingMode = PickingMode.Ignore;
+            _reorderIndicator.style.display = DisplayStyle.None;
+            _cardListDragLayer.Add(_reorderIndicator);
+
+            VisualElement handle = (VisualElement)evt.currentTarget;
+            _reorderDragHandle = handle;
+            _reorderDragPointerId = evt.pointerId;
+            handle.CapturePointer(evt.pointerId);
+            handle.RegisterCallback<PointerMoveEvent>(OnReorderPointerMove);
+            handle.RegisterCallback<PointerUpEvent>(OnReorderPointerUp);
+            handle.RegisterCallback<PointerCancelEvent>(OnReorderPointerCancel);
+            handle.RegisterCallback<PointerCaptureOutEvent>(OnReorderPointerCaptureOut);
+
+            evt.StopPropagation();
+        }
+
+        private void UpdateReorderGhostPosition(Vector2 worldPos)
+        {
+            Vector2 local = _cardListDragLayer.WorldToLocal(worldPos);
+            _reorderGhost.style.left = local.x + 16f;
+            _reorderGhost.style.top = local.y - 16f;
+        }
+
+        private void OnReorderPointerMove(PointerMoveEvent evt)
+        {
+            if (_draggingId == null) { return; }
+            UpdateReorderGhostPosition(evt.position);
+            UpdateReorderInsertIndex(evt.position);
+            evt.StopPropagation();
+        }
+
+        private void UpdateReorderInsertIndex(Vector2 worldPos)
+        {
+            VisualElement content = _deckListScrollView.contentContainer;
+            int count = content.childCount;
+            _reorderInsertIndex = count;
+
+            for (int i = 0; i < count; i++)
+            {
+                Rect rowBound = content[i].worldBound;
+                if (worldPos.y < rowBound.yMin + rowBound.height * 0.5f)
+                {
+                    _reorderInsertIndex = i;
+                    break;
+                }
+            }
+
+            if (count == 0)
+            {
+                _reorderIndicator.style.display = DisplayStyle.None;
+                return;
+            }
+
+            float indicatorWorldY;
+            if (_reorderInsertIndex == 0)
+            {
+                indicatorWorldY = content[0].worldBound.yMin;
+            }
+            else
+            {
+                int prevIdx = _reorderInsertIndex - 1 < count ? _reorderInsertIndex - 1 : count - 1;
+                indicatorWorldY = content[prevIdx].worldBound.yMax;
+            }
+
+            Rect scrollBound = _deckListScrollView.worldBound;
+            Vector2 indicatorLocal = _cardListDragLayer.WorldToLocal(new Vector2(scrollBound.xMin, indicatorWorldY));
+
+            _reorderIndicator.style.display = DisplayStyle.Flex;
+            _reorderIndicator.style.left = indicatorLocal.x;
+            _reorderIndicator.style.top = indicatorLocal.y;
+            _reorderIndicator.style.width = scrollBound.width;
+        }
+
+        private void OnReorderPointerUp(PointerUpEvent evt)
+        {
+            ApplyReorder();
+            EndReorder();
+            evt.StopPropagation();
+        }
+
+        private void OnReorderPointerCancel(PointerCancelEvent evt)
+        {
+            EndReorder();
+        }
+
+        private void OnReorderPointerCaptureOut(PointerCaptureOutEvent evt)
+        {
+            EndReorder();
+        }
+
+        private void ApplyReorder()
+        {
+            if (_draggingId == null) { return; }
+
+            int currentIndex = _deckRowOrder.IndexOf(_draggingId);
+            int targetIndex = _reorderInsertIndex;
+
+            if (targetIndex == currentIndex || targetIndex == currentIndex + 1)
+            {
+                return;
+            }
+
+            List<string> newOrder = new List<string>(_deckRowOrder);
+            newOrder.RemoveAt(currentIndex);
+            int adjustedTarget = targetIndex > currentIndex ? targetIndex - 1 : targetIndex;
+            adjustedTarget = Mathf.Clamp(adjustedTarget, 0, newOrder.Count);
+            newOrder.Insert(adjustedTarget, _draggingId);
+
+            _deckModel.Reorder(newOrder);
+            RefreshDeckPanel();
+            SaveDeck();
+        }
+
+        private void EndReorder()
+        {
+            if (_reorderDragHandle == null) { return; }
+
+            VisualElement handle = _reorderDragHandle;
+            _reorderDragHandle = null;
+
+            if (handle.HasPointerCapture(_reorderDragPointerId))
+            {
+                handle.ReleasePointer(_reorderDragPointerId);
+            }
+            handle.UnregisterCallback<PointerMoveEvent>(OnReorderPointerMove);
+            handle.UnregisterCallback<PointerUpEvent>(OnReorderPointerUp);
+            handle.UnregisterCallback<PointerCancelEvent>(OnReorderPointerCancel);
+            handle.UnregisterCallback<PointerCaptureOutEvent>(OnReorderPointerCaptureOut);
+
+            _reorderDragPointerId = -1;
+            _reorderGhost?.RemoveFromHierarchy();
+            _reorderGhost = null;
+            _reorderIndicator?.RemoveFromHierarchy();
+            _reorderIndicator = null;
+            _draggingId = null;
+            _reorderInsertIndex = 0;
         }
     }
 }

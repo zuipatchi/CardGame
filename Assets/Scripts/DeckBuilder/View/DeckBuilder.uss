@@ -512,3 +512,47 @@
     right: 0;
     bottom: 0;
 }
+
+.deckbuilder-deck-row-handle {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgba(180, 180, 200, 0.45);
+    width: 24px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+    margin-right: 6px;
+    cursor: link;
+}
+
+.deckbuilder-deck-row-handle:hover {
+    color: rgba(200, 200, 220, 0.9);
+}
+
+.deckbuilder-reorder-ghost {
+    position: absolute;
+    background-color: rgba(60, 90, 180, 0.88);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.deckbuilder-reorder-ghost-label {
+    font-size: 20px;
+    color: rgb(220, 220, 255);
+    -unity-font-style: bold;
+}
+
+.deckbuilder-reorder-indicator {
+    position: absolute;
+    height: 3px;
+    background-color: rgb(80, 160, 255);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}

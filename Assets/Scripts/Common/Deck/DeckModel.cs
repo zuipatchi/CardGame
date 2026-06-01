@@ -61,5 +61,50 @@ namespace Common.Deck
         {
             _entries.Clear();
         }
+
+        public void Reorder(IReadOnlyList<string> orderedIds)
+        {
+            Dictionary<string, List<(string entryId, int entryCost)>> groups =
+                new Dictionary<string, List<(string entryId, int entryCost)>>();
+            List<string> originalOrder = new List<string>();
+
+            foreach ((string entryId, int entryCost) in _entries)
+            {
+                if (!groups.ContainsKey(entryId))
+                {
+                    groups[entryId] = new List<(string entryId, int entryCost)>();
+                    originalOrder.Add(entryId);
+                }
+                groups[entryId].Add((entryId, entryCost));
+            }
+
+            _entries.Clear();
+
+            HashSet<string> placed = new HashSet<string>();
+            foreach (string id in orderedIds)
+            {
+                if (!groups.TryGetValue(id, out List<(string entryId, int entryCost)> group))
+                {
+                    continue;
+                }
+                foreach ((string eId, int eCost) in group)
+                {
+                    _entries.Add((eId, eCost));
+                }
+                placed.Add(id);
+            }
+
+            foreach (string id in originalOrder)
+            {
+                if (placed.Contains(id))
+                {
+                    continue;
+                }
+                foreach ((string eId, int eCost) in groups[id])
+                {
+                    _entries.Add((eId, eCost));
+                }
+            }
+        }
     }
 }

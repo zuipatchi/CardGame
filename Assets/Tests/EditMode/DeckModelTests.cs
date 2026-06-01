@@ -206,5 +206,77 @@ namespace Tests.EditMode
             Assert.DoesNotThrow(() => model.Clear());
             Assert.AreEqual(0, model.Count);
         }
+
+        [Test]
+        public void Reorder_グループの順序が入れ替わる()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+            model.Add("E001", 2);
+
+            model.Reorder(new List<string> { "S001", "E001", "C001" });
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("S001", ids[0]);
+            Assert.AreEqual("E001", ids[1]);
+            Assert.AreEqual("C001", ids[2]);
+            Assert.AreEqual("C001", ids[3]);
+        }
+
+        [Test]
+        public void Reorder_指定外のIDは末尾に元の順序で残る()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+            model.Add("E001", 2);
+
+            model.Reorder(new List<string> { "E001" });
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("E001", ids[0]);
+            Assert.AreEqual("C001", ids[1]);
+            Assert.AreEqual("S001", ids[2]);
+        }
+
+        [Test]
+        public void Reorder_存在しないIDを指定しても例外が発生しない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+
+            Assert.DoesNotThrow(() => model.Reorder(new List<string> { "INVALID", "S001", "C001" }));
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("S001", ids[0]);
+            Assert.AreEqual("C001", ids[1]);
+        }
+
+        [Test]
+        public void Reorder_TotalCostが変化しない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 10);
+            model.Add("S001", 5);
+
+            model.Reorder(new List<string> { "S001", "C001" });
+
+            Assert.AreEqual(15, model.TotalCost);
+        }
+
+        [Test]
+        public void Reorder_枚数が変化しない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+
+            model.Reorder(new List<string> { "S001", "C001" });
+
+            Assert.AreEqual(3, model.Count);
+        }
     }
 }
