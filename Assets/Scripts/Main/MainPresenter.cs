@@ -397,7 +397,8 @@ namespace Main
                 _gameEndTitleButton.text = "ホームに戻る";
                 _gameEndTitleButton.AddToClassList("game-end-button");
                 _gameEndTitleButton.style.opacity = 0f;
-                _gameEndTitleButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
+                _gameEndTitleButton.clicked += () => LeaveSessionAndGoHomeAsync().Forget();
+
                 _gameEndOverlay.Add(_gameEndTitleButton);
                 mainRoot.Add(_gameEndOverlay);
 
@@ -590,6 +591,12 @@ namespace Main
                 drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
             }
             await UniTask.WhenAll(drawTasks);
+        }
+
+        private async UniTaskVoid LeaveSessionAndGoHomeAsync()
+        {
+            await _gameSessionModel.LeaveCurrentSessionAsync();
+            await _sceneTransitioner.Transit(Scenes.Home);
         }
 
         private void UpdatePhaseIndicator(TurnPhase phase)
