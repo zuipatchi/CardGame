@@ -2,6 +2,8 @@
     <Style src="Matching.uss" />
     <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center; padding-top: 100px; padding-right: 100px;">
 
+        <ui:Button name="BackButton" text="もどる" class="btn-secondary" style="position: absolute; top: 20px; left: 20px; width: 100px;" />
+
         <!-- メインカード -->
         <ui:VisualElement class="card" style="width: 640px; flex-direction: column;">
             <ui:Label text="ルーム選択" class="card__title" />

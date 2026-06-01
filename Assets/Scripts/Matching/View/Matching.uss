@@ -53,6 +53,11 @@
     -unity-text-align: middle-center;
 }
 
+.btn-accent:hover,
+.btn-accent:focus {
+    background-color: rgb(95, 118, 220);
+}
+
 .btn-secondary {
     background-color: rgba(255, 255, 255, 0.07);
     color: rgb(180, 180, 210);
@@ -74,6 +79,15 @@
     padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-left-color: rgba(255, 255, 255, 0.3);
+    border-right-color: rgba(255, 255, 255, 0.3);
+    border-top-color: rgba(255, 255, 255, 0.3);
+    border-bottom-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ─── Room list ─── */

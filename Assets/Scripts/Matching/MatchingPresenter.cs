@@ -22,6 +22,7 @@ namespace Matching
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
 
+        private Button _backButton;
         private ScrollView _roomList;
         private Button _quickMatchButton;
         private Button _createButton;
@@ -53,6 +54,7 @@ namespace Matching
             UIDocument uiDocument = GetComponent<UIDocument>();
             VisualElement root = uiDocument.rootVisualElement;
 
+            _backButton = root.Q<Button>("BackButton");
             _roomList = root.Q<ScrollView>("RoomList");
             _quickMatchButton = root.Q<Button>("QuickMatchButton");
             _createButton = root.Q<Button>("CreateButton");
@@ -69,6 +71,7 @@ namespace Matching
 
         void IStartable.Start()
         {
+            _backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
             _quickMatchButton.clicked += () => OnQuickMatchButtonClickedAsync().Forget();
             _createButton.clicked += () => OnCreateButtonClickedAsync().Forget();
             _refreshButton.clicked += () => RefreshWithCooldownAsync(destroyCancellationToken).Forget();
@@ -96,6 +99,7 @@ namespace Matching
             _loadingOverlay.style.display = isLoading ? DisplayStyle.Flex : DisplayStyle.None;
             _waitingOverlay.style.display = isWaiting ? DisplayStyle.Flex : DisplayStyle.None;
             _errorOverlay.style.display = isError ? DisplayStyle.Flex : DisplayStyle.None;
+            _backButton.SetEnabled(state is MatchingState.BrowsingRooms or MatchingState.Error or MatchingState.TimedOut);
 
             _loadingLabel.text = state switch
             {
