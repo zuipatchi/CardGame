@@ -77,7 +77,7 @@ public enum EventType
 
 **② `ApplyEventEffectAsync` にケースを追加する**（効果が他カードに干渉しない場合）
 
-[MainPresenter.Phases.cs](../Assets/Scripts/Main/MainPresenter.Phases.cs) の `ApplyEventEffectAsync` メソッドに `case CardEventType.YourNewEffect:` を追加して処理を実装する（ファイル先頭に `using CardEventType = Main.Card.EventType;` エイリアスあり）。
+[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ApplyEventEffectAsync` メソッドに `case CardEventType.YourNewEffect:` を追加して処理を実装する（ファイル先頭に `using CardEventType = Main.Card.EventType;` エイリアスあり）。
 
 - 同期処理のみ（AtkBoost / DefBoost 相当）なら `break` で完結
 - 非同期処理が必要（Draw 相当）なら `await SomeHelperAsync(...)` を呼んで `break`
@@ -85,7 +85,7 @@ public enum EventType
 
 **他カードの処理に干渉する効果（Negate 相当）の場合**
 
-`ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EventType == CardEventType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる。
+`ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EventType == CardEventType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる（[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs)）。
 
 演出もこの `else if` ブロック内に追加する。打ち消し対象（`queue[i - 1]`）への演出は `i > 0` をガードしてから呼ぶ。スキップされる側（`if (skipNextEffect)` ブロック）は現在演出なし。`Negate` は `PlayNegateEffectAsync` が参考実装。
 
@@ -135,7 +135,7 @@ public void BeginYourNewPhase() { Phase = TurnPhase.YourNewPhase; }
 
 **③ `MainPresenter.Phases.cs` にフェーズ処理を追加する**
 
-[MainPresenter.Phases.cs](../Assets/Scripts/Main/MainPresenter.Phases.cs) の `RunTurnAsync` 内の適切な位置に以下を追加し、`RunYourNewPhaseAsync` を実装する:
+[MainPresenter.Phases.cs](../Assets/Scripts/Main/MainPresenter.Phases.cs) の `RunTurnAsync` 内の適切な位置に呼び出しを追加し、新しいファイル（例: `MainPresenter.Phases.YourNewPhase.cs`）に `partial class MainPresenter` として `RunYourNewPhaseAsync` を実装する:
 
 ```csharp
 _gameModel.BeginYourNewPhase();
@@ -186,7 +186,7 @@ builder.Register<YourService>(Lifetime.Scoped);
 
 ## 5. CPU の判断ロジックを変更・追加する
 
-[CpuAgent.cs](../Assets/Scripts/Main/Game/CpuAgent.cs) に静的メソッドを追加し、[MainPresenter.Phases.cs](../Assets/Scripts/Main/MainPresenter.Phases.cs) の対応フェーズメソッドから呼ぶ。
+[CpuAgent.cs](../Assets/Scripts/Main/Game/CpuAgent.cs) に静的メソッドを追加し、対応するフェーズファイル（`MainPresenter.Phases.*.cs`）の該当フェーズメソッドから呼ぶ。
 
 `CpuAgent` はステートレスな静的クラス。手札（`IReadOnlyList<CardData>`）を受け取ってインデックスを返す設計。`-1` でパス・対象なしを表す。
 
