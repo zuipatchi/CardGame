@@ -292,6 +292,11 @@ namespace Main
                 catch (OperationCanceledException) { }
             }
 
+            if (playerWins == false && _rainDefeatEffectPrefab != null)
+            {
+                _rainDefeatEffect = Instantiate(_rainDefeatEffectPrefab, new Vector3(0f, 15f, 0f), Quaternion.identity);
+            }
+
             string text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
             string labelClass = playerWins == null ? "game-end-label--draw"
                 : playerWins.Value ? "game-end-label--win" : "game-end-label--lose";

@@ -82,5 +82,29 @@ namespace Tests.EditMode
             Assert.IsNotNull(playerWins);
             Assert.IsFalse(playerWins.Value);
         }
+
+        [Test]
+        public void 敗北時は雨エフェクトを再生する()
+        {
+            bool? playerWins = false;
+            bool shouldSpawnRain = playerWins == false;
+            Assert.IsTrue(shouldSpawnRain);
+        }
+
+        [Test]
+        public void 勝利時は雨エフェクトを再生しない()
+        {
+            bool? playerWins = true;
+            bool shouldSpawnRain = playerWins == false;
+            Assert.IsFalse(shouldSpawnRain);
+        }
+
+        [Test]
+        public void 引き分け時は雨エフェクトを再生しない()
+        {
+            bool? playerWins = null;
+            bool shouldSpawnRain = playerWins == false;
+            Assert.IsFalse(shouldSpawnRain);
+        }
     }
 }

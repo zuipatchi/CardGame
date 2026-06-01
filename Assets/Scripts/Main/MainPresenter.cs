@@ -82,6 +82,7 @@ namespace Main
         [SerializeField] private GameObject _recoverEffectPrefab;
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
+        [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
         private VisualElement _phaseRowDraw;
@@ -102,6 +103,8 @@ namespace Main
         private int _opponentAtkBoost;
         private int _playerDefBoost;
         private int _opponentDefBoost;
+
+        private GameObject _rainDefeatEffect;
 
         private bool _onlineIsLocalFirst;
         private bool _localHasPriority;
@@ -659,6 +662,10 @@ namespace Main
                 _optionPresenter.ClearSurrenderHandler();
             }
             _surrenderCts?.Dispose();
+            if (_rainDefeatEffect != null)
+            {
+                Destroy(_rainDefeatEffect);
+            }
         }
 
         private void UpdatePhaseIndicator(TurnPhase phase)
