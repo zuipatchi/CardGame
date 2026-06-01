@@ -162,6 +162,8 @@
 
 .card-detail-stat-icon--def {
     background-image: url("../../../AddressableAssets/Icon/ShieldIcon.png");
+    width: 53px;
+    height: 53px;
 }
 
 .card-detail-stat-icon--hp {

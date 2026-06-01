@@ -184,8 +184,8 @@
 
 .game-card__def-area {
     position: relative;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
 }
 
 .game-card__shield-icon {
