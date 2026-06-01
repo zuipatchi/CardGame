@@ -107,6 +107,12 @@ namespace Main
             firstAtkOverlay.style.display = DisplayStyle.None;
             firstTarget.DefOverlay.style.display = DisplayStyle.None;
 
+            if (firstAtk > 0 && firstDamage == 0)
+            {
+                await PlayFloatingLabelAsync("GUARD", "guard-label", firstTarget, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            }
+
             CardView firstDestroyedChar = null;
             Rect firstDestroyedFromRect = default;
             if (firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp)
@@ -176,6 +182,12 @@ namespace Main
             }
             secondAtkOverlay.style.display = DisplayStyle.None;
             secondTarget.DefOverlay.style.display = DisplayStyle.None;
+
+            if (secondAtk > 0 && secondDamage == 0)
+            {
+                await PlayFloatingLabelAsync("GUARD", "guard-label", secondTarget, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            }
 
             CardView secondDestroyedChar = null;
             Rect secondDestroyedFromRect = default;
