@@ -21,6 +21,7 @@ namespace Main.Network
         private const string k_PreBattle1 = "NGS_PreBattle1";
         private const string k_PreBattle2 = "NGS_PreBattle2";
         private const string k_Draw = "NGS_Draw";
+        private const string k_Surrender = "NGS_Surrender";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
@@ -402,6 +403,39 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
+        public void SendSurrenderNotification()
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
+            {
+                messaging.SendNamedMessage(k_Surrender, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask WaitForOpponentSurrenderAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+
+            void OnSurrender(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_Surrender);
+                tcs.TrySetResult();
+            }
+
+            messaging.RegisterNamedMessageHandler(k_Surrender, OnSurrender);
+            await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void Dispose()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -422,6 +456,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_PreBattle1);
             m.UnregisterNamedMessageHandler(k_PreBattle2);
             m.UnregisterNamedMessageHandler(k_Draw);
+            m.UnregisterNamedMessageHandler(k_Surrender);
         }
 
         [Serializable]

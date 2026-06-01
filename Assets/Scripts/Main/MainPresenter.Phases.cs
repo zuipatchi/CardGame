@@ -110,9 +110,9 @@ namespace Main
             }
         }
 
-        private void OnGameEnd(bool? playerWins)
+        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false)
         {
-            PlayGameEndAsync(playerWins, destroyCancellationToken).Forget();
+            PlayGameEndAsync(playerWins, isSurrenderWin, destroyCancellationToken).Forget();
         }
     }
 }

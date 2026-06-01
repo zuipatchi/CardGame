@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Common.Deck;
 using Common.GameSession;
+using Common.Option;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -38,6 +39,7 @@ namespace Main
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
         private NetworkGameService _networkGameService;
+        private OptionPresenter _optionPresenter;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -66,7 +68,9 @@ namespace Main
         private Label _costWarningLabel;
         private VisualElement _gameEndOverlay;
         private Label _gameEndLabel;
+        private Label _gameEndSubLabel;
         private Button _gameEndTitleButton;
+        private CancellationTokenSource _surrenderCts;
 
         [SerializeField] private GameObject _fireworkPrefab;
         [SerializeField] private GameObject _costEffectPrefab;
@@ -128,7 +132,8 @@ namespace Main
             GameModel gameModel,
             SceneTransitioner sceneTransitioner,
             GameSessionModel gameSessionModel,
-            NetworkGameService networkGameService)
+            NetworkGameService networkGameService,
+            OptionPresenter optionPresenter)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
@@ -137,6 +142,7 @@ namespace Main
             _sceneTransitioner = sceneTransitioner;
             _gameSessionModel = gameSessionModel;
             _networkGameService = networkGameService;
+            _optionPresenter = optionPresenter;
         }
 
         void IStartable.Start()
@@ -156,6 +162,8 @@ namespace Main
                 }
 
                 CancellationToken destroyCt = destroyCancellationToken;
+
+                _optionPresenter.SetSurrenderHandler(Surrender);
 
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 _mainRoot = root.Q<VisualElement>("MainRoot");
@@ -239,6 +247,7 @@ namespace Main
                     for (int i = 0; i < cpuHandCards.Length; i++) cpuHandCards[i] = placeholder;
                     cpuDeckCards = new CardData[state.OpponentDeckCount];
                     for (int i = 0; i < cpuDeckCards.Length; i++) cpuDeckCards[i] = placeholder;
+                    WatchForOpponentSurrenderAsync(destroyCt).Forget();
                 }
                 else
                 {
@@ -393,6 +402,11 @@ namespace Main
                 _gameEndLabel.AddToClassList("game-end-label");
                 _gameEndLabel.pickingMode = PickingMode.Ignore;
                 _gameEndOverlay.Add(_gameEndLabel);
+                _gameEndSubLabel = new Label();
+                _gameEndSubLabel.AddToClassList("game-end-sub-label");
+                _gameEndSubLabel.pickingMode = PickingMode.Ignore;
+                _gameEndSubLabel.style.display = DisplayStyle.None;
+                _gameEndOverlay.Add(_gameEndSubLabel);
                 _gameEndTitleButton = new Button();
                 _gameEndTitleButton.text = "ホームに戻る";
                 _gameEndTitleButton.AddToClassList("game-end-button");
@@ -480,7 +494,9 @@ namespace Main
                 }
 
                 await InitializePriorityAsync(ct);
-                RunGameAsync(ct).Forget();
+
+                _surrenderCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCt);
+                RunGameAsync(_surrenderCts.Token).Forget();
             }
             catch (System.OperationCanceledException)
             {
@@ -597,6 +613,52 @@ namespace Main
         {
             await _gameSessionModel.LeaveCurrentSessionAsync();
             await _sceneTransitioner.Transit(Scenes.Home);
+        }
+
+        private void Surrender()
+        {
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            _isGameOver = true;
+            _surrenderCts?.Cancel();
+            if (_isOnline)
+            {
+                _networkGameService.SendSurrenderNotification();
+            }
+            OnGameEnd(playerWins: false);
+        }
+
+        private async UniTaskVoid WatchForOpponentSurrenderAsync(CancellationToken ct)
+        {
+            try
+            {
+                await _networkGameService.WaitForOpponentSurrenderAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            _isGameOver = true;
+            _surrenderCts?.Cancel();
+            OnGameEnd(playerWins: true, isSurrenderWin: true);
+        }
+
+        private void OnDestroy()
+        {
+            if (_optionPresenter != null)
+            {
+                _optionPresenter.ClearSurrenderHandler();
+            }
+            _surrenderCts?.Dispose();
         }
 
         private void UpdatePhaseIndicator(TurnPhase phase)

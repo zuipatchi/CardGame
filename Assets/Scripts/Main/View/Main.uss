@@ -777,6 +777,14 @@
     color: rgb(160, 160, 180);
 }
 
+.game-end-sub-label {
+    font-size: 24px;
+    color: rgb(210, 210, 210);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 32px;
+}
+
 .game-end-button {
     height: 64px;
     min-width: 200px;

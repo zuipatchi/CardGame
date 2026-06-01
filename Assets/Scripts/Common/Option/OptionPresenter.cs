@@ -1,3 +1,4 @@
+using System;
 using Common.SceneManagement;
 using Common.Store;
 using Cysharp.Threading.Tasks;
@@ -19,6 +20,10 @@ namespace Common.Option
         private VisualElement _overlay;
         private VisualElement _host;
         private readonly CompositeDisposable _disposables = new();
+        private Button _backToTitleButton;
+        private Action _surrenderAction;
+        private Action _pendingSurrenderAction;
+        private VisualElement _surrenderConfirmOverlay;
 
         [Inject]
         public void Construct(ModalStore modalStore, OptionModel optionModel, SceneTransitioner sceneTransitioner)
@@ -69,8 +74,8 @@ namespace Common.Option
             Button closeButton = modal.Q<Button>("CloseButton");
             closeButton.clicked += CloseModal;
 
-            Button backToTitleButton = modal.Q<Button>("BackToTitleButton");
-            backToTitleButton.clicked += BackToTitle;
+            _backToTitleButton = modal.Q<Button>("BackToTitleButton");
+            _backToTitleButton.clicked += BackToTitle;
 
             Slider bgmSlider = modal.Q<Slider>("BGMSlider");
             bgmSlider.value = _optionModel.BGMVolume.CurrentValue;
@@ -91,7 +96,100 @@ namespace Common.Option
             seSlider.RegisterValueChangedCallback(OnSESliderChange);
 
             _host.Add(modal);
+
+            _surrenderConfirmOverlay = BuildSurrenderConfirmOverlay();
+            _overlay.Add(_surrenderConfirmOverlay);
+
             _overlay.style.display = DisplayStyle.None;
+
+            if (_pendingSurrenderAction != null)
+            {
+                ApplySurrenderHandler(_pendingSurrenderAction);
+                _pendingSurrenderAction = null;
+            }
+        }
+
+        private VisualElement BuildSurrenderConfirmOverlay()
+        {
+            VisualElement overlay = new VisualElement();
+            overlay.style.position = Position.Absolute;
+            overlay.style.left = 0;
+            overlay.style.right = 0;
+            overlay.style.top = 0;
+            overlay.style.bottom = 0;
+            overlay.style.backgroundColor = new StyleColor(new Color(0f, 0f, 0f, 0.65f));
+            overlay.style.alignItems = Align.Center;
+            overlay.style.justifyContent = Justify.Center;
+            overlay.style.display = DisplayStyle.None;
+
+            VisualElement panel = new VisualElement();
+            panel.style.backgroundColor = new StyleColor(new Color(0.12f, 0.12f, 0.18f, 1f));
+            panel.style.borderTopLeftRadius = 12f;
+            panel.style.borderTopRightRadius = 12f;
+            panel.style.borderBottomLeftRadius = 12f;
+            panel.style.borderBottomRightRadius = 12f;
+            panel.style.paddingTop = 32f;
+            panel.style.paddingBottom = 32f;
+            panel.style.paddingLeft = 48f;
+            panel.style.paddingRight = 48f;
+            panel.style.alignItems = Align.Center;
+
+            Label label = new Label("本当にサレンダーしますか？");
+            label.style.fontSize = 22f;
+            label.style.color = new StyleColor(new Color(0.9f, 0.9f, 0.9f, 1f));
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.marginBottom = 28f;
+            panel.Add(label);
+
+            VisualElement row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+
+            Button yesButton = new Button(OnSurrenderConfirmed);
+            yesButton.text = "はい";
+            StyleSurrenderConfirmButton(yesButton, new Color(0.7f, 0.15f, 0.15f, 1f));
+            row.Add(yesButton);
+
+            Button noButton = new Button(HideSurrenderConfirm);
+            noButton.text = "いいえ";
+            StyleSurrenderConfirmButton(noButton, new Color(0.25f, 0.25f, 0.4f, 1f));
+            noButton.style.marginLeft = 16f;
+            row.Add(noButton);
+
+            panel.Add(row);
+            overlay.Add(panel);
+            return overlay;
+        }
+
+        private static void StyleSurrenderConfirmButton(Button button, Color bgColor)
+        {
+            button.style.fontSize = 18f;
+            button.style.unityFontStyleAndWeight = FontStyle.Bold;
+            button.style.color = new StyleColor(Color.white);
+            button.style.backgroundColor = new StyleColor(bgColor);
+            button.style.paddingTop = 10f;
+            button.style.paddingBottom = 10f;
+            button.style.paddingLeft = 28f;
+            button.style.paddingRight = 28f;
+            button.style.borderTopLeftRadius = 8f;
+            button.style.borderTopRightRadius = 8f;
+            button.style.borderBottomLeftRadius = 8f;
+            button.style.borderBottomRightRadius = 8f;
+            button.style.borderTopWidth = 0f;
+            button.style.borderRightWidth = 0f;
+            button.style.borderBottomWidth = 0f;
+            button.style.borderLeftWidth = 0f;
+        }
+
+        private void HideSurrenderConfirm()
+        {
+            _surrenderConfirmOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void OnSurrenderConfirmed()
+        {
+            HideSurrenderConfirm();
+            CloseModal();
+            _surrenderAction?.Invoke();
         }
 
         private void OpenModal()
@@ -101,7 +199,55 @@ namespace Common.Option
 
         private void CloseModal()
         {
+            if (_surrenderConfirmOverlay != null)
+            {
+                _surrenderConfirmOverlay.style.display = DisplayStyle.None;
+            }
             _overlay.style.display = DisplayStyle.None;
+        }
+
+        public void SetSurrenderHandler(Action surrenderAction)
+        {
+            if (_backToTitleButton == null)
+            {
+                _pendingSurrenderAction = surrenderAction;
+                return;
+            }
+
+            ApplySurrenderHandler(surrenderAction);
+        }
+
+        private void ApplySurrenderHandler(Action surrenderAction)
+        {
+            _surrenderAction = surrenderAction;
+            _backToTitleButton.text = "サレンダー";
+            _backToTitleButton.clicked -= BackToTitle;
+            _backToTitleButton.clicked -= OnSurrenderButtonClicked;
+            _backToTitleButton.clicked += OnSurrenderButtonClicked;
+        }
+
+        public void ClearSurrenderHandler()
+        {
+            if (_backToTitleButton == null)
+            {
+                return;
+            }
+
+            _surrenderAction = null;
+            _backToTitleButton.text = "タイトルへ戻る";
+            _backToTitleButton.clicked -= OnSurrenderButtonClicked;
+            _backToTitleButton.clicked -= BackToTitle;
+            _backToTitleButton.clicked += BackToTitle;
+        }
+
+        private void OnSurrenderButtonClicked()
+        {
+            if (_surrenderConfirmOverlay == null)
+            {
+                return;
+            }
+
+            _surrenderConfirmOverlay.style.display = DisplayStyle.Flex;
         }
 
         private void BackToTitle()

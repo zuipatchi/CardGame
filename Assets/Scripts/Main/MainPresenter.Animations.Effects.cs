@@ -282,7 +282,7 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
-        private async UniTask PlayGameEndAsync(bool? playerWins, CancellationToken ct)
+        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, CancellationToken ct)
         {
             if (playerWins == true && _fireworkPrefab != null)
             {
@@ -302,6 +302,16 @@ namespace Main
             _gameEndLabel.RemoveFromClassList("game-end-label--draw");
             _gameEndLabel.AddToClassList(labelClass);
             _gameEndLabel.style.scale = new Scale(new Vector3(0.3f, 0.3f, 1f));
+
+            if (isSurrenderWin)
+            {
+                _gameEndSubLabel.text = "対戦相手がサレンダーしました";
+                _gameEndSubLabel.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                _gameEndSubLabel.style.display = DisplayStyle.None;
+            }
 
             _gameEndTitleButton.style.opacity = 0f;
             _gameEndOverlay.style.display = DisplayStyle.Flex;
