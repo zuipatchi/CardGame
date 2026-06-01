@@ -28,11 +28,6 @@ namespace Main
 
             await PlayAnnouncementAsync("FIGHT", "turn-announcement-label--fight", ct);
 
-            UniTask[] flipTasks = playerCards.Concat(opponentCards).Select(c => c.FlipAsync(ct)).ToArray();
-            await UniTask.WhenAll(flipTasks);
-
-            await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
-
             // 素早さ同値で優先権を行使した場合：演出後に優先権を移譲
             if (priorityUsed)
             {
@@ -49,6 +44,10 @@ namespace Main
             List<CardView> secondCards = isLocalFirst ? opponentCards : playerCards;
             DeckView secondDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
             GraveyardView secondGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
+
+            UniTask[] firstFlipTasks = firstCards.Select(c => c.FlipAsync(ct)).ToArray();
+            await UniTask.WhenAll(firstFlipTasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
             List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
             List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
@@ -158,6 +157,13 @@ namespace Main
             {
                 secondAtk = 0;
                 secondDamage = 0;
+            }
+
+            if (secondCards.Count > 0)
+            {
+                UniTask[] secondFlipTasks = secondCards.Select(c => c.FlipAsync(ct)).ToArray();
+                await UniTask.WhenAll(secondFlipTasks);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
             }
 
             // 後攻のコスト払い → ATKカウントアップ
