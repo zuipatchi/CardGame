@@ -23,7 +23,7 @@ MonoBehaviour:
     _speed: 1
     _hp: 1
   - _id: C002
-    _cardName: "\u30C9\u30E9\u30B4\u30F3"
+    _cardName: "\u30D1\u30C3\u30C1\u30C9\u30E9\u30B4\u30F3"
     _cost: 5
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
     _attribute: 1
@@ -32,7 +32,7 @@ MonoBehaviour:
     _speed: 2
     _hp: 3
   - _id: C003
-    _cardName: "\u30B4\u30D6\u30EA\u30F3"
+    _cardName: "\u30B4\u30D6\u30EA\u30F3\u30D1\u30C3\u30C1"
     _cost: 2
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
     _attribute: 2
@@ -59,7 +59,7 @@ MonoBehaviour:
     _speed: 1
     _hp: 3
   - _id: C006
-    _cardName: "\u6BD2\u866B"
+    _cardName: "\u3071\u3061\u866B"
     _cost: 1
     _image: {fileID: 21300000, guid: bcec6bde5394392488dac211d96b2002, type: 3}
     _attribute: 2
@@ -81,8 +81,8 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
     _attribute: 3
-    _attack: 3
-    _defense: 2
+    _attack: 2
+    _defense: 3
     _speed: 1
     _hp: 2
   - _id: C009
@@ -90,8 +90,8 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
     _attribute: 3
-    _attack: 1
-    _defense: 1
+    _attack: 0
+    _defense: 2
     _speed: 1
     _hp: 1
   - _id: C010
