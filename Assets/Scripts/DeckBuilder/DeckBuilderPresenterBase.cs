@@ -76,9 +76,11 @@ namespace DeckBuilder
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 _costOverLabel = root.Q<Label>("CostOverLabel");
                 Button backButton = root.Q<Button>("BackButton");
+                Button sortDeckButton = root.Q<Button>("SortDeckButton");
 
                 backButton.clicked += NavigateBack;
                 _clearDeckButton.clicked += OnClearDeckClicked;
+                sortDeckButton.clicked += OnSortDeckClicked;
 
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
@@ -162,6 +164,13 @@ namespace DeckBuilder
         private void OnRemoveClicked(string id)
         {
             _deckModel.Remove(id);
+            RefreshDeckPanel();
+            SaveDeck();
+        }
+
+        private void OnSortDeckClicked()
+        {
+            _deckModel.SortById();
             RefreshDeckPanel();
             SaveDeck();
         }

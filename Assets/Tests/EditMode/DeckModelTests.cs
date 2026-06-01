@@ -208,6 +208,93 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void SortById_C系カードがS系より先に並ぶ()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("S001", 3);
+            model.Add("C001", 5);
+
+            model.SortById();
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("C001", ids[0]);
+            Assert.AreEqual("S001", ids[1]);
+        }
+
+        [Test]
+        public void SortById_S系カードがE系より先に並ぶ()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("E001", 2);
+            model.Add("S001", 3);
+
+            model.SortById();
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("S001", ids[0]);
+            Assert.AreEqual("E001", ids[1]);
+        }
+
+        [Test]
+        public void SortById_同一プレフィックス内はID文字列順()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C003", 3);
+            model.Add("C001", 5);
+            model.Add("C002", 4);
+
+            model.SortById();
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("C001", ids[0]);
+            Assert.AreEqual("C002", ids[1]);
+            Assert.AreEqual("C003", ids[2]);
+        }
+
+        [Test]
+        public void SortById_TotalCostが変化しない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("S001", 3);
+            model.Add("C001", 10);
+            model.Add("E001", 2);
+
+            model.SortById();
+
+            Assert.AreEqual(15, model.TotalCost);
+        }
+
+        [Test]
+        public void SortById_枚数が変化しない()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("S001", 3);
+            model.Add("C001", 5);
+            model.Add("C001", 5);
+            model.Add("E001", 2);
+
+            model.SortById();
+
+            Assert.AreEqual(4, model.Count);
+        }
+
+        [Test]
+        public void SortById_複数枚の同一カードがソート後も隣接している()
+        {
+            DeckModel model = new DeckModel();
+            model.Add("C001", 5);
+            model.Add("S001", 3);
+            model.Add("C001", 5);
+
+            model.SortById();
+
+            IReadOnlyList<string> ids = model.CardIds;
+            Assert.AreEqual("C001", ids[0]);
+            Assert.AreEqual("C001", ids[1]);
+            Assert.AreEqual("S001", ids[2]);
+        }
+
+        [Test]
         public void Reorder_グループの順序が入れ替わる()
         {
             DeckModel model = new DeckModel();

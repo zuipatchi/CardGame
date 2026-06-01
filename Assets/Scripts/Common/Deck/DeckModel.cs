@@ -62,6 +62,37 @@ namespace Common.Deck
             _entries.Clear();
         }
 
+        public void SortById()
+        {
+            _entries.Sort((a, b) =>
+            {
+                int orderA = GetIdSortOrder(a.id);
+                int orderB = GetIdSortOrder(b.id);
+                if (orderA != orderB)
+                {
+                    return orderA.CompareTo(orderB);
+                }
+                return string.Compare(a.id, b.id, System.StringComparison.Ordinal);
+            });
+        }
+
+        private static int GetIdSortOrder(string id)
+        {
+            if (id.StartsWith("C"))
+            {
+                return 0;
+            }
+            if (id.StartsWith("S"))
+            {
+                return 1;
+            }
+            if (id.StartsWith("E"))
+            {
+                return 2;
+            }
+            return 3;
+        }
+
         public void Reorder(IReadOnlyList<string> orderedIds)
         {
             Dictionary<string, List<(string entryId, int entryCost)>> groups =
