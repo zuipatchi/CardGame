@@ -20,9 +20,9 @@
   - Ambient Glows エフェクト（TitleAmbientGlowPresenter）：CFXR3 Ambient Glows を背景の上（SortingOrder=-50）・UI Toolkit の下にスポーン。EmissionRate 調整は ParticleSystem コンポーネントまたはスクリプトで multiplier 指定
 - ホームシーン（Title → Home → DeckBuilder / Main / Matching の中継ハブ）
   - 「デッキ編集」「CPU対戦」「オンライン対戦」への遷移ボタン（カードパネル風デザイン・ホバーアニメーション・右寄せ配置）。コスト不足・コストオーバー時に対戦・マッチングボタンを押すとトーストを表示して遷移をブロック
-  - Live2D キャラクター（Dog-kid）表示：画面左側に配置。登録した全モーションからランダムに再生→終了後に次をランダム選択のループ（AnimatorController 使用・FadeMotionList なし・CubismFadeController 無効化）
+  - Live2D キャラクター（Dog-kid）表示：画面左側に配置。通常時は登録した全モーションからランダムに再生→終了後に次をランダム選択のループ。雨天時は `_sadClip` をループ再生（AnimatorController 使用・FadeMotionList なし・CubismFadeController 無効化）
   - 食べ物スポーン・食事演出：画面左半分クリックで Food Live2D プレハブをスポーン（同時に最大1体・食べ終わるまで次はスポーン不可）。犬が歩いて近づき Eat アニメーションを同時再生、Food の Eat アニメーション終了後に削除（Dog-kid より前面表示）
-  - 対戦結果連動天気演出：直前の対戦で負けた場合のみホーム遷移時に雨を表示し、表示後はリセット（次に負けるまで晴れ）。雨天時は vfx_Rain_01 パーティクルエフェクト（Y=15）と画面全体を暗くするオーバーレイ（rgba(0,0,0,0.4)）を表示。雨エフェクトは Live2D より前面に描画（Order in Layer: 19）
+  - 対戦結果連動天気演出：直前の対戦で負けた場合のみホーム遷移時に雨を表示し、表示後はリセット（次に負けるまで晴れ）。雨天時は vfx_Rain_01 パーティクルエフェクト（Y=15）と画面全体を暗くするオーバーレイ（rgba(0,0,0,0.4)）を表示。雨エフェクトは Live2D より前面に描画（Order in Layer: 19）。Dog-kid は Sad アニメーションを再生
 - BGMとSEの再生機能
 - シーン管理機能（Commonシーンをベースに他のシーンを使用する）
   - フェードイン/アウトによる画面遷移演出
