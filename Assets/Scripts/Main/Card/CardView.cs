@@ -86,16 +86,25 @@ namespace Main.Card
             _cardRoot.style.borderRightColor = StyleKeyword.Null;
             _cardRoot.style.borderBottomColor = StyleKeyword.Null;
             _cardRoot.style.borderLeftColor = StyleKeyword.Null;
+            _cardRoot.style.borderTopWidth = StyleKeyword.Null;
+            _cardRoot.style.borderRightWidth = StyleKeyword.Null;
+            _cardRoot.style.borderBottomWidth = StyleKeyword.Null;
+            _cardRoot.style.borderLeftWidth = StyleKeyword.Null;
             if (!playable)
             {
                 return;
             }
 
+            _cardRoot.style.borderTopWidth = 4f;
+            _cardRoot.style.borderRightWidth = 4f;
+            _cardRoot.style.borderBottomWidth = 4f;
+            _cardRoot.style.borderLeftWidth = 4f;
+
             Color typeColor = Data is CharacterCardData
-                ? new Color(0.274f, 0.510f, 0.902f, 1f)
+                ? new Color(0.1f, 0.6f, 1.0f, 1f)
                 : Data is SkillCardData
-                    ? new Color(0.863f, 0.235f, 0.235f, 1f)
-                    : new Color(0.824f, 0.725f, 0.196f, 1f);
+                    ? new Color(1.0f, 0.2f, 0.2f, 1f)
+                    : new Color(1.0f, 0.9f, 0.1f, 1f);
 
             float t = 0f;
             _playableHighlightTween = DOTween.To(
