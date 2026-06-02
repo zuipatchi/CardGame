@@ -40,10 +40,11 @@ Title → Matching → Main
 
 | 要素 | 名前 | 有効状態 |
 |---|---|---|
-| もどるボタン（左上） | `BackButton` | `BrowsingRooms` / `Error` / `TimedOut` のみ |
+| ホームへボタン（カード左下） | `BackButton` | `BrowsingRooms` / `Error` / `TimedOut` のみ |
 | クイックマッチボタン | `QuickMatchButton` | `BrowsingRooms` のみ |
 | ルーム作成ボタン | `CreateButton` | `BrowsingRooms` のみ |
-| 更新ボタン | `RefreshButton` | `BrowsingRooms` のみ |
+
+ルーム一覧は `BrowsingRooms` 状態中に 2 秒間隔で自動更新される（手動更新ボタンなし）。
 
 ---
 
