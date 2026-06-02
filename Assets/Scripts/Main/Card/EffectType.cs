@@ -10,5 +10,6 @@ namespace Main.Card
         BanishChar,
         Recover,
         Switch,
+        CharDamage,
     }
 }

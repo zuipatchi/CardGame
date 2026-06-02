@@ -7,6 +7,7 @@ using Main.Card;
 using Main.Game;
 using CardEventType = Main.Card.EventType;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Main
 {
@@ -157,6 +158,71 @@ namespace Main
                 case CardEventType.Switch:
                     await ApplySwitchEffectAsync(isLocal, ct);
                     break;
+                case CardEventType.CharDamage:
+                    await ApplyCharDamageAsync(data.EventValue, isLocal, ct);
+                    break;
+            }
+        }
+
+        private async UniTask ApplyCharDamageAsync(int baseAtk, bool isLocal, CancellationToken ct)
+        {
+            CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+            DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
+            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+            int defBoost = isLocal ? _opponentDefBoost : _playerDefBoost;
+            int effectiveDef = targetSlot.CurrentCard != null ? targetSlot.Defense + defBoost : 0;
+            int damage = Mathf.Max(0, baseAtk - effectiveDef);
+
+            if (targetSlot.CurrentCard != null)
+            {
+                targetSlot.SetDefValue(effectiveDef);
+                targetSlot.DefOverlay.BringToFront();
+                targetSlot.DefOverlay.style.opacity = 1f;
+                targetSlot.DefOverlay.style.display = DisplayStyle.Flex;
+            }
+
+            if (damage == 0)
+            {
+                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetSlot, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                targetSlot.DefOverlay.style.display = DisplayStyle.None;
+                return;
+            }
+
+            if (targetSlot.CurrentCard != null && _charDamageEffectPrefab != null)
+            {
+                await PlayParticleAtCardAsync(targetSlot.CurrentCard, _charDamageEffectPrefab, ct);
+            }
+
+            CardView destroyedChar = null;
+            Rect destroyedFromRect = default;
+            if (targetSlot.CurrentCard != null && damage >= targetSlot.Hp)
+            {
+                await PlayCharDestroyEffectAsync(targetSlot, ct);
+                destroyedChar = targetSlot.CurrentCard;
+                destroyedFromRect = destroyedChar.worldBound;
+                targetSlot.RemoveCard();
+            }
+
+            Rect targetDeckRect = targetDeck.worldBound;
+            List<UniTask> flyTasks = new List<UniTask>();
+            if (destroyedChar != null)
+            {
+                flyTasks.Add(FlyToGraveyardAsync(destroyedChar, destroyedFromRect, targetGraveyard, ct,
+                    DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
+            }
+            flyTasks.Add(PlayDamageNumberFlyAsync(damage, targetSlot.worldBound.center, targetDeck, ct));
+            await UniTask.WhenAll(flyTasks);
+
+            List<CardView> damageCards = targetDeck.TakeFromTop(damage);
+            await PlayDeckDamageAsync(damageCards, targetDeckRect, targetGraveyard, targetDeck, ct);
+            targetSlot.DefOverlay.style.display = DisplayStyle.None;
+            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+
+            if (targetDeck.Count == 0)
+            {
+                _isGameOver = true;
+                OnGameEnd(isLocal);
             }
         }
 
