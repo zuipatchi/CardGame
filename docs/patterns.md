@@ -71,6 +71,7 @@ public enum EventType
     BanishChar,
     Recover,
     Switch,
+    CharDamage,
     YourNewEffect,  // ← 追加
 }
 ```
