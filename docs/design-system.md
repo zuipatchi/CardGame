@@ -97,9 +97,11 @@ USS クラス定義の実装例は [Assets/Scripts/Matching/View/Matching.uss](.
 
 ### ボタン
 
+実装例: [Assets/AddressableAssets/Modal/Modal.uss](../Assets/AddressableAssets/Modal/Modal.uss)
+
 ```css
-/* アクセントボタン（主要アクション） */
-.btn-accent {
+/* プライマリボタン（主要アクション） */
+.modal-btn-primary {
     background-color: rgb(70, 90, 180);
     color: rgb(255, 255, 255);
     border-top-left-radius: 8px; /* 他3角も同じ */
@@ -107,20 +109,60 @@ USS クラス定義の実装例は [Assets/Scripts/Matching/View/Matching.uss](.
     padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
+    transition-property: background-color;
+    transition-duration: 0.12s;
 }
+.modal-btn-primary:hover { background-color: rgb(90, 115, 210); }
+.modal-btn-primary:active { background-color: rgb(55, 70, 155); }
 
-/* セカンダリボタン（補助アクション） */
-.btn-secondary {
-    background-color: rgba(255, 255, 255, 0.07);
+/* ゴーストボタン（補助アクション） */
+.modal-btn-ghost {
+    background-color: rgba(0, 0, 0, 0);
     color: rgb(180, 180, 210);
     border-top-left-radius: 8px; /* 他3角も同じ */
     border-left-width: 1px; /* 他3辺も同じ */
-    border-left-color: rgba(255, 255, 255, 0.15); /* 他3辺も同じ */
+    border-left-color: rgba(255, 255, 255, 0.3); /* 他3辺も同じ */
     padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
+    transition-property: background-color;
+    transition-duration: 0.12s;
+}
+.modal-btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: rgba(255, 255, 255, 0.55); /* 他3辺も同じ */
+}
+.modal-btn-ghost:active { background-color: rgba(255, 255, 255, 0.2); }
+```
+
+**C# コードで生成したボタンのホバー・押下効果**
+
+`Button` をコードで生成してインラインスタイルを設定している場合、USS 擬似クラスは
+インラインスタイルに上書きされないため、PointerEvent コールバックで対応する:
+
+```csharp
+private static void AddButtonHoverEffect(Button button, Color baseColor)
+{
+    Color hoverColor = new Color(
+        Mathf.Clamp01(baseColor.r + 0.12f),
+        Mathf.Clamp01(baseColor.g + 0.12f),
+        Mathf.Clamp01(baseColor.b + 0.12f), baseColor.a);
+    Color activeColor = new Color(
+        Mathf.Clamp01(baseColor.r - 0.1f),
+        Mathf.Clamp01(baseColor.g - 0.1f),
+        Mathf.Clamp01(baseColor.b - 0.1f), baseColor.a);
+    button.RegisterCallback<PointerEnterEvent>(_ => button.style.backgroundColor = new StyleColor(hoverColor));
+    button.RegisterCallback<PointerLeaveEvent>(_ => button.style.backgroundColor = new StyleColor(baseColor));
+    button.RegisterCallback<PointerDownEvent>(_ => button.style.backgroundColor = new StyleColor(activeColor));
+    button.RegisterCallback<PointerUpEvent>(_ => button.style.backgroundColor = new StyleColor(hoverColor));
 }
 ```
+
+**USS での背景色変化が効かない場合の原因**
+
+ボタンに `button.style.backgroundColor = ...` (インラインスタイル) が設定されていると、
+USS クラスの `:hover` / `:active` ルールは上書きできない（インラインスタイルが優先される）。
+解決策は上記 PointerEvent か、インラインスタイルを除去して USS クラスのみで管理する。
 
 ### リスト項目（`.room-item`）
 

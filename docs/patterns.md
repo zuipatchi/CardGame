@@ -107,6 +107,13 @@ public enum EventType
 
 `MainPresenter.cs` に `private readonly StagedInput _xxxInput = new StagedInput();` と必要なら状態変数（例: `private int _evolveMinCost;`）を追加し、`MainPresenter.Input.cs` の `HandlePlayerCardDrop` / `TryTakeStagedInput` / `OnPassClicked` / `OnBackClicked` / `CanPlayerDragCard` / `IsCardPlayable` の各メソッドに `_xxxInput._tcs != null` のチェックを追加する。`_switchInput` / `_evolveInput` の実装が参考例。`WaitForPlayerXxxInputAsync` でボタン表示・TCS 完了待ちを行い、`ApplyXxxEffectAsync` から `await WaitForPlayerXxxInputAsync(ct)` で結果を受け取る。ドロップ時にすでに `PlaceCard` が呼ばれるため、TCS 完了後に再度 `PlaceCard` しないこと。
 
+**チェーン番号フラッシュ演出について**
+
+`RunResolutionPhaseAsync` のループ先頭では `await card.FlashChainLabelAsync(ct)` を呼び、
+チェーン番号ラベル（①②③）を約 0.4s チカチカさせてから `SetChainNumber(0)` で消す。
+これにより「次に処理されるカード」への注目を集める。`FlashChainLabelAsync` は
+`resolvedStyle.display == None` の場合（チェーン番号が非表示）は即座に完了する。
+
 **解決後に速さを再評価する場合（Evolve 相当）**
 
 解決フェーズでキャラが変わりうる効果を追加したら、`MainPresenter.Phases.cs` の `RunTurnAsync` 内で `RunPreBattle2PhaseAsync` の**後**に `DetermineFirstMover` を再度呼んで `_gameModel.SetInitialTurn` を更新することで、戦闘フェーズの先攻後攻に反映される。
