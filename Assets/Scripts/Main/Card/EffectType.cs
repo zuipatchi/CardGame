@@ -11,5 +11,6 @@ namespace Main.Card
         Recover,
         Switch,
         CharDamage,
+        Evolve,
     }
 }

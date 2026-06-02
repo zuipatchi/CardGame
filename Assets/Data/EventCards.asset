@@ -77,3 +77,11 @@ MonoBehaviour:
     _eventType: 8
     _eventValue: 4
     _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E9\u306B4\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
+  - _id: E009
+    _cardName: "\u9032\u5316\u3060\uFF01\u3071\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 210526380745b8c4a8dd4a05625f3d81, type: 3}
+    _attribute: 0
+    _eventType: 9
+    _eventValue: 0
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u3092\u5893\u5834\u306B\u9001\u308B\u3053\u3068\u3067\u624B\u672D\u304B\u3089\u305D\u308C\u3088\u308A\u30B3\u30B9\u30C8\u304C\u9AD8\u3044\u30AD\u30E3\u30E9\u3092\u5834\u306B\u51FA\u3059"

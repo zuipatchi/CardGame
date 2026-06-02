@@ -70,6 +70,14 @@ namespace Main
                             CharacterSlotView switchSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
                             await PlaySwitchEffectAsync(card, switchSlot, ct);
                         }
+                        else if (eventData.EventType == CardEventType.Evolve)
+                        {
+                            CharacterSlotView evolveSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+                            if (evolveSlot.CurrentCard != null)
+                            {
+                                await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveSlot, ct);
+                            }
+                        }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
@@ -161,6 +169,9 @@ namespace Main
                 case CardEventType.CharDamage:
                     await ApplyCharDamageAsync(data.EventValue, isLocal, ct);
                     break;
+                case CardEventType.Evolve:
+                    await ApplyEvolveEffectAsync(isLocal, ct);
+                    break;
             }
         }
 
@@ -223,6 +234,72 @@ namespace Main
             {
                 _isGameOver = true;
                 OnGameEnd(isLocal);
+            }
+        }
+
+        private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
+        {
+            CharacterSlotView ownSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+            GraveyardView ownGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+
+            if (ownSlot.CurrentCard == null)
+            {
+                return;
+            }
+
+            int sacrificedCost = ownSlot.CurrentCard.Data.Cost;
+            CardView sacrificedCard = ownSlot.CurrentCard;
+            Rect fromRect = sacrificedCard.worldBound;
+            ownSlot.RemoveCard();
+            await FlyCardToDestAsync(sacrificedCard, fromRect, ownGraveyard, ct);
+            ownGraveyard.AddCard(sacrificedCard);
+
+            if (isLocal)
+            {
+                await WaitForPlayerEvolveInputAsync(sacrificedCost, ct);
+                // カードはドロップ時点で HandlePlayerCardDrop が PlaceCard 済み
+                if (ownSlot.CurrentCard != null && _evolveEffectPrefab != null)
+                {
+                    await PlayParticleAtCardAsync(ownSlot.CurrentCard, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+                }
+            }
+            else
+            {
+                IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
+                int idx = CpuAgent.ChooseEvolveCardIndex(cpuHand.Select(c => c.Data).ToList(), sacrificedCost);
+                if (idx >= 0)
+                {
+                    CardView newChar = cpuHand[idx];
+                    Rect charFromRect = newChar.worldBound;
+                    _opponentHandView.RemoveCard(newChar);
+                    await FlyCardToDestAsync(newChar, charFromRect, ownSlot, ct);
+                    ownSlot.PlaceCard(newChar);
+                    if (_evolveEffectPrefab != null)
+                    {
+                        await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+                    }
+                }
+            }
+        }
+
+        private async UniTask<CardView> WaitForPlayerEvolveInputAsync(int minCost, CancellationToken ct)
+        {
+            _evolveMinCost = minCost;
+            _evolveInput._tcs = new UniTaskCompletionSource<CardView>();
+            _evolveInput._card = null;
+            ShowActionButtons();
+            UpdateStagedButtons(false);
+
+            try
+            {
+                return await _evolveInput._tcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _evolveInput._tcs = null;
+                _evolveMinCost = 0;
+                HideActionButtons();
+                RefreshHandHighlights();
             }
         }
 

@@ -18,6 +18,37 @@ namespace Main
                 return false;
             }
 
+            if (_evolveInput._tcs != null)
+            {
+                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                {
+                    return false;
+                }
+
+                if (card.Data is not CharacterCardData)
+                {
+                    ShowToast("キャラカードのみ選択できます");
+                    return false;
+                }
+
+                if (card.Data.Cost <= _evolveMinCost)
+                {
+                    ShowToast($"コスト{_evolveMinCost + 1}以上のカードが必要です");
+                    return false;
+                }
+
+                if (_evolveInput._card != null)
+                {
+                    return false;
+                }
+
+                _playerCharacterSlot.PlaceCard(card);
+                _evolveInput._card = card;
+                UpdateStagedButtons(true);
+                if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                return true;
+            }
+
             if (_switchInput._tcs != null)
             {
                 if (!_playerCharacterSlot.worldBound.Contains(worldPos))
@@ -149,6 +180,15 @@ namespace Main
 
         private bool TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card)
         {
+            if (_evolveInput._tcs != null && _evolveInput._card != null)
+            {
+                tcs = _evolveInput._tcs;
+                card = _evolveInput._card;
+                _evolveInput._card = null;
+                _evolveInput._tcs = null;
+                return true;
+            }
+
             if (_switchInput._tcs != null && _switchInput._card != null)
             {
                 tcs = _switchInput._tcs;
@@ -192,6 +232,17 @@ namespace Main
 
         private void OnBackClicked()
         {
+            if (_evolveInput._tcs != null)
+            {
+                if (_evolveInput._card != null)
+                {
+                    CardView card = _evolveInput._card;
+                    _evolveInput._card = null;
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: false);
+                }
+                return;
+            }
+
             if (_switchInput._tcs != null)
             {
                 if (_switchInput._card != null)
@@ -254,6 +305,13 @@ namespace Main
 
         private void OnPassClicked()
         {
+            if (_evolveInput._tcs != null && _evolveInput._card == null)
+            {
+                HideActionButtons();
+                _evolveInput._tcs.TrySetResult(null);
+                return;
+            }
+
             if (_switchInput._tcs != null && _switchInput._card == null)
             {
                 HideActionButtons();
@@ -289,6 +347,11 @@ namespace Main
                 return false;
             }
 
+            if (_evolveInput._tcs != null)
+            {
+                return _evolveInput._card == null;
+            }
+
             if (_switchInput._tcs != null)
             {
                 return _switchInput._card == null;
@@ -320,6 +383,11 @@ namespace Main
             if (_isGameOver)
             {
                 return false;
+            }
+
+            if (_evolveInput._tcs != null && _evolveInput._card == null)
+            {
+                return card.Data is CharacterCardData && card.Data.Cost > _evolveMinCost;
             }
 
             if (_switchInput._tcs != null && _switchInput._card == null)

@@ -1042,6 +1042,18 @@
     height: 60px;
 }
 
+/* ─── Evolve フローティングラベル ───────────────────────────────────────────── */
+.evolve-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(100, 220, 120);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}
+
 /* ─── BanishChar フローティングラベル ───────────────────────────────────────── */
 .banish-char-label {
     font-size: 36px;

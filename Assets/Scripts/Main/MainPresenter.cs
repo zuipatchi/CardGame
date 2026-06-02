@@ -84,6 +84,7 @@ namespace Main
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
         [SerializeField] private GameObject _charDamageEffectPrefab;
+        [SerializeField] private GameObject _evolveEffectPrefab;
         [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
@@ -117,6 +118,8 @@ namespace Main
         private readonly StagedInput _prepInput = new StagedInput();
         private readonly StagedInput _preBattleInput = new StagedInput();
         private readonly StagedInput _switchInput = new StagedInput();
+        private readonly StagedInput _evolveInput = new StagedInput();
+        private int _evolveMinCost;
         private bool _isLocalPreBattleActive;
 
         private sealed class StagedInput
