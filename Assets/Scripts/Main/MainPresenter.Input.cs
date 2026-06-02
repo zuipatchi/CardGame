@@ -40,7 +40,7 @@ namespace Main
                 _switchInput._card = card;
                 UpdateStagedButtons(_switchInput._card != null);
                 UpdateCostWarning(_switchInput._card);
-                if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
+                if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
                 return true;
             }
 
@@ -67,7 +67,7 @@ namespace Main
                 card.FlipAsync(destroyCancellationToken).Forget();
                 UpdateStagedButtons(_charSetInput._card != null);
                 UpdateCostWarning(_charSetInput._card);
-                if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
+                if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
                 return true;
             }
 
@@ -91,7 +91,7 @@ namespace Main
                     card.FlipAsync(destroyCancellationToken).Forget();
                     UpdateStagedButtons(_preBattleInput._card != null);
                     UpdateCostWarning(_preBattleInput._card);
-                    if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
+                    if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
                 }
                 return placed;
             }
@@ -115,7 +115,7 @@ namespace Main
                     _prepInput._card = card;
                     UpdateStagedButtons(true);
                     UpdateCostWarning(_prepInput._card);
-                    if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
+                    if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
                 }
                 return placed;
             }
@@ -124,6 +124,12 @@ namespace Main
         }
 
         // ─── ボタンハンドラ ──────────────────────────────────────────────
+
+        private async UniTaskVoid AutoOkAsync()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: destroyCancellationToken);
+            OnOkClicked();
+        }
 
         private async void OnOkClicked()
         {
@@ -353,9 +359,10 @@ namespace Main
         private void UpdateStagedButtons(bool hasStaged)
         {
             RefreshHandHighlights();
+            bool autoOk = _optionModel.AutoOk.CurrentValue;
             _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
-            _backButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
-            _okButton.style.display = hasStaged ? DisplayStyle.Flex : DisplayStyle.None;
+            _backButton.style.display = (hasStaged && !autoOk) ? DisplayStyle.Flex : DisplayStyle.None;
+            _okButton.style.display = (hasStaged && !autoOk) ? DisplayStyle.Flex : DisplayStyle.None;
             if (!hasStaged)
             {
                 _costWarningLabel.style.display = DisplayStyle.None;

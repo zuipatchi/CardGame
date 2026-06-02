@@ -14,12 +14,16 @@ namespace Main
     {
         // ─── ダメージ数字飛翔演出 ──────────────────────────────────────────
 
+        private const float DamageIconAppearDuration = 0.3f;
+        private const float DamageIconHoldDuration = 0.3f;
+        private const float DamageIconFlyDuration = 0.75f;
+
         private async UniTask PlayDamageNumberFlyAsync(
             int damage, Vector2 fromWorldCenter, DeckView targetDeck, CancellationToken ct)
         {
-            const float AppearDuration = 0.3f;
-            const float HoldDuration = 0.3f;
-            const float FlyDuration = 0.75f;
+            const float AppearDuration = DamageIconAppearDuration;
+            const float HoldDuration = DamageIconHoldDuration;
+            const float FlyDuration = DamageIconFlyDuration;
             const float ContainerSize = 220f;
 
             // ATKアイコン + ダメージ数字を重ねたコンテナ
@@ -144,7 +148,7 @@ namespace Main
             slot.Insert(0, card);
         }
 
-        private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct)
+        private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
             card.style.position = Position.Absolute;
             card.style.left = fromWorldRect.center.x - CardWidth / 2f;
@@ -162,10 +166,23 @@ namespace Main
             float targetLeft = destRect.center.x - CardWidth / 2f;
             float targetTop = destRect.center.y - CardHeight / 2f;
 
+            if (delay > 0f)
+            {
+                try
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    _dragLayer.Remove(card);
+                    return;
+                }
+            }
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, CpuCardFlyDuration).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, CpuCardFlyDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, duration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, duration).SetEase(Ease.OutQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });

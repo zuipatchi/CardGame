@@ -108,7 +108,7 @@ namespace Main
 
             if (firstAtk > 0 && firstDamage == 0)
             {
-                await PlayFloatingLabelAsync("GUARD", "guard-label", firstTarget, ct);
+                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", firstTarget, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             }
 
@@ -125,14 +125,13 @@ namespace Main
             if (firstDamage > 0)
             {
                 Rect firstTargetDeckRect = firstTargetDeck.worldBound;
-                List<UniTask> flyTasks = new List<UniTask>
-                {
-                    PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct)
-                };
+                List<UniTask> flyTasks = new List<UniTask>();
                 if (firstDestroyedChar != null)
                 {
-                    flyTasks.Add(FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct));
+                    flyTasks.Add(FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct,
+                        DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
                 }
+                flyTasks.Add(PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct));
                 await UniTask.WhenAll(flyTasks);
                 List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
@@ -191,7 +190,7 @@ namespace Main
 
             if (secondAtk > 0 && secondDamage == 0)
             {
-                await PlayFloatingLabelAsync("GUARD", "guard-label", secondTarget, ct);
+                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", secondTarget, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             }
 
@@ -208,14 +207,13 @@ namespace Main
             if (secondDamage > 0)
             {
                 Rect secondTargetDeckRect = secondTargetDeck.worldBound;
-                List<UniTask> flyTasks = new List<UniTask>
-                {
-                    PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct)
-                };
+                List<UniTask> flyTasks = new List<UniTask>();
                 if (secondDestroyedChar != null)
                 {
-                    flyTasks.Add(FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct));
+                    flyTasks.Add(FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct,
+                        DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
                 }
+                flyTasks.Add(PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct));
                 await UniTask.WhenAll(flyTasks);
                 List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
@@ -244,9 +242,9 @@ namespace Main
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
 
-        private async UniTask FlyToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct)
+        private async UniTask FlyToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
-            await FlyCardToDestAsync(card, fromRect, graveyard, ct);
+            await FlyCardToDestAsync(card, fromRect, graveyard, ct, delay, duration);
             graveyard.AddCard(card);
         }
 
