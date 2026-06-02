@@ -130,6 +130,9 @@ namespace Main.Card
             _current.style.height = StyleKeyword.Null;
             _current.RemoveFromHierarchy();
             _current = null;
+
+            _atkOverlay.style.display = DisplayStyle.None;
+            _defOverlay.style.display = DisplayStyle.None;
         }
     }
 }

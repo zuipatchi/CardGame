@@ -183,16 +183,16 @@ namespace Main
             await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
         }
 
-        private UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct)
+        private UniTask PlayParticleAtCardAsync(CardView card, GameObject prefab, CancellationToken ct, Quaternion rotation = default)
         {
             if (card.panel == null)
             {
                 return UniTask.CompletedTask;
             }
-            return PlayParticleAtUiPositionAsync(card, card.worldBound.center, prefab, ct);
+            return PlayParticleAtUiPositionAsync(card, card.worldBound.center, prefab, ct, rotation);
         }
 
-        private async UniTask PlayParticleAtUiPositionAsync(VisualElement panelRef, Vector2 uiPos, GameObject prefab, CancellationToken ct)
+        private async UniTask PlayParticleAtUiPositionAsync(VisualElement panelRef, Vector2 uiPos, GameObject prefab, CancellationToken ct, Quaternion rotation = default)
         {
             if (panelRef.panel == null)
             {
@@ -247,7 +247,7 @@ namespace Main
             effectRect.sizeDelta = Vector2.zero;
             effectRect.anchoredPosition = Vector2.zero;
 
-            GameObject effect = Instantiate(prefab, worldPos, Quaternion.identity);
+            GameObject effect = Instantiate(prefab, worldPos, rotation == default ? Quaternion.identity : rotation);
             SetLayerRecursive(effect, EffectLayer);
 
             float waitSeconds = 2f;

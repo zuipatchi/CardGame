@@ -47,8 +47,13 @@ namespace Main
             await RunPreBattle2PhaseAsync(isLocalFirst, ct);
             if (_isGameOver) return;
 
+            // 解決フェーズでキャラが変わった可能性があるため速さを再評価
+            bool battlePriorityUsed;
+            bool battleIsLocalFirst = DetermineFirstMover(out battlePriorityUsed);
+            _gameModel.SetInitialTurn(battleIsLocalFirst);
+
             _gameModel.BeginBattle();
-            await RunBattlePhaseAsync(priorityUsed, ct);
+            await RunBattlePhaseAsync(battlePriorityUsed, ct);
             if (_isGameOver) return;
 
             _gameModel.EndTurn();
