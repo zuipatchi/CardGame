@@ -96,7 +96,17 @@ namespace Main.Card
                 {
                     _moved = true;
                 }
-                return;
+
+                if (_moved && CanDrag != null && CanDrag())
+                {
+                    _clickTrackingOnly = false;
+                    _startPointerPosition = evt.position;
+                    StartDrag();
+                }
+                else
+                {
+                    return;
+                }
             }
 
             if (!_isDragging || !target.HasPointerCapture(evt.pointerId))
