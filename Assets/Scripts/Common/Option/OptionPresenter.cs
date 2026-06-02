@@ -151,20 +151,42 @@ namespace Common.Option
             VisualElement row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
 
+            Color yesBaseColor = new Color(0.7f, 0.15f, 0.15f, 1f);
             Button yesButton = new Button(OnSurrenderConfirmed);
             yesButton.text = "はい";
-            StyleSurrenderConfirmButton(yesButton, new Color(0.7f, 0.15f, 0.15f, 1f));
+            StyleSurrenderConfirmButton(yesButton, yesBaseColor);
+            AddButtonHoverEffect(yesButton, yesBaseColor);
             row.Add(yesButton);
 
+            Color noBaseColor = new Color(0.25f, 0.25f, 0.4f, 1f);
             Button noButton = new Button(HideSurrenderConfirm);
             noButton.text = "いいえ";
-            StyleSurrenderConfirmButton(noButton, new Color(0.25f, 0.25f, 0.4f, 1f));
+            StyleSurrenderConfirmButton(noButton, noBaseColor);
+            AddButtonHoverEffect(noButton, noBaseColor);
             noButton.style.marginLeft = 16f;
             row.Add(noButton);
 
             panel.Add(row);
             overlay.Add(panel);
             return overlay;
+        }
+
+        private static void AddButtonHoverEffect(Button button, Color baseColor)
+        {
+            Color hoverColor = new Color(
+                Mathf.Clamp01(baseColor.r + 0.12f),
+                Mathf.Clamp01(baseColor.g + 0.12f),
+                Mathf.Clamp01(baseColor.b + 0.12f),
+                baseColor.a);
+            Color activeColor = new Color(
+                Mathf.Clamp01(baseColor.r - 0.1f),
+                Mathf.Clamp01(baseColor.g - 0.1f),
+                Mathf.Clamp01(baseColor.b - 0.1f),
+                baseColor.a);
+            button.RegisterCallback<PointerEnterEvent>(_ => button.style.backgroundColor = new StyleColor(hoverColor));
+            button.RegisterCallback<PointerLeaveEvent>(_ => button.style.backgroundColor = new StyleColor(baseColor));
+            button.RegisterCallback<PointerDownEvent>(_ => button.style.backgroundColor = new StyleColor(activeColor));
+            button.RegisterCallback<PointerUpEvent>(_ => button.style.backgroundColor = new StyleColor(hoverColor));
         }
 
         private static void StyleSurrenderConfirmButton(Button button, Color bgColor)

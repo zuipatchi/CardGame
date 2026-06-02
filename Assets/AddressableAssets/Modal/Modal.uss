@@ -1,0 +1,37 @@
+.modal-btn-ghost {
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(180, 180, 210);
+    border-left-color: rgba(255, 255, 255, 0.3);
+    border-right-color: rgba(255, 255, 255, 0.3);
+    border-top-color: rgba(255, 255, 255, 0.3);
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+    transition-property: background-color;
+    transition-duration: 0.12s;
+}
+
+.modal-btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: rgba(255, 255, 255, 0.55);
+    border-right-color: rgba(255, 255, 255, 0.55);
+    border-top-color: rgba(255, 255, 255, 0.55);
+    border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+
+.modal-btn-ghost:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-btn-primary {
+    background-color: rgb(70, 90, 180);
+    color: rgb(255, 255, 255);
+    transition-property: background-color;
+    transition-duration: 0.12s;
+}
+
+.modal-btn-primary:hover {
+    background-color: rgb(90, 115, 210);
+}
+
+.modal-btn-primary:active {
+    background-color: rgb(55, 70, 155);
+}
