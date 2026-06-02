@@ -43,13 +43,29 @@
     padding-bottom: 0;
     align-items: center;
     justify-content: flex-start;
-    transition-property: scale;
-    transition-duration: 0.12s;
-    transition-timing-function: ease-out;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
 }
 
 .home-button:hover {
     scale: 1.025 1.025;
+}
+
+.home-button:active {
+    scale: 0.98 0.98;
+}
+
+.home-button--deck:active {
+    background-color: rgba(10, 18, 50, 1);
+}
+
+.home-button--battle:active {
+    background-color: rgba(35, 8, 8, 1);
+}
+
+.home-button--matching:active {
+    background-color: rgba(5, 25, 12, 1);
 }
 
 .home-button--deck {

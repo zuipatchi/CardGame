@@ -51,11 +51,19 @@
     padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .btn-accent:hover,
 .btn-accent:focus {
     background-color: rgb(95, 118, 220);
+}
+
+.btn-accent:active {
+    background-color: rgb(45, 65, 150);
+    scale: 0.95 0.95;
 }
 
 .btn-secondary {
@@ -79,6 +87,9 @@
     padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .btn-secondary:hover,
@@ -88,6 +99,11 @@
     border-right-color: rgba(255, 255, 255, 0.3);
     border-top-color: rgba(255, 255, 255, 0.3);
     border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:active {
+    background-color: rgba(255, 255, 255, 0.22);
+    scale: 0.95 0.95;
 }
 
 /* ─── Room list ─── */
@@ -113,6 +129,9 @@
     color: rgb(180, 180, 210);
     font-size: 14px;
     -unity-text-align: middle-left;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .room-item:hover {
@@ -121,6 +140,11 @@
     border-right-color: rgba(70, 90, 180, 0.5);
     border-top-color: rgba(70, 90, 180, 0.5);
     border-bottom-color: rgba(70, 90, 180, 0.5);
+}
+
+.room-item:active {
+    background-color: rgba(70, 90, 180, 0.35);
+    scale: 0.97 0.97;
 }
 
 .empty-state {

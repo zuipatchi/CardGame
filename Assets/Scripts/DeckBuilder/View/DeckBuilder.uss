@@ -241,10 +241,18 @@
     -unity-text-align: middle-center;
     margin: 0;
     padding: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-deck-row-subtract:hover {
     background-color: rgba(255, 80, 80, 0.35);
+}
+
+.deckbuilder-deck-row-subtract:active {
+    background-color: rgba(255, 80, 80, 0.5);
+    scale: 0.9 0.9;
 }
 
 .deckbuilder-deck-row-add {
@@ -265,10 +273,18 @@
     -unity-text-align: middle-center;
     margin: 0;
     padding: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-deck-row-add:hover {
     background-color: rgba(100, 210, 130, 0.35);
+}
+
+.deckbuilder-deck-row-add:active {
+    background-color: rgba(100, 210, 130, 0.5);
+    scale: 0.9 0.9;
 }
 
 .deckbuilder-top-left-buttons {
@@ -292,6 +308,9 @@
     border-top-width: 0;
     border-bottom-width: 0;
     margin: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-button--back {
@@ -304,6 +323,10 @@
     background-color: rgba(90, 90, 130, 1);
 }
 
+.deckbuilder-button--back:active {
+    background-color: rgba(55, 55, 80, 1);
+    scale: 0.95 0.95;
+}
 
 .deckbuilder-deck-header-right {
     flex-direction: row;
@@ -330,10 +353,18 @@
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-button--sort-deck:hover {
     background-color: rgba(60, 120, 200, 0.6);
+}
+
+.deckbuilder-button--sort-deck:active {
+    background-color: rgba(60, 120, 200, 0.45);
+    scale: 0.93 0.93;
 }
 
 .deckbuilder-button--clear-deck {
@@ -355,12 +386,19 @@
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-button--clear-deck:hover {
     background-color: rgba(255, 60, 60, 0.75);
 }
 
+.deckbuilder-button--clear-deck:active {
+    background-color: rgba(255, 60, 60, 0.6);
+    scale: 0.9 0.9;
+}
 
 .deckbuilder-button--analyze {
     background-color: rgba(60, 120, 80, 1);
@@ -370,6 +408,11 @@
 
 .deckbuilder-button--analyze:hover {
     background-color: rgba(75, 150, 100, 1);
+}
+
+.deckbuilder-button--analyze:active {
+    background-color: rgba(45, 100, 65, 1);
+    scale: 0.95 0.95;
 }
 
 .deck-analysis-overlay {
@@ -441,6 +484,11 @@
 
 .deck-analysis-close:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.deck-analysis-close:active {
+    background-color: rgba(255, 255, 255, 0.18);
+    scale: 0.9 0.9;
 }
 
 .deck-analysis-section {
@@ -634,10 +682,18 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     margin-right: 16px;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-confirm-button--no:hover {
     background-color: rgba(100, 100, 140, 0.9);
+}
+
+.deckbuilder-confirm-button--no:active {
+    background-color: rgba(60, 60, 90, 0.9);
+    scale: 0.95 0.95;
 }
 
 .deckbuilder-confirm-button--yes {
@@ -655,10 +711,18 @@
     border-top-right-radius: 10px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .deckbuilder-confirm-button--yes:hover {
     background-color: rgba(220, 60, 60, 0.8);
+}
+
+.deckbuilder-confirm-button--yes:active {
+    background-color: rgba(200, 45, 45, 0.9);
+    scale: 0.95 0.95;
 }
 
 .deckbuilder-reorder-indicator {
