@@ -40,6 +40,7 @@ namespace Main
         private GameSessionModel _gameSessionModel;
         private NetworkGameService _networkGameService;
         private OptionPresenter _optionPresenter;
+        private OptionModel _optionModel;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -136,7 +137,8 @@ namespace Main
             SceneTransitioner sceneTransitioner,
             GameSessionModel gameSessionModel,
             NetworkGameService networkGameService,
-            OptionPresenter optionPresenter)
+            OptionPresenter optionPresenter,
+            OptionModel optionModel)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
@@ -146,6 +148,7 @@ namespace Main
             _gameSessionModel = gameSessionModel;
             _networkGameService = networkGameService;
             _optionPresenter = optionPresenter;
+            _optionModel = optionModel;
         }
 
         void IStartable.Start()

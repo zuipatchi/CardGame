@@ -95,6 +95,13 @@ namespace Common.Option
 
             seSlider.RegisterValueChangedCallback(OnSESliderChange);
 
+            Toggle autoOkToggle = modal.Q<Toggle>("AutoOkToggle");
+            autoOkToggle.value = _optionModel.AutoOk.CurrentValue;
+            _optionModel.AutoOk
+                .Subscribe(v => autoOkToggle.SetValueWithoutNotify(v))
+                .AddTo(_disposables);
+            autoOkToggle.RegisterValueChangedCallback(evt => _optionModel.SetAutoOk(evt.newValue));
+
             _host.Add(modal);
 
             _surrenderConfirmOverlay = BuildSurrenderConfirmOverlay();

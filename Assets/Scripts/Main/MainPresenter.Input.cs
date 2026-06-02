@@ -40,6 +40,7 @@ namespace Main
                 _switchInput._card = card;
                 UpdateStagedButtons(_switchInput._card != null);
                 UpdateCostWarning(_switchInput._card);
+                if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
                 return true;
             }
 
@@ -66,6 +67,7 @@ namespace Main
                 card.FlipAsync(destroyCancellationToken).Forget();
                 UpdateStagedButtons(_charSetInput._card != null);
                 UpdateCostWarning(_charSetInput._card);
+                if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
                 return true;
             }
 
@@ -89,6 +91,7 @@ namespace Main
                     card.FlipAsync(destroyCancellationToken).Forget();
                     UpdateStagedButtons(_preBattleInput._card != null);
                     UpdateCostWarning(_preBattleInput._card);
+                    if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
                 }
                 return placed;
             }
@@ -112,6 +115,7 @@ namespace Main
                     _prepInput._card = card;
                     UpdateStagedButtons(true);
                     UpdateCostWarning(_prepInput._card);
+                    if (_optionModel.AutoOk.CurrentValue) { OnOkClicked(); }
                 }
                 return placed;
             }

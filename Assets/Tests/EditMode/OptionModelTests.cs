@@ -14,6 +14,7 @@ namespace Tests.EditMode
         {
             PlayerPrefs.DeleteKey("bgmVolume");
             PlayerPrefs.DeleteKey("seVolume");
+            PlayerPrefs.DeleteKey("autoOk");
             _model = new OptionModel();
         }
 
@@ -22,6 +23,7 @@ namespace Tests.EditMode
         {
             PlayerPrefs.DeleteKey("bgmVolume");
             PlayerPrefs.DeleteKey("seVolume");
+            PlayerPrefs.DeleteKey("autoOk");
         }
 
         [Test]
@@ -86,6 +88,50 @@ namespace Tests.EditMode
             newModel.Start();
 
             Assert.AreEqual(0.8f, newModel.BGMVolume.CurrentValue, 0.001f);
+        }
+
+        [Test]
+        public void AutoOkをtrueに設定できる()
+        {
+            _model.SetAutoOk(true);
+            Assert.IsTrue(_model.AutoOk.CurrentValue);
+        }
+
+        [Test]
+        public void AutoOkをfalseに設定できる()
+        {
+            _model.SetAutoOk(true);
+            _model.SetAutoOk(false);
+            Assert.IsFalse(_model.AutoOk.CurrentValue);
+        }
+
+        [Test]
+        public void AutoOk変更でReactivePropertyが通知する()
+        {
+            bool received = false;
+            using System.IDisposable _ = _model.AutoOk.Subscribe(v => received = v);
+
+            _model.SetAutoOk(true);
+
+            Assert.IsTrue(received);
+        }
+
+        [Test]
+        public void AutoOk未保存の場合はデフォルト値falseが復元される()
+        {
+            _model.Start();
+            Assert.IsFalse(_model.AutoOk.CurrentValue);
+        }
+
+        [Test]
+        public void PlayerPrefsに保存したAutoOkがtrueの場合起動時に復元される()
+        {
+            _model.SetAutoOk(true);
+
+            OptionModel newModel = new OptionModel();
+            newModel.Start();
+
+            Assert.IsTrue(newModel.AutoOk.CurrentValue);
         }
     }
 }
