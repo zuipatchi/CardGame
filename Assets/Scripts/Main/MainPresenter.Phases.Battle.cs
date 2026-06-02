@@ -28,8 +28,20 @@ namespace Main
 
             await PlayAnnouncementAsync("FIGHT", "turn-announcement-label--fight", ct);
 
-            // 素早さ同値で優先権を行使した場合：演出後に優先権を移譲
-            if (priorityUsed)
+            List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
+            List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
+
+            bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null;
+            bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null;
+
+            BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
+                playerSkill, _playerAtkBoost, playerHasAttackingChar, _playerCharacterSlot.Attack);
+            BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
+                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar, _opponentCharacterSlot.Attack);
+
+            // 素早さ同値で優先権を行使した場合：演出後に優先権を移譲（両者 NO ATTACK は消費しない）
+            bool bothNoAttack = playerStats.ATK == 0 && opponentStats.ATK == 0;
+            if (priorityUsed && !bothNoAttack)
             {
                 bool localUsedPriority = _localHasPriority;
                 await PlayPriorityCoinTransferAsync(localUsedPriority, ct);
@@ -48,17 +60,6 @@ namespace Main
             UniTask[] firstFlipTasks = firstCards.Select(c => c.FlipAsync(ct)).ToArray();
             await UniTask.WhenAll(firstFlipTasks);
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
-
-            List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
-            List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
-
-            bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null;
-            bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null;
-
-            BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
-                playerSkill, _playerAtkBoost, playerHasAttackingChar, _playerCharacterSlot.Attack);
-            BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
-                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar, _opponentCharacterSlot.Attack);
 
             int effectivePlayerDef = playerHasAttackingChar ? _playerCharacterSlot.Defense + _playerDefBoost : 0;
             int effectiveOpponentDef = opponentHasAttackingChar ? _opponentCharacterSlot.Defense + _opponentDefBoost : 0;
