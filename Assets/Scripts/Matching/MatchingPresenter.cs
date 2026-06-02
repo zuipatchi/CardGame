@@ -26,8 +26,8 @@ namespace Matching
         private ScrollView _roomList;
         private Button _quickMatchButton;
         private Button _createButton;
-        private Button _refreshButton;
         private VisualElement _loadingOverlay;
+        private System.Threading.CancellationTokenSource _autoRefreshCts;
         private Label _loadingLabel;
         private VisualElement _waitingOverlay;
         private Label _waitingLabel;
@@ -58,7 +58,6 @@ namespace Matching
             _roomList = root.Q<ScrollView>("RoomList");
             _quickMatchButton = root.Q<Button>("QuickMatchButton");
             _createButton = root.Q<Button>("CreateButton");
-            _refreshButton = root.Q<Button>("RefreshButton");
             _loadingOverlay = root.Q<VisualElement>("LoadingOverlay");
             _loadingLabel = root.Q<Label>("LoadingLabel");
             _waitingOverlay = root.Q<VisualElement>("WaitingOverlay");
@@ -74,7 +73,6 @@ namespace Matching
             _backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
             _quickMatchButton.clicked += () => OnQuickMatchButtonClickedAsync().Forget();
             _createButton.clicked += () => OnCreateButtonClickedAsync().Forget();
-            _refreshButton.clicked += () => RefreshWithCooldownAsync(destroyCancellationToken).Forget();
             _cancelWaitButton.clicked += () => CancelWaitAsync().Forget();
             _timeoutCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
             _errorCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
@@ -100,6 +98,20 @@ namespace Matching
             _waitingOverlay.style.display = isWaiting ? DisplayStyle.Flex : DisplayStyle.None;
             _errorOverlay.style.display = isError ? DisplayStyle.Flex : DisplayStyle.None;
             _backButton.SetEnabled(state is MatchingState.BrowsingRooms or MatchingState.Error or MatchingState.TimedOut);
+
+            if (state == MatchingState.BrowsingRooms)
+            {
+                _autoRefreshCts?.Cancel();
+                _autoRefreshCts?.Dispose();
+                _autoRefreshCts = new System.Threading.CancellationTokenSource();
+                AutoRefreshLoopAsync(_autoRefreshCts.Token).Forget();
+            }
+            else
+            {
+                _autoRefreshCts?.Cancel();
+                _autoRefreshCts?.Dispose();
+                _autoRefreshCts = null;
+            }
 
             _loadingLabel.text = state switch
             {
@@ -139,19 +151,17 @@ namespace Matching
             }
         }
 
-        private async UniTaskVoid RefreshWithCooldownAsync(System.Threading.CancellationToken ct)
+        private async UniTaskVoid AutoRefreshLoopAsync(System.Threading.CancellationToken ct)
         {
-            _refreshButton.SetEnabled(false);
             try
             {
-                await RefreshRoomsAsync(ct);
-                await UniTask.Delay(1000, cancellationToken: ct);
+                while (true)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken: ct);
+                    await RefreshRoomsAsync(ct);
+                }
             }
             catch (OperationCanceledException) { }
-            finally
-            {
-                _refreshButton.SetEnabled(true);
-            }
         }
 
         private async UniTask RefreshRoomsAsync(System.Threading.CancellationToken ct)
