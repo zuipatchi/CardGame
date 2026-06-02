@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -172,6 +173,33 @@ namespace Main.Card
                 ? ((char)(0x2460 + number - 1)).ToString()
                 : number.ToString();
             _chainLabel.style.display = DisplayStyle.Flex;
+        }
+
+        public async UniTask FlashChainLabelAsync(CancellationToken ct)
+        {
+            if (_chainLabel.resolvedStyle.display == DisplayStyle.None)
+            {
+                return;
+            }
+
+            float opacity = 1f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
+                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
+                .AppendInterval(0.04f)
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            _chainLabel.style.opacity = StyleKeyword.Null;
         }
 
         public void SetBackImage(Texture2D texture)

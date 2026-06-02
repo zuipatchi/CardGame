@@ -30,9 +30,10 @@ namespace Main
             for (int i = queue.Count - 1; i >= 0; i--)
             {
                 CardView card = queue[i];
+                await card.FlashChainLabelAsync(ct);
                 card.SetChainNumber(0);
                 card.SetState(CardState.Resolve);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
 
                 bool isLocal = !card.IsOpponent;
 
