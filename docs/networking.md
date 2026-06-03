@@ -174,20 +174,19 @@ if (session.AvailableSlots == 0)          // 後から確認
 
 ### 7. フェーズ開始アナウンス中にメッセージが届いてハンドラ未登録で捨てられる
 
-**症状**: オンライン対戦でドローフェーズやキャラセットフェーズに「進めない」プレイヤーが発生し、ゲームが永久に止まる。特にキャラなし・スキルなしで全パスしたターンの直後に発生しやすい。
+**症状**: オンライン対戦でドロー・キャラセット・準備フェーズに「進めない」プレイヤーが発生し、ゲームが永久に止まる。
 
-**原因**: `RunDrawPhaseAsync` / `RunCharacterSetPhaseAsync` は「アナウンスアニメーション → `OnlineDrawAsync` / `OnlineCharSetAsync` 内でハンドラ登録 → 送受信」という順序だった。一方のプレイヤーがアナウンス再生中に、もう一方がすでにメッセージを送信すると、ハンドラが未登録のためメッセージが捨てられて永久待ちになる。
+**原因**: 各フェーズが「アナウンスアニメーション → ハンドラ登録 → 送受信」という順序だった。一方のプレイヤーがアナウンス再生中に、もう一方がすでにメッセージを送信すると、ハンドラが未登録のためメッセージが捨てられて永久待ちになる。
 
-**対処**: ハンドラ登録を **フェーズアナウンスの前** に移動する。メッセージがアナウンス中に届いても捨てられない。
+**対処**: ハンドラ登録を **フェーズアナウンスの前** に移動する。Draw / CharSet / PreBattle1 の 3 フェーズすべてで適用済み。
 
 ```csharp
 // RunDrawPhaseAsync の冒頭（アナウンス前）
-UniTask drawReceiveTask = _isOnline
-    ? _networkGameService.WaitForOpponentDrawAsync(ct)
-    : UniTask.CompletedTask;
+UniTask drawReceiveTask = _isOnline && _hasPreDrawTask
+    ? _preDrawReceiveTask   // 事前登録済みタスクを使用（セクション9参照）
+    : _isOnline ? _networkGameService.WaitForOpponentDrawAsync(ct) : UniTask.CompletedTask;
 
 await PlayAnnouncementAsync("ドローフェーズ", ..., ct);
-// ... 以降で drawReceiveTask を OnlineDrawAsync に渡して await
 ```
 
 ```csharp
@@ -197,7 +196,15 @@ UniTask charSetReceiveTask = (_isOnline && !opponentHadChar)
     : UniTask.CompletedTask;
 
 await PlayAnnouncementAsync("キャラセットフェーズ", ..., ct);
-// ... 以降で charSetReceiveTask を OnlineCharSetAsync に渡して await
+```
+
+```csharp
+// RunPreBattle1PhaseAsync の冒頭（アナウンス前）
+UniTask preBattle1ReceiveTask = _isOnline
+    ? ReceiveAndPlaceOpponentPreBattle1Async(ct)
+    : UniTask.CompletedTask;
+
+await PlayAnnouncementAsync("準備フェーズ", ..., ct);
 ```
 
 `opponentHadChar=true` のとき受信しない理由: 相手はキャラを保持済みのため自フェーズをスキップする場合があり、`k_CharSet` を送信しないことがある。受信待ちにすると永久ブロックになる。
@@ -233,6 +240,53 @@ catch (SessionException)
 
 **合わせて**: `_isQuerying` フラグで `QuerySessionsAsync` の並行呼び出しも防止している
 （auto-refresh キャンセル直後にクイックマッチが同じ API を呼ぶレース状態への対策）。
+
+---
+
+### 9. 戦闘フェーズ後の NGS_Draw ロストでドローフェーズが停止する
+
+**症状**: ターン終了後のドローフェーズで片方のプレイヤーがハングし、「ドローフェーズからキャラセットフェーズに進まない」。特に長い戦闘アニメーション（ダメージエフェクト・キャラ破壊）の後に発生しやすい。
+
+**原因**: 戦闘フェーズ (`RunBattlePhaseAsync`) はネットワークメッセージ交換なしのローカルアニメーションのみ。  
+最後のネットワーク同期点（PreBattle2 ループ終了）から次ターンのドローフェーズ開始まで 5〜10 秒のローカル演出が挟まる。  
+先にアニメーションが終わったプレイヤーがドローフェーズに入って `NGS_Draw` を送信したとき、  
+相手はまだ戦闘アニメーション中でハンドラ未登録 → `ReliableSequenced` で届いてもハンドラなしで捨てられる → 相手は永久にハング。
+
+**対処**: 最後のネットワーク同期点（PreBattle2 ループ終了、初回はマリガン同期）の直後に `NGS_Draw` ハンドラを事前登録する。以降の全ローカル演出中も受信可能な状態を維持する。
+
+```csharp
+// RunPreBattle2PhaseAsync: ループ終了後（解決フェーズの前）に事前登録
+HideActionButtons();
+if (_isOnline)
+{
+    _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+    _hasPreDrawTask = true;
+}
+await RunResolutionPhaseAsync(ct);
+```
+
+```csharp
+// BuildAsync: マリガン同期後（InitializePriority の前）に事前登録
+bool opponentChose = await waitOpponentMulligan;
+_preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+_hasPreDrawTask = true;
+```
+
+```csharp
+// RunDrawPhaseAsync: 事前登録タスクがあれば使い、なければフォールバックで登録
+if (_isOnline && _hasPreDrawTask)
+{
+    drawReceiveTask = _preDrawReceiveTask;
+    _hasPreDrawTask = false;
+}
+else if (_isOnline)
+{
+    drawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+}
+```
+
+加えて `await receiveTask` を `await receiveTask.AttachExternalCancellation(ct)` に変更し、
+事前登録タスクが `destroyCt` で作られていてもサレンダー (`_surrenderCts.Token`) でキャンセルされるようにしている。
 
 ---
 
