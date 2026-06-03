@@ -171,7 +171,7 @@ namespace Main
                 {
                     if (_isOnline)
                     {
-                        string cardId = await ShowWaitingOverlayDuringAsync(_networkGameService.WaitForOpponentPreBattle2Async(ct));
+                        string cardId = await _networkGameService.WaitForOpponentPreBattle2Async(ct);
                         if (string.IsNullOrEmpty(cardId))
                         {
                             await PlayPassAnimationAsync(false, ct);

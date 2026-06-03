@@ -458,31 +458,5 @@ namespace Main
             bool show = card != null && card.Data.Cost > 0 && card.Data.Cost >= _playerDeckView.Count;
             _costWarningLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
-
-        private async UniTask ShowWaitingOverlayDuringAsync(UniTask task)
-        {
-            _waitingOverlay.style.display = DisplayStyle.Flex;
-            try
-            {
-                await task;
-            }
-            finally
-            {
-                _waitingOverlay.style.display = DisplayStyle.None;
-            }
-        }
-
-        private async UniTask<T> ShowWaitingOverlayDuringAsync<T>(UniTask<T> task)
-        {
-            _waitingOverlay.style.display = DisplayStyle.Flex;
-            try
-            {
-                return await task;
-            }
-            finally
-            {
-                _waitingOverlay.style.display = DisplayStyle.None;
-            }
-        }
     }
 }
