@@ -26,25 +26,17 @@ namespace Main
             atkOverlay.style.display = DisplayStyle.Flex;
             atkOverlay.style.opacity = 0f;
 
-            bool showDef = defSlot.CurrentCard != null;
-            if (showDef)
-            {
-                defSlot.SetDefValue(def);
-                defSlot.DefOverlay.BringToFront();
-                defSlot.DefOverlay.style.display = DisplayStyle.Flex;
-                defSlot.DefOverlay.style.opacity = 0f;
-            }
+            defSlot.SetDefValue(def);
+            defSlot.DefOverlay.BringToFront();
+            defSlot.DefOverlay.style.display = DisplayStyle.Flex;
+            defSlot.DefOverlay.style.opacity = 0f;
 
             float val = 0f;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => atkOverlay.style.opacity.value, v => atkOverlay.style.opacity = v, 1f, 0.2f));
-
-            if (showDef)
-            {
-                seq.Join(DOTween.To(() => defSlot.DefOverlay.style.opacity.value, v => defSlot.DefOverlay.style.opacity = v, 1f, 0.2f));
-            }
+                .Join(DOTween.To(() => atkOverlay.style.opacity.value, v => atkOverlay.style.opacity = v, 1f, 0.2f))
+                .Join(DOTween.To(() => defSlot.DefOverlay.style.opacity.value, v => defSlot.DefOverlay.style.opacity = v, 1f, 0.2f));
 
             seq.Join(DOTween.To(() => val, v => { val = v; atkLabel.text = Mathf.RoundToInt(v).ToString(); }, atk, countDuration).SetEase(Ease.OutQuad))
                 .AppendInterval(holdDuration)
