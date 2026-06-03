@@ -56,7 +56,7 @@ namespace Main
                 _networkGameService.SendPreBattle1Action(placed.Data.Id);
             }
 
-            await receiveTask;
+            await ShowWaitingOverlayDuringAsync(receiveTask);
         }
 
         private async UniTask ReceiveAndPlaceOpponentPreBattle1Async(CancellationToken ct)
@@ -171,7 +171,7 @@ namespace Main
                 {
                     if (_isOnline)
                     {
-                        string cardId = await _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                        string cardId = await ShowWaitingOverlayDuringAsync(_networkGameService.WaitForOpponentPreBattle2Async(ct));
                         if (string.IsNullOrEmpty(cardId))
                         {
                             await PlayPassAnimationAsync(false, ct);

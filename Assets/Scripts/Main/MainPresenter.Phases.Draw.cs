@@ -64,7 +64,7 @@ namespace Main
                 await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
             }
             _networkGameService.SendDrawNotification();
-            await receiveTask;
+            await ShowWaitingOverlayDuringAsync(receiveTask);
             if (opponentDrawn != null)
             {
                 await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);

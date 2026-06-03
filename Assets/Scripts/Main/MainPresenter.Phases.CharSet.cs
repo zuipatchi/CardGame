@@ -102,7 +102,7 @@ namespace Main
                 }
             }
 
-            await receiveTask;
+            await ShowWaitingOverlayDuringAsync(receiveTask);
         }
 
         private async UniTask CpuCharSetAsync(CancellationToken ct)
