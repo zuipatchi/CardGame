@@ -16,11 +16,17 @@ namespace Main
         private async UniTask RunPreBattle1PhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.PreBattle1);
+
+            // アナウンス前にハンドラを登録してメッセージのロストを防ぐ
+            UniTask preBattle1ReceiveTask = _isOnline
+                ? ReceiveAndPlaceOpponentPreBattle1Async(ct)
+                : UniTask.CompletedTask;
+
             await PlayAnnouncementAsync("準備フェーズ", "turn-announcement-label--skill", ct);
 
             if (_isOnline)
             {
-                await OnlinePreBattle1Async(ct);
+                await OnlinePreBattle1Async(preBattle1ReceiveTask, ct);
             }
             else
             {
@@ -41,10 +47,8 @@ namespace Main
         }
 
         // オンライン：CharSet と同様の対称プロトコル。
-        private async UniTask OnlinePreBattle1Async(CancellationToken ct)
+        private async UniTask OnlinePreBattle1Async(UniTask receiveTask, CancellationToken ct)
         {
-            UniTask receiveTask = ReceiveAndPlaceOpponentPreBattle1Async(ct);
-
             CardView placed = await WaitForPlayerPreBattle1TurnAsync(ct);
             if (placed == null)
             {
@@ -219,6 +223,16 @@ namespace Main
             }
 
             HideActionButtons();
+
+            // PreBattle2 ループ終了 = 最後のネットワーク同期点。
+            // 以降の解決フェーズ・戦闘フェーズはローカルアニメーションのみで数秒かかる場合があり、
+            // 先に終わった側が次ターンの DrawPhase でハンドラ未登録のまま NGS_Draw を受信して
+            // メッセージが捨てられるのを防ぐため、ここで事前登録しておく。
+            if (_isOnline)
+            {
+                _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                _hasPreDrawTask = true;
+            }
 
             await RunResolutionPhaseAsync(ct);
         }

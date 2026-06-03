@@ -113,6 +113,8 @@ namespace Main
 
         private bool _onlineIsLocalFirst;
         private bool _localHasPriority;
+        private UniTask _preDrawReceiveTask;
+        private bool _hasPreDrawTask;
         private VisualElement _playerPriorityCoin;
         private VisualElement _opponentPriorityCoin;
 
@@ -490,6 +492,11 @@ namespace Main
                     _networkGameService.SendMulliganDecision(localChose);
                     _waitingOverlay.style.display = DisplayStyle.Flex;
                     bool opponentChose = await waitOpponentMulligan;
+                    // マリガン同期（最後の通信同期点）直後に登録しておく。
+                    // 以降の InitializePriority アニメーション中に相手が先に DrawPhase へ入って
+                    // NGS_Draw を送っても、ハンドラ未登録で捨てられるのを防ぐ。
+                    _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                    _hasPreDrawTask = true;
                     _waitingOverlay.style.display = DisplayStyle.None;
                     if (opponentChose)
                     {

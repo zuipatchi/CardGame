@@ -15,10 +15,22 @@ namespace Main
         {
             UpdatePhaseIndicator(TurnPhase.Draw);
 
-            // アナウンス前にハンドラを登録してメッセージのロストを防ぐ
-            UniTask drawReceiveTask = _isOnline
-                ? _networkGameService.WaitForOpponentDrawAsync(ct)
-                : UniTask.CompletedTask;
+            // 事前登録タスクがあれば使う（PreBattle2 ループ後やマリガン同期後に登録済み）。
+            // なければここで登録する（フォールバック）。
+            UniTask drawReceiveTask;
+            if (_isOnline && _hasPreDrawTask)
+            {
+                drawReceiveTask = _preDrawReceiveTask;
+                _hasPreDrawTask = false;
+            }
+            else if (_isOnline)
+            {
+                drawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+            }
+            else
+            {
+                drawReceiveTask = UniTask.CompletedTask;
+            }
 
             await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
@@ -64,7 +76,7 @@ namespace Main
                 await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
             }
             _networkGameService.SendDrawNotification();
-            await receiveTask;
+            await receiveTask.AttachExternalCancellation(ct);
             if (opponentDrawn != null)
             {
                 await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);
