@@ -310,7 +310,7 @@ namespace Main
 
             if (isSurrenderWin)
             {
-                _gameEndSubLabel.text = "対戦相手がサレンダーしました";
+                _gameEndSubLabel.text = "対戦相手が降参しました";
                 _gameEndSubLabel.style.display = DisplayStyle.Flex;
             }
             else

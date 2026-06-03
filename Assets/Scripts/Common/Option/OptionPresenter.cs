@@ -141,7 +141,7 @@ namespace Common.Option
             panel.style.paddingRight = 48f;
             panel.style.alignItems = Align.Center;
 
-            Label label = new Label("本当にサレンダーしますか？");
+            Label label = new Label("本当に降参しますか？");
             label.style.fontSize = 22f;
             label.style.color = new StyleColor(new Color(0.9f, 0.9f, 0.9f, 1f));
             label.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -249,7 +249,7 @@ namespace Common.Option
         private void ApplySurrenderHandler(Action surrenderAction)
         {
             _surrenderAction = surrenderAction;
-            _backToTitleButton.text = "サレンダー";
+            _backToTitleButton.text = "降参";
             _backToTitleButton.clicked -= BackToTitle;
             _backToTitleButton.clicked -= OnSurrenderButtonClicked;
             _backToTitleButton.clicked += OnSurrenderButtonClicked;
