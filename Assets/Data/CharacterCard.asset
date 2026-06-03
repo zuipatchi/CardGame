@@ -21,7 +21,7 @@ MonoBehaviour:
     _attack: 2
     _defense: 2
     _speed: 1
-    _hp: 1
+    _hp: 3
   - _id: C002
     _cardName: "\u30D1\u30C3\u30C1\u30C9\u30E9\u30B4\u30F3"
     _cost: 5
@@ -30,7 +30,7 @@ MonoBehaviour:
     _attack: 3
     _defense: 3
     _speed: 2
-    _hp: 3
+    _hp: 5
   - _id: C003
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30D1\u30C3\u30C1"
     _cost: 2
@@ -39,7 +39,7 @@ MonoBehaviour:
     _attack: 1
     _defense: 1
     _speed: 2
-    _hp: 1
+    _hp: 3
   - _id: C004
     _cardName: "\u9B54\u6CD5\u4F7F\u3044"
     _cost: 4
@@ -48,7 +48,7 @@ MonoBehaviour:
     _attack: 3
     _defense: 2
     _speed: 2
-    _hp: 2
+    _hp: 4
   - _id: C005
     _cardName: "\u5927\u86C7\u30E2\u30CA\u2015\u30AF"
     _cost: 4
@@ -57,7 +57,7 @@ MonoBehaviour:
     _attack: 3
     _defense: 3
     _speed: 1
-    _hp: 3
+    _hp: 5
   - _id: C006
     _cardName: "\u3071\u3061\u866B"
     _cost: 1
@@ -66,7 +66,7 @@ MonoBehaviour:
     _attack: 1
     _defense: 1
     _speed: 1
-    _hp: 1
+    _hp: 3
   - _id: C007
     _cardName: "\u708E\u9B5A"
     _cost: 3
@@ -75,7 +75,7 @@ MonoBehaviour:
     _attack: 3
     _defense: 1
     _speed: 2
-    _hp: 1
+    _hp: 3
   - _id: C008
     _cardName: "\u5144\u3071\u3063\u3061"
     _cost: 3
@@ -84,7 +84,7 @@ MonoBehaviour:
     _attack: 2
     _defense: 3
     _speed: 1
-    _hp: 2
+    _hp: 4
   - _id: C009
     _cardName: "\u5F1F\u3071\u3063\u3061"
     _cost: 1
@@ -93,7 +93,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 2
     _speed: 1
-    _hp: 1
+    _hp: 3
   - _id: C010
     _cardName: "\u3071\u3063\u3061\u306E\u5B50\u4F9B"
     _cost: 1
@@ -102,7 +102,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 0
     _speed: 2
-    _hp: 1
+    _hp: 3
   - _id: C011
     _cardName: "\u3071\u3063\u3061\u306E\u5973\u76D7\u8CCA"
     _cost: 3
@@ -111,7 +111,7 @@ MonoBehaviour:
     _attack: 1
     _defense: 1
     _speed: 3
-    _hp: 1
+    _hp: 3
   - _id: C012
     _cardName: "\u30B8\u30E3\u30C3\u30AF\u30B6\u30EA\u30C3\u30D1\u30C3\u30C1"
     _cost: 4
@@ -120,7 +120,7 @@ MonoBehaviour:
     _attack: 1
     _defense: 1
     _speed: 4
-    _hp: 1
+    _hp: 3
   - _id: C013
     _cardName: "\u30C9\u30C3\u30B0"
     _cost: 1
@@ -129,7 +129,7 @@ MonoBehaviour:
     _attack: 0
     _defense: 3
     _speed: 1
-    _hp: 0
+    _hp: 2
   - _id: C014
     _cardName: "\u3071\u3061\u3069\u3063\u304F"
     _cost: 3
@@ -138,4 +138,4 @@ MonoBehaviour:
     _attack: 1
     _defense: 5
     _speed: 1
-    _hp: 1
+    _hp: 3
