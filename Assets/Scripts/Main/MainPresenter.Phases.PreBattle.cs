@@ -56,7 +56,7 @@ namespace Main
                 _networkGameService.SendPreBattle1Action(placed.Data.Id);
             }
 
-            await ShowWaitingOverlayDuringAsync(receiveTask);
+            await receiveTask;
         }
 
         private async UniTask ReceiveAndPlaceOpponentPreBattle1Async(CancellationToken ct)
