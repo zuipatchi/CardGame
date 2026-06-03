@@ -80,7 +80,8 @@ namespace Main.Card
         private void UpdateCardScales()
         {
             float scale = CurrentCardScale;
-            int margin = Mathf.RoundToInt((CardWidth / 2f) * (scale - CardScaleConstants.FieldSlot) + BaseMargin);
+            int excess = Mathf.Max(0, _cards.Count - BaseCardCount);
+            int margin = Mathf.Max(1, Mathf.RoundToInt((CardWidth / 2f) * (scale - CardScaleConstants.FieldSlot) + BaseMargin) - excess);
             foreach (CardView card in _cards)
             {
                 card.style.scale = new Scale(new Vector3(scale, scale, 1f));
