@@ -182,15 +182,17 @@ namespace Main.Card
                 return;
             }
 
-            float opacity = 1f;
+            Color yellow = new Color(1f, 220f / 255f, 50f / 255f);
+            Color white = Color.white;
+            Color current = yellow;
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 0.1f, 0.06f))
-                .Append(DOTween.To(() => opacity, v => { opacity = v; _chainLabel.style.opacity = v; }, 1f, 0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
+                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
                 .AppendInterval(0.04f)
                 .OnComplete(() => tcs.TrySetResult());
 
@@ -199,7 +201,7 @@ namespace Main.Card
             try { await tcs.Task; }
             catch (OperationCanceledException) { }
 
-            _chainLabel.style.opacity = StyleKeyword.Null;
+            _chainLabel.style.color = StyleKeyword.Null;
         }
 
         public void SetBackImage(Texture2D texture)
