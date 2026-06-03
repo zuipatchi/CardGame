@@ -113,27 +113,12 @@ namespace Main
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             }
 
-            CardView firstDestroyedChar = null;
-            Rect firstDestroyedFromRect = default;
-            if (firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp)
-            {
-                await PlayCharDestroyEffectAsync(firstTarget, ct);
-                firstDestroyedChar = firstTarget.CurrentCard;
-                firstDestroyedFromRect = firstDestroyedChar.worldBound;
-                firstTarget.RemoveCard();
-            }
+            bool firstCharWillBeDestroyed = firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp;
 
             if (firstDamage > 0)
             {
                 Rect firstTargetDeckRect = firstTargetDeck.worldBound;
-                List<UniTask> flyTasks = new List<UniTask>();
-                if (firstDestroyedChar != null)
-                {
-                    flyTasks.Add(FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct,
-                        DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
-                }
-                flyTasks.Add(PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct));
-                await UniTask.WhenAll(flyTasks);
+                await PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct);
                 List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
@@ -148,8 +133,14 @@ namespace Main
                     return;
                 }
             }
-            else if (firstDestroyedChar != null)
+
+            CardView firstDestroyedChar = null;
+            if (firstCharWillBeDestroyed)
             {
+                await PlayCharDestroyEffectAsync(firstTarget, ct);
+                firstDestroyedChar = firstTarget.CurrentCard;
+                Rect firstDestroyedFromRect = firstDestroyedChar.worldBound;
+                firstTarget.RemoveCard();
                 await FlyToGraveyardAsync(firstDestroyedChar, firstDestroyedFromRect, firstTargetGraveyard, ct);
             }
 
@@ -195,27 +186,12 @@ namespace Main
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
             }
 
-            CardView secondDestroyedChar = null;
-            Rect secondDestroyedFromRect = default;
-            if (secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp)
-            {
-                await PlayCharDestroyEffectAsync(secondTarget, ct);
-                secondDestroyedChar = secondTarget.CurrentCard;
-                secondDestroyedFromRect = secondDestroyedChar.worldBound;
-                secondTarget.RemoveCard();
-            }
+            bool secondCharWillBeDestroyed = secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp;
 
             if (secondDamage > 0)
             {
                 Rect secondTargetDeckRect = secondTargetDeck.worldBound;
-                List<UniTask> flyTasks = new List<UniTask>();
-                if (secondDestroyedChar != null)
-                {
-                    flyTasks.Add(FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct,
-                        DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
-                }
-                flyTasks.Add(PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct));
-                await UniTask.WhenAll(flyTasks);
+                await PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct);
                 List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
@@ -230,8 +206,13 @@ namespace Main
                     return;
                 }
             }
-            else if (secondDestroyedChar != null)
+
+            if (secondCharWillBeDestroyed)
             {
+                await PlayCharDestroyEffectAsync(secondTarget, ct);
+                CardView secondDestroyedChar = secondTarget.CurrentCard;
+                Rect secondDestroyedFromRect = secondDestroyedChar.worldBound;
+                secondTarget.RemoveCard();
                 await FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct);
             }
 
