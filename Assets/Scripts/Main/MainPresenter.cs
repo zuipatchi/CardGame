@@ -98,6 +98,7 @@ namespace Main
         private bool _isGameOver;
         private bool _isOnline;
         private bool _mulliganChoicePending;
+        private VisualElement _mulliganOverlay;
         private VisualElement _waitingOverlay;
         private VisualElement _toastContainer;
         private Label _toastLabel;
@@ -634,6 +635,7 @@ namespace Main
             buttonRow.Add(noButton);
             overlay.Add(buttonRow);
             _mainRoot.Add(overlay);
+            _mulliganOverlay = overlay;
 
             UniTaskCompletionSource<bool> tcs = new UniTaskCompletionSource<bool>();
             yesButton.clicked += () => tcs.TrySetResult(true);
@@ -648,11 +650,13 @@ namespace Main
             catch (OperationCanceledException)
             {
                 overlay.RemoveFromHierarchy();
+                _mulliganOverlay = null;
                 _mulliganChoicePending = false;
                 return false;
             }
 
             overlay.RemoveFromHierarchy();
+            _mulliganOverlay = null;
             _mulliganChoicePending = false;
             return result;
         }

@@ -284,6 +284,13 @@ namespace Main
 
         private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, CancellationToken ct)
         {
+            if (_mulliganOverlay != null)
+            {
+                _mulliganOverlay.RemoveFromHierarchy();
+                _mulliganOverlay = null;
+                _mulliganChoicePending = false;
+            }
+
             if (playerWins == true && _fireworkPrefab != null)
             {
                 SpawnFireworksAsync(destroyCancellationToken).Forget();
