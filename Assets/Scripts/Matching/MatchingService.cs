@@ -15,6 +15,7 @@ namespace Matching
         public const string QuickMatchName = "QuickMatch";
 
         private readonly GameSessionModel _gameSessionModel;
+        private bool _isQuerying;
 
         public MatchingService(GameSessionModel gameSessionModel)
         {
@@ -35,29 +36,52 @@ namespace Matching
 
         public async UniTask<IReadOnlyList<LobbyInfo>> GetRoomsAsync(CancellationToken ct = default)
         {
-            QuerySessionsOptions queryOptions = new QuerySessionsOptions();
-            QuerySessionsResults results = await MultiplayerService.Instance
-                .QuerySessionsAsync(queryOptions)
-                .AsUniTask()
-                .AttachExternalCancellation(ct);
-
-            List<LobbyInfo> rooms = new(results.Sessions.Count);
-            foreach (ISessionInfo info in results.Sessions)
+            if (_isQuerying)
             {
-                if (info.AvailableSlots == 0)
-                {
-                    continue;
-                }
-                if (info.Properties != null &&
-                    info.Properties.TryGetValue("started", out SessionProperty startedProp) &&
-                    startedProp.Value == "1")
-                {
-                    continue;
-                }
-                int playerCount = info.MaxPlayers - info.AvailableSlots;
-                rooms.Add(new LobbyInfo(info.Id, info.Name, playerCount, info.MaxPlayers));
+                return Array.Empty<LobbyInfo>();
             }
-            return rooms;
+
+            _isQuerying = true;
+            try
+            {
+                QuerySessionsOptions queryOptions = new QuerySessionsOptions();
+                QuerySessionsResults results;
+                try
+                {
+                    results = await MultiplayerService.Instance
+                        .QuerySessionsAsync(queryOptions)
+                        .AsUniTask()
+                        .AttachExternalCancellation(ct);
+                }
+                catch (SessionException)
+                {
+                    // UGS SDK がセッション離脱直後の過渡期に NullRef を投げるバグの回避。
+                    // 次のリフレッシュで再試行される。
+                    return Array.Empty<LobbyInfo>();
+                }
+
+                List<LobbyInfo> rooms = new(results.Sessions.Count);
+                foreach (ISessionInfo info in results.Sessions)
+                {
+                    if (info.AvailableSlots == 0)
+                    {
+                        continue;
+                    }
+                    if (info.Properties != null &&
+                        info.Properties.TryGetValue("started", out SessionProperty startedProp) &&
+                        startedProp.Value == "1")
+                    {
+                        continue;
+                    }
+                    int playerCount = info.MaxPlayers - info.AvailableSlots;
+                    rooms.Add(new LobbyInfo(info.Id, info.Name, playerCount, info.MaxPlayers));
+                }
+                return rooms;
+            }
+            finally
+            {
+                _isQuerying = false;
+            }
         }
 
         public async UniTask<IHostSession> CreateRoomAsync(string roomName, CancellationToken ct = default)

@@ -98,6 +98,8 @@ namespace Matching
             _waitingOverlay.style.display = isWaiting ? DisplayStyle.Flex : DisplayStyle.None;
             _errorOverlay.style.display = isError ? DisplayStyle.Flex : DisplayStyle.None;
             _backButton.SetEnabled(state is MatchingState.BrowsingRooms or MatchingState.Error or MatchingState.TimedOut);
+            _quickMatchButton.SetEnabled(state == MatchingState.BrowsingRooms);
+            _createButton.SetEnabled(state == MatchingState.BrowsingRooms);
 
             if (state == MatchingState.BrowsingRooms)
             {
