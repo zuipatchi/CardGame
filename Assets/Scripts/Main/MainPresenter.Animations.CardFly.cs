@@ -96,6 +96,7 @@ namespace Main
             card.style.left = deckRect.center.x - CardWidth / 2f;
             card.style.top = deckRect.center.y - CardHeight / 2f;
             card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
+            card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
             Rect handRect = _opponentHandView.worldBound;
@@ -121,6 +122,7 @@ namespace Main
             }
 
             _dragLayer.Remove(card);
+            card.pickingMode = PickingMode.Position;
             _opponentHandView.AcceptCard(card);
         }
 
@@ -160,6 +162,7 @@ namespace Main
             card.style.transformOrigin = StyleKeyword.Null;
             card.style.marginLeft = StyleKeyword.Null;
             card.style.marginRight = StyleKeyword.Null;
+            card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
             Rect destRect = dest.worldBound;
@@ -175,6 +178,7 @@ namespace Main
                 catch (OperationCanceledException)
                 {
                     _dragLayer.Remove(card);
+                    card.pickingMode = PickingMode.Position;
                     return;
                 }
             }
@@ -194,6 +198,7 @@ namespace Main
             catch (OperationCanceledException) { }
 
             _dragLayer.Remove(card);
+            card.pickingMode = PickingMode.Position;
         }
 
         // ─── Recover 飛翔アニメーション（墓地 → デッキへ同時飛翔）─────────────

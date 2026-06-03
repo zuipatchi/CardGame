@@ -86,6 +86,7 @@ namespace Main.Card
             {
                 card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
             }
+            card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
             Rect handRect = worldBound;
@@ -115,6 +116,7 @@ namespace Main.Card
             }
 
             _dragLayer.Remove(card);
+            card.pickingMode = PickingMode.Position;
             SetupCardInHand(card);
             _entries.Add(new HandCardEntry { Card = card });
             Add(card);
@@ -165,6 +167,7 @@ namespace Main.Card
             card.style.scale = new Scale(Vector3.one);
             card.style.marginLeft = StyleKeyword.Null;
             card.style.marginRight = StyleKeyword.Null;
+            card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
             Rect handRect = worldBound;
@@ -194,6 +197,7 @@ namespace Main.Card
             }
 
             _dragLayer.Remove(card);
+            card.pickingMode = PickingMode.Position;
             SetupCardInHand(card);
             _entries.Add(new HandCardEntry { Card = card });
             Add(card);
