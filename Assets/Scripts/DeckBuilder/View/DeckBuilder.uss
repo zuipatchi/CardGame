@@ -205,6 +205,21 @@
     background-color: rgba(255, 255, 255, 0.15);
 }
 
+.deckbuilder-deck-row-cost {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgba(255, 255, 255, 0.95);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    width: 40px;
+    height: 40px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+    margin-right: 8px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/CostIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .deckbuilder-deck-row-name {
     flex-grow: 1;
     font-size: 22px;

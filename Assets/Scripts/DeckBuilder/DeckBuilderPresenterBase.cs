@@ -262,6 +262,9 @@ namespace DeckBuilder
                 CardData capturedCardData = cardData;
                 thumbnail.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
 
+                Label costLabel = new Label($"{cardData.Cost}");
+                costLabel.AddToClassList("deckbuilder-deck-row-cost");
+
                 Label nameLabel = new Label(cardData.CardName);
                 nameLabel.AddToClassList("deckbuilder-deck-row-name");
                 nameLabel.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
@@ -288,6 +291,7 @@ namespace DeckBuilder
 
                 row.Add(handle);
                 row.Add(thumbnail);
+                row.Add(costLabel);
                 row.Add(nameLabel);
                 row.Add(subtractButton);
                 row.Add(countLabel);
