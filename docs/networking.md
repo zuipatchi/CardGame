@@ -204,6 +204,38 @@ await PlayAnnouncementAsync("キャラセットフェーズ", ..., ct);
 
 ---
 
+### 8. `QuerySessionsAsync` がセッション離脱直後に `SessionException` を投げる
+
+**症状**: ルームを作ってキャンセル（`Session.LeaveAsync()`）した直後にクイックマッチを押すと
+`SessionException: [Error: Unknown] [Message: Object reference not set to an instance of an object]` が発生し、エラー画面になる。
+
+**原因**: `Session.LeaveAsync()` 完了後、UGS Multiplayer SDK 内部でリレー接続の後片付けが非同期で走る。
+その過渡期（数秒以内）に `QuerySessionsAsync` を呼ぶと、SDK 内部の null 状態を踏んで例外が発生する。
+
+**対処**: `GetRoomsAsync` 内で `SessionException` を捕捉して空リストを返す。
+クイックマッチ側は「部屋なし → 新規作成」フローに入り正常動作する。
+自動リフレッシュ（2秒ごと）が次のサイクルで正常なルーム一覧を取得し直す。
+
+```csharp
+try
+{
+    results = await MultiplayerService.Instance
+        .QuerySessionsAsync(queryOptions)
+        .AsUniTask()
+        .AttachExternalCancellation(ct);
+}
+catch (SessionException)
+{
+    // UGS SDK がセッション離脱直後の過渡期に NullRef を投げるバグの回避。
+    return Array.Empty<LobbyInfo>();
+}
+```
+
+**合わせて**: `_isQuerying` フラグで `QuerySessionsAsync` の並行呼び出しも防止している
+（auto-refresh キャンセル直後にクイックマッチが同じ API を呼ぶレース状態への対策）。
+
+---
+
 ## メッセージ種別一覧
 
 | 定数 | 方向 | 内容 |
