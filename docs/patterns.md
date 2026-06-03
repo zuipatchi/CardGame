@@ -110,7 +110,7 @@ public enum EventType
 **チェーン番号フラッシュ演出について**
 
 `RunResolutionPhaseAsync` のループ先頭では `await card.FlashChainLabelAsync(ct)` を呼び、
-チェーン番号ラベル（①②③）を約 0.4s チカチカさせてから `SetChainNumber(0)` で消す。
+チェーン番号ラベル（①②③）を黄色↔白カラーで 3 回交互フラッシュ（約 0.4s）させてから `SetChainNumber(0)` で消す。
 これにより「次に処理されるカード」への注目を集める。`FlashChainLabelAsync` は
 `resolvedStyle.display == None` の場合（チェーン番号が非表示）は即座に完了する。
 
