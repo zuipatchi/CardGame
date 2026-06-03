@@ -184,9 +184,9 @@ if (session.AvailableSlots == 0)          // 後から確認
 | `NGS_PreBattle1` | Both | 戦闘前1フェーズ行動（passed / cardId） |
 | `NGS_PreBattle2` | Both | 戦闘前2フェーズ行動（passed / cardId） |
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
-| `NGS_Surrender` | Both | サレンダー通知（ペイロードなし） |
+| `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
 
-`NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は即 YOU LOSE を表示してホームへ戻り、受信者は即 YOU WIN + 「対戦相手がサレンダーしました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中のサレンダーも検知できる。
+`NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は即 YOU LOSE を表示してホームへ戻り、受信者は即 YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
 
 ---
 
