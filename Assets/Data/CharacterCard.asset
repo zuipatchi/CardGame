@@ -130,3 +130,12 @@ MonoBehaviour:
     _defense: 3
     _speed: 1
     _hp: 0
+  - _id: C014
+    _cardName: "\u3071\u3061\u3069\u3063\u304F"
+    _cost: 3
+    _image: {fileID: 21300000, guid: 78ea85ca8f236634ca913f38387400a0, type: 3}
+    _attribute: 3
+    _attack: 1
+    _defense: 5
+    _speed: 1
+    _hp: 1
