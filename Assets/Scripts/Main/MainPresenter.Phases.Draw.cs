@@ -14,6 +14,12 @@ namespace Main
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Draw);
+
+            // アナウンス前にハンドラを登録してメッセージのロストを防ぐ
+            UniTask drawReceiveTask = _isOnline
+                ? _networkGameService.WaitForOpponentDrawAsync(ct)
+                : UniTask.CompletedTask;
+
             await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
             bool playerDeckEmpty = _playerDeckView.Count == 0;
@@ -41,7 +47,7 @@ namespace Main
 
             if (_isOnline)
             {
-                await OnlineDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, ct);
+                await OnlineDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, drawReceiveTask, ct);
             }
             else
             {
@@ -50,9 +56,9 @@ namespace Main
         }
 
         private async UniTask OnlineDrawAsync(
-            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect, CancellationToken ct)
+            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect,
+            UniTask receiveTask, CancellationToken ct)
         {
-            UniTask receiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
             if (playerDrawn != null)
             {
                 await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);

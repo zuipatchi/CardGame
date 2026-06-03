@@ -31,26 +31,54 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void FieldView_5枚置くとIsFullがtrue()
+        public void FieldView_5枚以下はスケールが0_9()
         {
             FieldView view = new FieldView();
             for (int i = 0; i < 5; i++)
             {
                 view.PlaceCard(MakeCard());
             }
-            Assert.IsTrue(view.IsFull);
+            Assert.AreEqual(0.9f, view.CurrentCardScale, 0.001f);
         }
 
         [Test]
-        public void FieldView_満杯時にPlaceCardはfalseを返す()
+        public void FieldView_6枚置くとスケールが縮小される()
         {
             FieldView view = new FieldView();
+            for (int i = 0; i < 6; i++)
+            {
+                view.PlaceCard(MakeCard());
+            }
+            // 0.9 * 5 / 6 = 0.75
+            Assert.AreEqual(0.75f, view.CurrentCardScale, 0.001f);
+        }
+
+        [Test]
+        public void FieldView_10枚置くとスケールが最小付近になる()
+        {
+            FieldView view = new FieldView();
+            for (int i = 0; i < 10; i++)
+            {
+                view.PlaceCard(MakeCard());
+            }
+            // 0.9 * 5 / 10 = 0.45
+            Assert.AreEqual(0.45f, view.CurrentCardScale, 0.001f);
+        }
+
+        [Test]
+        public void FieldView_カード削除後スケールが更新される()
+        {
+            FieldView view = new FieldView();
+            CardView extraCard = MakeCard();
             for (int i = 0; i < 5; i++)
             {
                 view.PlaceCard(MakeCard());
             }
-            bool result = view.PlaceCard(MakeCard());
-            Assert.IsFalse(result);
+            view.PlaceCard(extraCard);
+            Assert.Less(view.CurrentCardScale, 0.9f);
+
+            view.RemoveCard(extraCard);
+            Assert.AreEqual(0.9f, view.CurrentCardScale, 0.001f);
         }
     }
 }

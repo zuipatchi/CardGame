@@ -24,11 +24,18 @@ namespace Main
 
             _gameModel.BeginCharacterSet();
             UpdatePhaseIndicator(TurnPhase.CharacterSet);
+
+            // アナウンス前にハンドラを登録してメッセージのロストを防ぐ。
+            // opponentHadChar=true の場合、相手はフェーズをスキップする可能性があるため受信しない。
+            UniTask charSetReceiveTask = (_isOnline && !opponentHadChar)
+                ? ReceiveAndPlaceOpponentCharSetAsync(ct)
+                : UniTask.CompletedTask;
+
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
             if (_isOnline)
             {
-                await OnlineCharSetAsync(ct);
+                await OnlineCharSetAsync(charSetReceiveTask, ct);
             }
             else
             {
@@ -75,10 +82,8 @@ namespace Main
             await CpuCharSetAsync(ct);
         }
 
-        private async UniTask OnlineCharSetAsync(CancellationToken ct)
+        private async UniTask OnlineCharSetAsync(UniTask receiveTask, CancellationToken ct)
         {
-            UniTask receiveTask = ReceiveAndPlaceOpponentCharSetAsync(ct);
-
             if (_playerCharacterSlot.CurrentCard != null)
             {
                 _networkGameService.SendCharSetAction(null);

@@ -7,15 +7,21 @@ namespace Main.Card
 {
     public sealed class FieldView : VisualElement
     {
-        private const int MaxCards = 5;
+        private const int BaseCardCount = 5;
+        private const float MinScale = 0.4f;
+        private const float CardWidth = 160f;
+        private const float BaseMargin = 4f;
+
         private readonly List<CardView> _cards = new List<CardView>();
         private readonly bool _isOpponent;
-
-        public bool IsFull => _cards.Count >= MaxCards;
 
         public IReadOnlyList<CardView> Cards => _cards;
 
         public Action<CardView> OnCardClicked { get; set; }
+
+        public float CurrentCardScale => _cards.Count <= BaseCardCount
+            ? CardScaleConstants.FieldSlot
+            : Mathf.Max(MinScale, CardScaleConstants.FieldSlot * BaseCardCount / _cards.Count);
 
         public FieldView(bool isOpponent = false)
         {
@@ -39,11 +45,12 @@ namespace Main.Card
         {
             _cards.Remove(card);
             card.RemoveFromHierarchy();
+            UpdateCardScales();
         }
 
         public bool TryPlace(CardView card, Vector2 worldPos)
         {
-            if (IsFull || !worldBound.Contains(worldPos))
+            if (!worldBound.Contains(worldPos))
             {
                 return false;
             }
@@ -52,30 +59,34 @@ namespace Main.Card
             return true;
         }
 
-        public bool PlaceCard(CardView card)
+        public void PlaceCard(CardView card)
         {
-            if (IsFull)
-            {
-                return false;
-            }
-
             card.RemoveDragManipulator();
             card.style.position = Position.Relative;
             card.style.left = StyleKeyword.Null;
             card.style.top = StyleKeyword.Null;
             card.style.bottom = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);
-            card.style.scale = new Scale(new Vector3(CardScaleConstants.FieldSlot, CardScaleConstants.FieldSlot, 1f));
             card.style.transformOrigin = StyleKeyword.Null;
-            card.style.marginLeft = 8;
-            card.style.marginRight = 8;
             _cards.Add(card);
             Add(card);
 
             CardView capturedCard = card;
             capturedCard.RegisterCallback<ClickEvent>(_ => OnCardClicked?.Invoke(capturedCard));
 
-            return true;
+            UpdateCardScales();
+        }
+
+        private void UpdateCardScales()
+        {
+            float scale = CurrentCardScale;
+            int margin = Mathf.RoundToInt((CardWidth / 2f) * (scale - CardScaleConstants.FieldSlot) + BaseMargin);
+            foreach (CardView card in _cards)
+            {
+                card.style.scale = new Scale(new Vector3(scale, scale, 1f));
+                card.style.marginLeft = margin;
+                card.style.marginRight = margin;
+            }
         }
     }
 }
