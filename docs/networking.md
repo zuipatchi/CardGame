@@ -172,6 +172,38 @@ if (session.AvailableSlots == 0)          // 後から確認
 
 ---
 
+### 7. フェーズ開始アナウンス中にメッセージが届いてハンドラ未登録で捨てられる
+
+**症状**: オンライン対戦でドローフェーズやキャラセットフェーズに「進めない」プレイヤーが発生し、ゲームが永久に止まる。特にキャラなし・スキルなしで全パスしたターンの直後に発生しやすい。
+
+**原因**: `RunDrawPhaseAsync` / `RunCharacterSetPhaseAsync` は「アナウンスアニメーション → `OnlineDrawAsync` / `OnlineCharSetAsync` 内でハンドラ登録 → 送受信」という順序だった。一方のプレイヤーがアナウンス再生中に、もう一方がすでにメッセージを送信すると、ハンドラが未登録のためメッセージが捨てられて永久待ちになる。
+
+**対処**: ハンドラ登録を **フェーズアナウンスの前** に移動する。メッセージがアナウンス中に届いても捨てられない。
+
+```csharp
+// RunDrawPhaseAsync の冒頭（アナウンス前）
+UniTask drawReceiveTask = _isOnline
+    ? _networkGameService.WaitForOpponentDrawAsync(ct)
+    : UniTask.CompletedTask;
+
+await PlayAnnouncementAsync("ドローフェーズ", ..., ct);
+// ... 以降で drawReceiveTask を OnlineDrawAsync に渡して await
+```
+
+```csharp
+// RunCharacterSetPhaseAsync の冒頭（アナウンス前）
+UniTask charSetReceiveTask = (_isOnline && !opponentHadChar)
+    ? ReceiveAndPlaceOpponentCharSetAsync(ct)
+    : UniTask.CompletedTask;
+
+await PlayAnnouncementAsync("キャラセットフェーズ", ..., ct);
+// ... 以降で charSetReceiveTask を OnlineCharSetAsync に渡して await
+```
+
+`opponentHadChar=true` のとき受信しない理由: 相手はキャラを保持済みのため自フェーズをスキップする場合があり、`k_CharSet` を送信しないことがある。受信待ちにすると永久ブロックになる。
+
+---
+
 ## メッセージ種別一覧
 
 | 定数 | 方向 | 内容 |
