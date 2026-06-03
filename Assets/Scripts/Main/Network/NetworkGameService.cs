@@ -22,6 +22,7 @@ namespace Main.Network
         private const string k_PreBattle2 = "NGS_PreBattle2";
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
+        private const string k_Mulligan = "NGS_Mulligan";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
@@ -113,15 +114,11 @@ namespace Main.Network
             CardData[] clientRemaining = Slice(clientShuffled, handSize, clientShuffled.Length - handSize);
 
             bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
-            bool hostNeedsMulligan = !HasCharacterCard(hostHand);
-            bool clientNeedsMulligan = !HasCharacterCard(clientHand);
 
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
                 hostHand.Length, hostRemaining.Length,
-                isLocalFirst: !hostGoesFirst,
-                localNeedsMulligan: clientNeedsMulligan,
-                opponentNeedsMulligan: hostNeedsMulligan);
+                isLocalFirst: !hostGoesFirst);
 
             return new OnlineInitialState
             {
@@ -129,9 +126,7 @@ namespace Main.Network
                 LocalDeck = hostRemaining,
                 OpponentHandCount = clientHand.Length,
                 OpponentDeckCount = clientRemaining.Length,
-                IsLocalFirst = hostGoesFirst,
-                LocalNeedsMulligan = hostNeedsMulligan,
-                OpponentNeedsMulligan = clientNeedsMulligan
+                IsLocalFirst = hostGoesFirst
             };
         }
 
@@ -153,9 +148,7 @@ namespace Main.Network
                     LocalDeck = _cardDatabase.BuildDeck(payload.localDeckIds),
                     OpponentHandCount = payload.opponentHandCount,
                     OpponentDeckCount = payload.opponentDeckCount,
-                    IsLocalFirst = payload.isLocalFirst,
-                    LocalNeedsMulligan = payload.localNeedsMulligan,
-                    OpponentNeedsMulligan = payload.opponentNeedsMulligan
+                    IsLocalFirst = payload.isLocalFirst
                 });
             }
 
@@ -196,18 +189,6 @@ namespace Main.Network
             return await stateTcs.Task.AttachExternalCancellation(ct);
         }
 
-        private static bool HasCharacterCard(CardData[] hand)
-        {
-            foreach (CardData card in hand)
-            {
-                if (card is CharacterCardData)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private static void SendInitialStateToClient(
             CustomMessagingManager messaging,
             ulong clientId,
@@ -215,9 +196,7 @@ namespace Main.Network
             CardData[] clientDeck,
             int opponentHandCount,
             int opponentDeckCount,
-            bool isLocalFirst,
-            bool localNeedsMulligan,
-            bool opponentNeedsMulligan)
+            bool isLocalFirst)
         {
             InitialStatePayload payload = new InitialStatePayload
             {
@@ -225,9 +204,7 @@ namespace Main.Network
                 localDeckIds = clientDeck.Select(c => c.Id).ToArray(),
                 opponentHandCount = opponentHandCount,
                 opponentDeckCount = opponentDeckCount,
-                isLocalFirst = isLocalFirst,
-                localNeedsMulligan = localNeedsMulligan,
-                opponentNeedsMulligan = opponentNeedsMulligan
+                isLocalFirst = isLocalFirst
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
@@ -235,6 +212,44 @@ namespace Main.Network
                 writer.WriteValueSafe(json);
                 messaging.SendNamedMessage(k_InitialState, clientId, writer);
             }
+        }
+
+        public void SendMulliganDecision(bool mulliganed)
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            MulliganPayload payload = new MulliganPayload { mulliganed = mulliganed };
+            string json = JsonUtility.ToJson(payload);
+            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
+            {
+                writer.WriteValueSafe(json);
+                messaging.SendNamedMessage(k_Mulligan, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask<bool> WaitForOpponentMulliganDecisionAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource<bool> tcs = new UniTaskCompletionSource<bool>();
+
+            void OnMulligan(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_Mulligan);
+                reader.ReadValueSafe(out string json);
+                MulliganPayload payload = JsonUtility.FromJson<MulliganPayload>(json);
+                tcs.TrySetResult(payload.mulliganed);
+            }
+
+            messaging.RegisterNamedMessageHandler(k_Mulligan, OnMulligan);
+            return await tcs.Task.AttachExternalCancellation(ct);
         }
 
         private static CardData[] Slice(CardData[] arr, int start, int length)
@@ -457,6 +472,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_PreBattle2);
             m.UnregisterNamedMessageHandler(k_Draw);
             m.UnregisterNamedMessageHandler(k_Surrender);
+            m.UnregisterNamedMessageHandler(k_Mulligan);
         }
 
         [Serializable]
@@ -480,8 +496,12 @@ namespace Main.Network
             public int opponentHandCount;
             public int opponentDeckCount;
             public bool isLocalFirst;
-            public bool localNeedsMulligan;
-            public bool opponentNeedsMulligan;
+        }
+
+        [Serializable]
+        private sealed class MulliganPayload
+        {
+            public bool mulliganed;
         }
     }
 }

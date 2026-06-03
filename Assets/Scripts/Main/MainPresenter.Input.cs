@@ -347,6 +347,11 @@ namespace Main
                 return false;
             }
 
+            if (_mulliganChoicePending)
+            {
+                return false;
+            }
+
             if (_evolveInput._tcs != null)
             {
                 return _evolveInput._card == null;

@@ -74,6 +74,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a60f8c08b18e9244f83cb77e155a9e42
+    m_Address: Image/YesButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bd8f5ee9a6e2ac3438f2aa912e2ce312
     m_Address: Image/Coin1
     m_ReadOnly: 0
@@ -97,6 +102,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d039ea2757016874299f240249acc26d
+    m_Address: Image/NoButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e0c55e8aa624c6f46a691581f55bb6cf
     m_Address: Image/Logo

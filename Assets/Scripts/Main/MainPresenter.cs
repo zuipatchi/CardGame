@@ -97,6 +97,7 @@ namespace Main
         private CardDetailModal _cardDetailModal;
         private bool _isGameOver;
         private bool _isOnline;
+        private bool _mulliganChoicePending;
         private VisualElement _waitingOverlay;
         private VisualElement _toastContainer;
         private Label _toastLabel;
@@ -219,8 +220,6 @@ namespace Main
                 bool isOnline = _gameSessionModel.HasSession;
                 _isOnline = isOnline;
 
-                bool onlineLocalNeedsMulligan = false;
-                bool onlineOpponentNeedsMulligan = false;
                 CardData[] playerDeckFull = null;
                 CardData[] playerHandCards;
                 CardData[] playerDeckCards;
@@ -247,8 +246,6 @@ namespace Main
                         return;
                     }
                     _onlineIsLocalFirst = state.IsLocalFirst;
-                    onlineLocalNeedsMulligan = state.LocalNeedsMulligan;
-                    onlineOpponentNeedsMulligan = state.OpponentNeedsMulligan;
                     handSize = state.LocalHand.Length;
                     playerHandCards = state.LocalHand;
                     playerDeckCards = state.LocalDeck;
@@ -485,22 +482,23 @@ namespace Main
 
                 if (isOnline)
                 {
-                    if (onlineLocalNeedsMulligan)
+                    CardData[] onlinePlayerFull = playerHandCards.Concat(playerDeckCards).ToArray();
+                    CardData opponentPlaceholder = allCards.Length > 0 ? allCards[0] : null;
+                    UniTask<bool> waitOpponentMulligan = _networkGameService.WaitForOpponentMulliganDecisionAsync(ct);
+                    bool localChose = await RunPlayerMulliganAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
+                    _networkGameService.SendMulliganDecision(localChose);
+                    _waitingOverlay.style.display = DisplayStyle.Flex;
+                    bool opponentChose = await waitOpponentMulligan;
+                    _waitingOverlay.style.display = DisplayStyle.None;
+                    if (opponentChose)
                     {
-                        CardData[] onlinePlayerFull = playerHandCards.Concat(playerDeckCards).ToArray();
-                        await RunMulliganIfNeededAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
-                    }
-
-                    if (onlineOpponentNeedsMulligan)
-                    {
-                        CardData opponentPlaceholder = allCards.Length > 0 ? allCards[0] : null;
                         await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, ct);
                     }
                 }
                 else
                 {
-                    await RunMulliganIfNeededAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
-                    await RunMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
+                    await RunPlayerMulliganAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
+                    await RunCpuMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
                 }
 
                 await InitializePriorityAsync(ct);
@@ -566,7 +564,6 @@ namespace Main
 
         private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CancellationToken ct)
         {
-            await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
             await PlayReturnHandToDeckAsync(_opponentHandView, _opponentDeckView, ct);
 
             await UniTask.NextFrame(ct);
@@ -580,7 +577,87 @@ namespace Main
             await UniTask.WhenAll(drawTasks);
         }
 
-        private async UniTask RunMulliganIfNeededAsync(
+        private async UniTask<bool> RunPlayerMulliganAsync(
+            CardData[] fullDeck, HandView hand, DeckView deck, int handSize, CancellationToken ct)
+        {
+            bool chose = await WaitForMulliganChoiceAsync(ct);
+            if (!chose)
+            {
+                return false;
+            }
+
+            await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
+            await PlayReturnHandToDeckAsync(hand, deck, ct);
+
+            CardData[] reshuffled = CardArrayUtils.Shuffle((CardData[])fullDeck.Clone());
+            CardData[] newHandCards = reshuffled.Take(handSize).ToArray();
+            CardData[] newDeckCards = reshuffled.Skip(handSize).ToArray();
+
+            deck.Rebuild(newDeckCards);
+
+            await UniTask.NextFrame(ct);
+
+            Rect deckRect = deck.worldBound;
+            UniTask[] drawTasks = new UniTask[handSize];
+            for (int i = 0; i < handSize; i++)
+            {
+                drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
+            }
+            await UniTask.WhenAll(drawTasks);
+            return true;
+        }
+
+        private async UniTask<bool> WaitForMulliganChoiceAsync(CancellationToken ct)
+        {
+            _mulliganChoicePending = true;
+
+            VisualElement overlay = new VisualElement();
+            overlay.AddToClassList("mulligan-overlay");
+
+            Label label = new Label("マリガンしますか？");
+            label.AddToClassList("mulligan-label");
+            label.pickingMode = PickingMode.Ignore;
+            overlay.Add(label);
+
+            VisualElement buttonRow = new VisualElement();
+            buttonRow.AddToClassList("mulligan-button-row");
+
+            Button yesButton = new Button();
+            yesButton.AddToClassList("mulligan-button");
+            yesButton.style.backgroundImage = new StyleBackground(_cardStore.YesButtonImage);
+
+            Button noButton = new Button();
+            noButton.AddToClassList("mulligan-button");
+            noButton.style.backgroundImage = new StyleBackground(_cardStore.NoButtonImage);
+
+            buttonRow.Add(yesButton);
+            buttonRow.Add(noButton);
+            overlay.Add(buttonRow);
+            _mainRoot.Add(overlay);
+
+            UniTaskCompletionSource<bool> tcs = new UniTaskCompletionSource<bool>();
+            yesButton.clicked += () => tcs.TrySetResult(true);
+            noButton.clicked += () => tcs.TrySetResult(false);
+            ct.Register(() => tcs.TrySetCanceled());
+
+            bool result;
+            try
+            {
+                result = await tcs.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                overlay.RemoveFromHierarchy();
+                _mulliganChoicePending = false;
+                return false;
+            }
+
+            overlay.RemoveFromHierarchy();
+            _mulliganChoicePending = false;
+            return result;
+        }
+
+        private async UniTask RunCpuMulliganIfNeededAsync(
             CardData[] fullDeck, HandView hand, DeckView deck, int handSize, CancellationToken ct)
         {
             IReadOnlyList<CardView> cards = hand.Cards;
@@ -599,7 +676,6 @@ namespace Main
                 return;
             }
 
-            await PlayAnnouncementAsync("マリガン", "turn-announcement-label--mulligan", ct);
             await PlayReturnHandToDeckAsync(hand, deck, ct);
 
             CardData[] reshuffled = CardArrayUtils.Shuffle((CardData[])fullDeck.Clone());

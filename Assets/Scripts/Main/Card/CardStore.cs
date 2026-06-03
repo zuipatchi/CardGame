@@ -20,6 +20,8 @@ namespace Main.Card
         private readonly string _coinFrontAddressable = "Image/Coin1";
         private readonly string _coinBackAddressable = "Image/Coin2";
         private readonly string _cpuDeckAddressable = "Card/CpuDeck";
+        private readonly string _yesButtonAddressable = "Image/YesButton";
+        private readonly string _noButtonAddressable = "Image/NoButton";
 
         public VisualTreeAsset CardTemplate => _cardTemplate;
         public Texture2D CardBack => _cardBack;
@@ -29,6 +31,8 @@ namespace Main.Card
         public Sprite CoinFront => _coinFront;
         public Sprite CoinBack => _coinBack;
         public CpuDeckSO CpuDeck => _cpuDeck;
+        public Texture2D YesButtonImage => _yesButtonImage;
+        public Texture2D NoButtonImage => _noButtonImage;
 
         private VisualTreeAsset _cardTemplate;
         private Texture2D _cardBack;
@@ -38,6 +42,8 @@ namespace Main.Card
         private Sprite _coinFront;
         private Sprite _coinBack;
         private CpuDeckSO _cpuDeck;
+        private Texture2D _yesButtonImage;
+        private Texture2D _noButtonImage;
 
         public void Start()
         {
@@ -73,6 +79,9 @@ namespace Main.Card
                 {
                     Debug.LogWarning($"CPUデッキデータのロードをスキップ: {e.Message}");
                 }
+
+                _yesButtonImage = await Addressables.LoadAssetAsync<Texture2D>(_yesButtonAddressable).ToUniTask();
+                _noButtonImage = await Addressables.LoadAssetAsync<Texture2D>(_noButtonAddressable).ToUniTask();
 
                 _loadedTcs.TrySetResult();
             }

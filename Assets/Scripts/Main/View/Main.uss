@@ -1184,3 +1184,58 @@
     width: 220px;
     height: 60px;
 }
+
+/* ─── マリガン選択モーダル ──────────────────────────────────────────── */
+
+.mulligan-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.mulligan-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(230, 230, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 24px;
+}
+
+.mulligan-button-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.mulligan-button {
+    width: 110px;
+    height: 110px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-left: 32px;
+    margin-right: 32px;
+    -unity-background-scale-mode: stretch-to-fill;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.mulligan-button:hover {
+    scale: 1.06 1.06;
+}
+
+.mulligan-button:active {
+    scale: 0.94 0.94;
+}
