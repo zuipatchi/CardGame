@@ -257,11 +257,35 @@ namespace Main
 
             if (isLocal)
             {
-                await WaitForPlayerEvolveInputAsync(sacrificedCost, ct);
+                CardView placed = await WaitForPlayerEvolveInputAsync(sacrificedCost, ct);
+                if (_isOnline)
+                {
+                    _networkGameService.SendEvolveAction(placed?.Data.Id);
+                }
                 // カードはドロップ時点で HandlePlayerCardDrop が PlaceCard 済み
                 if (ownSlot.CurrentCard != null && _evolveEffectPrefab != null)
                 {
                     await PlayParticleAtCardAsync(ownSlot.CurrentCard, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+                }
+            }
+            else if (_isOnline)
+            {
+                string cardId = await _networkGameService.WaitForOpponentEvolveAsync(ct);
+                if (!string.IsNullOrEmpty(cardId) && _cardDatabase.TryGet(cardId, out CardData cardData))
+                {
+                    IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+                    Rect charFromRect = hand.Count > 0 ? hand[0].worldBound : ownSlot.worldBound;
+                    if (hand.Count > 0)
+                    {
+                        _opponentHandView.RemoveCard(hand[0]);
+                    }
+                    CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
+                    await FlyCardToDestAsync(newChar, charFromRect, ownSlot, ct);
+                    ownSlot.PlaceCard(newChar);
+                    if (_evolveEffectPrefab != null)
+                    {
+                        await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+                    }
                 }
             }
             else
@@ -320,9 +344,34 @@ namespace Main
             {
                 await _handView.AddCardBackAsync(existingChar, charRect, ct);
                 CardView newChar = await WaitForPlayerSwitchInputAsync(ct);
+                if (_isOnline)
+                {
+                    _networkGameService.SendSwitchAction(newChar?.Data.Id);
+                }
                 if (newChar != null)
                 {
                     await PayCostAsync(newChar, _playerDeckView, _playerGraveyardView, ct);
+                }
+            }
+            else if (_isOnline)
+            {
+                // アニメーション前にハンドラを事前登録してメッセージのロストを防ぐ
+                UniTask<string> switchReceiveTask = _networkGameService.WaitForOpponentSwitchAsync(ct);
+                await existingChar.FlipAsync(ct);
+                await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
+                string cardId = await switchReceiveTask;
+                if (!string.IsNullOrEmpty(cardId) && _cardDatabase.TryGet(cardId, out CardData cardData))
+                {
+                    IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+                    Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+                    if (hand.Count > 0)
+                    {
+                        _opponentHandView.RemoveCard(hand[0]);
+                    }
+                    CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
+                    await FlyCardToDestAsync(newChar, fromRect, _opponentCharacterSlot, ct);
+                    _opponentCharacterSlot.PlaceCard(newChar);
+                    await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
                 }
             }
             else
