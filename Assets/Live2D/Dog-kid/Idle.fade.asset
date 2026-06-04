@@ -15,8 +15,8 @@ MonoBehaviour:
   MotionName: Assets/Live2D/Dog-kid/Idle.motion3.json
   ModelFadeInTime: -1
   ModelFadeOutTime: -1
-  FadeInTime: 0
-  FadeOutTime: 0
+  FadeInTime: 1
+  FadeOutTime: 1
   ParameterIds:
   - ParamAngleZ
   - ParamEyeLOpen
@@ -222,7 +222,7 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 1
+      time: 0.833
       value: 1
       inSlope: 0
       outSlope: 0
@@ -231,7 +231,7 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 2
+      time: 1.667
       value: 0
       inSlope: 0
       outSlope: 0
@@ -240,9 +240,18 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 2.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
       time: 3.3
-      value: 0.993
-      inSlope: 0.20307714
+      value: 0.005
+      inSlope: -0.2737503
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
@@ -291,8 +300,8 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 3.3
-      value: -0.5
-      inSlope: 0
+      value: -0.002
+      inSlope: 0.13875015
       outSlope: 0
       tangentMode: 0
       weightedMode: 0

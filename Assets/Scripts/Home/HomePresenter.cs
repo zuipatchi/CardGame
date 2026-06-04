@@ -46,6 +46,11 @@ namespace Home
                 {
                     live2D.IsRainy = true;
                 }
+                DogSpeechPresenter speech = GetComponent<DogSpeechPresenter>();
+                if (speech != null)
+                {
+                    speech.IsRainy = true;
+                }
             }
         }
 

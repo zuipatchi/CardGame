@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 namespace Home
 {
@@ -28,6 +29,14 @@ namespace Home
 
         [SerializeField]
         private float _walkSpeed = 2f;
+
+        private DogSpeechPresenter _speechPresenter;
+
+        [Inject]
+        public void Construct(DogSpeechPresenter speechPresenter)
+        {
+            _speechPresenter = speechPresenter;
+        }
 
         private readonly Queue<(Vector3 pos, Animator food)> _foodQueue = new Queue<(Vector3, Animator)>();
 
@@ -207,6 +216,8 @@ namespace Home
             UniTask dogEatTask = UniTask.Delay(TimeSpan.FromSeconds(_eatClip.length), cancellationToken: token);
             UniTask foodEatTask = foodAnimator != null ? WaitAndDestroyFoodAsync() : UniTask.CompletedTask;
             await UniTask.WhenAll(dogEatTask, foodEatTask);
+
+            _speechPresenter?.ShowEatMessage();
         }
     }
 }

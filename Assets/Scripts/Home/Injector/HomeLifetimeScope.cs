@@ -8,6 +8,8 @@ namespace Home.Injector
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponentInHierarchy<HomePresenter>();
+            builder.RegisterComponentInHierarchy<HomeLive2DPresenter>();
+            builder.RegisterComponentInHierarchy<DogSpeechPresenter>().AsImplementedInterfaces().AsSelf();
         }
     }
 }

@@ -130,6 +130,39 @@
     -unity-text-align: middle-left;
 }
 
+.home-speech-bubble {
+    position: absolute;
+    min-width: 180px;
+    max-width: 320px;
+    background-color: rgba(255, 250, 235, 0.96);
+    border-left-color: rgba(190, 160, 100, 0.9);
+    border-right-color: rgba(190, 160, 100, 0.9);
+    border-top-color: rgba(190, 160, 100, 0.9);
+    border-bottom-color: rgba(190, 160, 100, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    display: none;
+}
+
+.home-speech-text {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(40, 30, 20);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 0;
+}
+
 .home-cost-over-toast {
     position: absolute;
     left: 0;

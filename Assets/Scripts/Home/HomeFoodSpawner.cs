@@ -15,6 +15,9 @@ namespace Home
         private float _spawnDepth = 10f;
 
         [SerializeField]
+        private float _spawnPadding = 50f;
+
+        [SerializeField]
         private HomeLive2DPresenter _dogPresenter;
 
         private GameObject _currentFood;
@@ -27,7 +30,10 @@ namespace Home
             }
 
             Vector3 mousePos = Mouse.current.position.ReadValue();
-            if (mousePos.x >= Screen.width * 0.5f)
+            if (mousePos.x < _spawnPadding
+                || mousePos.x >= Screen.width * 0.5f - _spawnPadding
+                || mousePos.y < _spawnPadding
+                || mousePos.y >= Screen.height - _spawnPadding)
             {
                 return;
             }
