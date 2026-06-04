@@ -1,5 +1,6 @@
 using System;
 using Common.SceneManagement;
+using Common.SoundManagement;
 using Common.Store;
 using Cysharp.Threading.Tasks;
 using R3;
@@ -16,6 +17,8 @@ namespace Common.Option
         private OptionModel _optionModel;
         private ModalStore _modalStore;
         private SceneTransitioner _sceneTransitioner;
+        private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
         private VisualTreeAsset _modal;
         private VisualElement _overlay;
         private VisualElement _host;
@@ -26,11 +29,13 @@ namespace Common.Option
         private VisualElement _surrenderConfirmOverlay;
 
         [Inject]
-        public void Construct(ModalStore modalStore, OptionModel optionModel, SceneTransitioner sceneTransitioner)
+        public void Construct(ModalStore modalStore, OptionModel optionModel, SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore)
         {
             _modalStore = modalStore;
             _optionModel = optionModel;
             _sceneTransitioner = sceneTransitioner;
+            _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
         }
 
         private void Awake()
@@ -230,11 +235,19 @@ namespace Common.Option
 
         private void OpenModal()
         {
+            if (_soundStore.Enter2SE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.Enter2SE);
+            }
             _overlay.style.display = DisplayStyle.Flex;
         }
 
         private void CloseModal()
         {
+            if (_soundStore.Cancel1SE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+            }
             if (_surrenderConfirmOverlay != null)
             {
                 _surrenderConfirmOverlay.style.display = DisplayStyle.None;

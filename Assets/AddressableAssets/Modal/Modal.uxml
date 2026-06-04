@@ -21,7 +21,7 @@
         </ui:VisualElement>
         <ui:VisualElement style="flex-direction: row; justify-content: space-between;">
             <ui:Button text="タイトルに戻る" name="BackToTitleButton" class="modal-btn-ghost" style="flex-grow: 1; margin-right: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; -unity-text-align: middle-center; font-size: 14px;"/>
-            <ui:Button text="Close" name="CloseButton" class="modal-btn-primary" style="flex-grow: 1; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; -unity-text-align: middle-center; font-size: 14px;"/>
+            <ui:Button text="閉じる" name="CloseButton" class="modal-btn-primary" style="flex-grow: 1; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; -unity-text-align: middle-center; font-size: 14px;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

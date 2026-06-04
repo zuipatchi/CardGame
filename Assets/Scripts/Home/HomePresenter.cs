@@ -3,6 +3,8 @@ using System.Threading;
 using Common.Deck;
 using Common.GameSession;
 using Common.SceneManagement;
+using Common.SoundManagement;
+using Common.Store;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,6 +19,8 @@ namespace Home
         [SerializeField] private GameObject _rainEffectPrefab;
 
         private SceneTransitioner _sceneTransitioner;
+        private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
         private DeckModel _deckModel;
         private DeckRepository _deckRepository;
         private GameSessionModel _gameSessionModel;
@@ -29,9 +33,11 @@ namespace Home
         private CancellationTokenSource _toastCts;
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel)
+        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel)
         {
             _sceneTransitioner = sceneTransitioner;
+            _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
             _deckModel = deckModel;
             _deckRepository = deckRepository;
             _gameSessionModel = gameSessionModel;
@@ -114,13 +120,23 @@ namespace Home
             _toastCts?.Dispose();
         }
 
+        private void PlayEnterSE()
+        {
+            if (_soundStore.EnterSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
+            }
+        }
+
         private void OnDeckBuilderClicked()
         {
+            PlayEnterSE();
             _sceneTransitioner.Transit(Scenes.DeckBuilder).Forget();
         }
 
         private void OnBattleClicked()
         {
+            PlayEnterSE();
             if (!_deckModel.IsReady)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
@@ -137,6 +153,7 @@ namespace Home
 
         private void OnMatchingClicked()
         {
+            PlayEnterSE();
             if (!_deckModel.IsReady)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
