@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Common.GameSession;
 using Common.SceneManagement;
+using Common.SoundManagement;
+using Common.Store;
 using Cysharp.Threading.Tasks;
 using R3;
 using Unity.Services.Multiplayer;
@@ -21,6 +23,8 @@ namespace Matching
         private MatchingService _matchingService;
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
+        private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
 
         private Button _backButton;
         private ScrollView _roomList;
@@ -41,12 +45,16 @@ namespace Matching
             MatchingModel model,
             MatchingService matchingService,
             SceneTransitioner sceneTransitioner,
-            GameSessionModel gameSessionModel)
+            GameSessionModel gameSessionModel,
+            SoundPlayer soundPlayer,
+            SoundStore soundStore)
         {
             _model = model;
             _matchingService = matchingService;
             _sceneTransitioner = sceneTransitioner;
             _gameSessionModel = gameSessionModel;
+            _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
         }
 
         private void Awake()
@@ -70,10 +78,26 @@ namespace Matching
 
         void IStartable.Start()
         {
-            _backButton.clicked += () => _sceneTransitioner.Transit(Scenes.Home).Forget();
-            _quickMatchButton.clicked += () => OnQuickMatchButtonClickedAsync().Forget();
-            _createButton.clicked += () => OnCreateButtonClickedAsync().Forget();
-            _cancelWaitButton.clicked += () => CancelWaitAsync().Forget();
+            _backButton.clicked += () =>
+            {
+                if (_soundStore.Enter2SE != null) _soundPlayer.PlaySE(_soundStore.Enter2SE);
+                _sceneTransitioner.Transit(Scenes.Home).Forget();
+            };
+            _quickMatchButton.clicked += () =>
+            {
+                if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                OnQuickMatchButtonClickedAsync().Forget();
+            };
+            _createButton.clicked += () =>
+            {
+                if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                OnCreateButtonClickedAsync().Forget();
+            };
+            _cancelWaitButton.clicked += () =>
+            {
+                if (_soundStore.Cancel1SE != null) _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                CancelWaitAsync().Forget();
+            };
             _timeoutCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
             _errorCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
 
@@ -186,7 +210,11 @@ namespace Matching
                 }
                 hasVisible = true;
                 string sessionId = room.LobbyId;
-                Button roomButton = new Button(() => OnRoomSelectedAsync(sessionId).Forget())
+                Button roomButton = new Button(() =>
+                {
+                    if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                    OnRoomSelectedAsync(sessionId).Forget();
+                })
                 {
                     text = $"{room.Name}  {room.PlayerCount}/{room.MaxPlayers}"
                 };
@@ -289,6 +317,7 @@ namespace Matching
 
         private async UniTask TransitToMainAsync()
         {
+            if (_soundStore.ResultSE != null) _soundPlayer.PlaySE(_soundStore.ResultSE);
             await _sceneTransitioner.Transit(Scenes.Main);
         }
 

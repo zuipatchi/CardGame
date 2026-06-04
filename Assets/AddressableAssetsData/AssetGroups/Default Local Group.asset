@@ -77,6 +77,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 79d9399d49da44c45975ef8824a51e79
+    m_Address: Sound/SE/Result
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 932b0dda6e8be9b42bb261f5e750ea1c
     m_Address: Image/TitleBackground
     m_ReadOnly: 0
