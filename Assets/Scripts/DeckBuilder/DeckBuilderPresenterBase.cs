@@ -19,6 +19,8 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
 
+        private enum CardTypeFilter { All, Character, Skill, Event }
+
         private VisualElement _deckBuilderRoot;
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
@@ -37,6 +39,13 @@ namespace DeckBuilder
         private VisualElement _reorderGhost;
         private VisualElement _reorderIndicator;
         private int _reorderInsertIndex;
+        private CardTypeFilter _cardTypeFilter = CardTypeFilter.All;
+        private VisualElement _characterCardSection;
+        private VisualElement _skillCardSection;
+        private VisualElement _eventCardSection;
+        private Button _filterCharacterButton;
+        private Button _filterSkillButton;
+        private Button _filterEventButton;
 
         void IStartable.Start()
         {
@@ -92,13 +101,21 @@ namespace DeckBuilder
                 Button analyzeButton = root.Q<Button>("AnalyzeButton");
                 analyzeButton.clicked += () => _deckAnalysisModal.Show(_deckModel);
 
+                VisualElement topLeftButtons = root.Q<VisualElement>(className: "deckbuilder-top-left-buttons");
+                _filterCharacterButton = CreateFilterButton("キャラ", CardTypeFilter.Character);
+                _filterSkillButton = CreateFilterButton("スキル", CardTypeFilter.Skill);
+                _filterEventButton = CreateFilterButton("イベント", CardTypeFilter.Event);
+                topLeftButtons.Add(_filterCharacterButton);
+                topLeftButtons.Add(_filterSkillButton);
+                topLeftButtons.Add(_filterEventButton);
+
                 InitializeDeck();
 
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
-                AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
-                AddCardSection("スキル", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
-                AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
+                _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
+                _skillCardSection = AddCardSection("スキル", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
+                _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();
                 _deckBuilderRoot.Add(_cardListDragLayer);
@@ -110,18 +127,20 @@ namespace DeckBuilder
         protected abstract void SaveDeck();
         protected abstract void NavigateBack();
 
-        private void AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass)
+        private VisualElement AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass)
         {
             List<CardData> cardList = new List<CardData>(cards);
             if (cardList.Count == 0)
             {
-                return;
+                return null;
             }
+
+            VisualElement wrapper = new VisualElement();
 
             Label header = new Label(title);
             header.AddToClassList("deckbuilder-section-header");
             header.AddToClassList(modifierClass);
-            _cardListScrollView.Add(header);
+            wrapper.Add(header);
 
             VisualElement grid = new VisualElement();
             grid.AddToClassList("deckbuilder-section-cards");
@@ -159,7 +178,71 @@ namespace DeckBuilder
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
             }
-            _cardListScrollView.Add(grid);
+            wrapper.Add(grid);
+            _cardListScrollView.Add(wrapper);
+            return wrapper;
+        }
+
+        private Button CreateFilterButton(string text, CardTypeFilter filterType)
+        {
+            Button btn = new Button();
+            btn.text = text;
+            btn.AddToClassList("deckbuilder-button--filter");
+            btn.clicked += () =>
+            {
+                _cardTypeFilter = _cardTypeFilter == filterType ? CardTypeFilter.All : filterType;
+                RefreshFilter();
+            };
+            return btn;
+        }
+
+        private void RefreshFilter()
+        {
+            bool showCharacter = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Character;
+            bool showSkill = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Skill;
+            bool showEvent = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Event;
+
+            if (_characterCardSection != null)
+            {
+                _characterCardSection.style.display = showCharacter ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            if (_skillCardSection != null)
+            {
+                _skillCardSection.style.display = showSkill ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            if (_eventCardSection != null)
+            {
+                _eventCardSection.style.display = showEvent ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            UpdateFilterButtonState(_filterCharacterButton, CardTypeFilter.Character, "deckbuilder-button--filter--character");
+            UpdateFilterButtonState(_filterSkillButton, CardTypeFilter.Skill, "deckbuilder-button--filter--skill");
+            UpdateFilterButtonState(_filterEventButton, CardTypeFilter.Event, "deckbuilder-button--filter--event");
+
+            RefreshDeckPanel();
+        }
+
+        private void UpdateFilterButtonState(Button btn, CardTypeFilter filterType, string activeClass)
+        {
+            if (_cardTypeFilter == filterType)
+            {
+                btn.AddToClassList(activeClass);
+            }
+            else
+            {
+                btn.RemoveFromClassList(activeClass);
+            }
+        }
+
+        private bool ShouldShowCardInDeck(CardData cardData)
+        {
+            return _cardTypeFilter switch
+            {
+                CardTypeFilter.Character => cardData is CharacterCardData,
+                CardTypeFilter.Skill => cardData is SkillCardData,
+                CardTypeFilter.Event => cardData is EventCardData,
+                _ => true,
+            };
         }
 
         private void OnRemoveClicked(string id)
@@ -235,10 +318,17 @@ namespace DeckBuilder
                 counts[id]++;
             }
 
+            bool canReorder = _cardTypeFilter == CardTypeFilter.All;
+
             _deckRowOrder.Clear();
             foreach (string id in order)
             {
                 if (!_cardDatabase.TryGet(id, out CardData cardData))
+                {
+                    continue;
+                }
+
+                if (!ShouldShowCardInDeck(cardData))
                 {
                     continue;
                 }
@@ -250,6 +340,7 @@ namespace DeckBuilder
 
                 Label handle = new Label("≡");
                 handle.AddToClassList("deckbuilder-deck-row-handle");
+                handle.style.display = canReorder ? DisplayStyle.Flex : DisplayStyle.None;
                 string capturedHandleId = id;
                 handle.RegisterCallback<PointerDownEvent>(evt => OnReorderHandlePointerDown(evt, capturedHandleId));
 
