@@ -13,18 +13,18 @@ namespace Common.Store
 
         // アドレス
         private readonly string _mainBgmAddressable = "Sound/BGM/CatInPalmBeach";
-        private readonly string _soleAddressable = "Sole";
         private readonly string _titleBGMAddressable = "Sound/BGM/Title";
+        private readonly string _enterSEAddressable = "Sound/SE/Enter";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
-        public AudioClip Sole => _sole;
         public AudioClip TitleBGM => _titleBGM;
+        public AudioClip EnterSE => _enterSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
-        private AudioClip _sole = null;
         private AudioClip _titleBGM = null;
+        private AudioClip _enterSE = null;
 
         public void Start()
         {
@@ -36,8 +36,8 @@ namespace Common.Store
             try
             {
                 _mainBGM = await Addressables.LoadAssetAsync<AudioClip>(_mainBgmAddressable).ToUniTask();
-                _sole = await Addressables.LoadAssetAsync<AudioClip>(_soleAddressable).ToUniTask();
                 _titleBGM = await Addressables.LoadAssetAsync<AudioClip>(_titleBGMAddressable).ToUniTask();
+                _enterSE = await Addressables.LoadAssetAsync<AudioClip>(_enterSEAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)

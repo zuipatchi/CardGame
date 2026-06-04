@@ -38,6 +38,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3bcd522bfcd724c49b59ef242409fb7f
+    m_Address: Sound/SE/Enter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4a7c7a0b97bcf3849a17b9770c1fdb0e
     m_Address: Image/BattleField
     m_ReadOnly: 0
@@ -58,12 +63,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7069e5405f74953428aab1c2dae935a4
     m_Address: Sound/BGM/CatInPalmBeach
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 7763c03c93678b440ae455e994cc4c9e
-    m_Address: Sole
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
