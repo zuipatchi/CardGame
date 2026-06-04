@@ -15,6 +15,7 @@ namespace Tests.EditMode
             PlayerPrefs.DeleteKey("bgmVolume");
             PlayerPrefs.DeleteKey("seVolume");
             PlayerPrefs.DeleteKey("autoOk");
+            PlayerPrefs.DeleteKey("autoPass");
             _model = new OptionModel();
         }
 
@@ -24,6 +25,7 @@ namespace Tests.EditMode
             PlayerPrefs.DeleteKey("bgmVolume");
             PlayerPrefs.DeleteKey("seVolume");
             PlayerPrefs.DeleteKey("autoOk");
+            PlayerPrefs.DeleteKey("autoPass");
         }
 
         [Test]
@@ -132,6 +134,50 @@ namespace Tests.EditMode
             newModel.Start();
 
             Assert.IsTrue(newModel.AutoOk.CurrentValue);
+        }
+
+        [Test]
+        public void AutoPassをtrueに設定できる()
+        {
+            _model.SetAutoPass(true);
+            Assert.IsTrue(_model.AutoPass.CurrentValue);
+        }
+
+        [Test]
+        public void AutoPassをfalseに設定できる()
+        {
+            _model.SetAutoPass(true);
+            _model.SetAutoPass(false);
+            Assert.IsFalse(_model.AutoPass.CurrentValue);
+        }
+
+        [Test]
+        public void AutoPass変更でReactivePropertyが通知する()
+        {
+            bool received = false;
+            using System.IDisposable _ = _model.AutoPass.Subscribe(v => received = v);
+
+            _model.SetAutoPass(true);
+
+            Assert.IsTrue(received);
+        }
+
+        [Test]
+        public void AutoPass未保存の場合はデフォルト値trueが復元される()
+        {
+            _model.Start();
+            Assert.IsTrue(_model.AutoPass.CurrentValue);
+        }
+
+        [Test]
+        public void PlayerPrefsに保存したAutoPassがfalseの場合起動時に復元される()
+        {
+            _model.SetAutoPass(false);
+
+            OptionModel newModel = new OptionModel();
+            newModel.Start();
+
+            Assert.IsFalse(newModel.AutoPass.CurrentValue);
         }
     }
 }

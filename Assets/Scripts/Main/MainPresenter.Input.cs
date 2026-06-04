@@ -427,6 +427,18 @@ namespace Main
             }
         }
 
+        private bool HasPlayableCards()
+        {
+            foreach (CardView card in _handView.Cards)
+            {
+                if (IsCardPlayable(card))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // ─── UI ヘルパー ─────────────────────────────────────────────────
 
         private void UpdateStagedButtons(bool hasStaged)

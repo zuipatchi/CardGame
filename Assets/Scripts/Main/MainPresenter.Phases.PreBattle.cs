@@ -77,6 +77,11 @@ namespace Main
             ShowActionButtons();
             UpdateStagedButtons(false);
 
+            if (_optionModel.AutoPass.CurrentValue && !HasPlayableCards())
+            {
+                _preBattleInput._tcs.TrySetResult(null);
+            }
+
             CardView result = null;
             try
             {
@@ -265,6 +270,11 @@ namespace Main
             _prepInput._card = null;
             ShowActionButtons();
             UpdateStagedButtons(false);
+
+            if (_optionModel.AutoPass.CurrentValue && !HasPlayableCards())
+            {
+                _prepInput._tcs.TrySetResult(null);
+            }
 
             try
             {

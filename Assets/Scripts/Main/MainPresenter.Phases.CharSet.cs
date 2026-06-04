@@ -138,6 +138,11 @@ namespace Main
             ShowActionButtons();
             UpdateStagedButtons(false);
 
+            if (_optionModel.AutoPass.CurrentValue && !HasPlayableCards())
+            {
+                _charSetInput._tcs.TrySetResult(null);
+            }
+
             try
             {
                 return await _charSetInput._tcs.Task.AttachExternalCancellation(ct);
