@@ -184,7 +184,7 @@ Assets/AddressableAssets/
   └── Sound/       AudioClip
 ```
 
-- `SoundStore` が BGM クリップをロード
+- `SoundStore` が BGM・SE クリップをロード（`TitleBGM`, `MainBGM`, `EnterSE`）
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
