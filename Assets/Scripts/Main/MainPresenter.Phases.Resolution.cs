@@ -201,31 +201,15 @@ namespace Main
                 return;
             }
 
+            bool charWillBeDestroyed = targetSlot.CurrentCard != null && damage >= targetSlot.Hp;
+
             if (targetSlot.CurrentCard != null && _charDamageEffectPrefab != null)
             {
                 await PlayParticleAtCardAsync(targetSlot.CurrentCard, _charDamageEffectPrefab, ct);
             }
 
-            CardView destroyedChar = null;
-            Rect destroyedFromRect = default;
-            if (targetSlot.CurrentCard != null && damage >= targetSlot.Hp)
-            {
-                await PlayCharDestroyEffectAsync(targetSlot, ct);
-                destroyedChar = targetSlot.CurrentCard;
-                destroyedFromRect = destroyedChar.worldBound;
-                targetSlot.RemoveCard();
-            }
-
             Rect targetDeckRect = targetDeck.worldBound;
-            List<UniTask> flyTasks = new List<UniTask>();
-            if (destroyedChar != null)
-            {
-                flyTasks.Add(FlyToGraveyardAsync(destroyedChar, destroyedFromRect, targetGraveyard, ct,
-                    DamageIconAppearDuration + DamageIconHoldDuration, DamageIconFlyDuration));
-            }
-            flyTasks.Add(PlayDamageNumberFlyAsync(damage, targetSlot.worldBound.center, targetDeck, ct));
-            await UniTask.WhenAll(flyTasks);
-
+            await PlayDamageNumberFlyAsync(damage, targetSlot.worldBound.center, targetDeck, ct);
             List<CardView> damageCards = targetDeck.TakeFromTop(damage);
             await PlayDeckDamageAsync(damageCards, targetDeckRect, targetGraveyard, targetDeck, ct);
             targetSlot.DefOverlay.style.display = DisplayStyle.None;
@@ -235,6 +219,16 @@ namespace Main
             {
                 _isGameOver = true;
                 OnGameEnd(isLocal);
+                return;
+            }
+
+            if (charWillBeDestroyed)
+            {
+                await PlayCharDestroyEffectAsync(targetSlot, ct);
+                CardView destroyedChar = targetSlot.CurrentCard;
+                Rect destroyedFromRect = destroyedChar.worldBound;
+                targetSlot.RemoveCard();
+                await FlyToGraveyardAsync(destroyedChar, destroyedFromRect, targetGraveyard, ct);
             }
         }
 

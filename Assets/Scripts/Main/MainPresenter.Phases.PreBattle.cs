@@ -145,6 +145,16 @@ namespace Main
         private async UniTask RunPreBattle2PhaseAsync(bool isLocalFirst, CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.PreBattle2);
+
+            // 後攻側（else ブランチから始まる側）は、解決・戦闘フェーズのローカルアニメーション差により
+            // 先攻側が先に PreBattle2 へ到達してアナウンス中にメッセージを送ってくる場合がある。
+            // NGS_Draw と同じパターンで、アナウンス前にハンドラを事前登録してロストを防ぐ。
+            if (_isOnline && !_gameModel.IsLocalPreparationTurn)
+            {
+                _prePreBattle2ReceiveTask = _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                _hasPrePreBattle2Task = true;
+            }
+
             await PlayAnnouncementAsync("イベントフェーズ", "turn-announcement-label--event", ct);
             string firstMoverText = isLocalFirst ? "あなたが先です" : "相手が先です";
             string firstMoverClass = isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
