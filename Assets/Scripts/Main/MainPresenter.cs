@@ -725,7 +725,7 @@ namespace Main
             {
                 _networkGameService.SendSurrenderNotification();
             }
-            OnGameEnd(playerWins: false);
+            OnGameEnd(playerWins: false, isPlayerSurrender: true);
         }
 
         private async UniTaskVoid WatchForOpponentSurrenderAsync(CancellationToken ct)

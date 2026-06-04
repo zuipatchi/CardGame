@@ -282,7 +282,7 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
-        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, CancellationToken ct)
+        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, CancellationToken ct)
         {
             if (_mulliganOverlay != null)
             {
@@ -318,6 +318,11 @@ namespace Main
             if (isSurrenderWin)
             {
                 _gameEndSubLabel.text = "対戦相手が降参しました";
+                _gameEndSubLabel.style.display = DisplayStyle.Flex;
+            }
+            else if (isPlayerSurrender)
+            {
+                _gameEndSubLabel.text = "降参しました";
                 _gameEndSubLabel.style.display = DisplayStyle.Flex;
             }
             else

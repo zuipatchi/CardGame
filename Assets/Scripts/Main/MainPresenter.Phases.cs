@@ -115,10 +115,10 @@ namespace Main
             }
         }
 
-        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false)
+        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false)
         {
             _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
-            PlayGameEndAsync(playerWins, isSurrenderWin, destroyCancellationToken).Forget();
+            PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, destroyCancellationToken).Forget();
         }
     }
 }
