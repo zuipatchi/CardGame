@@ -304,7 +304,7 @@ else if (_isOnline)
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
 
-`NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は即 YOU LOSE を表示してホームへ戻り、受信者は即 YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
+`NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は YOU LOSE + 「降参しました」を表示し、受信者は YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
 
 ---
 
