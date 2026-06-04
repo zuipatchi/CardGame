@@ -206,7 +206,7 @@
 }
 
 .deckbuilder-deck-row-cost {
-    font-size: 18px;
+    font-size: 24px;
     -unity-font-style: bold;
     color: rgba(255, 255, 255, 0.95);
     -unity-text-outline-width: 1px;
