@@ -222,7 +222,7 @@
 
 .deckbuilder-deck-row-name {
     flex-grow: 1;
-    font-size: 22px;
+    font-size: 18px;
     color: rgb(220, 220, 240);
 }
 
