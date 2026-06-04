@@ -158,6 +158,9 @@ namespace Main
                     if (_isOnline)
                     {
                         _networkGameService.SendPreBattle2Action(readied?.Data.Id);
+                        // 送信直後にハンドラを事前登録してアニメーション中の受信ロストを防ぐ
+                        _prePreBattle2ReceiveTask = _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                        _hasPrePreBattle2Task = true;
                     }
                     if (readied == null)
                     {
@@ -180,7 +183,10 @@ namespace Main
                 {
                     if (_isOnline)
                     {
-                        string cardId = await _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                        string cardId = _hasPrePreBattle2Task
+                            ? await _prePreBattle2ReceiveTask.AttachExternalCancellation(ct)
+                            : await _networkGameService.WaitForOpponentPreBattle2Async(ct);
+                        _hasPrePreBattle2Task = false;
                         if (string.IsNullOrEmpty(cardId))
                         {
                             await PlayPassAnimationAsync(false, ct);

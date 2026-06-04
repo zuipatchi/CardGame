@@ -115,6 +115,8 @@ namespace Main
         private bool _localHasPriority;
         private UniTask _preDrawReceiveTask;
         private bool _hasPreDrawTask;
+        private UniTask<string> _prePreBattle2ReceiveTask;
+        private bool _hasPrePreBattle2Task;
         private VisualElement _playerPriorityCoin;
         private VisualElement _opponentPriorityCoin;
 
