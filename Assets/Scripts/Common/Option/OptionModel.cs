@@ -29,7 +29,7 @@ namespace Common.Option
             float seVolume = PlayerPrefs.GetFloat(_seVolumeKey, 0.5f);
             _seVolume.Value = seVolume;
 
-            _autoOk.Value = PlayerPrefs.GetInt(_autoOkKey, 0) == 1;
+            _autoOk.Value = PlayerPrefs.GetInt(_autoOkKey, 1) == 1;
         }
 
         public void SetBGMVolume(float value)

@@ -117,10 +117,10 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void AutoOk未保存の場合はデフォルト値falseが復元される()
+        public void AutoOk未保存の場合はデフォルト値trueが復元される()
         {
             _model.Start();
-            Assert.IsFalse(_model.AutoOk.CurrentValue);
+            Assert.IsTrue(_model.AutoOk.CurrentValue);
         }
 
         [Test]
