@@ -180,6 +180,8 @@ if (session.AvailableSlots == 0)          // 後から確認
 
 **対処**: ハンドラ登録を **フェーズアナウンスの前** に移動する。Draw / CharSet / PreBattle1 の 3 フェーズすべてで適用済み。
 
+PreBattle2 はターン制ループのため別パターン（セクション10参照）。
+
 ```csharp
 // RunDrawPhaseAsync の冒頭（アナウンス前）
 UniTask drawReceiveTask = _isOnline && _hasPreDrawTask
@@ -287,6 +289,46 @@ else if (_isOnline)
 
 加えて `await receiveTask` を `await receiveTask.AttachExternalCancellation(ct)` に変更し、
 事前登録タスクが `destroyCt` で作られていてもサレンダー (`_surrenderCts.Token`) でキャンセルされるようにしている。
+
+---
+
+### 10. PreBattle2 ループ中のアニメーション間で NGS_PreBattle2 がロストする
+
+**症状**: イベントフェーズで片方がフリーズしてループが止まる。
+
+**原因**: PreBattle2 はターン制ループのため、セクション7の「アナウンス前に事前登録」パターンだけでは不十分。  
+自分がアクションを送信した後、パス/プレイアニメーションが終わるまでの間に相手が応答を送ると、ハンドラ未登録でメッセージが捨てられる。
+
+```
+自分: SendPreBattle2Action 送信
+相手: 受信して即座に応答を NGS_PreBattle2 で返す
+自分: PlayPassAnimationAsync などを await 中（ハンドラ未登録）
+      → 届いたメッセージが捨てられる
+自分: アニメーション終了後に WaitForOpponentPreBattle2Async 登録
+      → 永久に待ち続ける
+```
+
+**対処**: `SendPreBattle2Action` の直後（アニメーション前）にハンドラを事前登録する。`_preDrawReceiveTask` と同じパターンで `_prePreBattle2ReceiveTask` / `_hasPrePreBattle2Task` フィールドを使う。
+
+```csharp
+// 自分のターン：送信直後に事前登録
+_networkGameService.SendPreBattle2Action(readied?.Data.Id);
+_prePreBattle2ReceiveTask = _networkGameService.WaitForOpponentPreBattle2Async(ct);
+_hasPrePreBattle2Task = true;
+
+// アニメーション（この間に相手が応答を送っても受信できる）
+await PlayPassAnimationAsync(true, ct);
+```
+
+```csharp
+// 相手のターン：事前登録タスクがあれば使い、なければフォールバック
+string cardId = _hasPrePreBattle2Task
+    ? await _prePreBattle2ReceiveTask.AttachExternalCancellation(ct)
+    : await _networkGameService.WaitForOpponentPreBattle2Async(ct);
+_hasPrePreBattle2Task = false;
+```
+
+ループが `break` するケース（両者パス）で事前登録タスクが使われないまま残っても、`Dispose()` でハンドラ解除されるため問題ない。
 
 ---
 
