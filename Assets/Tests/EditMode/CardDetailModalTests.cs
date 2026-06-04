@@ -42,16 +42,29 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 技カードのダメージが表示される()
+        public void 技カードの攻撃力が表示される()
         {
-            SkillCardData data = new SkillCardData("S001", "ファイア", 2, 6);
+            SkillCardData data = new SkillCardData("S001", "ファイア", 2, SkillType.Attack, 6);
 
             _modal.Show(data);
 
             System.Collections.Generic.List<Label> valueLabels = new System.Collections.Generic.List<Label>();
             _root.Query<Label>(className: "card-detail-row-value").ToList(valueLabels);
-            Assert.AreEqual(2, valueLabels.Count, "コスト・ダメージの2行");
+            Assert.AreEqual(2, valueLabels.Count, "コスト・攻撃力の2行");
             Assert.AreEqual("6", valueLabels[1].text);
+        }
+
+        [Test]
+        public void 回復技カードの回復量が表示される()
+        {
+            SkillCardData data = new SkillCardData("S002", "回復の術", 1, SkillType.Recover, 3);
+
+            _modal.Show(data);
+
+            System.Collections.Generic.List<Label> valueLabels = new System.Collections.Generic.List<Label>();
+            _root.Query<Label>(className: "card-detail-row-value").ToList(valueLabels);
+            Assert.AreEqual(2, valueLabels.Count, "コスト・回復の2行");
+            Assert.AreEqual("3", valueLabels[1].text);
         }
 
         [Test]

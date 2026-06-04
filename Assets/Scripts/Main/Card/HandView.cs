@@ -35,17 +35,15 @@ namespace Main.Card
         private readonly Texture2D _backImage;
         private readonly VisualElement _dragLayer;
         private readonly bool _interactive;
-        private readonly AttributeDatabaseSO _attrIconDb;
         private readonly bool _isOpponent;
         private readonly List<HandCardEntry> _entries = new List<HandCardEntry>();
 
-        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true, AttributeDatabaseSO attrIconDb = null, bool isOpponent = false)
+        public HandView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, VisualElement dragLayer = null, bool faceDown = false, bool interactive = true, bool isOpponent = false)
         {
             _cardTemplate = cardTemplate;
             _backImage = backImage;
             _dragLayer = dragLayer;
             _interactive = interactive;
-            _attrIconDb = attrIconDb;
             _isOpponent = isOpponent;
 
             style.overflow = Overflow.Visible;
@@ -58,7 +56,7 @@ namespace Main.Card
 
             foreach (CardData data in cards)
             {
-                CardView card = new CardView(cardTemplate, data, backImage, faceDown, attrIconDb, isOpponent);
+                CardView card = new CardView(cardTemplate, data, backImage, faceDown, isOpponent);
                 SetupCardInHand(card);
                 _entries.Add(new HandCardEntry { Card = card });
                 Add(card);
@@ -78,7 +76,7 @@ namespace Main.Card
                 await UniTask.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: ct);
             }
 
-            CardView card = new CardView(_cardTemplate, data, _backImage, faceDown: true, _attrIconDb, _isOpponent);
+            CardView card = new CardView(_cardTemplate, data, _backImage, faceDown: true, _isOpponent);
             card.style.position = Position.Absolute;
             card.style.left = deckWorldRect.x;
             card.style.top = deckWorldRect.y;

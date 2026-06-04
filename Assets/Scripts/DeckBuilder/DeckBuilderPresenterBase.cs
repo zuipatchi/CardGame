@@ -95,7 +95,7 @@ namespace DeckBuilder
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
                 _cardListDragLayer.pickingMode = PickingMode.Ignore;
-                _cardDetailModal = new CardDetailModal(_deckBuilderRoot, _cardStore.AttributeDatabase);
+                _cardDetailModal = new CardDetailModal(_deckBuilderRoot);
                 _deckAnalysisModal = new DeckAnalysisModal(_deckBuilderRoot, _cardDatabase);
 
                 Button analyzeButton = root.Q<Button>("AnalyzeButton");
@@ -146,13 +146,13 @@ namespace DeckBuilder
             grid.AddToClassList("deckbuilder-section-cards");
             foreach (CardData cardData in cardList)
             {
-                CardView cardView = new CardView(_cardStore.CardTemplate, cardData, attrIconDb: _cardStore.AttributeDatabase);
+                CardView cardView = new CardView(_cardStore.CardTemplate, cardData);
                 cardView.AddToClassList("deckbuilder-card-item");
                 CardData captured = cardData;
                 CardDragManipulator manipulator = new CardDragManipulator(_cardListDragLayer);
                 manipulator.CreateGhost = () =>
                 {
-                    CardView ghost = new CardView(_cardStore.CardTemplate, captured, attrIconDb: _cardStore.AttributeDatabase);
+                    CardView ghost = new CardView(_cardStore.CardTemplate, captured);
                     ghost.AddToClassList("deckbuilder-card-item");
                     ghost.style.opacity = 0.75f;
                     ghost.pickingMode = PickingMode.Ignore;

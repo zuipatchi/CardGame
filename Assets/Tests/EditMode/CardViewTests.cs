@@ -35,7 +35,7 @@ namespace Tests.EditMode
         public void スキルカードの攻撃力が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            SkillCardData data = new SkillCardData("s1", "ファイア", 1, damage: 4);
+            SkillCardData data = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
 
             CardView view = new CardView(template, data);
 
@@ -130,31 +130,5 @@ namespace Tests.EditMode
             Assert.AreEqual(DisplayStyle.Flex, view.Q<VisualElement>("FrontFace").style.display.value);
         }
 
-        [Test]
-        public void キャラカードのFire属性がAttributeから取得できる()
-        {
-            CharacterCardData data = new CharacterCardData("c1", "炎の戦士", 2, 3, attribute: CardAttribute.Fire);
-
-            Assert.AreEqual(CardAttribute.Fire, data.Attribute);
-        }
-
-        [Test]
-        public void スキルカードのPoison属性がAttributeから取得できる()
-        {
-            SkillCardData data = new SkillCardData("s1", "毒爪", 1, 2, CardAttribute.Poison);
-
-            Assert.AreEqual(CardAttribute.Poison, data.Attribute);
-        }
-
-        [Test]
-        public void キャラカード属性Noneのとき属性アイコンが非表示()
-        {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CharacterCardData data = new CharacterCardData("c1", "戦士", 2, 0);
-
-            CardView view = new CardView(template, data);
-
-            Assert.AreEqual(DisplayStyle.None, view.Q<VisualElement>("AttributeIcon").style.display.value);
-        }
     }
 }

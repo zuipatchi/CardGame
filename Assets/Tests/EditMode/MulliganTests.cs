@@ -13,7 +13,7 @@ namespace Tests.EditMode
         {
             CardData[] hand = new CardData[]
             {
-                new SkillCardData("s1", "ファイア", 1, 3),
+                new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 3),
                 new EventCardData("e1", "バフ", 1),
             };
 
@@ -28,7 +28,7 @@ namespace Tests.EditMode
             CardData[] hand = new CardData[]
             {
                 new CharacterCardData("c1", "戦士", 1, 0),
-                new SkillCardData("s1", "ファイア", 1, 3),
+                new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 3),
             };
 
             bool needsMulligan = !hand.Any(d => d is CharacterCardData);
@@ -58,7 +58,7 @@ namespace Tests.EditMode
             int totalCards = 20;
             int handSize = 5;
             CardData[] allCards = Enumerable.Range(0, totalCards)
-                .Select(i => (CardData)new SkillCardData($"s{i}", $"カード{i}", 1, 1))
+                .Select(i => (CardData)new SkillCardData($"s{i}", $"カード{i}", 1, SkillType.Attack, 1))
                 .ToArray();
 
             CardData[] newHand = allCards.Take(handSize).ToArray();
@@ -75,7 +75,7 @@ namespace Tests.EditMode
             int totalCards = 10;
             int handSize = 3;
             CardData[] allCards = Enumerable.Range(0, totalCards)
-                .Select(i => (CardData)new SkillCardData($"s{i}", $"カード{i}", 1, 1))
+                .Select(i => (CardData)new SkillCardData($"s{i}", $"カード{i}", 1, SkillType.Attack, 1))
                 .ToArray();
 
             CardData[] newHand = allCards.Take(handSize).ToArray();

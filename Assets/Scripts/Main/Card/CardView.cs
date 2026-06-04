@@ -24,8 +24,6 @@ namespace Main.Card
         private readonly Label _spdLabel;
         private readonly Label _hpLabel;
         private readonly Label _chainLabel;
-        private readonly VisualElement _attributeIcon;
-        private readonly AttributeDatabaseSO _attrIconDb;
         private CardDragManipulator _dragManipulator;
         private Tween _playableHighlightTween;
         public bool IsFaceDown { get; private set; }
@@ -33,11 +31,10 @@ namespace Main.Card
         public CardData Data { get; }
         public CardState State { get; private set; }
 
-        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, AttributeDatabaseSO attrIconDb = null, bool isOpponent = false)
+        public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
             Data = data;
             IsOpponent = isOpponent;
-            _attrIconDb = attrIconDb;
             template.CloneTree(this);
             _cardRoot = this.Q<VisualElement>("CardRoot");
             _frontFace = this.Q<VisualElement>("FrontFace");
@@ -54,7 +51,6 @@ namespace Main.Card
             _spdLabel = this.Q<Label>("SpdLabel");
             _hpLabel = this.Q<Label>("HpLabel");
             _chainLabel = this.Q<Label>("ChainLabel");
-            _attributeIcon = this.Q<VisualElement>("AttributeIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -279,8 +275,6 @@ namespace Main.Card
             {
                 _imageArea.style.backgroundImage = new StyleBackground(data.Image);
             }
-
-            _attributeIcon.style.display = DisplayStyle.None;
         }
     }
 }

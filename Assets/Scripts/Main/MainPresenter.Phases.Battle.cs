@@ -61,6 +61,8 @@ namespace Main
             await UniTask.WhenAll(firstFlipTasks);
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
 
+            await ApplySkillRecoverEffectsAsync(firstCards, firstGraveyard, firstDeck, ct);
+
             int effectivePlayerDef = playerHasAttackingChar ? _playerCharacterSlot.Defense + _playerDefBoost : 0;
             int effectiveOpponentDef = opponentHasAttackingChar ? _opponentCharacterSlot.Defense + _opponentDefBoost : 0;
             int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
@@ -155,6 +157,7 @@ namespace Main
                 UniTask[] secondFlipTasks = secondCards.Select(c => c.FlipAsync(ct)).ToArray();
                 await UniTask.WhenAll(secondFlipTasks);
                 await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
+                await ApplySkillRecoverEffectsAsync(secondCards, secondGraveyard, secondDeck, ct);
             }
 
             // 後攻のコスト払い → ATKカウントアップ
@@ -220,6 +223,33 @@ namespace Main
             SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
 
             ResetBoosts();
+        }
+
+        // ─── Recover スキル処理 ──────────────────────────────────────────
+
+        private async UniTask ApplySkillRecoverEffectsAsync(
+            List<CardView> skills,
+            GraveyardView graveyard,
+            DeckView deck,
+            CancellationToken ct)
+        {
+            foreach (CardView skillCard in skills)
+            {
+                if (skillCard.Data is not SkillCardData sd || sd.SkillType != SkillType.Recover)
+                {
+                    continue;
+                }
+
+                await PlayRecoverEffectAsync(skillCard, sd.SkillValue, ct);
+
+                List<CardData> recovered = graveyard.TakeFromTop(sd.SkillValue);
+                if (recovered.Count > 0)
+                {
+                    await PlayRecoverFlyAsync(recovered, graveyard, deck, ct);
+                    deck.AddCardsAndShuffle(recovered);
+                    await PlayDeckShufflePulseAsync(deck, ct);
+                }
+            }
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────

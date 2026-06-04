@@ -171,7 +171,7 @@ namespace Main
                 _opponentHandView.RemoveCard(hand[0]);
             }
 
-            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, isOpponent: true);
             await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
             _opponentCharacterSlot.PlaceCard(card);
         }

@@ -13,14 +13,13 @@ namespace Main.Card
 
         public CharacterCardData() { }
 
-        public CharacterCardData(string id, string name, int cost, int attack, int defense = 0, int speed = 0, int hp = 0, CardAttribute attribute = CardAttribute.None)
+        public CharacterCardData(string id, string name, int cost, int attack, int defense = 0, int speed = 0, int hp = 0)
             : base(id, name, cost)
         {
             _attack = attack;
             _defense = defense;
             _speed = speed;
             _hp = hp;
-            _attribute = attribute;
         }
 
         public override int Attack => _attack;

@@ -13,7 +13,6 @@ namespace Main.Card
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
-        private readonly AttributeDatabaseSO _attrIconDb;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
         private readonly VisualElement _defOverlay;
@@ -24,17 +23,16 @@ namespace Main.Card
         public VisualElement DefOverlay => _defOverlay;
         public void SetDefValue(int def) => _defLabel.text = def.ToString();
 
-        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, AttributeDatabaseSO attrIconDb = null)
+        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
         {
             _cardTemplate = cardTemplate;
             _backImage = backImage;
-            _attrIconDb = attrIconDb;
             AddToClassList("deck-view");
             style.position = Position.Relative;
 
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true, attrIconDb);
+                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true);
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;
@@ -155,7 +153,7 @@ namespace Main.Card
 
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView card = new CardView(_cardTemplate, cards[i], _backImage, faceDown: true, _attrIconDb);
+                CardView card = new CardView(_cardTemplate, cards[i], _backImage, faceDown: true);
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;

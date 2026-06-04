@@ -6,13 +6,11 @@ namespace Main.Card
     public sealed class CardDetailModal
     {
         private readonly VisualElement _root;
-        private readonly AttributeDatabaseSO _attrIconDb;
         private VisualElement _overlay;
 
-        public CardDetailModal(VisualElement root, AttributeDatabaseSO attrIconDb = null)
+        public CardDetailModal(VisualElement root)
         {
             _root = root;
-            _attrIconDb = attrIconDb;
         }
 
         public void Show(CardData data)
@@ -74,9 +72,16 @@ namespace Main.Card
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--def", charData.Defense.ToString(), "防御");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--spd", charData.Speed.ToString(), "素早さ");
             }
-            else if (data is SkillCardData)
+            else if (data is SkillCardData skillData)
             {
-                AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", data.Attack.ToString(), "攻撃力");
+                if (skillData.SkillType == SkillType.Recover)
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--recover", skillData.SkillValue.ToString(), "回復");
+                }
+                else
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.SkillValue.ToString(), "攻撃力");
+                }
             }
             else if (data is EventCardData eventData)
             {

@@ -65,7 +65,7 @@ namespace Tests.EditMode
         {
             List<CardData> hand = new List<CardData>
             {
-                new SkillCardData("S001", "技", 5, 3),
+                new SkillCardData("S001", "技", 5, SkillType.Attack, 3),
                 new EventCardData("E001", "イベント", 5, EventType.Draw, 1, "ドロー"),
             };
             int idx = CpuAgent.ChooseEvolveCardIndex(hand, 3);

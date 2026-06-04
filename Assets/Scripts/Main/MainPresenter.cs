@@ -334,18 +334,18 @@ namespace Main
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, attrIconDb: _cardStore.AttributeDatabase, isOpponent: true);
+                    _cardStore.CardBack, _dragLayer, faceDown: true, interactive: false, isOpponent: true);
                 opponentHandArea.Add(_opponentHandView);
 
                 _handView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
-                    _cardStore.CardBack, _dragLayer, attrIconDb: _cardStore.AttributeDatabase);
+                    _cardStore.CardBack, _dragLayer);
                 handArea.Add(_handView);
                 _handView.OnCardDropped = HandlePlayerCardDrop;
                 _handView.CanDrag = CanPlayerDragCard;
                 _handView.OnCardAddedBack = card => card.SetPlayableHighlight(IsCardPlayable(card));
 
-                _cardDetailModal = new CardDetailModal(mainRoot, _cardStore.AttributeDatabase);
+                _cardDetailModal = new CardDetailModal(mainRoot);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _playerFieldView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
                 _opponentFieldView.OnCardClicked = card =>
@@ -426,10 +426,10 @@ namespace Main
                 _gameEndOverlay.Add(_gameEndTitleButton);
                 mainRoot.Add(_gameEndOverlay);
 
-                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack, _cardStore.AttributeDatabase);
+                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
                 deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, _cardStore.AttributeDatabase);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 // プレイヤー墓地エリア：コインを左・墓地を右でrow配置

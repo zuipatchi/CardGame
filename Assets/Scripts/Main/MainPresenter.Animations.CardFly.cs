@@ -91,7 +91,7 @@ namespace Main
         {
             const float FlyDuration = 0.35f;
 
-            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true, _cardStore.AttributeDatabase, isOpponent: true);
+            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true, isOpponent: true);
             card.style.position = Position.Absolute;
             card.style.left = deckRect.center.x - CardWidth / 2f;
             card.style.top = deckRect.center.y - CardHeight / 2f;
@@ -221,7 +221,7 @@ namespace Main
 
             for (int i = 0; i < cards.Count; i++)
             {
-                CardView tempCard = new CardView(_cardStore.CardTemplate, cards[i], _cardStore.CardBack, faceDown: false, _cardStore.AttributeDatabase);
+                CardView tempCard = new CardView(_cardStore.CardTemplate, cards[i], _cardStore.CardBack, faceDown: false);
                 tempCard.style.position = Position.Absolute;
                 tempCard.style.left = startLeft;
                 tempCard.style.top = startTop;

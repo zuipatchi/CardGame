@@ -6,18 +6,20 @@ namespace Main.Card
     [Serializable]
     public sealed class SkillCardData : CardData
     {
-        [SerializeField] private int _damage;
+        [SerializeField] private SkillType _skillType;
+        [SerializeField] private int _skillValue;
 
         public SkillCardData() { }
 
-        public SkillCardData(string id, string name, int cost, int damage, CardAttribute attribute = CardAttribute.None)
+        public SkillCardData(string id, string name, int cost, SkillType skillType, int skillValue)
             : base(id, name, cost)
         {
-            _damage = damage;
-            _attribute = attribute;
+            _skillType = skillType;
+            _skillValue = skillValue;
         }
 
-        public int Damage => _damage;
-        public override int Attack => _damage;
+        public SkillType SkillType => _skillType;
+        public int SkillValue => _skillValue;
+        public override int Attack => _skillType == SkillType.Attack ? _skillValue : 0;
     }
 }

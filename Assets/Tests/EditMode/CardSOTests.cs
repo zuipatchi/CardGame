@@ -64,7 +64,7 @@ namespace Tests.EditMode
         [Test]
         public void SkillCardData_Defenseは0を返す()
         {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
 
             Assert.AreEqual(0, card.Defense);
         }
@@ -72,7 +72,7 @@ namespace Tests.EditMode
         [Test]
         public void SkillCardData_Hpは0を返す()
         {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
 
             Assert.AreEqual(0, card.Hp);
         }
@@ -96,7 +96,7 @@ namespace Tests.EditMode
         [Test]
         public void SkillCardData_Speedは0を返す()
         {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
 
             Assert.AreEqual(0, card.Speed);
         }
@@ -110,11 +110,19 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void SkillCardData_AttackはDamageを返す()
+        public void SkillCardData_AttackはSkillValueを返す()
         {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, damage: 4);
+            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
 
             Assert.AreEqual(4, card.Attack);
+        }
+
+        [Test]
+        public void SkillCardData_RecoverタイプのAttackは0を返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "回復の術", 1, SkillType.Recover, 3);
+
+            Assert.AreEqual(0, card.Attack);
         }
 
         [Test]
@@ -131,7 +139,7 @@ namespace Tests.EditMode
             CardDatabase db = MakeDatabase(new CardData[]
             {
                 new CharacterCardData("char_01", "戦士", 2, 0),
-                new SkillCardData("skill_01", "ファイア", 1, 3),
+                new SkillCardData("skill_01", "ファイア", 1, SkillType.Attack, 3),
             });
 
             CardData[] deck = db.BuildDeck(new[] { "skill_01", "char_01" });
