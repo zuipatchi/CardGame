@@ -289,6 +289,7 @@ namespace Main
             finally
             {
                 _prepInput._tcs = null;
+                HideActionButtons();
                 RefreshHandHighlights();
             }
         }
