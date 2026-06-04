@@ -332,6 +332,31 @@ _hasPrePreBattle2Task = false;
 
 ---
 
+### 11. PreBattle2 フェーズ開始時に後攻側がデッドロックする
+
+**症状**: イベントフェーズで後攻側がパスを押してもゲームが止まる。エラーなし。
+
+**原因**: 解決・戦闘フェーズはローカルアニメーションのみで、両クライアントの処理時間が異なる。先に終わった先攻側が `RunPreBattle2PhaseAsync` へ入ってアナウンスアニメーション中にすでにメッセージを送信したとき、後攻側はまだ前フェーズのアニメーション中でハンドラ未登録 → メッセージ破棄 → 双方が互いの応答を待ち続けてデッドロック。
+
+セクション9・10のパターンが適用されていたドローフェーズ・PreBattle2 ループ内は対処済みだったが、PreBattle2 の **ループ開始前**（アナウンス前）が未対処だった。
+
+**対処**: `RunPreBattle2PhaseAsync` の先頭で、後攻側（`else` ブランチから始まる側）は NGS_Draw 事前登録と同パターンでハンドラを事前登録する。
+
+```csharp
+// RunPreBattle2PhaseAsync の先頭（アナウンス前）
+if (_isOnline && !_gameModel.IsLocalPreparationTurn)
+{
+    _prePreBattle2ReceiveTask = _networkGameService.WaitForOpponentPreBattle2Async(ct);
+    _hasPrePreBattle2Task = true;
+}
+
+await PlayAnnouncementAsync("イベントフェーズ", ..., ct);
+```
+
+先攻側はメッセージを送る側なのでここでの事前登録は不要。後攻側だけ対象。
+
+---
+
 ## メッセージ種別一覧
 
 | 定数 | 方向 | 内容 |
