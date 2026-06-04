@@ -120,7 +120,37 @@ public enum EventType
 
 ---
 
-## 3. 新しいターンフェーズを追加する
+## 3. 新しいスキル効果（SkillType）を追加する
+
+### 手順
+
+**① `SkillType` enum に値を追加する**
+
+[SkillType.cs](../Assets/Scripts/Main/Card/SkillType.cs):
+```csharp
+public enum SkillType
+{
+    Attack,
+    Recover,
+    YourNewEffect,  // ← 追加
+}
+```
+
+**② `SkillCardData.Attack` が正しく返るか確認する**
+
+`SkillType.Attack` 以外は `Attack => 0` が基本。ATK を持つ新タイプなら条件を追加する。
+
+**③ `ApplySkillRecoverEffectsAsync` を参考に戦闘フェーズに処理を追加する**
+
+[MainPresenter.Phases.Battle.cs](../Assets/Scripts/Main/MainPresenter.Phases.Battle.cs) の `ApplySkillRecoverEffectsAsync` に倣って新しいヘルパーを作り、先攻・後攻それぞれのフリップ直後に呼ぶ。
+
+**④ SO アセットのデータを入力する**
+
+`SkillCardSO` の Inspector で `_skillType` に新値、`_skillValue` に数値を入力する。
+
+---
+
+## 5. 新しいターンフェーズを追加する
 
 ### 手順
 
@@ -158,7 +188,7 @@ if (_isGameOver) return;
 
 ---
 
-## 4. 新しい Presenter を追加する（シーン単位）
+## 6. 新しい Presenter を追加する（シーン単位）
 
 ### 手順
 
@@ -197,7 +227,7 @@ builder.Register<YourService>(Lifetime.Scoped);
 
 ---
 
-## 5. CPU の判断ロジックを変更・追加する
+## 7. CPU の判断ロジックを変更・追加する
 
 [CpuAgent.cs](../Assets/Scripts/Main/Game/CpuAgent.cs) に静的メソッドを追加し、対応するフェーズファイル（`MainPresenter.Phases.*.cs`）の該当フェーズメソッドから呼ぶ。
 
@@ -213,7 +243,7 @@ public static int ChooseXxxCardIndex(IReadOnlyList<CardData> hand)
 
 ---
 
-## 6. async MonoBehaviour での destroyCancellationToken の扱い（Unity 6）
+## 8. async MonoBehaviour での destroyCancellationToken の扱い（Unity 6）
 
 Unity 6 では `destroyCancellationToken` を **一度も参照しないまま MonoBehaviour が破棄される** と
 `MissingReferenceException` が発生する（"DestroyCancellation token should be called atleast once before destroying the monobehaviour object"）。
@@ -248,7 +278,7 @@ private async UniTaskVoid BuildAsync()
 
 ---
 
-## 7. DOTween + UI Toolkit でのスタイル値ゲッター（フリーズ対策）
+## 9. DOTween + UI Toolkit でのスタイル値ゲッター（フリーズ対策）
 
 UI Toolkit のスタイルプロパティを DOTween ゲッターに直接渡すと、シーケンス開始フレームでの
 値読み取りが不定になり `OnComplete` が発火しないケースがある。
