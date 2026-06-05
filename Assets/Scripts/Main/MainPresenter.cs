@@ -85,6 +85,7 @@ namespace Main
         [SerializeField] private GameObject _charDestroyEffectPrefab;
         [SerializeField] private GameObject _charDamageEffectPrefab;
         [SerializeField] private GameObject _evolveEffectPrefab;
+        [SerializeField] private GameObject _poisonEffectPrefab;
         [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 

@@ -29,8 +29,8 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u6BD2\u5203"
     _cost: 2
     _image: {fileID: 21300000, guid: 21c0f2a29f68af34b8f1b25661d37cd0, type: 3}
-    _skillType: 0
-    _skillValue: 6
+    _skillType: 2
+    _skillValue: 5
   - _id: S004
     _cardName: "\u3071\u3063\u3061\u3068\u9B54\u6CD5\u306E\u5263"
     _cost: 4
@@ -41,14 +41,14 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u565B\u307F\u3064\u304D"
     _cost: 3
     _image: {fileID: 21300000, guid: c57889398fd965640a5a66fd20c5c716, type: 3}
-    _skillType: 0
-    _skillValue: 8
+    _skillType: 2
+    _skillValue: 7
   - _id: S006
     _cardName: "\u6BD2\u9727\u3071\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: a5621eb2657cc0149b14eb6ab40b8bb4, type: 3}
-    _skillType: 0
-    _skillValue: 3
+    _skillType: 2
+    _skillValue: 2
   - _id: S07
     _cardName: "\u706B\u708E\u653E\u5C04\u3071\u3061"
     _cost: 2

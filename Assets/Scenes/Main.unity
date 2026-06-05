@@ -384,6 +384,7 @@ MonoBehaviour:
   _charDestroyEffectPrefab: {fileID: 6855314210357232287, guid: 7c2a9b83b809a0848915fabd9596b68b, type: 3}
   _charDamageEffectPrefab: {fileID: 725748389856807714, guid: 4bda94453d2ca7444a0fff05b2d425f5, type: 3}
   _evolveEffectPrefab: {fileID: 3280519133390621005, guid: a71be3e7990efb040a07565c43cbb198, type: 3}
+  _poisonEffectPrefab: {fileID: 7226888052703040409, guid: 7ec363c8df426644ea85f8d6d570561c, type: 3}
   _rainDefeatEffectPrefab: {fileID: 4636871227284738347, guid: 1731425cf73de7541b40acd38dba18ec, type: 3}
   _fireworkAdditiveUIShader: {fileID: 4800000, guid: e9ab961048e8dce4e8b0c4fa2d4686dd, type: 3}
 --- !u!114 &2068653631

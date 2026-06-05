@@ -126,6 +126,22 @@ namespace Tests.EditMode
         }
 
         [Test]
+        public void SkillCardData_PoisonタイプのAttackはSkillValueを返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "毒の爪", 1, SkillType.Poison, 3);
+
+            Assert.AreEqual(3, card.Attack);
+        }
+
+        [Test]
+        public void SkillCardData_PoisonタイプのSkillValueが0のときAttackは0を返す()
+        {
+            SkillCardData card = new SkillCardData("s1", "毒の爪", 1, SkillType.Poison, 0);
+
+            Assert.AreEqual(0, card.Attack);
+        }
+
+        [Test]
         public void EventCardData_Attackは0を返す()
         {
             EventCardData card = new EventCardData("e1", "回復", 2);

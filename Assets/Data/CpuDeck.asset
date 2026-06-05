@@ -14,29 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CpuDeckSO
   CardIds:
   - C001
-  - C009
-  - C008
-  - S008
-  - S002
-  - S009
   - C001
+  - C013
+  - C013
   - C009
-  - C008
-  - S008
+  - C009
   - S002
+  - S008
   - S009
   - S002
-  - C001
-  - C008
-  - S009
   - S008
-  - C009
   - S009
-  - S008
-  - C009
-  - C001
   - E002
   - E003
-  - E008
   - E004
   - E007
+  - E008
+  - C013

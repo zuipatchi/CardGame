@@ -100,6 +100,17 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
+        // ─── Poison エフェクト（キャラスロット位置にパーティクル再生）──────────────
+
+        private async UniTask PlayPoisonEffectAsync(CharacterSlotView slot, CancellationToken ct)
+        {
+            if (slot.CurrentCard == null || _poisonEffectPrefab == null)
+            {
+                return;
+            }
+            await PlayParticleAtCardAsync(slot.CurrentCard, _poisonEffectPrefab, ct);
+        }
+
         // ─── キャラ破壊エフェクト（パーティクル再生）────────────────────────────
 
         private async UniTask PlayCharDestroyEffectAsync(CharacterSlotView slot, CancellationToken ct)

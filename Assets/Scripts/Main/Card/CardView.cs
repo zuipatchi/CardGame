@@ -23,6 +23,7 @@ namespace Main.Card
         private readonly Label _defLabel;
         private readonly Label _spdLabel;
         private readonly Label _hpLabel;
+        private readonly VisualElement _poisonArea;
         private readonly Label _chainLabel;
         private CardDragManipulator _dragManipulator;
         private Tween _playableHighlightTween;
@@ -50,6 +51,7 @@ namespace Main.Card
             _defLabel = this.Q<Label>("DefLabel");
             _spdLabel = this.Q<Label>("SpdLabel");
             _hpLabel = this.Q<Label>("HpLabel");
+            _poisonArea = this.Q<VisualElement>("PoisonArea");
             _chainLabel = this.Q<Label>("ChainLabel");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
@@ -264,6 +266,8 @@ namespace Main.Card
 
             _atkArea.style.display = data is EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;
+            _poisonArea.style.display = data is SkillCardData sd && sd.SkillType == SkillType.Poison
+                ? DisplayStyle.Flex : DisplayStyle.None;
             _defArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
             _spdArea.style.display = data is CharacterCardData

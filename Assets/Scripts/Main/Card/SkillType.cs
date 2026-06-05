@@ -4,5 +4,6 @@ namespace Main.Card
     {
         Attack,
         Recover,
+        Poison,
     }
 }

@@ -78,6 +78,11 @@ namespace Main.Card
                 {
                     AddIconStatRow(statsGrid, "card-detail-stat-icon--recover", skillData.SkillValue.ToString(), "回復");
                 }
+                else if (skillData.SkillType == SkillType.Poison)
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.SkillValue.ToString(), "攻撃力");
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--poison", "", "毒");
+                }
                 else
                 {
                     AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.SkillValue.ToString(), "攻撃力");

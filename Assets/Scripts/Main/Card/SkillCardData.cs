@@ -20,6 +20,6 @@ namespace Main.Card
 
         public SkillType SkillType => _skillType;
         public int SkillValue => _skillValue;
-        public override int Attack => _skillType == SkillType.Attack ? _skillValue : 0;
+        public override int Attack => _skillType is SkillType.Attack or SkillType.Poison ? _skillValue : 0;
     }
 }

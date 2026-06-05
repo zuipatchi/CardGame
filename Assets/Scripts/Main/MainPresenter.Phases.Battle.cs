@@ -219,6 +219,28 @@ namespace Main
                 await FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct);
             }
 
+            // ─── 毒チェック（両攻撃終了後）──────────────────────────────────────
+
+            bool firstHasPoison = firstCards.Any(c => c.Data is SkillCardData sd && sd.SkillType == SkillType.Poison);
+            if (firstHasPoison && firstDamage >= 1 && firstTarget.CurrentCard != null)
+            {
+                await PlayPoisonEffectAsync(firstTarget, ct);
+                CardView poisonedChar = firstTarget.CurrentCard;
+                Rect poisonedRect = poisonedChar.worldBound;
+                firstTarget.RemoveCard();
+                await FlyToGraveyardAsync(poisonedChar, poisonedRect, firstTargetGraveyard, ct);
+            }
+
+            bool secondHasPoison = secondCards.Any(c => c.Data is SkillCardData sd && sd.SkillType == SkillType.Poison);
+            if (secondHasPoison && secondDamage >= 1 && secondTarget.CurrentCard != null)
+            {
+                await PlayPoisonEffectAsync(secondTarget, ct);
+                CardView poisonedChar = secondTarget.CurrentCard;
+                Rect poisonedRect = poisonedChar.worldBound;
+                secondTarget.RemoveCard();
+                await FlyToGraveyardAsync(poisonedChar, poisonedRect, secondTargetGraveyard, ct);
+            }
+
             SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
             SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
 

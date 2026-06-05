@@ -178,6 +178,24 @@
     -unity-text-align: middle-center;
 }
 
+.game-card__poison-area {
+    display: none;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 4px;
+}
+
+.game-card__poison-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("../Icon/PoisonIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .game-card__def-spd-row {
     flex-direction: row;
 }
