@@ -138,11 +138,27 @@ public enum SkillType
 
 **② `SkillCardData.Attack` が正しく返るか確認する**
 
-`SkillType.Attack` 以外は `Attack => 0` が基本。ATK を持つ新タイプなら条件を追加する。
+`SkillType.Recover` のみ `Attack => 0`。ATK に寄与するタイプは以下のパターンを使う:
 
-**③ `ApplySkillRecoverEffectsAsync` を参考に戦闘フェーズに処理を追加する**
+```csharp
+public override int Attack => _skillType is SkillType.Attack or SkillType.Poison ? _skillValue : 0;
+```
 
-[MainPresenter.Phases.Battle.cs](../Assets/Scripts/Main/MainPresenter.Phases.Battle.cs) の `ApplySkillRecoverEffectsAsync` に倣って新しいヘルパーを作り、先攻・後攻それぞれのフリップ直後に呼ぶ。
+ATK に寄与しない新タイプを追加した場合は条件に加えなくてよい（デフォルト 0）。
+
+**③ 戦闘フェーズの処理タイミングを選ぶ**
+
+効果のタイミングによって追加箇所が異なる:
+
+| タイミング | 参考実装 | 追加箇所 |
+|---|---|---|
+| カードフリップ直後（攻撃前） | `ApplySkillRecoverEffectsAsync` | 先攻・後攻それぞれのフリップ直後 |
+| 両攻撃終了後（バトルフェーズ末尾） | Poison チェック（`RunBattlePhaseAsync` 末尾） | `SendSkillsToGraveyard` の直前 |
+
+- **フリップ直後**: `ApplySkillRecoverEffectsAsync` に倣ったヘルパーを作り、先攻・後攻それぞれのフリップ後に呼ぶ
+- **両攻撃終了後**: `secondCharWillBeDestroyed` ブロックの後、`SendSkillsToGraveyard` の前に直接処理を追加する。`firstCards.Any(...)` / `secondCards.Any(...)` でスキル保持を確認し、`firstDamage`/`secondDamage` と `firstTarget.CurrentCard != null` を条件に処理する
+
+エフェクト演出は `PlayPoisonEffectAsync` / `PlayCharDestroyEffectAsync` 等を参考に `MainPresenter.Animations.Effects.cs` にヘルパーを追加し、`_xxxEffectPrefab` フィールドを `MainPresenter.cs` に `[SerializeField]` で追加する。
 
 **④ SO アセットのデータを入力する**
 
