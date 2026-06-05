@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 2296e1af91e62c84eb2f51cf913da5c3
   m_SerializeEntries:
   - m_GUID: 0ac14884a55a36147a6b23dc7ab6f88b
-    m_Address: Sound/BGM/MaouOrchestra
+    m_Address: Sound/BGM/KoharuIzm
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
@@ -139,6 +139,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f40ccfe76d63df54daa512ef1499de86
+    m_Address: Sound/BGM/MaouOrchestra
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ff539d642a1a86d4aac70aba745fb6cb
     m_Address: Icon/sliders
