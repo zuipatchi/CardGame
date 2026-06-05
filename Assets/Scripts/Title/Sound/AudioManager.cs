@@ -26,7 +26,7 @@ namespace Title.Sound
             try
             {
                 await _soundStore.Loaded.AttachExternalCancellation(cancellation);
-                _soundPlayer.PlayBGM(_soundStore.TitleBGM);
+                _soundPlayer.PlayBGM(_soundStore.MaouOrchestra);
             }
             catch (OperationCanceledException) { }
         }
