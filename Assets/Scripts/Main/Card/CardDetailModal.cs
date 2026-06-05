@@ -76,6 +76,7 @@ namespace Main.Card
             {
                 if (skillData.SkillType == SkillType.Recover)
                 {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.Attack.ToString(), "攻撃力");
                     AddIconStatRow(statsGrid, "card-detail-stat-icon--recover", skillData.SkillValue.ToString(), "回復");
                 }
                 else if (skillData.SkillType == SkillType.Poison)

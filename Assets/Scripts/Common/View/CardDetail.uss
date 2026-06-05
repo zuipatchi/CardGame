@@ -178,6 +178,10 @@
     background-image: url("../../../AddressableAssets/Icon/PoisonIcon.png");
 }
 
+.card-detail-stat-icon--recover {
+    background-image: url("../../../AddressableAssets/Icon/HeartIcon.png");
+}
+
 .card-detail-attr-icon {
     width: 56px;
     height: 56px;

@@ -24,6 +24,8 @@ namespace Main.Card
         private readonly Label _spdLabel;
         private readonly Label _hpLabel;
         private readonly VisualElement _poisonArea;
+        private readonly VisualElement _recoverArea;
+        private readonly Label _recoverLabel;
         private readonly Label _chainLabel;
         private CardDragManipulator _dragManipulator;
         private Tween _playableHighlightTween;
@@ -52,6 +54,8 @@ namespace Main.Card
             _spdLabel = this.Q<Label>("SpdLabel");
             _hpLabel = this.Q<Label>("HpLabel");
             _poisonArea = this.Q<VisualElement>("PoisonArea");
+            _recoverArea = this.Q<VisualElement>("RecoverArea");
+            _recoverLabel = this.Q<Label>("RecoverLabel");
             _chainLabel = this.Q<Label>("ChainLabel");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
@@ -268,6 +272,12 @@ namespace Main.Card
                 ? DisplayStyle.None : DisplayStyle.Flex;
             _poisonArea.style.display = data is SkillCardData sd && sd.SkillType == SkillType.Poison
                 ? DisplayStyle.Flex : DisplayStyle.None;
+            bool isRecover = data is SkillCardData recoverSd && recoverSd.SkillType == SkillType.Recover;
+            _recoverArea.style.display = isRecover ? DisplayStyle.Flex : DisplayStyle.None;
+            if (isRecover && data is SkillCardData recoverData)
+            {
+                _recoverLabel.text = recoverData.SkillValue.ToString();
+            }
             _defArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
             _spdArea.style.display = data is CharacterCardData
