@@ -104,4 +104,5 @@ Assets/AssetStore/*
 
 Windows/*
 Build/*
-IOS/*
+iOS/*
+macOS/*
