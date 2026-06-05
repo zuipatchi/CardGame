@@ -178,7 +178,7 @@ namespace Home
 
         private string GetDeckErrorMessage()
         {
-            return _deckModel.IsOver ? "デッキがコストオーバーしています" : "デッキのコストが足りません";
+            return _deckModel.IsOver ? $"デッキが{DeckModel.MaxCards}枚を超えています" : $"デッキが{DeckModel.MaxCards}枚になっていません";
         }
 
         private async UniTaskVoid ShowDeckToastAsync(string message)

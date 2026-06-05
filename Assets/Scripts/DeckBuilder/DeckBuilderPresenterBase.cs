@@ -303,8 +303,8 @@ namespace DeckBuilder
         private void RefreshDeckPanel()
         {
             _deckListScrollView.Clear();
-            _deckCountLabel.text = $"{_deckModel.TotalCost}/{DeckModel.TargetCost}";
-            _deckCardCountLabel.text = $"{_deckModel.Count}枚";
+            _deckCountLabel.text = $"{_deckModel.Count}/{DeckModel.MaxCards}";
+            _deckCardCountLabel.text = $"コスト {_deckModel.TotalCost}";
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();

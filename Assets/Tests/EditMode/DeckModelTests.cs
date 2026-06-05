@@ -55,17 +55,19 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsReady_TotalCostが70のときtrue()
+        public void IsReady_カードが30枚のときtrue()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 35);
-            model.Add("S001", 35);
+            for (int i = 0; i < DeckModel.MaxCards; i++)
+            {
+                model.Add("C001", 1);
+            }
 
             Assert.IsTrue(model.IsReady);
         }
 
         [Test]
-        public void IsReady_TotalCostが70未満のときfalse()
+        public void IsReady_カードが30枚未満のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", 10);
@@ -74,37 +76,43 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsReady_TotalCostが70を超えるときfalse()
+        public void IsReady_カードが30枚を超えるときfalse()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 40);
-            model.Add("S001", 35);
+            for (int i = 0; i < DeckModel.MaxCards + 1; i++)
+            {
+                model.Add("C001", 1);
+            }
 
             Assert.IsFalse(model.IsReady);
         }
 
         [Test]
-        public void IsOver_TotalCostが70を超えるときtrue()
+        public void IsOver_カードが30枚を超えるときtrue()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 40);
-            model.Add("S001", 35);
+            for (int i = 0; i < DeckModel.MaxCards + 1; i++)
+            {
+                model.Add("C001", 1);
+            }
 
             Assert.IsTrue(model.IsOver);
         }
 
         [Test]
-        public void IsOver_TotalCostが70のときfalse()
+        public void IsOver_カードが30枚のときfalse()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 35);
-            model.Add("S001", 35);
+            for (int i = 0; i < DeckModel.MaxCards; i++)
+            {
+                model.Add("C001", 1);
+            }
 
             Assert.IsFalse(model.IsOver);
         }
 
         [Test]
-        public void IsOver_TotalCostが70未満のときfalse()
+        public void IsOver_カードが30枚未満のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", 10);
@@ -190,8 +198,10 @@ namespace Tests.EditMode
         public void Clear_IsReadyがfalseになる()
         {
             DeckModel model = new DeckModel();
-            model.Add("C001", 35);
-            model.Add("S001", 35);
+            for (int i = 0; i < DeckModel.MaxCards; i++)
+            {
+                model.Add("C001", 1);
+            }
 
             model.Clear();
 

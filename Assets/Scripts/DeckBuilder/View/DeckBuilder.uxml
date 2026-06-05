@@ -13,7 +13,7 @@
                 <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
             </ui:VisualElement>
             <ui:VisualElement class="deckbuilder-deck-panel">
-                <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="コストオーバー" />
+                <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="30枚を超えています" />
                 <ui:VisualElement class="deckbuilder-deck-header">
                     <ui:Label class="deckbuilder-panel-title" text="デッキ" />
                     <ui:VisualElement class="deckbuilder-deck-header-right">
