@@ -20,6 +20,8 @@ namespace Tests.PlayMode
         public IEnumerator SetUp()
         {
             _savedDeckSnapshot = PlayerPrefs.GetString(SaveKey, null);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.Save();
             yield return SceneManager.LoadSceneAsync("DeckBuilder", LoadSceneMode.Single);
             yield return new WaitUntil(() => SceneManager.GetSceneByName("Common").isLoaded);
             yield return null;
@@ -156,9 +158,9 @@ namespace Tests.PlayMode
         {
             yield return new WaitUntil(() => FindCardListScrollView()?.childCount > 0);
 
-            Label deckCardCountLabel = FindElement<Label>("DeckCardCountLabel");
-            Assert.IsNotNull(deckCardCountLabel, "DeckCardCountLabel が見つかりません");
-            int beforeCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            Label deckCountLabel = FindElement<Label>("DeckCountLabel");
+            Assert.IsNotNull(deckCountLabel, "DeckCountLabel が見つかりません");
+            int beforeCount = int.Parse(deckCountLabel.text.Split(' ')[1].Split('/')[0]);
 
             ScrollView cardList = FindCardListScrollView();
             VisualElement cardItem = cardList.Q<VisualElement>(className: "deckbuilder-card-item");
@@ -167,7 +169,7 @@ namespace Tests.PlayMode
             SendRightClick(cardItem);
             yield return null;
 
-            int afterCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            int afterCount = int.Parse(deckCountLabel.text.Split(' ')[1].Split('/')[0]);
             Assert.AreEqual(beforeCount + 1, afterCount, "右クリック後にデッキ枚数が1枚増えていません");
         }
 
@@ -176,9 +178,9 @@ namespace Tests.PlayMode
         {
             yield return new WaitUntil(() => FindCardListScrollView()?.childCount > 0);
 
-            Label deckCardCountLabel = FindElement<Label>("DeckCardCountLabel");
-            Assert.IsNotNull(deckCardCountLabel, "DeckCardCountLabel が見つかりません");
-            int beforeCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            Label deckCountLabel = FindElement<Label>("DeckCountLabel");
+            Assert.IsNotNull(deckCountLabel, "DeckCountLabel が見つかりません");
+            int beforeCount = int.Parse(deckCountLabel.text.Split(' ')[1].Split('/')[0]);
 
             ScrollView cardList = FindCardListScrollView();
             VisualElement cardItem = cardList.Q<VisualElement>(className: "deckbuilder-card-item");
@@ -190,7 +192,7 @@ namespace Tests.PlayMode
                 yield return null;
             }
 
-            int afterCount = int.Parse(deckCardCountLabel.text.Replace("枚", ""));
+            int afterCount = int.Parse(deckCountLabel.text.Split(' ')[1].Split('/')[0]);
             Assert.AreEqual(beforeCount + 3, afterCount, "右クリック3回後にデッキ枚数が3枚増えていません");
         }
 

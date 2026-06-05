@@ -81,8 +81,6 @@ namespace DeckBuilder
                 }
                 _cardListScrollView = root.Q<ScrollView>("CardListScrollView");
                 _deckListScrollView = root.Q<ScrollView>("DeckListScrollView");
-                _deckCountLabel = root.Q<Label>("DeckCountLabel");
-                _deckCardCountLabel = root.Q<Label>("DeckCardCountLabel");
                 _clearDeckButton = root.Q<Button>("ClearDeckButton");
                 _costOverLabel = root.Q<Label>("CostOverLabel");
                 Button backButton = root.Q<Button>("BackButton");
@@ -108,6 +106,17 @@ namespace DeckBuilder
                 topLeftButtons.Add(_filterCharacterButton);
                 topLeftButtons.Add(_filterSkillButton);
                 topLeftButtons.Add(_filterEventButton);
+
+                _deckCountLabel = new Label();
+                _deckCountLabel.name = "DeckCountLabel";
+                _deckCountLabel.AddToClassList("deckbuilder-deck-count");
+                _deckCountLabel.style.marginLeft = 20;
+                topLeftButtons.Add(_deckCountLabel);
+
+                _deckCardCountLabel = new Label();
+                _deckCardCountLabel.name = "DeckCardCountLabel";
+                _deckCardCountLabel.AddToClassList("deckbuilder-deck-card-count");
+                topLeftButtons.Add(_deckCardCountLabel);
 
                 InitializeDeck();
 
@@ -303,8 +312,8 @@ namespace DeckBuilder
         private void RefreshDeckPanel()
         {
             _deckListScrollView.Clear();
-            _deckCountLabel.text = $"{_deckModel.Count}/{DeckModel.MaxCards}";
-            _deckCardCountLabel.text = $"コスト {_deckModel.TotalCost}";
+            _deckCountLabel.text = $"枚数 {_deckModel.Count}/{DeckModel.MaxCards}";
+            _deckCardCountLabel.text = $"コスト {_deckModel.TotalCost}/{DeckModel.MaxCost}";
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();
@@ -393,7 +402,23 @@ namespace DeckBuilder
             _clearDeckButton.style.display = _deckModel.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
 
             bool isOver = _deckModel.IsOver;
-            _costOverLabel.style.display = isOver ? DisplayStyle.Flex : DisplayStyle.None;
+            bool isCostOver = _deckModel.IsCostOver;
+
+            if (isOver)
+            {
+                _costOverLabel.text = $"{DeckModel.MaxCards}枚を超えています";
+                _costOverLabel.style.display = DisplayStyle.Flex;
+            }
+            else if (isCostOver)
+            {
+                _costOverLabel.text = $"コストが{DeckModel.MaxCost}を超えています";
+                _costOverLabel.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                _costOverLabel.style.display = DisplayStyle.None;
+            }
+
             if (isOver)
             {
                 _deckCountLabel.AddToClassList("deckbuilder-deck-count--over");
@@ -401,6 +426,15 @@ namespace DeckBuilder
             else
             {
                 _deckCountLabel.RemoveFromClassList("deckbuilder-deck-count--over");
+            }
+
+            if (isCostOver)
+            {
+                _deckCardCountLabel.AddToClassList("deckbuilder-deck-card-count--over");
+            }
+            else
+            {
+                _deckCardCountLabel.RemoveFromClassList("deckbuilder-deck-card-count--over");
             }
         }
 

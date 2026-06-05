@@ -55,7 +55,7 @@ namespace Common.Store
             catch (Exception e)
             {
                 Debug.LogError($"サウンドアセットのロードに失敗: {e}");
-                _loadedTcs.TrySetException(e);
+                _loadedTcs.TrySetResult();
             }
         }
     }

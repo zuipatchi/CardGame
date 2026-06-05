@@ -90,9 +90,13 @@ namespace Home
             try
             {
                 await _soundStore.Loaded.AttachExternalCancellation(ct);
-                _soundPlayer.PlayBGM(_soundStore.MainBGM);
+                if (_soundStore.MainBGM != null)
+                {
+                    _soundPlayer.PlayBGM(_soundStore.MainBGM);
+                }
             }
             catch (OperationCanceledException) { }
+            catch (Exception) { }
         }
 
         private void OnEnable()
@@ -151,7 +155,7 @@ namespace Home
         private void OnBattleClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsReady)
+            if (!_deckModel.IsReady || _deckModel.IsCostOver)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
@@ -168,7 +172,7 @@ namespace Home
         private void OnMatchingClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsReady)
+            if (!_deckModel.IsReady || _deckModel.IsCostOver)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
@@ -178,7 +182,15 @@ namespace Home
 
         private string GetDeckErrorMessage()
         {
-            return _deckModel.IsOver ? $"デッキが{DeckModel.MaxCards}枚を超えています" : $"デッキが{DeckModel.MaxCards}枚になっていません";
+            if (_deckModel.IsOver)
+            {
+                return $"デッキが{DeckModel.MaxCards}枚を超えています";
+            }
+            if (_deckModel.IsCostOver)
+            {
+                return $"デッキのコストが{DeckModel.MaxCost}を超えています";
+            }
+            return $"デッキが{DeckModel.MaxCards}枚になっていません";
         }
 
         private async UniTaskVoid ShowDeckToastAsync(string message)

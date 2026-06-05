@@ -13,18 +13,12 @@
                 <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
             </ui:VisualElement>
             <ui:VisualElement class="deckbuilder-deck-panel">
-                <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="コストオーバー" />
+                <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="30枚を超えています" />
                 <ui:VisualElement class="deckbuilder-deck-header">
                     <ui:Label class="deckbuilder-panel-title" text="CPUデッキ" />
                     <ui:VisualElement class="deckbuilder-deck-header-right">
                         <ui:Button name="SortDeckButton" class="deckbuilder-button--sort-deck" text="ID順" />
                         <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" />
-                        <ui:VisualElement class="deckbuilder-deck-count-container">
-                            <ui:VisualElement class="deckbuilder-deck-count-row">
-                                <ui:Label name="DeckCountLabel" class="deckbuilder-deck-count" text="0/--" />
-                                <ui:Label name="DeckCardCountLabel" class="deckbuilder-deck-card-count" text="0枚" />
-                            </ui:VisualElement>
-                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:ScrollView name="DeckListScrollView" class="deckbuilder-deck-scroll" />

@@ -47,12 +47,20 @@ namespace Common.SoundManagement
 
         public void PlayBGM(AudioClip clip)
         {
+            if (_bgmAudioSource == null)
+            {
+                return;
+            }
             _bgmAudioSource.clip = clip;
             _bgmAudioSource.Play();
         }
 
         public void PlaySE(AudioClip clip)
         {
+            if (_seAudioSource == null)
+            {
+                return;
+            }
             _seAudioSource.PlayOneShot(clip);
         }
     }

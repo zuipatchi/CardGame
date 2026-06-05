@@ -128,21 +128,15 @@
     margin-bottom: 8px;
 }
 
-.deckbuilder-deck-count-container {
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.deckbuilder-deck-count-row {
-    flex-direction: row;
-    align-items: center;
-}
-
 .deckbuilder-deck-card-count {
     font-size: 22px;
     color: rgba(160, 160, 190, 1);
     -unity-font-style: bold;
     margin-left: 10px;
+}
+
+.deckbuilder-deck-card-count--over {
+    color: rgb(255, 80, 80);
 }
 
 .deckbuilder-deck-count {
@@ -307,6 +301,7 @@
     top: 16px;
     left: 16px;
     flex-direction: row;
+    align-items: center;
 }
 
 .deckbuilder-button {
