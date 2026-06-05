@@ -79,6 +79,20 @@ namespace Home
                     _darkOverlay.style.display = DisplayStyle.Flex;
                 }
             }
+            else
+            {
+                PlaySunnyBgmAsync(destroyCancellationToken).Forget();
+            }
+        }
+
+        private async UniTaskVoid PlaySunnyBgmAsync(CancellationToken ct)
+        {
+            try
+            {
+                await _soundStore.Loaded.AttachExternalCancellation(ct);
+                _soundPlayer.PlayBGM(_soundStore.MainBGM);
+            }
+            catch (OperationCanceledException) { }
         }
 
         private void OnEnable()
