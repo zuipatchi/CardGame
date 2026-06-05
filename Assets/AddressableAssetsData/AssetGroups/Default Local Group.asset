@@ -143,7 +143,8 @@ MonoBehaviour:
   - m_GUID: f40ccfe76d63df54daa512ef1499de86
     m_Address: Sound/BGM/MaouOrchestra
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - default
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ff539d642a1a86d4aac70aba745fb6cb
     m_Address: Icon/sliders
