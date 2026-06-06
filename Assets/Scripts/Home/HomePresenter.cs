@@ -90,10 +90,7 @@ namespace Home
             try
             {
                 await _soundStore.Loaded.AttachExternalCancellation(ct);
-                if (_soundStore.MainBGM != null)
-                {
-                    _soundPlayer.PlayBGM(_soundStore.MainBGM);
-                }
+                _soundPlayer.PlayBGM(_soundStore.MainBGM);
             }
             catch (OperationCanceledException) { }
             catch (Exception) { }
@@ -140,10 +137,7 @@ namespace Home
 
         private void PlayEnterSE()
         {
-            if (_soundStore.EnterSE != null)
-            {
-                _soundPlayer.PlaySE(_soundStore.EnterSE);
-            }
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
         }
 
         private void OnDeckBuilderClicked()

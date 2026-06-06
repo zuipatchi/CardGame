@@ -133,7 +133,7 @@ namespace Main
 
         private async UniTaskVoid AutoOkAsync()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: destroyCancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: destroyCancellationToken);
             OnOkClicked();
         }
 

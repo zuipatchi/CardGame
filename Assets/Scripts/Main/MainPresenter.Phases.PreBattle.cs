@@ -54,7 +54,7 @@ namespace Main
                     else
                     {
                         _gameModel.ReadyCard(readied);
-                        await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                        await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                         await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
                         if (_isGameOver) break;
                         readied.SetChainNumber(_gameModel.ReadyQueue.Count);
@@ -97,7 +97,7 @@ namespace Main
                             _opponentFieldView.PlaceCard(card);
                             await card.FlipAsync(ct);
                             _gameModel.ReadyCard(card);
-                            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                             if (_isGameOver) break;
                             card.SetChainNumber(_gameModel.ReadyQueue.Count);
@@ -146,7 +146,7 @@ namespace Main
             _opponentFieldView.PlaceCard(card);
             await card.FlipAsync(ct);
             _gameModel.ReadyCard(card);
-            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
             card.SetChainNumber(_gameModel.ReadyQueue.Count);
         }

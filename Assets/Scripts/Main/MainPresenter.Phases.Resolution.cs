@@ -281,7 +281,7 @@ namespace Main
             if (damage == 0)
             {
                 await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetSlot, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                 targetSlot.DefOverlay.style.display = DisplayStyle.None;
                 return;
             }
@@ -301,7 +301,7 @@ namespace Main
             List<CardView> damageCards = targetDeck.TakeFromTop(damage);
             await PlayDeckDamageAsync(damageCards, targetDeckRect, targetGraveyard, targetDeck, ct);
             targetSlot.DefOverlay.style.display = DisplayStyle.None;
-            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
             if (targetDeck.Count == 0)
             {

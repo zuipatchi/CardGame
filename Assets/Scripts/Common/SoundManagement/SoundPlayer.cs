@@ -47,7 +47,7 @@ namespace Common.SoundManagement
 
         public void PlayBGM(AudioClip clip)
         {
-            if (_bgmAudioSource == null)
+            if (_bgmAudioSource == null || clip == null)
             {
                 return;
             }
@@ -57,7 +57,7 @@ namespace Common.SoundManagement
 
         public void PlaySE(AudioClip clip)
         {
-            if (_seAudioSource == null)
+            if (_seAudioSource == null || clip == null)
             {
                 return;
             }

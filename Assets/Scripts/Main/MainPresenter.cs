@@ -26,6 +26,8 @@ namespace Main
         private const float CardWidth = 160f;
         private const float CardHeight = 220f;
 
+        private const float AnimationShortDelay = 0.25f;
+
         private const float AttackWindupDuration = 0.15f;
         private const float AttackWindupDistance = 50f;
         private const float AttackFlyDuration = 0.65f;

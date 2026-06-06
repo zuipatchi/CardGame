@@ -75,7 +75,7 @@ namespace Main
             else
             {
                 await PlayFloatingLabelAsync("NO ATTACK", "no-attack-label", firstAtkOverlay, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             }
             firstAtkOverlay.style.display = DisplayStyle.None;
             firstTarget.DefOverlay.style.display = DisplayStyle.None;
@@ -83,7 +83,7 @@ namespace Main
             if (firstAtk > 0 && firstDamage == 0)
             {
                 await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", firstTarget, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             }
 
             bool firstCharWillBeDestroyed = firstTarget.CurrentCard != null && firstDamage >= firstTarget.Hp;
@@ -94,7 +94,7 @@ namespace Main
                 await PlayDamageNumberFlyAsync(firstDamage, firstTarget.worldBound.center, firstTargetDeck, ct);
                 List<CardView> firstDamageCards = firstTargetDeck.TakeFromTop(firstDamage);
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
                 if (firstTargetDeck.Count == 0)
                 {
@@ -132,7 +132,7 @@ namespace Main
             else
             {
                 await PlayFloatingLabelAsync("NO ATTACK", "no-attack-label", secondAtkOverlay, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             }
             secondAtkOverlay.style.display = DisplayStyle.None;
             secondTarget.DefOverlay.style.display = DisplayStyle.None;
@@ -140,7 +140,7 @@ namespace Main
             if (secondAtk > 0 && secondDamage == 0)
             {
                 await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", secondTarget, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             }
 
             bool secondCharWillBeDestroyed = secondTarget.CurrentCard != null && secondDamage >= secondTarget.Hp;
@@ -151,7 +151,7 @@ namespace Main
                 await PlayDamageNumberFlyAsync(secondDamage, secondTarget.worldBound.center, secondTargetDeck, ct);
                 List<CardView> secondDamageCards = secondTargetDeck.TakeFromTop(secondDamage);
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
                 if (secondTargetDeck.Count == 0)
                 {

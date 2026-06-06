@@ -74,7 +74,7 @@ namespace Main
             {
                 PlayParticleAtCardAsync(eventCard, _switchEffectPrefab, ct).Forget();
             }
-            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             if (slot.CurrentCard == null)
             {
                 return;

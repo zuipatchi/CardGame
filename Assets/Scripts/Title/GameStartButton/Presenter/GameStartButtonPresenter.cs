@@ -60,10 +60,7 @@ namespace Title.GameStartButton
 
         private void OnClick(ClickEvent evt)
         {
-            if (_soundStore.EnterSE != null)
-            {
-                _soundPlayer.PlaySE(_soundStore.EnterSE);
-            }
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
             _sceneTransitioner.Transit(_nextScene).Forget();
         }
     }

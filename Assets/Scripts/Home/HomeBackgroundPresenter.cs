@@ -1,4 +1,5 @@
 using System;
+using Common;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -16,7 +17,6 @@ namespace Home
 
         private const string BackgroundAddress = "Image/HomeBackground";
         private const string RainBackgroundAddress = "Image/HomeBackgroundRain";
-        private const float BackgroundDepth = 20f;
 
         public bool IsRainy { get; set; }
 
@@ -50,12 +50,12 @@ namespace Home
                 return;
             }
 
-            transform.position = _camera.transform.position + _camera.transform.forward * BackgroundDepth;
+            transform.position = _camera.transform.position + _camera.transform.forward * BackgroundConstants.Depth;
             transform.rotation = _camera.transform.rotation;
 
             float visibleHeight = _camera.orthographic
                 ? _camera.orthographicSize * 2f
-                : 2f * BackgroundDepth * Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                : 2f * BackgroundConstants.Depth * Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
             float visibleWidth = visibleHeight * _camera.aspect;
 
             Vector3 spriteSize = sprite.bounds.size;

@@ -80,22 +80,22 @@ namespace Matching
         {
             _backButton.clicked += () =>
             {
-                if (_soundStore.Enter2SE != null) _soundPlayer.PlaySE(_soundStore.Enter2SE);
+                _soundPlayer.PlaySE(_soundStore.Enter2SE);
                 _sceneTransitioner.Transit(Scenes.Home).Forget();
             };
             _quickMatchButton.clicked += () =>
             {
-                if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
                 OnQuickMatchButtonClickedAsync().Forget();
             };
             _createButton.clicked += () =>
             {
-                if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
                 OnCreateButtonClickedAsync().Forget();
             };
             _cancelWaitButton.clicked += () =>
             {
-                if (_soundStore.Cancel1SE != null) _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
                 CancelWaitAsync().Forget();
             };
             _timeoutCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
@@ -161,6 +161,13 @@ namespace Matching
             }
         }
 
+        private void HandleMatchingError(string operation, Exception e)
+        {
+            Debug.LogError($"{operation}に失敗: {e}");
+            if (this == null) return;
+            _model.State.Value = MatchingState.Error;
+        }
+
         private async UniTaskVoid InitializeAsync(System.Threading.CancellationToken ct)
         {
             try
@@ -172,8 +179,7 @@ namespace Matching
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                Debug.LogError($"初期化に失敗: {e}");
-                _model.State.Value = MatchingState.Error;
+                HandleMatchingError("初期化", e);
             }
         }
 
@@ -212,7 +218,7 @@ namespace Matching
                 string sessionId = room.LobbyId;
                 Button roomButton = new Button(() =>
                 {
-                    if (_soundStore.EnterSE != null) _soundPlayer.PlaySE(_soundStore.EnterSE);
+                    _soundPlayer.PlaySE(_soundStore.EnterSE);
                     OnRoomSelectedAsync(sessionId).Forget();
                 })
                 {
@@ -264,9 +270,7 @@ namespace Matching
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                Debug.LogError($"クイックマッチに失敗: {e}");
-                if (this == null) return;
-                _model.State.Value = MatchingState.Error;
+                HandleMatchingError("クイックマッチ", e);
             }
         }
 
@@ -293,8 +297,7 @@ namespace Matching
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                Debug.LogError($"ルーム作成に失敗: {e}");
-                _model.State.Value = MatchingState.Error;
+                HandleMatchingError("ルーム作成", e);
             }
         }
 
@@ -310,14 +313,13 @@ namespace Matching
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                Debug.LogError($"ルーム参加に失敗: {e}");
-                _model.State.Value = MatchingState.Error;
+                HandleMatchingError("ルーム参加", e);
             }
         }
 
         private async UniTask TransitToMainAsync()
         {
-            if (_soundStore.ResultSE != null) _soundPlayer.PlaySE(_soundStore.ResultSE);
+            _soundPlayer.PlaySE(_soundStore.ResultSE);
             await _sceneTransitioner.Transit(Scenes.Main);
         }
 
@@ -331,8 +333,7 @@ namespace Matching
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                Debug.LogError($"キャンセルに失敗: {e}");
-                _model.State.Value = MatchingState.Error;
+                HandleMatchingError("キャンセル", e);
             }
         }
     }
