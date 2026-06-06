@@ -491,25 +491,21 @@ namespace Main
                 {
                     CardData[] onlinePlayerFull = playerHandCards.Concat(playerDeckCards).ToArray();
                     CardData opponentPlaceholder = allCards.Length > 0 ? allCards[0] : null;
-                    UniTask<bool> waitOpponentMulligan = _networkGameService.WaitForOpponentMulliganDecisionAsync(ct);
+                    UniTask<NetworkGameService.MulliganResult> waitOpponentMulligan = _networkGameService.WaitForOpponentMulliganDecisionAsync(ct);
                     bool localChose = await RunPlayerMulliganAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
-                    _networkGameService.SendMulliganDecision(localChose);
-                    if (localChose)
-                    {
-                        _networkGameService.SendMulliganDeckOrder(_playerDeckView.GetCardIds());
-                    }
+                    string[] newDeckIds = localChose ? _playerDeckView.GetCardIds() : null;
+                    _networkGameService.SendMulliganDecision(localChose, newDeckIds);
                     _waitingOverlay.style.display = DisplayStyle.Flex;
-                    bool opponentChose = await waitOpponentMulligan;
+                    NetworkGameService.MulliganResult opponentResult = await waitOpponentMulligan;
                     // マリガン同期（最後の通信同期点）直後に登録しておく。
                     // 以降の InitializePriority アニメーション中に相手が先に DrawPhase へ入って
                     // NGS_Draw を送っても、ハンドラ未登録で捨てられるのを防ぐ。
                     _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
                     _hasPreDrawTask = true;
                     _waitingOverlay.style.display = DisplayStyle.None;
-                    if (opponentChose)
+                    if (opponentResult.Mulliganed)
                     {
-                        CardData[] opponentNewDeck = await _networkGameService.WaitForMulliganDeckOrderAsync(ct);
-                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, opponentNewDeck, ct);
+                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, opponentResult.NewDeck, ct);
                     }
                 }
                 else

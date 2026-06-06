@@ -22,7 +22,6 @@ namespace Main.Network
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
         private const string k_Mulligan = "NGS_Mulligan";
-        private const string k_MulliganDeck = "NGS_MulliganDeck";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
@@ -217,7 +216,7 @@ namespace Main.Network
             }
         }
 
-        public void SendMulliganDecision(bool mulliganed)
+        public void SendMulliganDecision(bool mulliganed, string[] newDeckIds = null)
         {
             NetworkManager nm = NetworkManager.Singleton;
             if (nm == null)
@@ -229,7 +228,7 @@ namespace Main.Network
             {
                 return;
             }
-            MulliganPayload payload = new MulliganPayload { mulliganed = mulliganed };
+            MulliganPayload payload = new MulliganPayload { mulliganed = mulliganed, newDeckIds = newDeckIds };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
             {
@@ -238,21 +237,36 @@ namespace Main.Network
             }
         }
 
-        public async UniTask<bool> WaitForOpponentMulliganDecisionAsync(CancellationToken ct)
+        public async UniTask<MulliganResult> WaitForOpponentMulliganDecisionAsync(CancellationToken ct)
         {
             CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<bool> tcs = new UniTaskCompletionSource<bool>();
+            UniTaskCompletionSource<MulliganResult> tcs = new UniTaskCompletionSource<MulliganResult>();
 
             void OnMulligan(ulong senderId, FastBufferReader reader)
             {
                 messaging.UnregisterNamedMessageHandler(k_Mulligan);
                 reader.ReadValueSafe(out string json);
                 MulliganPayload payload = JsonUtility.FromJson<MulliganPayload>(json);
-                tcs.TrySetResult(payload.mulliganed);
+                CardData[] newDeck = payload.mulliganed && payload.newDeckIds != null
+                    ? _cardDatabase.BuildDeck(payload.newDeckIds)
+                    : null;
+                tcs.TrySetResult(new MulliganResult(payload.mulliganed, newDeck));
             }
 
             messaging.RegisterNamedMessageHandler(k_Mulligan, OnMulligan);
             return await tcs.Task.AttachExternalCancellation(ct);
+        }
+
+        public readonly struct MulliganResult
+        {
+            public readonly bool Mulliganed;
+            public readonly CardData[] NewDeck;
+
+            public MulliganResult(bool mulliganed, CardData[] newDeck)
+            {
+                Mulliganed = mulliganed;
+                NewDeck = newDeck;
+            }
         }
 
         private static CardData[] Slice(CardData[] arr, int start, int length)
@@ -463,16 +477,6 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
-        public void SendMulliganDeckOrder(string[] deckIds)
-        {
-            SendDeckOrder(k_MulliganDeck, deckIds);
-        }
-
-        public UniTask<CardData[]> WaitForMulliganDeckOrderAsync(CancellationToken ct)
-        {
-            return WaitForDeckOrderAsync(k_MulliganDeck, ct);
-        }
-
         public void SendRecoverDeckOrder(string[] deckIds)
         {
             SendDeckOrder(k_RecoverDeck, deckIds);
@@ -575,7 +579,6 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_Draw);
             m.UnregisterNamedMessageHandler(k_Surrender);
             m.UnregisterNamedMessageHandler(k_Mulligan);
-            m.UnregisterNamedMessageHandler(k_MulliganDeck);
             m.UnregisterNamedMessageHandler(k_RecoverDeck);
             m.UnregisterNamedMessageHandler(k_Switch);
             m.UnregisterNamedMessageHandler(k_Evolve);
@@ -608,6 +611,7 @@ namespace Main.Network
         private sealed class MulliganPayload
         {
             public bool mulliganed;
+            public string[] newDeckIds;
         }
 
         [Serializable]
