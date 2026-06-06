@@ -108,6 +108,8 @@ namespace Main
         private int _opponentAtkBoost;
         private int _playerDefBoost;
         private int _opponentDefBoost;
+        private bool _playerPoisoned;
+        private bool _opponentPoisoned;
 
         private GameObject _rainDefeatEffect;
 

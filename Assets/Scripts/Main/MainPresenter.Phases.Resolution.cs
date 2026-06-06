@@ -79,6 +79,11 @@ namespace Main
                                 await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveSlot, ct);
                             }
                         }
+                        else if (eventData.EventType == CardEventType.Poison)
+                        {
+                            CharacterSlotView poisonTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                            await PlayPoisonEffectAsync(poisonTarget, ct);
+                        }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
@@ -172,6 +177,16 @@ namespace Main
                     break;
                 case CardEventType.Evolve:
                     await ApplyEvolveEffectAsync(isLocal, ct);
+                    break;
+                case CardEventType.Poison:
+                    if (isLocal)
+                    {
+                        _opponentPoisoned = true;
+                    }
+                    else
+                    {
+                        _playerPoisoned = true;
+                    }
                     break;
             }
         }

@@ -20,6 +20,7 @@ MonoBehaviour:
     _eventType: 1
     _eventValue: 2
     _description: "\u653B\u6483\u529B + 2"
+    _triggerOnGrave: 0
   - _id: E002
     _cardName: "\u5B88\u308A\u306E\u7D0B\u7AE0\u3092\u5F97\u305F"
     _cost: 1
@@ -27,6 +28,7 @@ MonoBehaviour:
     _eventType: 2
     _eventValue: 2
     _description: "\u9632\u5FA1\u529B + 2"
+    _triggerOnGrave: 0
   - _id: E003
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
     _cost: 1
@@ -34,6 +36,7 @@ MonoBehaviour:
     _eventType: 3
     _eventValue: 2
     _description: "2\u30C9\u30ED\u30FC"
+    _triggerOnGrave: 0
   - _id: E004
     _cardName: "\u4EA4\u4EE3\u3059\u308B\u30D1\u30C1"
     _cost: 1
@@ -41,6 +44,7 @@ MonoBehaviour:
     _eventType: 7
     _eventValue: 0
     _description: "\u30AD\u30E3\u30E9\u3092\u624B\u672D\u306B\u623B\u3057\u305F\u5F8C\u306B\u30B3\u30B9\u30C8\u3092\u6255\u3063\u3066\u624B\u672D\u304B\u3089\u30AD\u30E3\u30E9\u3092\u51FA\u3059"
+    _triggerOnGrave: 0
   - _id: E005
     _cardName: "\u9032\u5316\u3060\uFF01\u3071\u3061"
     _cost: 1
@@ -48,31 +52,52 @@ MonoBehaviour:
     _eventType: 9
     _eventValue: 0
     _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u3092\u5893\u5834\u306B\u9001\u308B\u3053\u3068\u3067\u624B\u672D\u304B\u3089\u305D\u308C\u3088\u308A\u30B3\u30B9\u30C8\u304C\u9AD8\u3044\u30AD\u30E3\u30E9\u3092\u5834\u306B\u51FA\u3059"
+    _triggerOnGrave: 0
   - _id: E006
+    _cardName: "\u6BD2\u306E\u5203\u3092\u62FE\u3063\u305F\u3071\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 21c0f2a29f68af34b8f1b25661d37cd0, type: 3}
+    _eventType: 10
+    _eventValue: 0
+    _description: "\u6B21\u306E\u6226\u95D8\u3067\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u76F8\u624B\u30AD\u30E3\u30E9\u306F\u6226\u95D8\u30D5\u30A7\u30FC\u30BA\u7D42\u4E86\u5F8C\u306B\u7834\u58CA\u3055\u308C\u308B"
+    _triggerOnGrave: 0
+  - _id: E007
     _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
     _cost: 2
     _image: {fileID: 21300000, guid: d49d4ced848d5bf4d908b5bec5e3479b, type: 3}
     _eventType: 4
     _eventValue: 0
     _description: "1\u3064\u524D\u306B\u4F7F\u308F\u308C\u305F\u30A4\u30D9\u30F3\u30C8\u30AB\u30FC\u30C9\u3092\u6253\u3061\u6D88\u3059"
-  - _id: E007
+    _triggerOnGrave: 0
+  - _id: E008
     _cardName: "\u30C8\u30E9\u30C3\u30D7\u767A\u52D5"
     _cost: 2
     _image: {fileID: 21300000, guid: 2d65d8d96e721bb45b787d961fc30d3d, type: 3}
     _eventType: 8
     _eventValue: 5
     _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E9\u306B5\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
-  - _id: E008
+    _triggerOnGrave: 0
+  - _id: E009
     _cardName: "\u3071\u3063\u3061\u306E\u6D99\u304C\u964D\u3063\u3066\u304D\u305F"
     _cost: 3
     _image: {fileID: 21300000, guid: 5387ab133d3670b459a16c72144c64c2, type: 3}
     _eventType: 6
     _eventValue: 8
     _description: "\u5893\u5834\u306E\u4E0A\u304B\u30898\u679A\u3092\u30C7\u30C3\u30AD\u306B\u623B\u3057\u3066\u30B7\u30E3\u30C3\u30D5\u30EB"
-  - _id: E009
+    _triggerOnGrave: 0
+  - _id: E010
+    _cardName: "\u6642\u9650\u7206\u5F3E\u304C\u7206\u767A\u3057\u305F"
+    _cost: 3
+    _image: {fileID: 21300000, guid: f0cbb35b219981449a342cbc0b3c7f96, type: 3}
+    _eventType: 8
+    _eventValue: 4
+    _description: "4\u30C0\u30E1\u30FC\u30B8\u3002\u3053\u306E\u30AB\u30FC\u30C9\u304C\u5893\u5730\u306B\u9001\u3089\u308C\u305F\u3068\u304D\u306B\u30B3\u30B9\u30C8\u3092\u652F\u6255\u308F\u305A\u306B\u767A\u52D5\u3059\u308B"
+    _triggerOnGrave: 1
+  - _id: E011
     _cardName: "\u7834\u6EC5\u306E\u529B"
-    _cost: 5
+    _cost: 4
     _image: {fileID: 21300000, guid: 0c17767b8c71ba6409f41d6729220cc4, type: 3}
     _eventType: 5
     _eventValue: 0
     _description: "\u30AD\u30E3\u30E9\u30B9\u30ED\u30C3\u30C8\u306B\u3042\u308B\u30AB\u30FC\u30C9\u3092\u7834\u58CA\u3059\u308B"
+    _triggerOnGrave: 0

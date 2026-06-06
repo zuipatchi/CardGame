@@ -171,6 +171,30 @@ namespace Main
                 await FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct);
             }
 
+            // ─── 毒破壊（戦闘終了後に毒状態のキャラを破壊）──────────────────────
+            bool firstTargetPoisoned = isLocalFirst ? _opponentPoisoned : _playerPoisoned;
+            bool secondTargetPoisoned = isLocalFirst ? _playerPoisoned : _opponentPoisoned;
+
+            if (!_isGameOver && firstTargetPoisoned && firstDamage > 0 && firstTarget.CurrentCard != null)
+            {
+                await PlayPoisonEffectAsync(firstTarget, ct);
+                await PlayCharDestroyEffectAsync(firstTarget, ct);
+                CardView poisonedChar = firstTarget.CurrentCard;
+                Rect poisonedFromRect = poisonedChar.worldBound;
+                firstTarget.RemoveCard();
+                await FlyToGraveyardAsync(poisonedChar, poisonedFromRect, firstTargetGraveyard, ct);
+            }
+
+            if (!_isGameOver && secondTargetPoisoned && secondDamage > 0 && secondTarget.CurrentCard != null)
+            {
+                await PlayPoisonEffectAsync(secondTarget, ct);
+                await PlayCharDestroyEffectAsync(secondTarget, ct);
+                CardView poisonedChar = secondTarget.CurrentCard;
+                Rect poisonedFromRect = poisonedChar.worldBound;
+                secondTarget.RemoveCard();
+                await FlyToGraveyardAsync(poisonedChar, poisonedFromRect, secondTargetGraveyard, ct);
+            }
+
             ResetBoosts();
         }
 
@@ -188,6 +212,8 @@ namespace Main
             _opponentAtkBoost = 0;
             _playerDefBoost = 0;
             _opponentDefBoost = 0;
+            _playerPoisoned = false;
+            _opponentPoisoned = false;
         }
     }
 }

@@ -12,5 +12,6 @@ namespace Main.Card
         Switch,
         CharDamage,
         Evolve,
+        Poison,
     }
 }
