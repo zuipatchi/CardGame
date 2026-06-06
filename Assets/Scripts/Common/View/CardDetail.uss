@@ -51,13 +51,6 @@
     border-bottom-color: rgb(70, 130, 230);
 }
 
-.card-detail-image--skill {
-    border-left-color: rgb(220, 60, 60);
-    border-right-color: rgb(220, 60, 60);
-    border-top-color: rgb(220, 60, 60);
-    border-bottom-color: rgb(220, 60, 60);
-}
-
 .card-detail-image--event {
     border-left-color: rgb(210, 185, 50);
     border-right-color: rgb(210, 185, 50);
@@ -90,11 +83,6 @@
 .card-detail-type--character {
     color: rgb(70, 130, 230);
     background-color: rgba(70, 130, 230, 0.15);
-}
-
-.card-detail-type--skill {
-    color: rgb(220, 60, 60);
-    background-color: rgba(220, 60, 60, 0.15);
 }
 
 .card-detail-type--event {

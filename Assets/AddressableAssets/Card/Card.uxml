@@ -18,13 +18,7 @@
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />
                 </ui:VisualElement>
-                <ui:VisualElement name="PoisonArea" class="game-card__poison-area">
-                    <ui:VisualElement class="game-card__poison-icon" />
-                </ui:VisualElement>
-                <ui:VisualElement name="RecoverArea" class="game-card__recover-area">
-                    <ui:VisualElement class="game-card__recover-icon" />
-                    <ui:Label name="RecoverLabel" class="game-card__recover" />
-                </ui:VisualElement>
+
                 <ui:VisualElement class="game-card__def-spd-row">
                     <ui:VisualElement class="game-card__def-area">
                         <ui:VisualElement class="game-card__shield-icon" />

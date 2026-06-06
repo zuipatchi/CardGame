@@ -784,15 +784,6 @@
     background-color: rgba(65, 110, 215, 0.95);
 }
 
-.deckbuilder-button--filter--skill {
-    background-color: rgba(170, 50, 50, 0.85);
-    color: rgb(255, 160, 160);
-}
-
-.deckbuilder-button--filter--skill:hover {
-    background-color: rgba(200, 60, 60, 0.95);
-}
-
 .deckbuilder-button--filter--event {
     background-color: rgba(160, 130, 20, 0.85);
     color: rgb(255, 230, 100);

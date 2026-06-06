@@ -245,6 +245,11 @@ namespace Main
                 await PlayDeckDamageAsync(opponentMillCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct);
             }
 
+            if (_isGameOver)
+            {
+                return;
+            }
+
             if (_opponentDeckView.Count == 0)
             {
                 _isGameOver = true;
@@ -310,7 +315,7 @@ namespace Main
                 return;
             }
 
-            if (charWillBeDestroyed)
+            if (charWillBeDestroyed && targetSlot.CurrentCard != null)
             {
                 await PlayCharDestroyEffectAsync(targetSlot, ct);
                 CardView destroyedChar = targetSlot.CurrentCard;
