@@ -261,8 +261,7 @@ namespace Main
                     CardData placeholder = allCards.Length > 0 ? allCards[0] : null;
                     cpuHandCards = new CardData[state.OpponentHandCount];
                     for (int i = 0; i < cpuHandCards.Length; i++) cpuHandCards[i] = placeholder;
-                    cpuDeckCards = new CardData[state.OpponentDeckCount];
-                    for (int i = 0; i < cpuDeckCards.Length; i++) cpuDeckCards[i] = placeholder;
+                    cpuDeckCards = state.OpponentDeck;
                     WatchForOpponentSurrenderAsync(destroyCt).Forget();
                 }
                 else

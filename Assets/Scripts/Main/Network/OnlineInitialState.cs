@@ -7,7 +7,7 @@ namespace Main.Network
         public CardData[] LocalHand;
         public CardData[] LocalDeck;
         public int OpponentHandCount;
-        public int OpponentDeckCount;
+        public CardData[] OpponentDeck;
         public bool IsLocalFirst;
     }
 }

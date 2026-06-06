@@ -118,7 +118,7 @@ namespace Main.Network
 
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
-                hostHand.Length, hostRemaining.Length,
+                hostHand.Length, hostRemaining,
                 isLocalFirst: !hostGoesFirst);
 
             return new OnlineInitialState
@@ -126,7 +126,7 @@ namespace Main.Network
                 LocalHand = hostHand,
                 LocalDeck = hostRemaining,
                 OpponentHandCount = clientHand.Length,
-                OpponentDeckCount = clientRemaining.Length,
+                OpponentDeck = clientRemaining,
                 IsLocalFirst = hostGoesFirst
             };
         }
@@ -148,7 +148,7 @@ namespace Main.Network
                     LocalHand = _cardDatabase.BuildDeck(payload.localHandIds),
                     LocalDeck = _cardDatabase.BuildDeck(payload.localDeckIds),
                     OpponentHandCount = payload.opponentHandCount,
-                    OpponentDeckCount = payload.opponentDeckCount,
+                    OpponentDeck = _cardDatabase.BuildDeck(payload.opponentDeckIds),
                     IsLocalFirst = payload.isLocalFirst
                 });
             }
@@ -196,7 +196,7 @@ namespace Main.Network
             CardData[] clientHand,
             CardData[] clientDeck,
             int opponentHandCount,
-            int opponentDeckCount,
+            CardData[] opponentDeck,
             bool isLocalFirst)
         {
             InitialStatePayload payload = new InitialStatePayload
@@ -204,7 +204,7 @@ namespace Main.Network
                 localHandIds = clientHand.Select(c => c.Id).ToArray(),
                 localDeckIds = clientDeck.Select(c => c.Id).ToArray(),
                 opponentHandCount = opponentHandCount,
-                opponentDeckCount = opponentDeckCount,
+                opponentDeckIds = opponentDeck.Select(c => c.Id).ToArray(),
                 isLocalFirst = isLocalFirst
             };
             string json = JsonUtility.ToJson(payload);
@@ -538,7 +538,7 @@ namespace Main.Network
             public string[] localHandIds;
             public string[] localDeckIds;
             public int opponentHandCount;
-            public int opponentDeckCount;
+            public string[] opponentDeckIds;
             public bool isLocalFirst;
         }
 
