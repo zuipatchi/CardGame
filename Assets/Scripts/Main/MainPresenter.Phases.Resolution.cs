@@ -177,7 +177,19 @@ namespace Main
                         if (recovered.Count > 0)
                         {
                             await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
-                            targetDeck.AddCardsAndShuffle(recovered);
+                            if (!_isOnline || isLocal)
+                            {
+                                targetDeck.AddCardsAndShuffle(recovered);
+                                if (_isOnline)
+                                {
+                                    _networkGameService.SendRecoverDeckOrder(targetDeck.GetCardIds());
+                                }
+                            }
+                            else
+                            {
+                                CardData[] shuffledDeck = await _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct);
+                                targetDeck.Rebuild(shuffledDeck);
+                            }
                             await PlayDeckShufflePulseAsync(targetDeck, ct);
                         }
                         break;

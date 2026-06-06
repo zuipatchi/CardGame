@@ -433,7 +433,7 @@ namespace Main
                 _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
                 deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, isOpponent: true);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 // プレイヤー墓地エリア：コインを左・墓地を右でrow配置
@@ -494,6 +494,10 @@ namespace Main
                     UniTask<bool> waitOpponentMulligan = _networkGameService.WaitForOpponentMulliganDecisionAsync(ct);
                     bool localChose = await RunPlayerMulliganAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
                     _networkGameService.SendMulliganDecision(localChose);
+                    if (localChose)
+                    {
+                        _networkGameService.SendMulliganDeckOrder(_playerDeckView.GetCardIds());
+                    }
                     _waitingOverlay.style.display = DisplayStyle.Flex;
                     bool opponentChose = await waitOpponentMulligan;
                     // マリガン同期（最後の通信同期点）直後に登録しておく。
@@ -504,7 +508,8 @@ namespace Main
                     _waitingOverlay.style.display = DisplayStyle.None;
                     if (opponentChose)
                     {
-                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, ct);
+                        CardData[] opponentNewDeck = await _networkGameService.WaitForMulliganDeckOrderAsync(ct);
+                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, opponentNewDeck, ct);
                     }
                 }
                 else
@@ -574,9 +579,11 @@ namespace Main
             root.Add(overlay);
         }
 
-        private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CancellationToken ct)
+        private async UniTask RunOpponentMulliganAnimationAsync(CardData placeholder, int handSize, CardData[] newDeck, CancellationToken ct)
         {
             await PlayReturnHandToDeckAsync(_opponentHandView, _opponentDeckView, ct);
+
+            _opponentDeckView.Rebuild(newDeck);
 
             await UniTask.NextFrame(ct);
 

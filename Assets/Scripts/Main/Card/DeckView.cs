@@ -13,6 +13,7 @@ namespace Main.Card
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
+        private readonly bool _isOpponent;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
         private readonly VisualElement _defOverlay;
@@ -23,16 +24,17 @@ namespace Main.Card
         public VisualElement DefOverlay => _defOverlay;
         public void SetDefValue(int def) => _defLabel.text = def.ToString();
 
-        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null)
+        public DeckView(VisualTreeAsset cardTemplate, CardData[] cards, Texture2D backImage = null, bool isOpponent = false)
         {
             _cardTemplate = cardTemplate;
             _backImage = backImage;
+            _isOpponent = isOpponent;
             AddToClassList("deck-view");
             style.position = Position.Relative;
 
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true);
+                CardView card = new CardView(cardTemplate, cards[i], backImage, faceDown: true, isOpponent: _isOpponent);
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;
@@ -99,6 +101,16 @@ namespace Main.Card
             _countLabel.text = _deckCards.Count.ToString();
         }
 
+        public string[] GetCardIds()
+        {
+            string[] ids = new string[_deckCards.Count];
+            for (int i = 0; i < _deckCards.Count; i++)
+            {
+                ids[i] = _deckCards[i].Data.Id;
+            }
+            return ids;
+        }
+
         public List<CardView> TakeFromTop(int count)
         {
             int toTake = Mathf.Min(count, _deckCards.Count);
@@ -153,7 +165,7 @@ namespace Main.Card
 
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView card = new CardView(_cardTemplate, cards[i], _backImage, faceDown: true);
+                CardView card = new CardView(_cardTemplate, cards[i], _backImage, faceDown: true, isOpponent: _isOpponent);
                 card.style.position = Position.Absolute;
                 card.style.left = (cards.Length - 1 - i) * StackOffsetX;
                 card.style.top = (cards.Length - 1 - i) * StackOffsetY;
