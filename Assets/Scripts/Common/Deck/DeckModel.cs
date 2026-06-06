@@ -5,7 +5,7 @@ namespace Common.Deck
     public sealed class DeckModel
     {
         public const int MaxCards = 30;
-        public const int MaxCost = 70;
+        public const int MaxCost = 80;
 
         private readonly List<(string id, int cost)> _entries = new List<(string id, int cost)>();
 

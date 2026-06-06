@@ -29,7 +29,7 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void Add_コスト合計が70を超えても追加できる()
+        public void Add_コスト合計が80を超えても追加できる()
         {
             DeckModel model = new DeckModel();
             for (int i = 0; i < 14; i++)
@@ -129,7 +129,7 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsCostOver_コストが70を超えるときtrue()
+        public void IsCostOver_コストが80を超えるときtrue()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", DeckModel.MaxCost + 1);
@@ -138,7 +138,7 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsCostOver_コストがちょうど70のときfalse()
+        public void IsCostOver_コストがちょうど80のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", DeckModel.MaxCost);
@@ -147,7 +147,7 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void IsCostOver_コストが70未満のときfalse()
+        public void IsCostOver_コストが80未満のときfalse()
         {
             DeckModel model = new DeckModel();
             model.Add("C001", 5);
