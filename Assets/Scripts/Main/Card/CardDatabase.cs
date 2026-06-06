@@ -7,7 +7,6 @@ namespace Main.Card
     public sealed class CardDatabase : ScriptableObject
     {
         [SerializeField] private CharacterCardSO _characterCards;
-        [SerializeField] private SkillCardSO _skillCards;
         [SerializeField] private EventCardSO _eventCards;
 
         private Dictionary<string, CardData> _dict;
@@ -21,7 +20,6 @@ namespace Main.Card
         {
             _dict = new Dictionary<string, CardData>();
             Register(_characterCards != null ? _characterCards.Cards : null);
-            Register(_skillCards != null ? _skillCards.Cards : null);
             Register(_eventCards != null ? _eventCards.Cards : null);
         }
 
@@ -64,7 +62,6 @@ namespace Main.Card
             {
                 List<CardData> all = new List<CardData>();
                 AddAll(all, _characterCards != null ? _characterCards.Cards : null);
-                AddAll(all, _skillCards != null ? _skillCards.Cards : null);
                 AddAll(all, _eventCards != null ? _eventCards.Cards : null);
                 return all;
             }

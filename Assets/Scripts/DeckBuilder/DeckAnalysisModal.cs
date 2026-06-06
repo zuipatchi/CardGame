@@ -49,10 +49,10 @@ namespace DeckBuilder
             panel.Add(header);
 
             Dictionary<int, int> costDist = BuildCostDistribution(deckModel);
-            (int charCount, int skillCount, int eventCount) = BuildTypeDistribution(deckModel);
+            (int charCount, int eventCount) = BuildTypeDistribution(deckModel);
 
             panel.Add(BuildSection("コスト分布", BuildCostChart(costDist)));
-            panel.Add(BuildSection("種類分布", BuildTypeChart(charCount, skillCount, eventCount)));
+            panel.Add(BuildSection("種類分布", BuildTypeChart(charCount, eventCount)));
 
             _overlay.Add(panel);
             _root.Add(_overlay);
@@ -85,10 +85,9 @@ namespace DeckBuilder
             return dist;
         }
 
-        private (int charCount, int skillCount, int eventCount) BuildTypeDistribution(DeckModel deckModel)
+        private (int charCount, int eventCount) BuildTypeDistribution(DeckModel deckModel)
         {
             int charCount = 0;
-            int skillCount = 0;
             int eventCount = 0;
             foreach ((string id, int _) in deckModel.Entries)
             {
@@ -100,16 +99,12 @@ namespace DeckBuilder
                 {
                     charCount++;
                 }
-                else if (data is SkillCardData)
-                {
-                    skillCount++;
-                }
                 else if (data is EventCardData)
                 {
                     eventCount++;
                 }
             }
-            return (charCount, skillCount, eventCount);
+            return (charCount, eventCount);
         }
 
         private static VisualElement BuildSection(string sectionTitle, VisualElement chart)
@@ -158,19 +153,17 @@ namespace DeckBuilder
             return chart;
         }
 
-        private static VisualElement BuildTypeChart(int charCount, int skillCount, int eventCount)
+        private static VisualElement BuildTypeChart(int charCount, int eventCount)
         {
             VisualElement chart = new VisualElement();
             chart.AddToClassList("deck-analysis-chart");
 
-            int maxCount = System.Math.Max(charCount, System.Math.Max(skillCount, eventCount));
+            int maxCount = System.Math.Max(charCount, eventCount);
             bool hasCards = maxCount > 0;
             float charRatio = hasCards ? (float)charCount / maxCount : 0f;
-            float skillRatio = hasCards ? (float)skillCount / maxCount : 0f;
             float eventRatio = hasCards ? (float)eventCount / maxCount : 0f;
 
             chart.Add(BuildBarColumn("キャラ", charCount, charRatio, "deck-analysis-bar--character"));
-            chart.Add(BuildBarColumn("スキル", skillCount, skillRatio, "deck-analysis-bar--skill"));
             chart.Add(BuildBarColumn("イベント", eventCount, eventRatio, "deck-analysis-bar--event"));
             return chart;
         }

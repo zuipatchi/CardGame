@@ -62,22 +62,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void SkillCardData_Defenseは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
-
-            Assert.AreEqual(0, card.Defense);
-        }
-
-        [Test]
-        public void SkillCardData_Hpは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
-
-            Assert.AreEqual(0, card.Hp);
-        }
-
-        [Test]
         public void EventCardData_Defenseは0を返す()
         {
             EventCardData card = new EventCardData("e1", "回復", 2);
@@ -94,51 +78,11 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void SkillCardData_Speedは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
-
-            Assert.AreEqual(0, card.Speed);
-        }
-
-        [Test]
         public void EventCardData_Speedは0を返す()
         {
             EventCardData card = new EventCardData("e1", "回復", 2);
 
             Assert.AreEqual(0, card.Speed);
-        }
-
-        [Test]
-        public void SkillCardData_AttackはSkillValueを返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
-
-            Assert.AreEqual(4, card.Attack);
-        }
-
-        [Test]
-        public void SkillCardData_RecoverタイプのAttackは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "回復の術", 1, SkillType.Recover, 3);
-
-            Assert.AreEqual(0, card.Attack);
-        }
-
-        [Test]
-        public void SkillCardData_PoisonタイプのAttackはSkillValueを返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "毒の爪", 1, SkillType.Poison, 3);
-
-            Assert.AreEqual(3, card.Attack);
-        }
-
-        [Test]
-        public void SkillCardData_PoisonタイプのSkillValueが0のときAttackは0を返す()
-        {
-            SkillCardData card = new SkillCardData("s1", "毒の爪", 1, SkillType.Poison, 0);
-
-            Assert.AreEqual(0, card.Attack);
         }
 
         [Test]
@@ -155,13 +99,13 @@ namespace Tests.EditMode
             CardDatabase db = MakeDatabase(new CardData[]
             {
                 new CharacterCardData("char_01", "戦士", 2, 0),
-                new SkillCardData("skill_01", "ファイア", 1, SkillType.Attack, 3),
+                new EventCardData("event_01", "バフ", 1),
             });
 
-            CardData[] deck = db.BuildDeck(new[] { "skill_01", "char_01" });
+            CardData[] deck = db.BuildDeck(new[] { "event_01", "char_01" });
 
             Assert.AreEqual(2, deck.Length);
-            Assert.AreEqual("skill_01", deck[0].Id);
+            Assert.AreEqual("event_01", deck[0].Id);
             Assert.AreEqual("char_01", deck[1].Id);
         }
 

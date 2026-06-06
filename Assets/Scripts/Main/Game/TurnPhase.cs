@@ -4,7 +4,6 @@ namespace Main.Game
     {
         CharacterSet,
         Draw,
-        PreBattle1,
         PreBattle2,
         Battle,
     }

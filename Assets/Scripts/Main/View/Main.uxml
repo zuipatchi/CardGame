@@ -34,13 +34,6 @@
                 </ui:VisualElement>
                 <ui:Label class="phase-label" text="キャラ" />
             </ui:VisualElement>
-            <ui:VisualElement name="PhaseRowPreBattle1" class="phase-row">
-                <ui:VisualElement class="phase-dot-col">
-                    <ui:VisualElement class="phase-dot" />
-                    <ui:VisualElement class="phase-line" />
-                </ui:VisualElement>
-                <ui:Label class="phase-label" text="準備" />
-            </ui:VisualElement>
             <ui:VisualElement name="PhaseRowPreBattle2" class="phase-row">
                 <ui:VisualElement class="phase-dot-col">
                     <ui:VisualElement class="phase-dot" />

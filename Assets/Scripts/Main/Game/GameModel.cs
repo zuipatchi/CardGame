@@ -20,8 +20,6 @@ namespace Main.Game
 
         public void BeginCharacterSet() { Phase = TurnPhase.CharacterSet; }
 
-        public void BeginPreBattle1() { Phase = TurnPhase.PreBattle1; }
-
         public void BeginPreBattle2()
         {
             Phase = TurnPhase.PreBattle2;

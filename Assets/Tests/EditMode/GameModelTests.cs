@@ -10,12 +10,10 @@ namespace Tests.EditMode
     {
         private static readonly string TemplatePath = "Assets/AddressableAssets/Card/Card.uxml";
 
-        private static CardView MakeCard(bool isSkill = false)
+        private static CardView MakeCard()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            CardData data = isSkill
-                ? (CardData)new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 3)
-                : new CharacterCardData("c1", "戦士", 2, 0);
+            CardData data = new CharacterCardData("c1", "戦士", 2, 0);
             return new CardView(template, data);
         }
 

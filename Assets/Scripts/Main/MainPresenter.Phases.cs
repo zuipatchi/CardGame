@@ -35,10 +35,6 @@ namespace Main
             await RunCharacterSetPhaseAsync(ct);
             if (_isGameOver) return;
 
-            _gameModel.BeginPreBattle1();
-            await RunPreBattle1PhaseAsync(ct);
-            if (_isGameOver) return;
-
             bool priorityUsed;
             bool isLocalFirst = DetermineFirstMover(out priorityUsed);
             _gameModel.SetInitialTurn(isLocalFirst);

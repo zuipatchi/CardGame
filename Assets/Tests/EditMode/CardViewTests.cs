@@ -32,17 +32,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void スキルカードの攻撃力が正しくバインドされる()
-        {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            SkillCardData data = new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 4);
-
-            CardView view = new CardView(template, data);
-
-            Assert.AreEqual("4", view.Q<Label>("AtkLabel").text);
-        }
-
-        [Test]
         public void キャラカードの防御力が正しくバインドされる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);

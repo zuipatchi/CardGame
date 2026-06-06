@@ -9,10 +9,9 @@ namespace Tests.EditMode
         private static readonly CardData[] MixedCards = new CardData[]
         {
             new CharacterCardData("c1", "戦士", 1, 0),
-            new SkillCardData("s1", "ファイア", 1, SkillType.Attack, 3),
             new EventCardData("e1", "バフ", 1),
             new CharacterCardData("c2", "魔法使い", 2, 1),
-            new SkillCardData("s2", "アイス", 1, SkillType.Attack, 2),
+            new EventCardData("e2", "強化", 1),
         };
 
         [Test]
@@ -24,18 +23,10 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 技カードのみグループ化できる()
-        {
-            CardData[] skills = MixedCards.OfType<SkillCardData>().Cast<CardData>().ToArray();
-            Assert.AreEqual(2, skills.Length);
-            Assert.IsTrue(skills.All(c => c is SkillCardData));
-        }
-
-        [Test]
         public void イベントカードのみグループ化できる()
         {
             CardData[] events = MixedCards.OfType<EventCardData>().Cast<CardData>().ToArray();
-            Assert.AreEqual(1, events.Length);
+            Assert.AreEqual(2, events.Length);
             Assert.IsTrue(events.All(c => c is EventCardData));
         }
 
@@ -44,7 +35,7 @@ namespace Tests.EditMode
         {
             CardData[] characters = MixedCards.OfType<CharacterCardData>().Cast<CardData>().ToArray();
             Assert.AreEqual(2, characters.Length);
-            Assert.AreEqual(MixedCards.Length - 2, MixedCards.OfType<SkillCardData>().Count() + MixedCards.OfType<EventCardData>().Count());
+            Assert.AreEqual(MixedCards.Length - 2, MixedCards.OfType<EventCardData>().Count());
         }
     }
 }

@@ -19,7 +19,7 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
 
-        private enum CardTypeFilter { All, Character, Skill, Event }
+        private enum CardTypeFilter { All, Character, Event }
 
         private VisualElement _deckBuilderRoot;
         private ScrollView _cardListScrollView;
@@ -41,10 +41,8 @@ namespace DeckBuilder
         private int _reorderInsertIndex;
         private CardTypeFilter _cardTypeFilter = CardTypeFilter.All;
         private VisualElement _characterCardSection;
-        private VisualElement _skillCardSection;
         private VisualElement _eventCardSection;
         private Button _filterCharacterButton;
-        private Button _filterSkillButton;
         private Button _filterEventButton;
 
         void IStartable.Start()
@@ -101,10 +99,8 @@ namespace DeckBuilder
 
                 VisualElement topLeftButtons = root.Q<VisualElement>(className: "deckbuilder-top-left-buttons");
                 _filterCharacterButton = CreateFilterButton("キャラ", CardTypeFilter.Character);
-                _filterSkillButton = CreateFilterButton("スキル", CardTypeFilter.Skill);
                 _filterEventButton = CreateFilterButton("イベント", CardTypeFilter.Event);
                 topLeftButtons.Add(_filterCharacterButton);
-                topLeftButtons.Add(_filterSkillButton);
                 topLeftButtons.Add(_filterEventButton);
 
                 _deckCountLabel = new Label();
@@ -123,7 +119,6 @@ namespace DeckBuilder
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
                 _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
-                _skillCardSection = AddCardSection("スキル", allCards.OfType<SkillCardData>(), "deckbuilder-section-header--skill");
                 _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
 
                 RefreshDeckPanel();
@@ -208,16 +203,11 @@ namespace DeckBuilder
         private void RefreshFilter()
         {
             bool showCharacter = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Character;
-            bool showSkill = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Skill;
             bool showEvent = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Event;
 
             if (_characterCardSection != null)
             {
                 _characterCardSection.style.display = showCharacter ? DisplayStyle.Flex : DisplayStyle.None;
-            }
-            if (_skillCardSection != null)
-            {
-                _skillCardSection.style.display = showSkill ? DisplayStyle.Flex : DisplayStyle.None;
             }
             if (_eventCardSection != null)
             {
@@ -225,7 +215,6 @@ namespace DeckBuilder
             }
 
             UpdateFilterButtonState(_filterCharacterButton, CardTypeFilter.Character, "deckbuilder-button--filter--character");
-            UpdateFilterButtonState(_filterSkillButton, CardTypeFilter.Skill, "deckbuilder-button--filter--skill");
             UpdateFilterButtonState(_filterEventButton, CardTypeFilter.Event, "deckbuilder-button--filter--event");
 
             RefreshDeckPanel();
@@ -248,7 +237,6 @@ namespace DeckBuilder
             return _cardTypeFilter switch
             {
                 CardTypeFilter.Character => cardData is CharacterCardData,
-                CardTypeFilter.Skill => cardData is SkillCardData,
                 CardTypeFilter.Event => cardData is EventCardData,
                 _ => true,
             };

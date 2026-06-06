@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -17,30 +16,21 @@ namespace Main
         private async UniTask RunBattlePhaseAsync(bool priorityUsed, CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Battle);
-            List<CardView> playerCards = _playerFieldView.Cards.ToList();
-            List<CardView> opponentCards = _opponentFieldView.Cards.ToList();
 
-            if (playerCards.Count == 0 && opponentCards.Count == 0
-                && _playerCharacterSlot.CurrentCard == null && _opponentCharacterSlot.CurrentCard == null)
+            bool playerHasChar = _playerCharacterSlot.CurrentCard != null;
+            bool opponentHasChar = _opponentCharacterSlot.CurrentCard != null;
+
+            if (!playerHasChar && !opponentHasChar)
             {
                 return;
             }
 
             await PlayAnnouncementAsync("FIGHT", "turn-announcement-label--fight", ct);
 
-            List<CardView> playerSkill = playerCards.Where(c => c.Data is SkillCardData).ToList();
-            List<CardView> opponentSkill = opponentCards.Where(c => c.Data is SkillCardData).ToList();
+            int playerAtk = BattleCalculator.Calculate(_playerAtkBoost, playerHasChar, _playerCharacterSlot.Attack);
+            int opponentAtk = BattleCalculator.Calculate(_opponentAtkBoost, opponentHasChar, _opponentCharacterSlot.Attack);
 
-            bool playerHasAttackingChar = _playerCharacterSlot.CurrentCard != null;
-            bool opponentHasAttackingChar = _opponentCharacterSlot.CurrentCard != null;
-
-            BattleCalculator.SideBattleStats playerStats = BattleCalculator.Calculate(
-                playerSkill, _playerAtkBoost, playerHasAttackingChar, _playerCharacterSlot.Attack);
-            BattleCalculator.SideBattleStats opponentStats = BattleCalculator.Calculate(
-                opponentSkill, _opponentAtkBoost, opponentHasAttackingChar, _opponentCharacterSlot.Attack);
-
-            // 素早さ同値で優先権を行使した場合：演出後に優先権を移譲（両者 NO ATTACK は消費しない）
-            bool bothNoAttack = playerStats.ATK == 0 && opponentStats.ATK == 0;
+            bool bothNoAttack = playerAtk == 0 && opponentAtk == 0;
             if (priorityUsed && !bothNoAttack)
             {
                 bool localUsedPriority = _localHasPriority;
@@ -50,28 +40,16 @@ namespace Main
             }
 
             bool isLocalFirst = _gameModel.IsLocalTurn;
-            List<CardView> firstCards = isLocalFirst ? playerCards : opponentCards;
-            DeckView firstDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
-            GraveyardView firstGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
-            List<CardView> secondCards = isLocalFirst ? opponentCards : playerCards;
-            DeckView secondDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
-            GraveyardView secondGraveyard = isLocalFirst ? _opponentGraveyardView : _playerGraveyardView;
 
-            UniTask[] firstFlipTasks = firstCards.Select(c => c.FlipAsync(ct)).ToArray();
-            await UniTask.WhenAll(firstFlipTasks);
-            await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
-
-            await ApplySkillRecoverEffectsAsync(firstCards, firstGraveyard, firstDeck, ct);
-
-            int effectivePlayerDef = playerHasAttackingChar ? _playerCharacterSlot.Defense + _playerDefBoost : 0;
-            int effectiveOpponentDef = opponentHasAttackingChar ? _opponentCharacterSlot.Defense + _opponentDefBoost : 0;
-            int damageToOpponent = Mathf.Max(0, playerStats.ATK - effectiveOpponentDef);
-            int damageToPlayer = Mathf.Max(0, opponentStats.ATK - effectivePlayerDef);
+            int effectivePlayerDef = playerHasChar ? _playerCharacterSlot.Defense + _playerDefBoost : 0;
+            int effectiveOpponentDef = opponentHasChar ? _opponentCharacterSlot.Defense + _opponentDefBoost : 0;
+            int damageToOpponent = Mathf.Max(0, playerAtk - effectiveOpponentDef);
+            int damageToPlayer = Mathf.Max(0, opponentAtk - effectivePlayerDef);
 
             CharacterSlotView firstTarget = isLocalFirst ? _opponentCharacterSlot : _playerCharacterSlot;
             VisualElement firstAtkOverlay = isLocalFirst ? _playerAtkCounterOverlay : _opponentAtkCounterOverlay;
             Label firstAtkLabel = isLocalFirst ? _playerAtkCounterLabel : _opponentAtkCounterLabel;
-            int firstAtk = isLocalFirst ? playerStats.ATK : opponentStats.ATK;
+            int firstAtk = isLocalFirst ? playerAtk : opponentAtk;
             int firstDamage = isLocalFirst ? damageToOpponent : damageToPlayer;
             int firstEffectiveDef = isLocalFirst ? effectiveOpponentDef : effectivePlayerDef;
             DeckView firstTargetDeck = isLocalFirst ? _opponentDeckView : _playerDeckView;
@@ -80,23 +58,16 @@ namespace Main
             CharacterSlotView secondTarget = isLocalFirst ? _playerCharacterSlot : _opponentCharacterSlot;
             VisualElement secondAtkOverlay = isLocalFirst ? _opponentAtkCounterOverlay : _playerAtkCounterOverlay;
             Label secondAtkLabel = isLocalFirst ? _opponentAtkCounterLabel : _playerAtkCounterLabel;
-            int secondAtk = isLocalFirst ? opponentStats.ATK : playerStats.ATK;
+            int secondAtk = isLocalFirst ? opponentAtk : playerAtk;
             int secondDamage = isLocalFirst ? damageToPlayer : damageToOpponent;
             int secondEffectiveDef = isLocalFirst ? effectivePlayerDef : effectiveOpponentDef;
             DeckView secondTargetDeck = isLocalFirst ? _playerDeckView : _opponentDeckView;
             GraveyardView secondTargetGraveyard = isLocalFirst ? _playerGraveyardView : _opponentGraveyardView;
 
-            // 先攻のコスト払い → ATKカウントアップ
-            if (firstAtk > 0)
-            {
-                string firstCostClass = isLocalFirst ? "turn-announcement-label--cost" : "turn-announcement-label--cost-opponent";
-                await PayBattleAtkCostsAsync(firstCards, firstDeck, firstGraveyard, firstCostClass, ct);
-                if (_isGameOver) return;
-            }
+            // ─── 先攻 ────────────────────────────────────────────────────
 
             await PlaySingleSideAtkCounterAsync(firstAtkOverlay, firstAtkLabel, firstAtk, firstTarget, firstEffectiveDef, ct);
 
-            // 1人目（先攻）の攻撃
             if (firstAtk > 0)
             {
                 await PlayAttackIconAsync(firstAtkOverlay, firstTarget, firstAtk, ct);
@@ -127,8 +98,6 @@ namespace Main
 
                 if (firstTargetDeck.Count == 0)
                 {
-                    SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
-                    SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(isLocalFirst);
                     ResetBoosts();
@@ -152,25 +121,10 @@ namespace Main
                 secondDamage = 0;
             }
 
-            if (secondCards.Count > 0)
-            {
-                UniTask[] secondFlipTasks = secondCards.Select(c => c.FlipAsync(ct)).ToArray();
-                await UniTask.WhenAll(secondFlipTasks);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
-                await ApplySkillRecoverEffectsAsync(secondCards, secondGraveyard, secondDeck, ct);
-            }
-
-            // 後攻のコスト払い → ATKカウントアップ
-            if (secondAtk > 0)
-            {
-                string secondCostClass = isLocalFirst ? "turn-announcement-label--cost-opponent" : "turn-announcement-label--cost";
-                await PayBattleAtkCostsAsync(secondCards, secondDeck, secondGraveyard, secondCostClass, ct);
-                if (_isGameOver) return;
-            }
+            // ─── 後攻 ────────────────────────────────────────────────────
 
             await PlaySingleSideAtkCounterAsync(secondAtkOverlay, secondAtkLabel, secondAtk, secondTarget, secondEffectiveDef, ct);
 
-            // 2人目（後攻）の攻撃
             if (secondAtk > 0)
             {
                 await PlayAttackIconAsync(secondAtkOverlay, secondTarget, secondAtk, ct);
@@ -201,8 +155,6 @@ namespace Main
 
                 if (secondTargetDeck.Count == 0)
                 {
-                    SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
-                    SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
                     _isGameOver = true;
                     OnGameEnd(!isLocalFirst);
                     ResetBoosts();
@@ -219,59 +171,7 @@ namespace Main
                 await FlyToGraveyardAsync(secondDestroyedChar, secondDestroyedFromRect, secondTargetGraveyard, ct);
             }
 
-            // ─── 毒チェック（両攻撃終了後）──────────────────────────────────────
-
-            bool firstHasPoison = firstCards.Any(c => c.Data is SkillCardData sd && sd.SkillType == SkillType.Poison);
-            if (firstHasPoison && firstDamage >= 1 && firstTarget.CurrentCard != null)
-            {
-                await PlayPoisonEffectAsync(firstTarget, ct);
-                CardView poisonedChar = firstTarget.CurrentCard;
-                Rect poisonedRect = poisonedChar.worldBound;
-                firstTarget.RemoveCard();
-                await FlyToGraveyardAsync(poisonedChar, poisonedRect, firstTargetGraveyard, ct);
-            }
-
-            bool secondHasPoison = secondCards.Any(c => c.Data is SkillCardData sd && sd.SkillType == SkillType.Poison);
-            if (secondHasPoison && secondDamage >= 1 && secondTarget.CurrentCard != null)
-            {
-                await PlayPoisonEffectAsync(secondTarget, ct);
-                CardView poisonedChar = secondTarget.CurrentCard;
-                Rect poisonedRect = poisonedChar.worldBound;
-                secondTarget.RemoveCard();
-                await FlyToGraveyardAsync(poisonedChar, poisonedRect, secondTargetGraveyard, ct);
-            }
-
-            SendSkillsToGraveyard(playerSkill, _playerFieldView, _playerGraveyardView);
-            SendSkillsToGraveyard(opponentSkill, _opponentFieldView, _opponentGraveyardView);
-
             ResetBoosts();
-        }
-
-        // ─── Recover スキル処理 ──────────────────────────────────────────
-
-        private async UniTask ApplySkillRecoverEffectsAsync(
-            List<CardView> skills,
-            GraveyardView graveyard,
-            DeckView deck,
-            CancellationToken ct)
-        {
-            foreach (CardView skillCard in skills)
-            {
-                if (skillCard.Data is not SkillCardData sd || sd.SkillType != SkillType.Recover)
-                {
-                    continue;
-                }
-
-                await PlayRecoverEffectAsync(skillCard, sd.SkillValue, ct);
-
-                List<CardData> recovered = graveyard.TakeFromTop(sd.SkillValue);
-                if (recovered.Count > 0)
-                {
-                    await PlayRecoverFlyAsync(recovered, graveyard, deck, ct);
-                    deck.AddCardsAndShuffle(recovered);
-                    await PlayDeckShufflePulseAsync(deck, ct);
-                }
-            }
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
@@ -282,37 +182,12 @@ namespace Main
             graveyard.AddCard(card);
         }
 
-        private void SendSkillsToGraveyard(IEnumerable<CardView> skills, FieldView field, GraveyardView graveyard)
-        {
-            foreach (CardView c in skills)
-            {
-                field.RemoveCard(c);
-                graveyard.AddCard(c);
-            }
-        }
-
         private void ResetBoosts()
         {
             _playerAtkBoost = 0;
             _opponentAtkBoost = 0;
             _playerDefBoost = 0;
             _opponentDefBoost = 0;
-        }
-
-        private async UniTask PayBattleAtkCostsAsync(
-            List<CardView> cards, DeckView deck, GraveyardView graveyard, string costClass, CancellationToken ct)
-        {
-            int totalCost = cards.Sum(c => c.Data.Cost);
-            List<UniTask> tasks = new List<UniTask>
-            {
-                UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
-                    .ContinueWith(() => PlayAnnouncementAsync($"PAY {totalCost} COSTS", costClass, ct))
-            };
-            foreach (CardView c in cards)
-            {
-                tasks.Add(PayCostAsync(c, deck, graveyard, ct, announce: false));
-            }
-            await UniTask.WhenAll(tasks);
         }
     }
 }

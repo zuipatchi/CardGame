@@ -18,7 +18,6 @@ namespace Main.Network
         private const string k_InitialState = "NGS_InitialState";
         private const string k_ClientReady = "NGS_ClientReady";
         private const string k_CharSet = "NGS_CharSet";
-        private const string k_PreBattle1 = "NGS_PreBattle1";
         private const string k_PreBattle2 = "NGS_PreBattle2";
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
@@ -303,48 +302,6 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
-        public void SendPreBattle1Action(string cardId)
-        {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
-            if (messaging == null)
-            {
-                return;
-            }
-            CharSetPayload payload = new CharSetPayload
-            {
-                passed = string.IsNullOrEmpty(cardId),
-                cardId = cardId ?? string.Empty
-            };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_PreBattle1, _opponentClientId, writer);
-            }
-        }
-
-        public async UniTask<string> WaitForOpponentPreBattle1Async(CancellationToken ct)
-        {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
-
-            void OnPreBattle1(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_PreBattle1);
-                reader.ReadValueSafe(out string json);
-                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
-                tcs.TrySetResult(payload.passed ? null : payload.cardId);
-            }
-
-            messaging.RegisterNamedMessageHandler(k_PreBattle1, OnPreBattle1);
-            return await tcs.Task.AttachExternalCancellation(ct);
-        }
-
         public void SendDrawNotification()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -554,7 +511,6 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_DeckSubmit);
             m.UnregisterNamedMessageHandler(k_InitialState);
             m.UnregisterNamedMessageHandler(k_CharSet);
-            m.UnregisterNamedMessageHandler(k_PreBattle1);
             m.UnregisterNamedMessageHandler(k_PreBattle2);
             m.UnregisterNamedMessageHandler(k_Draw);
             m.UnregisterNamedMessageHandler(k_Surrender);

@@ -33,7 +33,6 @@ namespace Main.Card
             }
 
             string imageTypeClass = data is CharacterCardData ? "card-detail-image--character" :
-                                    data is SkillCardData ? "card-detail-image--skill" :
                                     "card-detail-image--event";
             imageArea.AddToClassList(imageTypeClass);
             panel.Add(imageArea);
@@ -41,10 +40,8 @@ namespace Main.Card
             VisualElement stats = new VisualElement();
             stats.AddToClassList("card-detail-stats");
 
-            string typeName = data is CharacterCardData ? "CHARACTER" :
-                              data is SkillCardData ? "SKILL" : "EVENT";
+            string typeName = data is CharacterCardData ? "CHARACTER" : "EVENT";
             string typeClass = data is CharacterCardData ? "card-detail-type--character" :
-                               data is SkillCardData ? "card-detail-type--skill" :
                                "card-detail-type--event";
             Label typeLabel = new Label(typeName);
             typeLabel.AddToClassList("card-detail-type");
@@ -71,23 +68,6 @@ namespace Main.Card
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--def", charData.Defense.ToString(), "防御");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--spd", charData.Speed.ToString(), "素早さ");
-            }
-            else if (data is SkillCardData skillData)
-            {
-                if (skillData.SkillType == SkillType.Recover)
-                {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.Attack.ToString(), "攻撃力");
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--recover", skillData.SkillValue.ToString(), "回復");
-                }
-                else if (skillData.SkillType == SkillType.Poison)
-                {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.SkillValue.ToString(), "攻撃力");
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--poison", "", "毒");
-                }
-                else
-                {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", skillData.SkillValue.ToString(), "攻撃力");
-                }
             }
             else if (data is EventCardData eventData)
             {

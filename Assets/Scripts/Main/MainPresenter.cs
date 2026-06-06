@@ -91,7 +91,6 @@ namespace Main
 
         private VisualElement _phaseRowDraw;
         private VisualElement _phaseRowCharacterSet;
-        private VisualElement _phaseRowPreBattle1;
         private VisualElement _phaseRowPreBattle2;
         private VisualElement _phaseRowBattle;
 
@@ -123,11 +122,9 @@ namespace Main
 
         private readonly StagedInput _charSetInput = new StagedInput();
         private readonly StagedInput _prepInput = new StagedInput();
-        private readonly StagedInput _preBattleInput = new StagedInput();
         private readonly StagedInput _switchInput = new StagedInput();
         private readonly StagedInput _evolveInput = new StagedInput();
         private int _evolveMinCost;
-        private bool _isLocalPreBattleActive;
 
         private sealed class StagedInput
         {
@@ -404,7 +401,6 @@ namespace Main
                 VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
                 _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
                 _phaseRowCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowCharacterSet");
-                _phaseRowPreBattle1 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle1");
                 _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
                 _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
 
@@ -770,14 +766,12 @@ namespace Main
             VisualElement[] rows =
             {
                 _phaseRowDraw, _phaseRowCharacterSet,
-                _phaseRowPreBattle1, _phaseRowPreBattle2,
-                _phaseRowBattle,
+                _phaseRowPreBattle2, _phaseRowBattle,
             };
             TurnPhase[] phases =
             {
                 TurnPhase.Draw, TurnPhase.CharacterSet,
-                TurnPhase.PreBattle1, TurnPhase.PreBattle2,
-                TurnPhase.Battle,
+                TurnPhase.PreBattle2, TurnPhase.Battle,
             };
             for (int i = 0; i < rows.Length; i++)
             {
