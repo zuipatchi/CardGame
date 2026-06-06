@@ -1132,13 +1132,13 @@
 
 /* ─── Grave Trigger フローティングラベル ─────────────────────────────────── */
 .grave-trigger-label {
-    font-size: 36px;
+    font-size: 28px;
     -unity-font-style: bold;
     color: rgb(200, 100, 240);
     -unity-text-outline-width: 3px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
     -unity-text-align: middle-center;
-    width: 200px;
+    width: 280px;
     height: 60px;
 }
 
