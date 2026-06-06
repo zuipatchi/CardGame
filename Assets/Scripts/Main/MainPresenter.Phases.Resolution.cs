@@ -84,6 +84,11 @@ namespace Main
                             CharacterSlotView poisonTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
                             await PlayPoisonEffectAsync(poisonTarget, ct);
                         }
+                        else if (eventData.EventType == CardEventType.DeckMill)
+                        {
+                            await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _playerDeckView, ct);
+                            await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _opponentDeckView, ct);
+                        }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
@@ -188,6 +193,44 @@ namespace Main
                         _playerPoisoned = true;
                     }
                     break;
+                case CardEventType.DeckMill:
+                    await ApplyDeckMillEffectAsync(data.EventValue, ct);
+                    break;
+            }
+        }
+
+        private async UniTask ApplyDeckMillEffectAsync(int count, CancellationToken ct)
+        {
+            Rect playerDeckRect = _playerDeckView.worldBound;
+            List<CardView> playerMillCards = _playerDeckView.TakeFromTop(count);
+            if (playerMillCards.Count > 0)
+            {
+                await PlayDeckDamageAsync(playerMillCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct);
+            }
+
+            if (_playerDeckView.Count == 0)
+            {
+                _isGameOver = true;
+                OnGameEnd(false);
+                return;
+            }
+
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            Rect opponentDeckRect = _opponentDeckView.worldBound;
+            List<CardView> opponentMillCards = _opponentDeckView.TakeFromTop(count);
+            if (opponentMillCards.Count > 0)
+            {
+                await PlayDeckDamageAsync(opponentMillCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct);
+            }
+
+            if (_opponentDeckView.Count == 0)
+            {
+                _isGameOver = true;
+                OnGameEnd(true);
             }
         }
 

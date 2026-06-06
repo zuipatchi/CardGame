@@ -13,5 +13,6 @@ namespace Main.Card
         CharDamage,
         Evolve,
         Poison,
+        DeckMill,
     }
 }
