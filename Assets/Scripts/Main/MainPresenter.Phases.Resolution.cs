@@ -89,6 +89,14 @@ namespace Main
                             await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _playerDeckView, ct);
                             await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _opponentDeckView, ct);
                         }
+                        else if (eventData.EventType == CardEventType.BattleEndMill)
+                        {
+                            DeckView battleMillTarget = isLocal ? _opponentDeckView : _playerDeckView;
+                            if (_poisonEffectPrefab != null)
+                            {
+                                await PlayParticleAtUiPositionAsync(battleMillTarget, battleMillTarget.worldBound.center, _poisonEffectPrefab, ct);
+                            }
+                        }
                         await ApplyEventEffectAsync(eventData, isLocal, ct);
                         if (eventData.EventType == CardEventType.AtkBoost)
                         {
@@ -195,6 +203,16 @@ namespace Main
                     break;
                 case CardEventType.DeckMill:
                     await ApplyDeckMillEffectAsync(data.EventValue, ct);
+                    break;
+                case CardEventType.BattleEndMill:
+                    if (isLocal)
+                    {
+                        _localBattleEndMillValue = data.EventValue;
+                    }
+                    else
+                    {
+                        _opponentBattleEndMillValue = data.EventValue;
+                    }
                     break;
             }
         }

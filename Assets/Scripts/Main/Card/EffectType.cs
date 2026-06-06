@@ -14,5 +14,6 @@ namespace Main.Card
         Evolve,
         Poison,
         DeckMill,
+        BattleEndMill,
     }
 }

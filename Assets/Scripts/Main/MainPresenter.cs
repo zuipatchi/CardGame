@@ -110,6 +110,8 @@ namespace Main
         private int _opponentDefBoost;
         private bool _playerPoisoned;
         private bool _opponentPoisoned;
+        private int _localBattleEndMillValue;
+        private int _opponentBattleEndMillValue;
 
         private GameObject _rainDefeatEffect;
 

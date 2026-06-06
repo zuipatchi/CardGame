@@ -196,6 +196,50 @@ namespace Main
             }
 
             ResetBoosts();
+
+            if (!_isGameOver && (_localBattleEndMillValue > 0 || _opponentBattleEndMillValue > 0))
+            {
+                await ApplyBattleEndMillAsync(ct);
+            }
+        }
+
+        private async UniTask ApplyBattleEndMillAsync(CancellationToken ct)
+        {
+            if (!_isGameOver && _localBattleEndMillValue > 0)
+            {
+                await PlayPoisonMillAsync(_opponentDeckView, _opponentGraveyardView, _localBattleEndMillValue, ct);
+                if (_opponentDeckView.Count == 0)
+                {
+                    _isGameOver = true;
+                    OnGameEnd(true);
+                    return;
+                }
+            }
+
+            if (!_isGameOver && _opponentBattleEndMillValue > 0)
+            {
+                await PlayPoisonMillAsync(_playerDeckView, _playerGraveyardView, _opponentBattleEndMillValue, ct);
+                if (_playerDeckView.Count == 0)
+                {
+                    _isGameOver = true;
+                    OnGameEnd(false);
+                }
+            }
+        }
+
+        private async UniTask PlayPoisonMillAsync(DeckView deck, GraveyardView graveyard, int count, CancellationToken ct)
+        {
+            if (_poisonEffectPrefab != null)
+            {
+                await PlayParticleAtUiPositionAsync(deck, deck.worldBound.center, _poisonEffectPrefab, ct);
+            }
+
+            Rect deckRect = deck.worldBound;
+            List<CardView> millCards = deck.TakeFromTop(count);
+            if (millCards.Count > 0)
+            {
+                await PlayDeckDamageAsync(millCards, deckRect, graveyard, deck, ct);
+            }
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
