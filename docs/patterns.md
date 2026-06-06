@@ -73,6 +73,7 @@ public enum EventType
     Switch,
     CharDamage,
     Evolve,
+    Poison,
     YourNewEffect,  // ← 追加
 }
 ```
@@ -151,13 +152,13 @@ EventCardData card = new EventCardData(
 PlayDeckDamageAsync
   └─ 各カードの墓地到着後に TriggerOnGrave チェック
        └─ FireGraveTriggerAsync（Phases.Resolution.cs）
-            ├─ 「TRAP！」フローティングラベル（.grave-trigger-label / 紫）
+            ├─ PlayGraveTriggerDisplayAsync（発動プレイヤーの墓地近くにカードビジュアルを表示）
             └─ ApplyEventEffectAsync（既存の効果ロジックをそのまま使用）
 ```
 
 **④ 対応済みの効果（既存 EventType をそのまま利用）**
 
-CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
+CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve / Poison など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
 
 ---
 
