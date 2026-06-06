@@ -75,6 +75,7 @@ public enum EventType
     Evolve,
     Poison,
     DeckMill,
+    BattleEndMill,
     YourNewEffect,  // ← 追加
 }
 ```
@@ -160,6 +161,42 @@ PlayDeckDamageAsync
 **④ 対応済みの効果（既存 EventType をそのまま利用）**
 
 CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve / Poison / DeckMill など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
+
+---
+
+## 4. 毎ターン発動する永続効果を追加する（BattleEndMill 相当）
+
+`Poison` はターン終了時にリセットされる一時効果だが、複数ターンにわたって持続する効果が必要な場合は以下のパターンを使う。
+
+**① `MainPresenter.cs` に永続フィールドを追加する**
+
+```csharp
+// ResetBoosts() では絶対にリセットしない
+private int _localXxxValue;
+private int _opponentXxxValue;
+```
+
+**② `ApplyEventEffectAsync` でフィールドをセットする**
+
+```csharp
+case CardEventType.YourNewEffect:
+    if (isLocal)
+        _localXxxValue = data.EventValue;
+    else
+        _opponentXxxValue = data.EventValue;
+    break;
+```
+
+③ 発動タイミングのフェーズ処理末尾でフィールドを参照する（例: 戦闘フェーズ終了後、`ResetBoosts()` の後）:
+
+```csharp
+if (!_isGameOver && (_localXxxValue > 0 || _opponentXxxValue > 0))
+{
+    await ApplyYourNewEffectEndAsync(ct);
+}
+```
+
+④ ゲームオーバー判定を忘れない: 永続効果内でデッキを減らす操作をする場合は、処理後に `_opponentDeckView.Count == 0` / `_playerDeckView.Count == 0` を確認して `_isGameOver = true; OnGameEnd(...);` を呼ぶ。両プレイヤーの効果を連続処理する場合は各処理の間に `if (_isGameOver) return;` を挿入する。
 
 ---
 
