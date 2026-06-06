@@ -212,7 +212,6 @@ public enum TurnPhase
 {
     CharacterSet,
     Draw,
-    PreBattle1,
     PreBattle2,
     Battle,
     YourNewPhase,  // ← 追加
