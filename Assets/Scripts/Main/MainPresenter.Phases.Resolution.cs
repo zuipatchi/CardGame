@@ -179,6 +179,15 @@ namespace Main
         private async UniTask ApplyCharDamageAsync(int baseAtk, bool isLocal, CancellationToken ct)
         {
             CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+
+            if (targetSlot.CurrentCard != null && targetSlot.CurrentCard.IsFaceDown)
+            {
+                await UniTask.WaitUntil(
+                    () => targetSlot.CurrentCard == null || !targetSlot.CurrentCard.IsFaceDown,
+                    cancellationToken: ct
+                );
+            }
+
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
             int defBoost = isLocal ? _opponentDefBoost : _playerDefBoost;

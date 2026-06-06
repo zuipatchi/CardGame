@@ -47,15 +47,23 @@ namespace Main
 
             await PlayResolveAnimationAsync(ct);
 
+            // コスト払い中に発動するグレイブトリガーが相手キャラを参照できるよう
+            // 両方のキャラを先にフリップしてからコスト払いを行う
             if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
             {
                 await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
+            }
+            if (!opponentHadChar && _opponentCharacterSlot.CurrentCard != null)
+            {
+                await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
+            }
+            if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
+            {
                 await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
                 if (_isGameOver) return;
             }
             if (!opponentHadChar && _opponentCharacterSlot.CurrentCard != null)
             {
-                await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
                 await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
             }
         }
