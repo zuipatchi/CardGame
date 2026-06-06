@@ -74,6 +74,7 @@ public enum EventType
     CharDamage,
     Evolve,
     Poison,
+    DeckMill,
     YourNewEffect,  // ← 追加
 }
 ```
@@ -158,7 +159,7 @@ PlayDeckDamageAsync
 
 **④ 対応済みの効果（既存 EventType をそのまま利用）**
 
-CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve / Poison など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
+CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve / Poison / DeckMill など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
 
 ---
 
