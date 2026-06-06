@@ -408,8 +408,7 @@ namespace Main
 
         private async UniTask FireGraveTriggerAsync(EventCardData data, bool isLocal, CancellationToken ct)
         {
-            GraveyardView anchor = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-            await PlayFloatingLabelAsync(data.CardName, "grave-trigger-label", anchor, ct);
+            await PlayGraveTriggerDisplayAsync(data, ct);
             await ApplyEventEffectAsync(data, isLocal, ct);
         }
 

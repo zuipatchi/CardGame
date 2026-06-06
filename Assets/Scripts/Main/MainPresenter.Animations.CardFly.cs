@@ -451,6 +451,70 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
+        // ─── グレイブトリガー発動演出（カード＋カード名を画面中央に表示）────────────
+
+        private async UniTask PlayGraveTriggerDisplayAsync(EventCardData data, CancellationToken ct)
+        {
+            const float AppearDuration = 0.25f;
+            const float HoldDuration = 0.8f;
+            const float FadeDuration = 0.25f;
+            const float LabelWidth = 280f;
+            const float LabelHeight = 60f;
+            const float Gap = 8f;
+
+            Rect layerBound = _dragLayer.worldBound;
+            float centerX = layerBound.center.x;
+            float centerY = layerBound.center.y;
+
+            float totalHeight = CardHeight + Gap + LabelHeight;
+            float cardLeft = centerX - CardWidth / 2f;
+            float cardTop = centerY - totalHeight / 2f;
+            float labelLeft = centerX - LabelWidth / 2f;
+            float labelTop = cardTop + CardHeight + Gap;
+
+            CardView tempCard = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false);
+            tempCard.style.position = Position.Absolute;
+            tempCard.style.left = cardLeft;
+            tempCard.style.top = cardTop;
+            tempCard.style.width = StyleKeyword.Null;
+            tempCard.style.height = StyleKeyword.Null;
+            tempCard.style.opacity = 0f;
+            tempCard.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(tempCard);
+
+            Label nameLabel = new Label(data.CardName);
+            nameLabel.AddToClassList("grave-trigger-label");
+            nameLabel.style.position = Position.Absolute;
+            nameLabel.style.left = labelLeft;
+            nameLabel.style.top = labelTop;
+            nameLabel.style.opacity = 0f;
+            nameLabel.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(nameLabel);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => tempCard.style.opacity.value, v => tempCard.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => nameLabel.style.opacity.value, v => nameLabel.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => tempCard.style.opacity.value, v => tempCard.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .Join(DOTween.To(() => nameLabel.style.opacity.value, v => nameLabel.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            if (tempCard.parent == _dragLayer)
+            {
+                _dragLayer.Remove(tempCard);
+            }
+            if (nameLabel.parent == _dragLayer)
+            {
+                _dragLayer.Remove(nameLabel);
+            }
+        }
+
         private async UniTask FlyCardToDeckPositionAsync(
             CardView card, Rect fromRect,
             float targetLeft, float targetTop,
