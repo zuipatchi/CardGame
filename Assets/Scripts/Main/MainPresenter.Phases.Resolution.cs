@@ -203,9 +203,12 @@ namespace Main
 
             bool charWillBeDestroyed = targetSlot.CurrentCard != null && damage >= targetSlot.Hp;
 
-            if (targetSlot.CurrentCard != null && _charDamageEffectPrefab != null)
+            if (_charDamageEffectPrefab != null)
             {
-                await PlayParticleAtCardAsync(targetSlot.CurrentCard, _charDamageEffectPrefab, ct);
+                VisualElement particleAnchor = targetSlot.CurrentCard != null
+                    ? (VisualElement)targetSlot.CurrentCard
+                    : targetSlot;
+                await PlayParticleAtUiPositionAsync(particleAnchor, targetSlot.worldBound.center, _charDamageEffectPrefab, ct);
             }
 
             Rect targetDeckRect = targetDeck.worldBound;
