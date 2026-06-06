@@ -408,7 +408,7 @@ namespace Main
 
         private async UniTask FireGraveTriggerAsync(EventCardData data, bool isLocal, CancellationToken ct)
         {
-            await PlayGraveTriggerDisplayAsync(data, ct);
+            await PlayGraveTriggerDisplayAsync(data, isLocal, ct);
             await ApplyEventEffectAsync(data, isLocal, ct);
         }
 
