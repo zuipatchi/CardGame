@@ -349,6 +349,8 @@ namespace Main
             float targetLeft = toRect.center.x - CardWidth / 2f;
             float targetTop = toRect.center.y - CardHeight / 2f;
 
+            List<(EventCardData data, bool isLocal)> graveTriggers = null;
+
             for (int i = 0; i < cards.Count; i++)
             {
                 CardView c = cards[i];
@@ -387,9 +389,27 @@ namespace Main
                 }
                 graveyard.AddCard(c);
 
+                if (c.Data is EventCardData evData && evData.TriggerOnGrave)
+                {
+                    graveTriggers ??= new List<(EventCardData, bool)>();
+                    graveTriggers.Add((evData, !c.IsOpponent));
+                }
+
                 if (i < cards.Count - 1)
                 {
                     await UniTask.Delay(TimeSpan.FromSeconds(CardInterval), cancellationToken: ct);
+                }
+            }
+
+            if (graveTriggers != null)
+            {
+                foreach ((EventCardData data, bool isLocal) in graveTriggers)
+                {
+                    if (_isGameOver)
+                    {
+                        break;
+                    }
+                    await FireGraveTriggerAsync(data, isLocal, ct);
                 }
             }
         }

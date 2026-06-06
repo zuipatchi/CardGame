@@ -120,49 +120,44 @@ public enum EventType
 
 ---
 
-## 3. 新しいスキル効果（SkillType）を追加する
+## 3. グレイブトリガー（TriggerOnGrave）を持つカードを追加する
+
+デッキからカードが墓地に送られたとき（コスト支払い・戦闘ダメージの両方）に自動で効果が発動するカード。
 
 ### 手順
 
-**① `SkillType` enum に値を追加する**
+**① `EventCardSO` の Inspector で設定する**
 
-[SkillType.cs](../Assets/Scripts/Main/Card/SkillType.cs):
-```csharp
-public enum SkillType
-{
-    Attack,
-    Recover,
-    YourNewEffect,  // ← 追加
-}
-```
+既存の `EventType` / `EventValue` / `Description` に加えて `_triggerOnGrave` チェックボックスを true にする。
+効果内容は `EventType` で指定するため、新しい enum 値は不要。
 
-**② `SkillCardData.Attack` が正しく返るか確認する**
-
-`SkillType.Recover` のみ `Attack => 0`。ATK に寄与するタイプは以下のパターンを使う:
+**② コンストラクタ（コードで生成する場合）**
 
 ```csharp
-public override int Attack => _skillType is SkillType.Attack or SkillType.Poison ? _skillValue : 0;
+// CharDamage を持つグレイブトリガーカードの例
+EventCardData card = new EventCardData(
+    "E_TRAP_01", "罠カード", cost: 2,
+    EventType.CharDamage, eventValue: 3,
+    description: "墓地に送られたとき相手キャラに3ダメージ",
+    triggerOnGrave: true
+);
 ```
 
-ATK に寄与しない新タイプを追加した場合は条件に加えなくてよい（デフォルト 0）。
+**③ 発動フロー**
 
-**③ 戦闘フェーズの処理タイミングを選ぶ**
+`PlayDeckDamageAsync` でカードが1枚ずつ墓地に到着した後に `TriggerOnGrave` をチェック。同一バッチ内で複数のトリガーカードが送られた場合は、送られた順に `FireGraveTriggerAsync` を呼ぶ。
 
-効果のタイミングによって追加箇所が異なる:
+```text
+PlayDeckDamageAsync
+  └─ 各カードの墓地到着後に TriggerOnGrave チェック
+       └─ FireGraveTriggerAsync（Phases.Resolution.cs）
+            ├─ 「TRAP！」フローティングラベル（.grave-trigger-label / 紫）
+            └─ ApplyEventEffectAsync（既存の効果ロジックをそのまま使用）
+```
 
-| タイミング | 参考実装 | 追加箇所 |
-|---|---|---|
-| カードフリップ直後（攻撃前） | `ApplySkillRecoverEffectsAsync` | 先攻・後攻それぞれのフリップ直後 |
-| 両攻撃終了後（バトルフェーズ末尾） | Poison チェック（`RunBattlePhaseAsync` 末尾） | `SendSkillsToGraveyard` の直前 |
+**④ 対応済みの効果（既存 EventType をそのまま利用）**
 
-- **フリップ直後**: `ApplySkillRecoverEffectsAsync` に倣ったヘルパーを作り、先攻・後攻それぞれのフリップ後に呼ぶ
-- **両攻撃終了後**: `secondCharWillBeDestroyed` ブロックの後、`SendSkillsToGraveyard` の前に直接処理を追加する。`firstCards.Any(...)` / `secondCards.Any(...)` でスキル保持を確認し、`firstDamage`/`secondDamage` と `firstTarget.CurrentCard != null` を条件に処理する
-
-エフェクト演出は `PlayPoisonEffectAsync` / `PlayCharDestroyEffectAsync` 等を参考に `MainPresenter.Animations.Effects.cs` にヘルパーを追加し、`_xxxEffectPrefab` フィールドを `MainPresenter.cs` に `[SerializeField]` で追加する。
-
-**④ SO アセットのデータを入力する**
-
-`SkillCardSO` の Inspector で `_skillType` に新値、`_skillValue` に数値を入力する。
+CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
 
 ---
 

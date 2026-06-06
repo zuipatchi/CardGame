@@ -406,6 +406,13 @@ namespace Main
             }
         }
 
+        private async UniTask FireGraveTriggerAsync(EventCardData data, bool isLocal, CancellationToken ct)
+        {
+            GraveyardView anchor = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            await PlayFloatingLabelAsync("TRAP！", "grave-trigger-label", anchor, ct);
+            await ApplyEventEffectAsync(data, isLocal, ct);
+        }
+
         private async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
         {
             if (count <= 0)

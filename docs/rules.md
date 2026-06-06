@@ -124,6 +124,17 @@
 | CharDamage | 相手キャラに直接ダメージを与える。ダメージ = EventValue − 相手キャラ DEF − DefBoost（0 未満は 0）。damage ≥ 相手キャラ HP でキャラ破壊＋デッキダメージ、0 < damage < HP でデッキダメージのみ、damage = 0 で NO DAMAGE。相手キャラなしの場合は EventValue がそのままデッキダメージ。HP は累積せず各判定は独立 | ベース ATK 値 |
 | Evolve | 自分のキャラスロットのキャラを墓地に送り、手札から犠牲キャラより高コストのキャラカードを1枚コストなしで配置する。スロットが空または手札に適格カードがない（パス）場合はキャラ犠牲のみ。配置時にエフェクト再生。解決後に速さを再評価して戦闘フェーズの先攻後攻を決定 | 使用しない（0 固定） |
 
+### グレイブトリガー（EventCardData.TriggerOnGrave）
+
+`EventCardData` に `TriggerOnGrave: bool` フラグを追加した特殊な効果。
+
+- `TriggerOnGrave = true` のイベントカードは、そのカード自身がデッキから墓地に送られた瞬間に効果が発動する
+- 発動タイミング：コスト支払い・戦闘ダメージの両方で `PlayDeckDamageAsync` 経由で送られたとき
+- 発動演出：カードのオーナー側の墓地近くに「TRAP！」フローティングラベルを表示してから効果を適用
+- 効果は `EventType` と `EventValue` で定義し、通常のイベント効果（CharDamage / AtkBoost / Draw / Recover など）をそのまま使用できる
+- 同じ `PlayDeckDamageAsync` の中で複数の TriggerOnGrave カードが送られた場合は、送られた順にトリガーを処理する
+- カードのオーナー（`CardView.IsOpponent`）からトリガー発動者の `isLocal` を決定する
+
 ---
 
 ## 戦闘フェーズの詳細
