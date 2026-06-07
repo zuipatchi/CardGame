@@ -205,24 +205,34 @@ namespace Main
 
         private async UniTask ApplyBattleEndMillAsync(CancellationToken ct)
         {
-            if (!_isGameOver && _localBattleEndMillValue > 0)
+            bool localFirst = _localHasPriority;
+
+            DeckView firstDeck       = localFirst ? _opponentDeckView       : _playerDeckView;
+            GraveyardView firstGrave = localFirst ? _opponentGraveyardView  : _playerGraveyardView;
+            int firstValue           = localFirst ? _localBattleEndMillValue : _opponentBattleEndMillValue;
+
+            DeckView secondDeck       = localFirst ? _playerDeckView        : _opponentDeckView;
+            GraveyardView secondGrave = localFirst ? _playerGraveyardView   : _opponentGraveyardView;
+            int secondValue           = localFirst ? _opponentBattleEndMillValue : _localBattleEndMillValue;
+
+            if (!_isGameOver && firstValue > 0)
             {
-                await PlayPoisonMillAsync(_opponentDeckView, _opponentGraveyardView, _localBattleEndMillValue, ct);
-                if (_opponentDeckView.Count == 0)
+                await PlayPoisonMillAsync(firstDeck, firstGrave, firstValue, ct);
+                if (firstDeck.Count == 0)
                 {
                     _isGameOver = true;
-                    OnGameEnd(true);
+                    OnGameEnd(localFirst);
                     return;
                 }
             }
 
-            if (!_isGameOver && _opponentBattleEndMillValue > 0)
+            if (!_isGameOver && secondValue > 0)
             {
-                await PlayPoisonMillAsync(_playerDeckView, _playerGraveyardView, _opponentBattleEndMillValue, ct);
-                if (_playerDeckView.Count == 0)
+                await PlayPoisonMillAsync(secondDeck, secondGrave, secondValue, ct);
+                if (secondDeck.Count == 0)
                 {
                     _isGameOver = true;
-                    OnGameEnd(false);
+                    OnGameEnd(!localFirst);
                 }
             }
         }
