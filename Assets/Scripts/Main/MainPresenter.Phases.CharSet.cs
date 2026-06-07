@@ -56,11 +56,11 @@ namespace Main
             bool firstHadChar  = playerFirst ? playerHadChar  : opponentHadChar;
             bool secondHadChar = playerFirst ? opponentHadChar : playerHadChar;
 
-            if (!firstHadChar && firstSlotCard != null)
+            if (!firstHadChar && firstSlotCard != null && firstSlotCard.IsFaceDown)
             {
                 await firstSlotCard.FlipAsync(ct);
             }
-            if (!secondHadChar && secondSlotCard != null)
+            if (!secondHadChar && secondSlotCard != null && secondSlotCard.IsFaceDown)
             {
                 await secondSlotCard.FlipAsync(ct);
             }
