@@ -1,6 +1,7 @@
 using Main.Card;
 using Main.Game;
 using Main.Network;
+using Main.Sound;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -15,6 +16,7 @@ namespace Main.Injector
         {
             builder.RegisterInstance(_cardDatabase);
             builder.RegisterEntryPoint<CardStore>().AsSelf();
+            builder.RegisterEntryPoint<MainAudioManager>();
             builder.Register<GameModel>(Lifetime.Scoped);
             builder.Register<NetworkGameService>(Lifetime.Scoped);
             builder.RegisterComponentInHierarchy<MainPresenter>().AsSelf().AsImplementedInterfaces();
