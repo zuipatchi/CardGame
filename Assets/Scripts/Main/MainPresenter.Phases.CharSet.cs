@@ -48,14 +48,21 @@ namespace Main
             await PlayResolveAnimationAsync(ct);
 
             // コスト払い中に発動するグレイブトリガーが相手キャラを参照できるよう
-            // 両方のキャラを先にフリップしてからコスト払いを行う
-            if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
+            // 両方のキャラを先にフリップしてからコスト払いを行う。
+            // 優先権保持プレイヤーを先にオープンする。
+            bool playerFirst = _localHasPriority;
+            CardView firstSlotCard  = playerFirst ? _playerCharacterSlot.CurrentCard  : _opponentCharacterSlot.CurrentCard;
+            CardView secondSlotCard = playerFirst ? _opponentCharacterSlot.CurrentCard : _playerCharacterSlot.CurrentCard;
+            bool firstHadChar  = playerFirst ? playerHadChar  : opponentHadChar;
+            bool secondHadChar = playerFirst ? opponentHadChar : playerHadChar;
+
+            if (!firstHadChar && firstSlotCard != null)
             {
-                await _playerCharacterSlot.CurrentCard.FlipAsync(ct);
+                await firstSlotCard.FlipAsync(ct);
             }
-            if (!opponentHadChar && _opponentCharacterSlot.CurrentCard != null)
+            if (!secondHadChar && secondSlotCard != null)
             {
-                await _opponentCharacterSlot.CurrentCard.FlipAsync(ct);
+                await secondSlotCard.FlipAsync(ct);
             }
             if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
             {
