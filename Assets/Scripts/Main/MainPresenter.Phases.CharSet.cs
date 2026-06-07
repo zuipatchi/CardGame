@@ -64,14 +64,19 @@ namespace Main
             {
                 await secondSlotCard.FlipAsync(ct);
             }
-            if (!playerHadChar && _playerCharacterSlot.CurrentCard != null)
+            DeckView firstDeck      = playerFirst ? _playerDeckView      : _opponentDeckView;
+            GraveyardView firstGrave  = playerFirst ? _playerGraveyardView : _opponentGraveyardView;
+            DeckView secondDeck     = playerFirst ? _opponentDeckView    : _playerDeckView;
+            GraveyardView secondGrave = playerFirst ? _opponentGraveyardView : _playerGraveyardView;
+
+            if (!firstHadChar && firstSlotCard != null)
             {
-                await PayCostAsync(_playerCharacterSlot.CurrentCard, _playerDeckView, _playerGraveyardView, ct);
+                await PayCostAsync(firstSlotCard, firstDeck, firstGrave, ct);
                 if (_isGameOver) return;
             }
-            if (!opponentHadChar && _opponentCharacterSlot.CurrentCard != null)
+            if (!secondHadChar && secondSlotCard != null)
             {
-                await PayCostAsync(_opponentCharacterSlot.CurrentCard, _opponentDeckView, _opponentGraveyardView, ct);
+                await PayCostAsync(secondSlotCard, secondDeck, secondGrave, ct);
             }
         }
 
