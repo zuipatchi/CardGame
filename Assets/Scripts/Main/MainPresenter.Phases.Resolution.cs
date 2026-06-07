@@ -88,8 +88,6 @@ namespace Main
                         }
                         else if (eventData.EventType == CardEventType.DeckMill)
                         {
-                            await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _playerDeckView, ct);
-                            await PlayFloatingLabelAsync("DECK MILL", "deck-mill-label", _opponentDeckView, ct);
                         }
                         else if (eventData.EventType == CardEventType.BattleEndMill)
                         {
@@ -233,6 +231,11 @@ namespace Main
 
         private async UniTask ApplyDeckMillEffectAsync(int count, CancellationToken ct)
         {
+            if (_deckMillEffectPrefab != null)
+            {
+                await PlayParticleAtUiPositionAsync(_playerDeckView, _playerDeckView.worldBound.center, _deckMillEffectPrefab, ct);
+            }
+
             Rect playerDeckRect = _playerDeckView.worldBound;
             List<CardView> playerMillCards = _playerDeckView.TakeFromTop(count);
             if (playerMillCards.Count > 0)
@@ -240,7 +243,7 @@ namespace Main
                 await PlayDeckDamageAsync(playerMillCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct);
             }
 
-            if (_playerDeckView.Count == 0)
+            if (playerMillCards.Count < count)
             {
                 _isGameOver = true;
                 OnGameEnd(false);
@@ -250,6 +253,11 @@ namespace Main
             if (_isGameOver)
             {
                 return;
+            }
+
+            if (_deckMillEffectPrefab != null)
+            {
+                await PlayParticleAtUiPositionAsync(_opponentDeckView, _opponentDeckView.worldBound.center, _deckMillEffectPrefab, ct);
             }
 
             Rect opponentDeckRect = _opponentDeckView.worldBound;
@@ -264,7 +272,7 @@ namespace Main
                 return;
             }
 
-            if (_opponentDeckView.Count == 0)
+            if (opponentMillCards.Count < count)
             {
                 _isGameOver = true;
                 OnGameEnd(true);
