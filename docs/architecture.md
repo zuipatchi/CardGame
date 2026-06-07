@@ -307,7 +307,7 @@ EventType         enum（EffectType.cs）。
                   Switch（自分のキャラを手札に戻して別キャラを配置）/ CharDamage（相手キャラに直接ダメージ）
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
                   Poison（戦闘フェーズでダメージを受けたキャラを戦闘後に破壊する毒効果。1ターン限り）
-                  DeckMill（両デッキ上から EventValue 枚を即時墓地へ。要求枚数を出し切れなかった側が敗北）
+                  DeckMill（両デッキ上から EventValue 枚を即時墓地へ。発動プレイヤーのデッキを先に処理し、要求枚数を出し切れなかった側が敗北）
                   BattleEndMill（**永続効果**。毎ターン戦闘フェーズ終了後に相手デッキ上から EventValue 枚を墓地へ）
 
 CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
