@@ -176,6 +176,10 @@ namespace Main
                         List<CardData> recovered = sourceGraveyard.TakeFromTop(data.EventValue);
                         if (recovered.Count > 0)
                         {
+                            // アニメーション前にハンドラを登録してメッセージのロストを防ぐ
+                            UniTask<CardData[]> recoverReceiveTask = (_isOnline && !isLocal)
+                                ? _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct)
+                                : default;
                             await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
                             if (!_isOnline || isLocal)
                             {
@@ -187,7 +191,7 @@ namespace Main
                             }
                             else
                             {
-                                CardData[] shuffledDeck = await _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct);
+                                CardData[] shuffledDeck = await recoverReceiveTask;
                                 targetDeck.Rebuild(shuffledDeck);
                             }
                             await PlayDeckShufflePulseAsync(targetDeck, ct);
