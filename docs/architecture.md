@@ -444,7 +444,7 @@ RunCharacterSetPhaseAsync  （ゲーム開始時1回のみ）
       オンライン: OnlineCharSetAsync（ホスト・クライアント共通）
                   receiveTask（WaitForOpponentCharSetAsync）をホットタスクとして並列起動
                   自分の入力完了後に SendCharSetAction で送信 → await receiveTask で相手受信完了を待機
-  → Resolve アニメーション → 両スロットのキャラカードを同時に表向き（FlipAsync）
+  → Resolve アニメーション → 両スロットのキャラカードを表向き（IsFaceDown の場合のみ FlipAsync。プレイヤー手札カードはドロー時に表向き済みなのでスキップ）
 ```
 
 各ターンは以下のフェーズを順に実行する（`TurnPhase` enum に対応）。
