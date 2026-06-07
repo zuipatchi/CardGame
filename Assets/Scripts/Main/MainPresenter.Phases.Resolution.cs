@@ -81,8 +81,10 @@ namespace Main
                         }
                         else if (eventData.EventType == CardEventType.Poison)
                         {
-                            CharacterSlotView poisonTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                            await PlayPoisonEffectAsync(poisonTarget, ct);
+                            if (_poisonEffectPrefab != null)
+                            {
+                                await PlayParticleAtCardAsync(card, _poisonEffectPrefab, ct);
+                            }
                         }
                         else if (eventData.EventType == CardEventType.DeckMill)
                         {
