@@ -320,13 +320,6 @@ namespace Main
             targetSlot.DefOverlay.style.display = DisplayStyle.None;
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
-            if (targetDeck.Count == 0)
-            {
-                _isGameOver = true;
-                OnGameEnd(isLocal);
-                return;
-            }
-
             if (charWillBeDestroyed && targetSlot.CurrentCard != null)
             {
                 await PlayCharDestroyEffectAsync(targetSlot, ct);
