@@ -214,7 +214,7 @@ namespace Main
                     }
                     break;
                 case CardEventType.DeckMill:
-                    await ApplyDeckMillEffectAsync(data.EventValue, ct);
+                    await ApplyDeckMillEffectAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.BattleEndMill:
                     if (isLocal)
@@ -229,24 +229,29 @@ namespace Main
             }
         }
 
-        private async UniTask ApplyDeckMillEffectAsync(int count, CancellationToken ct)
+        private async UniTask ApplyDeckMillEffectAsync(int count, bool isLocal, CancellationToken ct)
         {
+            DeckView firstDeck        = isLocal ? _playerDeckView        : _opponentDeckView;
+            GraveyardView firstGrave  = isLocal ? _playerGraveyardView   : _opponentGraveyardView;
+            DeckView secondDeck       = isLocal ? _opponentDeckView      : _playerDeckView;
+            GraveyardView secondGrave = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+
             if (_deckMillEffectPrefab != null)
             {
-                await PlayParticleAtUiPositionAsync(_playerDeckView, _playerDeckView.worldBound.center, _deckMillEffectPrefab, ct);
+                await PlayParticleAtUiPositionAsync(firstDeck, firstDeck.worldBound.center, _deckMillEffectPrefab, ct);
             }
 
-            Rect playerDeckRect = _playerDeckView.worldBound;
-            List<CardView> playerMillCards = _playerDeckView.TakeFromTop(count);
-            if (playerMillCards.Count > 0)
+            Rect firstDeckRect = firstDeck.worldBound;
+            List<CardView> firstMillCards = firstDeck.TakeFromTop(count);
+            if (firstMillCards.Count > 0)
             {
-                await PlayDeckDamageAsync(playerMillCards, playerDeckRect, _playerGraveyardView, _playerDeckView, ct);
+                await PlayDeckDamageAsync(firstMillCards, firstDeckRect, firstGrave, firstDeck, ct);
             }
 
-            if (playerMillCards.Count < count)
+            if (firstMillCards.Count < count)
             {
                 _isGameOver = true;
-                OnGameEnd(false);
+                OnGameEnd(!isLocal);
                 return;
             }
 
@@ -257,14 +262,14 @@ namespace Main
 
             if (_deckMillEffectPrefab != null)
             {
-                await PlayParticleAtUiPositionAsync(_opponentDeckView, _opponentDeckView.worldBound.center, _deckMillEffectPrefab, ct);
+                await PlayParticleAtUiPositionAsync(secondDeck, secondDeck.worldBound.center, _deckMillEffectPrefab, ct);
             }
 
-            Rect opponentDeckRect = _opponentDeckView.worldBound;
-            List<CardView> opponentMillCards = _opponentDeckView.TakeFromTop(count);
-            if (opponentMillCards.Count > 0)
+            Rect secondDeckRect = secondDeck.worldBound;
+            List<CardView> secondMillCards = secondDeck.TakeFromTop(count);
+            if (secondMillCards.Count > 0)
             {
-                await PlayDeckDamageAsync(opponentMillCards, opponentDeckRect, _opponentGraveyardView, _opponentDeckView, ct);
+                await PlayDeckDamageAsync(secondMillCards, secondDeckRect, secondGrave, secondDeck, ct);
             }
 
             if (_isGameOver)
@@ -272,10 +277,10 @@ namespace Main
                 return;
             }
 
-            if (opponentMillCards.Count < count)
+            if (secondMillCards.Count < count)
             {
                 _isGameOver = true;
-                OnGameEnd(true);
+                OnGameEnd(isLocal);
             }
         }
 
