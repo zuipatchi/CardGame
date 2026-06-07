@@ -96,7 +96,7 @@ namespace Main
                 await PlayDeckDamageAsync(firstDamageCards, firstTargetDeckRect, firstTargetGraveyard, firstTargetDeck, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
-                if (firstTargetDeck.Count == 0)
+                if (firstDamageCards.Count < firstDamage)
                 {
                     _isGameOver = true;
                     OnGameEnd(isLocalFirst);
@@ -153,7 +153,7 @@ namespace Main
                 await PlayDeckDamageAsync(secondDamageCards, secondTargetDeckRect, secondTargetGraveyard, secondTargetDeck, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
-                if (secondTargetDeck.Count == 0)
+                if (secondDamageCards.Count < secondDamage)
                 {
                     _isGameOver = true;
                     OnGameEnd(!isLocalFirst);
@@ -217,8 +217,8 @@ namespace Main
 
             if (!_isGameOver && firstValue > 0)
             {
-                await PlayPoisonMillAsync(firstDeck, firstGrave, firstValue, ct);
-                if (firstDeck.Count == 0)
+                int firstMilled = await PlayPoisonMillAsync(firstDeck, firstGrave, firstValue, ct);
+                if (firstMilled < firstValue)
                 {
                     _isGameOver = true;
                     OnGameEnd(localFirst);
@@ -228,8 +228,8 @@ namespace Main
 
             if (!_isGameOver && secondValue > 0)
             {
-                await PlayPoisonMillAsync(secondDeck, secondGrave, secondValue, ct);
-                if (secondDeck.Count == 0)
+                int secondMilled = await PlayPoisonMillAsync(secondDeck, secondGrave, secondValue, ct);
+                if (secondMilled < secondValue)
                 {
                     _isGameOver = true;
                     OnGameEnd(!localFirst);
@@ -237,7 +237,7 @@ namespace Main
             }
         }
 
-        private async UniTask PlayPoisonMillAsync(DeckView deck, GraveyardView graveyard, int count, CancellationToken ct)
+        private async UniTask<int> PlayPoisonMillAsync(DeckView deck, GraveyardView graveyard, int count, CancellationToken ct)
         {
             if (_poisonEffectPrefab != null)
             {
@@ -250,6 +250,7 @@ namespace Main
             {
                 await PlayDeckDamageAsync(millCards, deckRect, graveyard, deck, ct);
             }
+            return millCards.Count;
         }
 
         // ─── 戦闘フェーズ ヘルパー ───────────────────────────────────────
