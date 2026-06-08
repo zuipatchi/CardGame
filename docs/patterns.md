@@ -67,7 +67,7 @@ public enum EventType
     AtkBoost,
     DefBoost,
     Draw,
-    Negate,
+    Negate,      // 廃止済み（EffectType は互換のため残存）
     BanishChar,
     Recover,
     Switch,
@@ -80,7 +80,7 @@ public enum EventType
 }
 ```
 
-**② `ApplyEventEffectAsync` にケースを追加する**（効果が他カードに干渉しない場合）
+**② `ApplyEventEffectAsync` にケースを追加する**
 
 [MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ApplyEventEffectAsync` メソッドに `case CardEventType.YourNewEffect:` を追加して処理を実装する（ファイル先頭に `using CardEventType = Main.Card.EventType;` エイリアスあり）。
 
@@ -88,15 +88,9 @@ public enum EventType
 - 非同期処理が必要（Draw 相当）なら `await SomeHelperAsync(...)` を呼んで `break`
 - ドローなどデッキを減らす処理の後は `CheckGameOver(); if (_isGameOver) break;` を入れること
 
-**他カードの処理に干渉する効果（Negate 相当）の場合**
-
-`ApplyEventEffectAsync` を使わず、`RunResolutionPhaseAsync` 内の解決ループに直接フラグを追加する。`Negate` は `skipNextEffect` フラグで実装されており、`else if (eventData.EventType == CardEventType.Negate)` で `skipNextEffect = true` をセットし、次のカードの効果適用をスキップさせる（[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs)）。
-
-演出もこの `else if` ブロック内に追加する。打ち消し対象（`queue[i - 1]`）への演出は `i > 0` をガードしてから呼ぶ。スキップされる側（`if (skipNextEffect)` ブロック）は現在演出なし。`Negate` は `PlayNegateEffectAsync` が参考実装。
-
 **Resolve 時に演出を追加する場合**
 
-演出のタイミングによって3パターンある：
+演出のタイミングによって3パターンある（`ResolveSingleCardAsync` の `if/else if` ブランチ内に記述）：
 
 - **効果適用後に演出**（AtkBoost / DefBoost）: `await ApplyEventEffectAsync(...)` の直後に `else if` で効果種別を判定して演出メソッドを呼ぶ。`PlayAtkBoostEffectAsync` が参考実装。
 - **効果適用前に演出**（Draw / BanishChar）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラスロット上に「BANISH!」ラベル+パーティクルを表示してから破壊する。
@@ -104,18 +98,11 @@ public enum EventType
 
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。回転が必要な場合は `PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct, Quaternion.Euler(x, y, z))` のように4引数版を使う。
 フローティングラベルのみの場合は `PlayFloatingLabelAsync(text, cssClass, anchor, ct)` を呼ぶ。`anchor` には演出の基準となる `VisualElement`（カードやスロット等）を渡す。CSS クラス名で見た目をカスタマイズする。
-ラベル + パーティクルの組み合わせは `PlayXxxEffectAsync` から `PlayFloatingLabelAsync` と `PlayParticleAtCardAsync` を `UniTask.WhenAll` で並列実行するパターンを使う。`PlayNegateEffectAsync` が参考実装。
+ラベル + パーティクルの組み合わせは `PlayXxxEffectAsync` から `PlayFloatingLabelAsync` と `PlayParticleAtCardAsync` を `UniTask.WhenAll` で並列実行するパターンを使う。
 
 **解決フェーズ中にプレイヤー入力が必要な効果（Switch / Evolve 相当）の場合**
 
 `MainPresenter.cs` に `private readonly StagedInput _xxxInput = new StagedInput();` と必要なら状態変数（例: `private int _evolveMinCost;`）を追加し、`MainPresenter.Input.cs` の `HandlePlayerCardDrop` / `TryTakeStagedInput` / `OnPassClicked` / `OnBackClicked` / `CanPlayerDragCard` / `IsCardPlayable` の各メソッドに `_xxxInput._tcs != null` のチェックを追加する。`_switchInput` / `_evolveInput` の実装が参考例。`WaitForPlayerXxxInputAsync` でボタン表示・TCS 完了待ちを行い、`ApplyXxxEffectAsync` から `await WaitForPlayerXxxInputAsync(ct)` で結果を受け取る。ドロップ時にすでに `PlaceCard` が呼ばれるため、TCS 完了後に再度 `PlaceCard` しないこと。
-
-**チェーン番号フラッシュ演出について**
-
-`RunResolutionPhaseAsync` のループ先頭では `await card.FlashChainLabelAsync(ct)` を呼び、
-チェーン番号ラベル（①②③）を黄色↔白カラーで 3 回交互フラッシュ（約 0.4s）させてから `SetChainNumber(0)` で消す。
-これにより「次に処理されるカード」への注目を集める。`FlashChainLabelAsync` は
-`resolvedStyle.display == None` の場合（チェーン番号が非表示）は即座に完了する。
 
 **解決後に速さを再評価する場合（Evolve 相当）**
 
@@ -353,7 +340,7 @@ DOTween.To(
 
 ローカル float 変数を「仲介」として使うことで初期値が確定し、`OnComplete` が確実に発火する。
 
-`PlayAnnouncementAsync` / `PlayResolveAnimationAsync` はこのパターンで実装済み。
+`PlayAnnouncementAsync` はこのパターンで実装済み。
 同様の Sequence を新たに書く場合も必ずこの形式を使うこと。
 
 ---
