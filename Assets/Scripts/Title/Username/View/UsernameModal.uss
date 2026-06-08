@@ -1,0 +1,56 @@
+.username-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.username-panel {
+    background-color: rgb(25, 25, 35);
+    border-radius: 16px;
+    border-width: 1px;
+    border-color: rgba(255, 215, 80, 0.4);
+    padding-top: 40px;
+    padding-bottom: 40px;
+    padding-left: 48px;
+    padding-right: 48px;
+    min-width: 420px;
+    align-items: center;
+}
+
+.username-title {
+    color: rgb(255, 255, 255);
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    margin-bottom: 28px;
+}
+
+.username-field {
+    width: 320px;
+    font-size: 20px;
+    margin-bottom: 28px;
+}
+
+.username-confirm-btn {
+    width: 160px;
+    height: 52px;
+    font-size: 20px;
+    background-color: rgb(255, 215, 80);
+    color: rgb(50, 30, 0);
+    border-radius: 8px;
+    -unity-font-style: bold;
+    border-width: 0;
+}
+
+.username-confirm-btn:hover {
+    background-color: rgb(255, 230, 120);
+}
+
+.username-confirm-btn:disabled {
+    opacity: 0.35;
+}
