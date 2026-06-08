@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,6 +17,11 @@ namespace Main.Card
         private readonly bool _isOpponent;
 
         public IReadOnlyList<CardView> Cards => _cards;
+
+        public IReadOnlyList<CardView> Characters =>
+            _cards.Where(c => c.Data is CharacterCardData).ToList();
+
+        public bool Contains(CardView card) => _cards.Contains(card);
 
         public Action<CardView> OnCardClicked { get; set; }
 

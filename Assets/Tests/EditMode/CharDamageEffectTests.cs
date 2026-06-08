@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Main.Card;
 using NUnit.Framework;
 using UnityEditor;
@@ -98,32 +99,37 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void スロットにキャラがいてダメージがHP以上のときスロットが空になる()
+        public void フィールドにキャラがいてダメージがHP以上のときフィールドが空になる()
         {
-            CharacterSlotView slot = new CharacterSlotView();
+            FieldView field = new FieldView();
             GraveyardView graveyard = new GraveyardView(null, null);
-            slot.PlaceCard(MakeCharacter(0, 3));
-            int damage = CalculateDamage(5, slot.Defense, 0, true);
-            if (ShouldDestroyChar(damage, slot.Hp, slot.CurrentCard != null))
+            CardView charCard = MakeCharacter(0, 3);
+            field.PlaceCard(charCard);
+            CharacterCardData charData = (CharacterCardData)charCard.Data;
+            int damage = CalculateDamage(5, charData.Defense, 0, true);
+            if (ShouldDestroyChar(damage, charData.Hp, field.Characters.Count > 0))
             {
-                slot.RemoveCard();
+                IReadOnlyList<CardView> chars = field.Characters;
+                field.RemoveCard(chars[0]);
                 graveyard.AddCard(MakeCharacter(0, 3));
             }
-            Assert.IsNull(slot.CurrentCard);
+            Assert.AreEqual(0, field.Characters.Count);
             Assert.AreEqual(1, graveyard.Count);
         }
 
         [Test]
-        public void スロットにキャラがいてダメージがHP未満のときスロットのキャラは残る()
+        public void フィールドにキャラがいてダメージがHP未満のときキャラは残る()
         {
-            CharacterSlotView slot = new CharacterSlotView();
-            slot.PlaceCard(MakeCharacter(0, 10));
-            int damage = CalculateDamage(3, slot.Defense, 0, true);
-            if (ShouldDestroyChar(damage, slot.Hp, slot.CurrentCard != null))
+            FieldView field = new FieldView();
+            CardView charCard = MakeCharacter(0, 10);
+            field.PlaceCard(charCard);
+            CharacterCardData charData = (CharacterCardData)charCard.Data;
+            int damage = CalculateDamage(3, charData.Defense, 0, true);
+            if (ShouldDestroyChar(damage, charData.Hp, field.Characters.Count > 0))
             {
-                slot.RemoveCard();
+                field.RemoveCard(field.Characters[0]);
             }
-            Assert.IsNotNull(slot.CurrentCard);
+            Assert.AreEqual(1, field.Characters.Count);
         }
     }
 }

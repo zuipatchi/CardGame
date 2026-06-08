@@ -26,6 +26,7 @@ namespace Main.Network
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
+        private const string k_BattleAttack = "NGS_BattleAttack";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
@@ -403,7 +404,7 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
-        public void SendSwitchAction(string cardId)
+        public void SendSwitchAction(string sacrificedCharId, string newCardId)
         {
             NetworkManager nm = NetworkManager.Singleton;
             if (nm == null)
@@ -415,10 +416,12 @@ namespace Main.Network
             {
                 return;
             }
-            CharSetPayload payload = new CharSetPayload
+            bool passed = string.IsNullOrEmpty(newCardId);
+            SwitchPayload payload = new SwitchPayload
             {
-                passed = string.IsNullOrEmpty(cardId),
-                cardId = cardId ?? string.Empty
+                passed = passed,
+                sacrificedCharId = sacrificedCharId ?? string.Empty,
+                newCardId = newCardId ?? string.Empty
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
@@ -428,20 +431,78 @@ namespace Main.Network
             }
         }
 
-        public async UniTask<string> WaitForOpponentSwitchAsync(CancellationToken ct)
+        public async UniTask<(string sacrificedCharId, string newCardId)> WaitForOpponentSwitchAsync(CancellationToken ct)
         {
             CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
+            UniTaskCompletionSource<(string, string)> tcs = new UniTaskCompletionSource<(string, string)>();
 
             void OnSwitch(ulong senderId, FastBufferReader reader)
             {
                 messaging.UnregisterNamedMessageHandler(k_Switch);
                 reader.ReadValueSafe(out string json);
-                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
-                tcs.TrySetResult(payload.passed ? null : payload.cardId);
+                SwitchPayload payload = JsonUtility.FromJson<SwitchPayload>(json);
+                if (payload.passed)
+                {
+                    tcs.TrySetResult((null, null));
+                }
+                else
+                {
+                    tcs.TrySetResult((payload.sacrificedCharId, payload.newCardId));
+                }
             }
 
             messaging.RegisterNamedMessageHandler(k_Switch, OnSwitch);
+            return await tcs.Task.AttachExternalCancellation(ct);
+        }
+
+        public void SendBattleAttackAction(string attackerId, string targetId)
+        {
+            NetworkManager nm = NetworkManager.Singleton;
+            if (nm == null)
+            {
+                return;
+            }
+            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            if (messaging == null)
+            {
+                return;
+            }
+            bool passed = string.IsNullOrEmpty(attackerId);
+            BattleAttackPayload payload = new BattleAttackPayload
+            {
+                passed = passed,
+                attackerId = attackerId ?? string.Empty,
+                targetId = targetId ?? string.Empty
+            };
+            string json = JsonUtility.ToJson(payload);
+            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
+            {
+                writer.WriteValueSafe(json);
+                messaging.SendNamedMessage(k_BattleAttack, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask<(string attackerId, string targetId)> WaitForOpponentBattleAttackAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource<(string, string)> tcs = new UniTaskCompletionSource<(string, string)>();
+
+            void OnBattleAttack(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_BattleAttack);
+                reader.ReadValueSafe(out string json);
+                BattleAttackPayload payload = JsonUtility.FromJson<BattleAttackPayload>(json);
+                if (payload.passed)
+                {
+                    tcs.TrySetResult((null, null));
+                }
+                else
+                {
+                    tcs.TrySetResult((payload.attackerId, payload.targetId));
+                }
+            }
+
+            messaging.RegisterNamedMessageHandler(k_BattleAttack, OnBattleAttack);
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
@@ -592,6 +653,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_RecoverDeck);
             m.UnregisterNamedMessageHandler(k_Switch);
             m.UnregisterNamedMessageHandler(k_Evolve);
+            m.UnregisterNamedMessageHandler(k_BattleAttack);
         }
 
         [Serializable]
@@ -630,6 +692,22 @@ namespace Main.Network
         private sealed class DeckOrderPayload
         {
             public string[] deckIds;
+        }
+
+        [Serializable]
+        private sealed class SwitchPayload
+        {
+            public bool passed;
+            public string sacrificedCharId;
+            public string newCardId;
+        }
+
+        [Serializable]
+        private sealed class BattleAttackPayload
+        {
+            public bool passed;
+            public string attackerId;
+            public string targetId;
         }
     }
 }

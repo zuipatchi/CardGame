@@ -30,8 +30,14 @@ namespace Main
                 }
                 else if (eventData.EventType == CardEventType.BanishChar)
                 {
-                    CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                    await PlayBanishCharEffectAsync(banishTarget, ct);
+                    FieldView banishField = isLocal ? _opponentFieldView : _playerFieldView;
+                    CardView banishTarget = banishField.Characters.Count > 0
+                        ? banishField.Characters[0]
+                        : null;
+                    if (banishTarget != null)
+                    {
+                        await PlayBanishCharEffectAsync(banishTarget, ct);
+                    }
                 }
                 else if (eventData.EventType == CardEventType.Recover)
                 {
@@ -39,15 +45,24 @@ namespace Main
                 }
                 else if (eventData.EventType == CardEventType.Switch)
                 {
-                    CharacterSlotView switchSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
-                    await PlaySwitchEffectAsync(card, switchSlot, ct);
+                    FieldView switchField = isLocal ? _playerFieldView : _opponentFieldView;
+                    CardView switchChar = switchField.Characters.Count > 0
+                        ? switchField.Characters[0]
+                        : null;
+                    if (switchChar != null)
+                    {
+                        await PlaySwitchEffectAsync(card, switchChar, ct);
+                    }
                 }
                 else if (eventData.EventType == CardEventType.Evolve)
                 {
-                    CharacterSlotView evolveSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
-                    if (evolveSlot.CurrentCard != null)
+                    FieldView evolveField = isLocal ? _playerFieldView : _opponentFieldView;
+                    CardView evolveChar = evolveField.Characters.Count > 0
+                        ? evolveField.Characters[0]
+                        : null;
+                    if (evolveChar != null)
                     {
-                        await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveSlot, ct);
+                        await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
                     }
                 }
                 else if (eventData.EventType == CardEventType.Poison)
@@ -119,48 +134,49 @@ namespace Main
                     await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.BanishChar:
+                {
+                    FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+                    if (targetField.Characters.Count == 0)
                     {
-                        CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                        GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-                        CardView charCard = targetSlot.CurrentCard;
-                        if (charCard != null)
-                        {
-                            Rect fromRect = charCard.worldBound;
-                            targetSlot.RemoveCard();
-                            await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
-                            targetGraveyard.AddCard(charCard);
-                        }
                         break;
                     }
+                    CardView charCard = targetField.Characters[0];
+                    Rect fromRect = charCard.worldBound;
+                    targetField.RemoveCard(charCard);
+                    await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
+                    targetGraveyard.AddCard(charCard);
+                    break;
+                }
                 case CardEventType.Recover:
+                {
+                    GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+                    DeckView targetDeck = isLocal ? _playerDeckView : _opponentDeckView;
+                    List<CardData> recovered = sourceGraveyard.TakeFromTop(data.EventValue);
+                    if (recovered.Count > 0)
                     {
-                        GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-                        DeckView targetDeck = isLocal ? _playerDeckView : _opponentDeckView;
-                        List<CardData> recovered = sourceGraveyard.TakeFromTop(data.EventValue);
-                        if (recovered.Count > 0)
+                        // アニメーション前にハンドラを登録してメッセージのロストを防ぐ
+                        UniTask<CardData[]> recoverReceiveTask = (_isOnline && !isLocal)
+                            ? _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct)
+                            : default;
+                        await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
+                        if (!_isOnline || isLocal)
                         {
-                            // アニメーション前にハンドラを登録してメッセージのロストを防ぐ
-                            UniTask<CardData[]> recoverReceiveTask = (_isOnline && !isLocal)
-                                ? _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct)
-                                : default;
-                            await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
-                            if (!_isOnline || isLocal)
+                            targetDeck.AddCardsAndShuffle(recovered);
+                            if (_isOnline)
                             {
-                                targetDeck.AddCardsAndShuffle(recovered);
-                                if (_isOnline)
-                                {
-                                    _networkGameService.SendRecoverDeckOrder(targetDeck.GetCardIds());
-                                }
+                                _networkGameService.SendRecoverDeckOrder(targetDeck.GetCardIds());
                             }
-                            else
-                            {
-                                CardData[] shuffledDeck = await recoverReceiveTask;
-                                targetDeck.Rebuild(shuffledDeck);
-                            }
-                            await PlayDeckShufflePulseAsync(targetDeck, ct);
                         }
-                        break;
+                        else
+                        {
+                            CardData[] shuffledDeck = await recoverReceiveTask;
+                            targetDeck.Rebuild(shuffledDeck);
+                        }
+                        await PlayDeckShufflePulseAsync(targetDeck, ct);
                     }
+                    break;
+                }
                 case CardEventType.Switch:
                     await ApplySwitchEffectAsync(isLocal, ct);
                     break;
@@ -198,9 +214,9 @@ namespace Main
 
         private async UniTask ApplyDeckMillEffectAsync(int count, bool isLocal, CancellationToken ct)
         {
-            DeckView firstDeck        = isLocal ? _playerDeckView        : _opponentDeckView;
-            GraveyardView firstGrave  = isLocal ? _playerGraveyardView   : _opponentGraveyardView;
-            DeckView secondDeck       = isLocal ? _opponentDeckView      : _playerDeckView;
+            DeckView firstDeck = isLocal ? _playerDeckView : _opponentDeckView;
+            GraveyardView firstGrave = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            DeckView secondDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView secondGrave = isLocal ? _opponentGraveyardView : _playerGraveyardView;
 
             if (_deckMillEffectPrefab != null)
@@ -253,53 +269,54 @@ namespace Main
 
         private async UniTask ApplyCharDamageAsync(int baseAtk, bool isLocal, CancellationToken ct)
         {
-            CharacterSlotView targetSlot = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            IReadOnlyList<CardView> targetChars = targetField.Characters;
 
-            if (targetSlot.CurrentCard != null && targetSlot.CurrentCard.IsFaceDown)
+            if (targetChars.Count == 0)
+            {
+                return;
+            }
+
+            CardView targetChar = targetChars[0];
+
+            // 裏向きのキャラが表向きになるまで待つ
+            if (targetChar.IsFaceDown)
             {
                 await UniTask.WaitUntil(
-                    () => targetSlot.CurrentCard == null || !targetSlot.CurrentCard.IsFaceDown,
+                    () => !targetField.Contains(targetChar) || !targetChar.IsFaceDown,
                     cancellationToken: ct
                 );
+            }
+
+            if (!targetField.Contains(targetChar))
+            {
+                return;
             }
 
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
             int defBoost = isLocal ? _opponentDefBoost : _playerDefBoost;
-            int effectiveDef = targetSlot.CurrentCard != null ? targetSlot.Defense + defBoost : 0;
+            int effectiveDef = targetChar.Data.Defense + defBoost;
             int damage = Mathf.Max(0, baseAtk - effectiveDef);
-
-            if (targetSlot.CurrentCard != null)
-            {
-                targetSlot.SetDefValue(effectiveDef);
-                targetSlot.DefOverlay.BringToFront();
-                targetSlot.DefOverlay.style.opacity = 1f;
-                targetSlot.DefOverlay.style.display = DisplayStyle.Flex;
-            }
 
             if (damage == 0)
             {
-                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetSlot, ct);
+                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetChar, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-                targetSlot.DefOverlay.style.display = DisplayStyle.None;
                 return;
             }
 
-            bool charWillBeDestroyed = targetSlot.CurrentCard != null && damage >= targetSlot.Hp;
+            bool charWillBeDestroyed = damage >= targetChar.Data.Hp;
 
             if (_charDamageEffectPrefab != null)
             {
-                VisualElement particleAnchor = targetSlot.CurrentCard != null
-                    ? (VisualElement)targetSlot.CurrentCard
-                    : targetSlot;
-                await PlayParticleAtUiPositionAsync(particleAnchor, targetSlot.worldBound.center, _charDamageEffectPrefab, ct);
+                await PlayParticleAtUiPositionAsync(targetChar, targetChar.worldBound.center, _charDamageEffectPrefab, ct);
             }
 
             Rect targetDeckRect = targetDeck.worldBound;
-            await PlayDamageNumberFlyAsync(damage, targetSlot.worldBound.center, targetDeck, ct);
+            await PlayDamageNumberFlyAsync(damage, targetChar.worldBound.center, targetDeck, ct);
             List<CardView> damageCards = targetDeck.TakeFromTop(damage);
             await PlayDeckDamageAsync(damageCards, targetDeckRect, targetGraveyard, targetDeck, ct);
-            targetSlot.DefOverlay.style.display = DisplayStyle.None;
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
             if (damageCards.Count < damage)
@@ -309,30 +326,45 @@ namespace Main
                 return;
             }
 
-            if (charWillBeDestroyed && targetSlot.CurrentCard != null)
+            if (charWillBeDestroyed && targetField.Contains(targetChar))
             {
-                await PlayCharDestroyEffectAsync(targetSlot, ct);
-                CardView destroyedChar = targetSlot.CurrentCard;
-                Rect destroyedFromRect = destroyedChar.worldBound;
-                targetSlot.RemoveCard();
-                await FlyToGraveyardAsync(destroyedChar, destroyedFromRect, targetGraveyard, ct);
+                await PlayCharDestroyEffectAsync(targetChar, ct);
+                Rect destroyedFromRect = targetChar.worldBound;
+                targetField.RemoveCard(targetChar);
+                await FlyToGraveyardAsync(targetChar, destroyedFromRect, targetGraveyard, ct);
             }
         }
 
         private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
         {
-            CharacterSlotView ownSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
             GraveyardView ownGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
 
-            if (ownSlot.CurrentCard == null)
+            if (ownField.Characters.Count == 0)
             {
                 return;
             }
 
-            int sacrificedCost = ownSlot.CurrentCard.Data.Cost;
-            CardView sacrificedCard = ownSlot.CurrentCard;
+            CardView sacrificedCard;
+            if (isLocal)
+            {
+                sacrificedCard = ownField.Characters.Count == 1
+                    ? ownField.Characters[0]
+                    : await WaitForPlayerFieldCharSelectionAsync(ct);
+            }
+            else
+            {
+                sacrificedCard = ownField.Characters[0];
+            }
+
+            if (sacrificedCard == null)
+            {
+                return;
+            }
+
+            int sacrificedCost = sacrificedCard.Data.Cost;
             Rect fromRect = sacrificedCard.worldBound;
-            ownSlot.RemoveCard();
+            ownField.RemoveCard(sacrificedCard);
             await FlyCardToDestAsync(sacrificedCard, fromRect, ownGraveyard, ct);
             ownGraveyard.AddCard(sacrificedCard);
 
@@ -343,10 +375,9 @@ namespace Main
                 {
                     _networkGameService.SendEvolveAction(placed?.Data.Id);
                 }
-                // カードはドロップ時点で HandlePlayerCardDrop が PlaceCard 済み
-                if (ownSlot.CurrentCard != null && _evolveEffectPrefab != null)
+                if (placed != null && _evolveEffectPrefab != null)
                 {
-                    await PlayParticleAtCardAsync(ownSlot.CurrentCard, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+                    await PlayParticleAtCardAsync(placed, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                 }
             }
             else if (_isOnline)
@@ -355,14 +386,14 @@ namespace Main
                 if (!string.IsNullOrEmpty(cardId) && _cardDatabase.TryGet(cardId, out CardData cardData))
                 {
                     IReadOnlyList<CardView> hand = _opponentHandView.Cards;
-                    Rect charFromRect = hand.Count > 0 ? hand[0].worldBound : ownSlot.worldBound;
+                    Rect charFromRect = hand.Count > 0 ? hand[0].worldBound : ownField.worldBound;
                     if (hand.Count > 0)
                     {
                         _opponentHandView.RemoveCard(hand[0]);
                     }
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                    await FlyCardToDestAsync(newChar, charFromRect, ownSlot, ct);
-                    ownSlot.PlaceCard(newChar);
+                    await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
+                    ownField.PlaceCard(newChar);
                     if (_evolveEffectPrefab != null)
                     {
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
@@ -378,8 +409,8 @@ namespace Main
                     CardView newChar = cpuHand[idx];
                     Rect charFromRect = newChar.worldBound;
                     _opponentHandView.RemoveCard(newChar);
-                    await FlyCardToDestAsync(newChar, charFromRect, ownSlot, ct);
-                    ownSlot.PlaceCard(newChar);
+                    await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
+                    ownField.PlaceCard(newChar);
                     if (_evolveEffectPrefab != null)
                     {
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
@@ -411,23 +442,33 @@ namespace Main
 
         private async UniTask ApplySwitchEffectAsync(bool isLocal, CancellationToken ct)
         {
-            CharacterSlotView ownSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
-            CardView existingChar = ownSlot.CurrentCard;
-            if (existingChar == null)
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
+            GraveyardView ownGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+
+            if (ownField.Characters.Count == 0)
             {
                 return;
             }
 
-            Rect charRect = existingChar.worldBound;
-            ownSlot.RemoveCard();
-
             if (isLocal)
             {
+                CardView existingChar = ownField.Characters.Count == 1
+                    ? ownField.Characters[0]
+                    : await WaitForPlayerFieldCharSelectionAsync(ct);
+
+                if (existingChar == null)
+                {
+                    return;
+                }
+
+                Rect charRect = existingChar.worldBound;
+                ownField.RemoveCard(existingChar);
                 await _handView.AddCardBackAsync(existingChar, charRect, ct);
+
                 CardView newChar = await WaitForPlayerSwitchInputAsync(ct);
                 if (_isOnline)
                 {
-                    _networkGameService.SendSwitchAction(newChar?.Data.Id);
+                    _networkGameService.SendSwitchAction(existingChar.Data.Id, newChar?.Data.Id);
                 }
                 if (newChar != null)
                 {
@@ -437,28 +478,51 @@ namespace Main
             else if (_isOnline)
             {
                 // アニメーション前にハンドラを事前登録してメッセージのロストを防ぐ
-                UniTask<string> switchReceiveTask = _networkGameService.WaitForOpponentSwitchAsync(ct);
-                await existingChar.FlipAsync(ct);
-                await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
-                string cardId = await switchReceiveTask;
-                if (!string.IsNullOrEmpty(cardId) && _cardDatabase.TryGet(cardId, out CardData cardData))
+                UniTask<(string sacrificedCharId, string newCardId)> switchReceiveTask =
+                    _networkGameService.WaitForOpponentSwitchAsync(ct);
+
+                (string oppSacrificeId, string oppNewCardId) = await switchReceiveTask;
+
+                CardView sacrificedChar = null;
+                foreach (CardView c in _opponentFieldView.Characters)
+                {
+                    if (c.Data.Id == oppSacrificeId)
+                    {
+                        sacrificedChar = c;
+                        break;
+                    }
+                }
+
+                if (sacrificedChar != null)
+                {
+                    Rect sacrificedRect = sacrificedChar.worldBound;
+                    _opponentFieldView.RemoveCard(sacrificedChar);
+                    await sacrificedChar.FlipAsync(ct);
+                    await _opponentHandView.AddCardBackAsync(sacrificedChar, sacrificedRect, ct);
+                }
+
+                if (!string.IsNullOrEmpty(oppNewCardId) && _cardDatabase.TryGet(oppNewCardId, out CardData cardData))
                 {
                     IReadOnlyList<CardView> hand = _opponentHandView.Cards;
-                    Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+                    Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentFieldView.worldBound;
                     if (hand.Count > 0)
                     {
                         _opponentHandView.RemoveCard(hand[0]);
                     }
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                    await FlyCardToDestAsync(newChar, fromRect, _opponentCharacterSlot, ct);
-                    _opponentCharacterSlot.PlaceCard(newChar);
+                    await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
+                    _opponentFieldView.PlaceCard(newChar);
                     await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
                 }
             }
             else
             {
+                CardView existingChar = ownField.Characters[0];
+                Rect charRect = existingChar.worldBound;
+                ownField.RemoveCard(existingChar);
                 await existingChar.FlipAsync(ct);
                 await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
+
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
                 int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
                 if (idx >= 0)
@@ -466,11 +530,38 @@ namespace Main
                     CardView newChar = cpuHand[idx];
                     Rect fromRect = newChar.worldBound;
                     _opponentHandView.RemoveCard(newChar);
-                    await FlyCardToDestAsync(newChar, fromRect, _opponentCharacterSlot, ct);
-                    _opponentCharacterSlot.PlaceCard(newChar);
+                    await FlyCardToDestAsync(newChar, fromRect, ownField, ct);
+                    ownField.PlaceCard(newChar);
                     await newChar.FlipAsync(ct);
                     await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
                 }
+            }
+        }
+
+        private async UniTask<CardView> WaitForPlayerFieldCharSelectionAsync(CancellationToken ct)
+        {
+            _fieldCharSelectionTcs = new UniTaskCompletionSource<CardView>();
+
+            foreach (CardView c in _playerFieldView.Characters)
+            {
+                c.AddToClassList("selectable-char");
+            }
+
+            ShowActionButtons();
+            UpdateStagedButtons(false);
+
+            try
+            {
+                return await _fieldCharSelectionTcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _fieldCharSelectionTcs = null;
+                foreach (CardView c in _playerFieldView.Characters)
+                {
+                    c.RemoveFromClassList("selectable-char");
+                }
+                HideActionButtons();
             }
         }
 

@@ -49,8 +49,6 @@ namespace Main
         private HandView _opponentHandView;
         private FieldView _playerFieldView;
         private FieldView _opponentFieldView;
-        private CharacterSlotView _playerCharacterSlot;
-        private CharacterSlotView _opponentCharacterSlot;
         private DeckView _playerDeckView;
         private DeckView _opponentDeckView;
         private GraveyardView _playerGraveyardView;
@@ -133,6 +131,9 @@ namespace Main
         private readonly StagedInput _evolveInput = new StagedInput();
         private int _evolveMinCost;
 
+        private UniTaskCompletionSource<(CardView attacker, CardView target)> _battleAttackTcs;
+        private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
+
         private sealed class StagedInput
         {
             internal UniTaskCompletionSource<CardView> _tcs;
@@ -202,8 +203,6 @@ namespace Main
                 VisualElement handArea = root.Q<VisualElement>("HandArea");
                 VisualElement opponentFieldArea = root.Q<VisualElement>("OpponentFieldArea");
                 VisualElement playerFieldArea = root.Q<VisualElement>("PlayerFieldArea");
-                VisualElement playerCharacterArea = root.Q<VisualElement>("PlayerCharacterArea");
-                VisualElement opponentCharacterArea = root.Q<VisualElement>("OpponentCharacterArea");
 
                 SpawnBattleFieldBackground(_cardStore.BattleField);
                 _readyTcs.TrySetResult();
@@ -295,14 +294,6 @@ namespace Main
                     cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
                 }
 
-                _playerCharacterSlot = new CharacterSlotView();
-                _playerCharacterSlot.OnCardDisplaced += card => _playerGraveyardView.AddCard(card);
-                playerCharacterArea.Add(_playerCharacterSlot);
-
-                _opponentCharacterSlot = new CharacterSlotView();
-                _opponentCharacterSlot.OnCardDisplaced += card => _opponentGraveyardView.AddCard(card);
-                opponentCharacterArea.Add(_opponentCharacterSlot);
-
                 _opponentFieldView = new FieldView(isOpponent: true);
                 opponentFieldArea.Add(_opponentFieldView);
 
@@ -360,7 +351,17 @@ namespace Main
 
                 _cardDetailModal = new CardDetailModal(mainRoot);
                 _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
-                _playerFieldView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
+                _playerFieldView.OnCardClicked = card =>
+                {
+                    if (_fieldCharSelectionTcs != null)
+                    {
+                        _fieldCharSelectionTcs.TrySetResult(card);
+                    }
+                    else
+                    {
+                        _cardDetailModal.Show(card.Data);
+                    }
+                };
                 _opponentFieldView.OnCardClicked = card =>
                 {
                     if (!card.IsFaceDown)
@@ -368,15 +369,6 @@ namespace Main
                         _cardDetailModal.Show(card.Data);
                     }
                 };
-                _playerCharacterSlot.OnCardClicked = card => _cardDetailModal.Show(card.Data);
-                _opponentCharacterSlot.OnCardClicked = card =>
-                {
-                    if (!card.IsFaceDown)
-                    {
-                        _cardDetailModal.Show(card.Data);
-                    }
-                };
-
                 _resolveOverlay = new VisualElement();
                 _resolveOverlay.AddToClassList("resolve-overlay");
                 _resolveOverlay.pickingMode = PickingMode.Ignore;

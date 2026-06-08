@@ -81,10 +81,10 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void 自キャラスロットが空の場合は対象なし()
+        public void 自フィールドにキャラがいない場合は対象なし()
         {
-            CharacterSlotView slot = new CharacterSlotView();
-            bool hasChar = slot.CurrentCard != null;
+            FieldView field = new FieldView();
+            bool hasChar = field.Characters.Count > 0;
             Assert.IsFalse(hasChar);
         }
 

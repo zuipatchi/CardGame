@@ -10,38 +10,33 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── キャラセットフェーズ（両スロット埋まり時はスキップ・空スロットのみ配置可） ──
+        // ─── キャラセットフェーズ（1ターンに1枚まで、フィールドに直接出す） ──
 
         private async UniTask RunCharacterSetPhaseAsync(CancellationToken ct)
         {
-            bool playerHadChar = _playerCharacterSlot.CurrentCard != null;
-            bool opponentHadChar = _opponentCharacterSlot.CurrentCard != null;
-
-            if (playerHadChar && opponentHadChar)
-            {
-                return;
-            }
-
             _gameModel.BeginCharacterSet();
             UpdatePhaseIndicator(TurnPhase.CharacterSet);
 
             // アナウンス前にハンドラを登録してメッセージのロストを防ぐ。
-            // opponentHadChar=true の場合、相手はフェーズをスキップする可能性があるため受信しない。
-            UniTask charSetReceiveTask = (_isOnline && !opponentHadChar)
+            UniTask<CardView> opponentReceiveTask = _isOnline
                 ? ReceiveAndPlaceOpponentCharSetAsync(ct)
-                : UniTask.CompletedTask;
+                : UniTask.FromResult<CardView>(null);
 
             await PlayAnnouncementAsync("キャラセットフェーズ", "turn-announcement-label--character", ct);
 
+            CardView playerPlaced;
+            CardView opponentPlaced;
+
             if (_isOnline)
             {
-                await OnlineCharSetAsync(charSetReceiveTask, ct);
+                playerPlaced = await OnlinePlayerCharSetAsync(ct);
+                opponentPlaced = await opponentReceiveTask;
             }
             else
             {
-                await UniTask.WhenAll(
-                    PlayerCharSetLocalAsync(playerHadChar, ct),
-                    CpuCharSetLocalAsync(opponentHadChar, ct)
+                (playerPlaced, opponentPlaced) = await UniTask.WhenAll(
+                    PlayerCharSetLocalAsync(ct),
+                    CpuCharSetAsync(ct)
                 );
             }
 
@@ -50,83 +45,60 @@ namespace Main
             // コスト払い中に発動するグレイブトリガーが相手キャラを参照できるよう
             // 両方のキャラを先にフリップしてからコスト払いを行う。
             // 優先権保持プレイヤーを先にオープンする。
-            bool playerFirst = _localHasPriority;
-            CardView firstSlotCard  = playerFirst ? _playerCharacterSlot.CurrentCard  : _opponentCharacterSlot.CurrentCard;
-            CardView secondSlotCard = playerFirst ? _opponentCharacterSlot.CurrentCard : _playerCharacterSlot.CurrentCard;
-            bool firstHadChar  = playerFirst ? playerHadChar  : opponentHadChar;
-            bool secondHadChar = playerFirst ? opponentHadChar : playerHadChar;
+            CardView firstPlaced = _localHasPriority ? playerPlaced : opponentPlaced;
+            CardView secondPlaced = _localHasPriority ? opponentPlaced : playerPlaced;
+            DeckView firstDeck = _localHasPriority ? _playerDeckView : _opponentDeckView;
+            GraveyardView firstGrave = _localHasPriority ? _playerGraveyardView : _opponentGraveyardView;
+            DeckView secondDeck = _localHasPriority ? _opponentDeckView : _playerDeckView;
+            GraveyardView secondGrave = _localHasPriority ? _opponentGraveyardView : _playerGraveyardView;
 
-            if (!firstHadChar && firstSlotCard != null && firstSlotCard.IsFaceDown)
+            if (firstPlaced != null && firstPlaced.IsFaceDown)
             {
-                await firstSlotCard.FlipAsync(ct);
+                await firstPlaced.FlipAsync(ct);
             }
-            if (!secondHadChar && secondSlotCard != null && secondSlotCard.IsFaceDown)
+            if (secondPlaced != null && secondPlaced.IsFaceDown)
             {
-                await secondSlotCard.FlipAsync(ct);
+                await secondPlaced.FlipAsync(ct);
             }
-            DeckView firstDeck      = playerFirst ? _playerDeckView      : _opponentDeckView;
-            GraveyardView firstGrave  = playerFirst ? _playerGraveyardView : _opponentGraveyardView;
-            DeckView secondDeck     = playerFirst ? _opponentDeckView    : _playerDeckView;
-            GraveyardView secondGrave = playerFirst ? _opponentGraveyardView : _playerGraveyardView;
 
-            if (!firstHadChar && firstSlotCard != null)
+            if (firstPlaced != null)
             {
-                await PayCostAsync(firstSlotCard, firstDeck, firstGrave, ct);
-                if (_isGameOver) return;
+                await PayCostAsync(firstPlaced, firstDeck, firstGrave, ct);
+                if (_isGameOver)
+                {
+                    return;
+                }
             }
-            if (!secondHadChar && secondSlotCard != null)
+            if (secondPlaced != null)
             {
-                await PayCostAsync(secondSlotCard, secondDeck, secondGrave, ct);
+                await PayCostAsync(secondPlaced, secondDeck, secondGrave, ct);
             }
         }
 
-        private async UniTask PlayerCharSetLocalAsync(bool forcedPass, CancellationToken ct)
+        private async UniTask<CardView> PlayerCharSetLocalAsync(CancellationToken ct)
         {
-            if (forcedPass)
+            if (!_gameModel.CanPlayerSetChar)
             {
-                return;
+                return null;
             }
             CardView placed = await WaitForPlayerCharSetInputAsync(ct);
             if (placed == null)
             {
                 await PlayPassAnimationAsync(true, ct);
             }
-        }
-
-        private async UniTask CpuCharSetLocalAsync(bool forcedPass, CancellationToken ct)
-        {
-            if (forcedPass)
-            {
-                return;
-            }
-            await CpuCharSetAsync(ct);
-        }
-
-        private async UniTask OnlineCharSetAsync(UniTask receiveTask, CancellationToken ct)
-        {
-            if (_playerCharacterSlot.CurrentCard != null)
-            {
-                _networkGameService.SendCharSetAction(null);
-            }
             else
             {
-                CardView placed = await WaitForPlayerCharSetInputAsync(ct);
-                if (placed == null)
-                {
-                    await PlayPassAnimationAsync(true, ct);
-                    _networkGameService.SendCharSetAction(null);
-                }
-                else
-                {
-                    _networkGameService.SendCharSetAction(placed.Data.Id);
-                }
+                _gameModel.RecordPlayerCharSet();
             }
-
-            await receiveTask;
+            return placed;
         }
 
-        private async UniTask CpuCharSetAsync(CancellationToken ct)
+        private async UniTask<CardView> CpuCharSetAsync(CancellationToken ct)
         {
+            if (!_gameModel.CanOpponentSetChar)
+            {
+                return null;
+            }
             await UniTask.Delay(System.TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
             IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
             int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
@@ -136,19 +108,70 @@ namespace Main
                 CardView card = cpuHand[idx];
                 Rect fromRect = card.worldBound;
                 _opponentHandView.RemoveCard(card);
-                await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
-                _opponentCharacterSlot.PlaceCard(card);
+                await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
+                _opponentFieldView.PlaceCard(card);
+                _gameModel.RecordOpponentCharSet();
+                return card;
             }
             else
             {
                 await PlayPassAnimationAsync(false, ct);
+                return null;
             }
         }
 
-        private async UniTask ReceiveAndPlaceOpponentCharSetAsync(CancellationToken ct)
+        private async UniTask<CardView> OnlinePlayerCharSetAsync(CancellationToken ct)
+        {
+            if (!_gameModel.CanPlayerSetChar)
+            {
+                _networkGameService.SendCharSetAction(null);
+                return null;
+            }
+            CardView placed = await WaitForPlayerCharSetInputAsync(ct);
+            if (placed == null)
+            {
+                await PlayPassAnimationAsync(true, ct);
+                _networkGameService.SendCharSetAction(null);
+            }
+            else
+            {
+                _networkGameService.SendCharSetAction(placed.Data.Id);
+            }
+            return placed;
+        }
+
+        private async UniTask<CardView> ReceiveAndPlaceOpponentCharSetAsync(CancellationToken ct)
         {
             string cardId = await _networkGameService.WaitForOpponentCharSetAsync(ct);
-            await PlayOpponentCharSetOnlineAsync(cardId, ct);
+            return await PlayOpponentCharSetOnlineAsync(cardId, ct);
+        }
+
+        private async UniTask<CardView> PlayOpponentCharSetOnlineAsync(string cardId, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(cardId))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return null;
+            }
+
+            if (!_cardDatabase.TryGet(cardId, out CardData cardData))
+            {
+                await PlayPassAnimationAsync(false, ct);
+                return null;
+            }
+
+            IReadOnlyList<CardView> hand = _opponentHandView.Cards;
+            Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
+            if (hand.Count > 0)
+            {
+                _opponentHandView.RemoveCard(hand[0]);
+            }
+
+            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, isOpponent: true);
+            await FlyCardToDestAsync(card, fromRect, _opponentFieldView, ct);
+            _opponentFieldView.PlaceCard(card);
+            _gameModel.RecordOpponentCharSet();
+            return card;
         }
 
         private async UniTask<CardView> WaitForPlayerCharSetInputAsync(CancellationToken ct)
@@ -173,32 +196,6 @@ namespace Main
                 HideActionButtons();
                 RefreshHandHighlights();
             }
-        }
-
-        private async UniTask PlayOpponentCharSetOnlineAsync(string cardId, CancellationToken ct)
-        {
-            if (string.IsNullOrEmpty(cardId))
-            {
-                await PlayPassAnimationAsync(false, ct);
-                return;
-            }
-
-            if (!_cardDatabase.TryGet(cardId, out CardData cardData))
-            {
-                await PlayPassAnimationAsync(false, ct);
-                return;
-            }
-
-            IReadOnlyList<CardView> hand = _opponentHandView.Cards;
-            Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentHandView.worldBound;
-            if (hand.Count > 0)
-            {
-                _opponentHandView.RemoveCard(hand[0]);
-            }
-
-            CardView card = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: true, isOpponent: true);
-            await FlyCardToDestAsync(card, fromRect, _opponentCharacterSlot, ct);
-            _opponentCharacterSlot.PlaceCard(card);
         }
     }
 }

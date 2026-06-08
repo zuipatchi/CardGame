@@ -36,31 +36,26 @@ namespace Main
             if (_isGameOver) return;
 
             bool priorityUsed;
-            bool isLocalFirst = DetermineFirstMover(out priorityUsed);
+            bool isLocalFirst = DetermineFirstMoverByField(out priorityUsed);
             _gameModel.SetInitialTurn(isLocalFirst);
 
             _gameModel.BeginPreBattle2();
             await RunPreBattle2PhaseAsync(isLocalFirst, ct);
             if (_isGameOver) return;
 
-            // 解決フェーズでキャラが変わった可能性があるため速さを再評価
-            bool battlePriorityUsed;
-            bool battleIsLocalFirst = DetermineFirstMover(out battlePriorityUsed);
-            _gameModel.SetInitialTurn(battleIsLocalFirst);
-
             _gameModel.BeginBattle();
-            await RunBattlePhaseAsync(battlePriorityUsed, ct);
+            await RunBattlePhaseAsync(ct);
             if (_isGameOver) return;
 
             _gameModel.EndTurn();
         }
 
-        // Speed 比較で先攻後攻を決定する。同値の場合は攻撃優先権保持者が先攻
-        private bool DetermineFirstMover(out bool priorityUsed)
+        // フィールド上の最高速キャラで先攻後攻を決定する。同値の場合は攻撃優先権保持者が先攻
+        private bool DetermineFirstMoverByField(out bool priorityUsed)
         {
             priorityUsed = false;
-            int localSpeed = _playerCharacterSlot.Speed;
-            int opponentSpeed = _opponentCharacterSlot.Speed;
+            int localSpeed = GetMaxCharSpeed(_playerFieldView.Characters);
+            int opponentSpeed = GetMaxCharSpeed(_opponentFieldView.Characters);
             if (localSpeed != opponentSpeed)
             {
                 return localSpeed > opponentSpeed;
@@ -69,6 +64,19 @@ namespace Main
             // 素早さ同値：優先権を行使（実際の移譲は戦闘フェーズ演出後に行う）
             priorityUsed = true;
             return _localHasPriority;
+        }
+
+        private static int GetMaxCharSpeed(System.Collections.Generic.IReadOnlyList<CardView> chars)
+        {
+            int max = 0;
+            foreach (CardView c in chars)
+            {
+                if (c.Data.Speed > max)
+                {
+                    max = c.Data.Speed;
+                }
+            }
+            return max;
         }
 
         private void UpdatePriorityCoinUI()

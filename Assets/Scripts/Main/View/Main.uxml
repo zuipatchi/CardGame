@@ -5,9 +5,7 @@
         <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
         <ui:VisualElement name="BattleArea" class="main-battle-area">
             <ui:VisualElement name="OpponentFieldArea" class="main-opponent-field-area" />
-            <ui:VisualElement name="OpponentCharacterArea" class="main-opponent-character-area" />
             <ui:VisualElement name="PlayerFieldArea" class="main-player-field-area" />
-            <ui:VisualElement name="PlayerCharacterArea" class="main-player-character-area" />
         </ui:VisualElement>
         <ui:VisualElement name="DeckArea" class="main-deck-area" />
         <ui:VisualElement name="GraveyardArea" class="main-graveyard-area" />

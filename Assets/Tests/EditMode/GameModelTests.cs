@@ -183,5 +183,67 @@ namespace Tests.EditMode
 
             Assert.IsFalse(model.IsLocalPreparationTurn);
         }
+
+        // ─── CharSet 1ターン1枚フラグ ────────────────────────────────────
+
+        [Test]
+        public void 初期状態でCanPlayerSetCharはtrue()
+        {
+            GameModel model = new GameModel();
+            Assert.IsTrue(model.CanPlayerSetChar);
+        }
+
+        [Test]
+        public void 初期状態でCanOpponentSetCharはtrue()
+        {
+            GameModel model = new GameModel();
+            Assert.IsTrue(model.CanOpponentSetChar);
+        }
+
+        [Test]
+        public void RecordPlayerCharSet後はCanPlayerSetCharがfalse()
+        {
+            GameModel model = new GameModel();
+            model.RecordPlayerCharSet();
+            Assert.IsFalse(model.CanPlayerSetChar);
+        }
+
+        [Test]
+        public void RecordOpponentCharSet後はCanOpponentSetCharがfalse()
+        {
+            GameModel model = new GameModel();
+            model.RecordOpponentCharSet();
+            Assert.IsFalse(model.CanOpponentSetChar);
+        }
+
+        [Test]
+        public void RecordPlayerCharSetはCanOpponentSetCharに影響しない()
+        {
+            GameModel model = new GameModel();
+            model.RecordPlayerCharSet();
+            Assert.IsTrue(model.CanOpponentSetChar);
+        }
+
+        [Test]
+        public void EndTurn後はCanPlayerSetCharがtrueにリセットされる()
+        {
+            GameModel model = new GameModel();
+            model.RecordPlayerCharSet();
+
+            model.EndTurn();
+
+            Assert.IsTrue(model.CanPlayerSetChar);
+        }
+
+        [Test]
+        public void EndTurn後はCanOpponentSetCharがtrueにリセットされる()
+        {
+            GameModel model = new GameModel();
+            model.RecordOpponentCharSet();
+
+            model.EndTurn();
+
+            Assert.IsTrue(model.CanOpponentSetChar);
+        }
     }
 }

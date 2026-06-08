@@ -128,28 +128,6 @@ namespace Main
 
         // ─── カード移動ヘルパー ──────────────────────────────────────────
 
-        private async UniTask FlyCharToSlotAsync(CardView card, Rect fromRect, CharacterSlotView slot, CancellationToken ct)
-        {
-            await FlyCardToDestAsync(card, fromRect, slot, ct);
-            slot.PlaceCard(card);
-        }
-
-        private async UniTask FlySkillToSlotAsync(CardView card, Rect fromRect, CharacterSlotView slot, CancellationToken ct)
-        {
-            await FlyCardToDestAsync(card, fromRect, slot, ct);
-            card.style.position = Position.Absolute;
-            card.style.left = 0;
-            card.style.top = 0;
-            card.style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
-            card.style.height = new StyleLength(new Length(100f, LengthUnit.Percent));
-            card.style.rotate = new Rotate(0);
-            card.style.scale = new Scale(Vector3.one);
-            card.style.transformOrigin = StyleKeyword.Null;
-            card.style.marginLeft = StyleKeyword.Null;
-            card.style.marginRight = StyleKeyword.Null;
-            slot.Insert(0, card);
-        }
-
         private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
             card.style.position = Position.Absolute;

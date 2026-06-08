@@ -33,6 +33,38 @@ namespace Main.Game
             return bestIdx;
         }
 
+        // 戦闘フェーズ：攻撃者と攻撃対象のインデックスを返す。どちらかが空なら (-1,-1) でパス
+        public static (int attackerIdx, int targetIdx) ChooseBattleAttack(
+            IReadOnlyList<CardData> ownChars, IReadOnlyList<CardData> opponentChars)
+        {
+            if (ownChars.Count == 0 || opponentChars.Count == 0)
+            {
+                return (-1, -1);
+            }
+            // 最大ATKを持つ自軍キャラで最小ATKの相手キャラを攻撃
+            int attackerIdx = 0;
+            int bestAtk = ownChars[0].Attack;
+            for (int i = 1; i < ownChars.Count; i++)
+            {
+                if (ownChars[i].Attack > bestAtk)
+                {
+                    bestAtk = ownChars[i].Attack;
+                    attackerIdx = i;
+                }
+            }
+            int targetIdx = 0;
+            int minAtk = opponentChars[0].Attack;
+            for (int i = 1; i < opponentChars.Count; i++)
+            {
+                if (opponentChars[i].Attack < minAtk)
+                {
+                    minAtk = opponentChars[i].Attack;
+                    targetIdx = i;
+                }
+            }
+            return (attackerIdx, targetIdx);
+        }
+
         private static int FindFirst<T>(IReadOnlyList<CardData> hand) where T : CardData
         {
             for (int i = 0; i < hand.Count; i++)

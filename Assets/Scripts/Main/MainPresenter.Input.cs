@@ -20,7 +20,7 @@ namespace Main
 
             if (_evolveInput._tcs != null)
             {
-                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                if (!_playerFieldView.worldBound.Contains(worldPos))
                 {
                     return false;
                 }
@@ -42,7 +42,7 @@ namespace Main
                     return false;
                 }
 
-                _playerCharacterSlot.PlaceCard(card);
+                _playerFieldView.PlaceCard(card);
                 _evolveInput._card = card;
                 UpdateStagedButtons(true);
                 if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
@@ -51,7 +51,7 @@ namespace Main
 
             if (_switchInput._tcs != null)
             {
-                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                if (!_playerFieldView.worldBound.Contains(worldPos))
                 {
                     return false;
                 }
@@ -67,7 +67,7 @@ namespace Main
                     return false;
                 }
 
-                _playerCharacterSlot.PlaceCard(card);
+                _playerFieldView.PlaceCard(card);
                 _switchInput._card = card;
                 UpdateStagedButtons(_switchInput._card != null);
                 UpdateCostWarning(_switchInput._card);
@@ -77,7 +77,7 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.CharacterSet && _charSetInput._tcs != null)
             {
-                if (!_playerCharacterSlot.worldBound.Contains(worldPos))
+                if (!_playerFieldView.worldBound.Contains(worldPos))
                 {
                     return false;
                 }
@@ -93,7 +93,7 @@ namespace Main
                     return false;
                 }
 
-                _playerCharacterSlot.PlaceCard(card);
+                _playerFieldView.PlaceCard(card);
                 _charSetInput._card = card;
                 card.FlipAsync(destroyCancellationToken).Forget();
                 UpdateStagedButtons(_charSetInput._card != null);
@@ -204,7 +204,7 @@ namespace Main
                 {
                     CardView card = _evolveInput._card;
                     _evolveInput._card = null;
-                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: false);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                 }
                 return;
             }
@@ -215,7 +215,7 @@ namespace Main
                 {
                     CardView card = _switchInput._card;
                     _switchInput._card = null;
-                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: false);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                 }
                 return;
             }
@@ -226,7 +226,7 @@ namespace Main
                 {
                     CardView card = _charSetInput._card;
                     _charSetInput._card = null;
-                    ReturnStagedCardToHand(card, card.worldBound, () => _playerCharacterSlot.RemoveCard(), flipCard: true);
+                    ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: true);
                 }
                 return;
             }
@@ -260,6 +260,13 @@ namespace Main
 
         private void OnPassClicked()
         {
+            if (_battleAttackTcs != null)
+            {
+                HideActionButtons();
+                _battleAttackTcs.TrySetResult((null, null));
+                return;
+            }
+
             if (_evolveInput._tcs != null && _evolveInput._card == null)
             {
                 HideActionButtons();

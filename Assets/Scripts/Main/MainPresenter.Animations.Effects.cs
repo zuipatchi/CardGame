@@ -53,56 +53,56 @@ namespace Main
             label.RemoveFromHierarchy();
         }
 
-        // ─── Switch エフェクト（自分のキャラスロット位置にラベル表示）──────────────
+        // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────
 
-        private async UniTask PlaySwitchEffectAsync(CardView eventCard, CharacterSlotView slot, CancellationToken ct)
+        private async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)
         {
             if (_switchEffectPrefab != null)
             {
                 PlayParticleAtCardAsync(eventCard, _switchEffectPrefab, ct).Forget();
             }
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-            if (slot.CurrentCard == null)
+            if (sacrificedChar == null)
             {
                 return;
             }
-            await PlayFloatingLabelAsync("SWITCH!", "switch-label", slot.CurrentCard, ct);
+            await PlayFloatingLabelAsync("SWITCH!", "switch-label", sacrificedChar, ct);
         }
 
-        // ─── BanishChar エフェクト（対象キャラスロット位置にラベル + パーティクル同時再生）────
+        // ─── BanishChar エフェクト（対象キャラ位置にラベル + パーティクル同時再生）────────
 
-        private async UniTask PlayBanishCharEffectAsync(CharacterSlotView targetSlot, CancellationToken ct)
+        private async UniTask PlayBanishCharEffectAsync(CardView targetChar, CancellationToken ct)
         {
-            if (targetSlot.CurrentCard == null)
+            if (targetChar == null)
             {
                 return;
             }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetSlot, ct));
+            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetChar, ct));
             if (_banishCharEffectPrefab != null)
             {
-                tasks.Add(PlayParticleAtCardAsync(targetSlot.CurrentCard, _banishCharEffectPrefab, ct));
+                tasks.Add(PlayParticleAtCardAsync(targetChar, _banishCharEffectPrefab, ct));
             }
             await UniTask.WhenAll(tasks);
         }
 
-        // ─── Poison エフェクト（キャラスロット位置にパーティクル再生）──────────────
+        // ─── Poison エフェクト（キャラ位置にパーティクル再生）──────────────────────
 
-        private async UniTask PlayPoisonEffectAsync(CharacterSlotView slot, CancellationToken ct)
+        private async UniTask PlayPoisonEffectAsync(CardView targetChar, CancellationToken ct)
         {
-            if (slot.CurrentCard == null || _poisonEffectPrefab == null)
+            if (targetChar == null || _poisonEffectPrefab == null)
             {
                 return;
             }
-            await PlayParticleAtCardAsync(slot.CurrentCard, _poisonEffectPrefab, ct);
+            await PlayParticleAtCardAsync(targetChar, _poisonEffectPrefab, ct);
         }
 
         // ─── キャラ破壊エフェクト（パーティクル再生）────────────────────────────
 
-        private async UniTask PlayCharDestroyEffectAsync(CharacterSlotView slot, CancellationToken ct)
+        private async UniTask PlayCharDestroyEffectAsync(CardView targetChar, CancellationToken ct)
         {
-            if (slot.CurrentCard == null)
+            if (targetChar == null)
             {
                 return;
             }
@@ -111,10 +111,9 @@ namespace Main
             {
                 return;
             }
-            CardView card = slot.CurrentCard;
-            Rect bounds = card.worldBound;
+            Rect bounds = targetChar.worldBound;
             Vector2 bottomCenter = new Vector2(bounds.center.x, bounds.yMax);
-            await PlayParticleAtUiPositionAsync(card, bottomCenter, prefab, ct);
+            await PlayParticleAtUiPositionAsync(targetChar, bottomCenter, prefab, ct);
         }
 
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────

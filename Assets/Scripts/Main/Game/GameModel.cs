@@ -14,6 +14,15 @@ namespace Main.Game
         private readonly List<CardView> _readyQueue = new List<CardView>();
         private int _consecutivePasses;
 
+        private bool _playerCharSetThisTurn;
+        private bool _opponentCharSetThisTurn;
+
+        public bool CanPlayerSetChar => !_playerCharSetThisTurn;
+        public bool CanOpponentSetChar => !_opponentCharSetThisTurn;
+
+        public void RecordPlayerCharSet() { _playerCharSetThisTurn = true; }
+        public void RecordOpponentCharSet() { _opponentCharSetThisTurn = true; }
+
         public IReadOnlyList<CardView> ReadyQueue => _readyQueue;
 
         public void SetInitialTurn(bool isLocalFirst) { IsLocalTurn = isLocalFirst; }
@@ -51,6 +60,8 @@ namespace Main.Game
             Phase = TurnPhase.Draw;
             _consecutivePasses = 0;
             IsLocalTurn = !IsLocalTurn;
+            _playerCharSetThisTurn = false;
+            _opponentCharSetThisTurn = false;
         }
     }
 }

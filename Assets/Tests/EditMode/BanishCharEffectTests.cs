@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Main.Card;
 using NUnit.Framework;
 using UnityEditor;
@@ -16,12 +17,13 @@ namespace Tests.EditMode
         }
 
         // ApplyEventEffectAsync の BanishChar ロジックをシミュレートする
-        private static void SimulateBanishChar(CharacterSlotView targetSlot, GraveyardView targetGraveyard)
+        private static void SimulateBanishChar(FieldView targetField, GraveyardView targetGraveyard)
         {
-            CardView charCard = targetSlot.CurrentCard;
-            if (charCard != null)
+            IReadOnlyList<CardView> chars = targetField.Characters;
+            if (chars.Count > 0)
             {
-                targetSlot.RemoveCard();
+                CardView charCard = chars[0];
+                targetField.RemoveCard(charCard);
                 targetGraveyard.AddCard(charCard);
             }
         }
@@ -35,49 +37,49 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void キャラがいる場合スロットが空になる()
+        public void キャラがいる場合フィールドが空になる()
         {
-            CharacterSlotView slot = new CharacterSlotView();
+            FieldView field = new FieldView();
             GraveyardView graveyard = new GraveyardView(null, null);
-            slot.PlaceCard(MakeCharacter());
+            field.PlaceCard(MakeCharacter());
 
-            SimulateBanishChar(slot, graveyard);
+            SimulateBanishChar(field, graveyard);
 
-            Assert.IsNull(slot.CurrentCard);
+            Assert.AreEqual(0, field.Characters.Count);
         }
 
         [Test]
         public void キャラがいる場合墓地に1枚追加される()
         {
-            CharacterSlotView slot = new CharacterSlotView();
+            FieldView field = new FieldView();
             GraveyardView graveyard = new GraveyardView(null, null);
-            slot.PlaceCard(MakeCharacter());
+            field.PlaceCard(MakeCharacter());
 
-            SimulateBanishChar(slot, graveyard);
+            SimulateBanishChar(field, graveyard);
 
             Assert.AreEqual(1, graveyard.Count);
         }
 
         [Test]
-        public void スロットが空の場合墓地枚数は変わらない()
+        public void フィールドが空の場合墓地枚数は変わらない()
         {
-            CharacterSlotView slot = new CharacterSlotView();
+            FieldView field = new FieldView();
             GraveyardView graveyard = new GraveyardView(null, null);
 
-            SimulateBanishChar(slot, graveyard);
+            SimulateBanishChar(field, graveyard);
 
             Assert.AreEqual(0, graveyard.Count);
         }
 
         [Test]
-        public void スロットが空の場合スロットは空のまま()
+        public void フィールドが空の場合キャラは0枚のまま()
         {
-            CharacterSlotView slot = new CharacterSlotView();
+            FieldView field = new FieldView();
             GraveyardView graveyard = new GraveyardView(null, null);
 
-            SimulateBanishChar(slot, graveyard);
+            SimulateBanishChar(field, graveyard);
 
-            Assert.IsNull(slot.CurrentCard);
+            Assert.AreEqual(0, field.Characters.Count);
         }
     }
 }
