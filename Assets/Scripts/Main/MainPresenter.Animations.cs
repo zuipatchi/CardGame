@@ -129,6 +129,81 @@ namespace Main
             wrapper.RemoveFromHierarchy();
         }
 
+        // ─── VS 演出 ──────────────────────────────────────────────────────
+
+        private async UniTask PlayVsAnnouncementAsync(
+            string localName,
+            string opponentName,
+            CancellationToken ct)
+        {
+            VisualElement overlay = new VisualElement();
+            overlay.AddToClassList("vs-overlay");
+            overlay.pickingMode = PickingMode.Ignore;
+            overlay.style.opacity = 0f;
+
+            VisualElement container = new VisualElement();
+            container.AddToClassList("vs-container");
+            container.pickingMode = PickingMode.Ignore;
+            overlay.Add(container);
+
+            VisualElement leftPanel = BuildVsPanel("vs-panel--local", localName);
+            container.Add(leftPanel);
+
+            Label vsLabel = new Label("VS");
+            vsLabel.AddToClassList("vs-label");
+            vsLabel.pickingMode = PickingMode.Ignore;
+            vsLabel.style.opacity = 0f;
+            vsLabel.style.scale = new Scale(new Vector3(0.3f, 0.3f, 1f));
+            container.Add(vsLabel);
+
+            VisualElement rightPanel = BuildVsPanel("vs-panel--opponent", opponentName);
+            container.Add(rightPanel);
+
+            _mainRoot.Add(overlay);
+
+            float overlayOpacity = 0f;
+            float leftX = -600f;
+            float rightX = 600f;
+            float vsOpacity = 0f;
+            float vsScale = 0.3f;
+
+            leftPanel.style.translate = new StyleTranslate(new Translate(leftX, 0f));
+            rightPanel.style.translate = new StyleTranslate(new Translate(rightX, 0f));
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; overlay.style.opacity = v; }, 1f, 0.3f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => leftX, v => { leftX = v; leftPanel.style.translate = new StyleTranslate(new Translate(v, 0f)); }, 0f, 0.4f).SetEase(Ease.OutCubic))
+                .Join(DOTween.To(() => rightX, v => { rightX = v; rightPanel.style.translate = new StyleTranslate(new Translate(v, 0f)); }, 0f, 0.4f).SetEase(Ease.OutCubic))
+                .Append(DOTween.To(() => vsOpacity, v => { vsOpacity = v; vsLabel.style.opacity = v; }, 1f, 0.25f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => vsScale, v => { vsScale = v; vsLabel.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.25f).SetEase(Ease.OutBack))
+                .AppendInterval(1.0f)
+                .Append(DOTween.To(() => overlayOpacity, v => { overlayOpacity = v; overlay.style.opacity = v; }, 0f, 0.4f).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            overlay.RemoveFromHierarchy();
+        }
+
+        private static VisualElement BuildVsPanel(string colorClass, string name)
+        {
+            VisualElement panel = new VisualElement();
+            panel.AddToClassList("vs-panel");
+            panel.AddToClassList(colorClass);
+            panel.pickingMode = PickingMode.Ignore;
+
+            Label nameLabel = new Label(name);
+            nameLabel.AddToClassList("vs-player-name");
+            nameLabel.pickingMode = PickingMode.Ignore;
+            panel.Add(nameLabel);
+
+            return panel;
+        }
+
         // ─── トースト ────────────────────────────────────────────────────
 
         private void ShowToast(string message)

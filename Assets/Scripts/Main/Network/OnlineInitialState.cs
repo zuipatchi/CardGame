@@ -9,5 +9,6 @@ namespace Main.Network
         public int OpponentHandCount;
         public CardData[] OpponentDeck;
         public bool IsLocalFirst;
+        public string OpponentUsername;
     }
 }

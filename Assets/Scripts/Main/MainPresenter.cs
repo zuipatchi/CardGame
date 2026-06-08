@@ -6,6 +6,7 @@ using Common.Deck;
 using Common.GameSession;
 using Common.Option;
 using Common.SceneManagement;
+using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
@@ -139,6 +140,9 @@ namespace Main
             internal CardView _card;
         }
 
+        private string _localUsername;
+        private string _opponentUsername;
+
         private readonly UniTaskCompletionSource _readyTcs = new UniTaskCompletionSource();
 
         public UniTask ReadyAsync(CancellationToken ct) => _readyTcs.Task.AttachExternalCancellation(ct);
@@ -153,7 +157,8 @@ namespace Main
             GameSessionModel gameSessionModel,
             NetworkGameService networkGameService,
             OptionPresenter optionPresenter,
-            OptionModel optionModel)
+            OptionModel optionModel,
+            UsernameRepository usernameRepository)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
@@ -164,6 +169,7 @@ namespace Main
             _networkGameService = networkGameService;
             _optionPresenter = optionPresenter;
             _optionModel = optionModel;
+            _localUsername = usernameRepository.Load() ?? string.Empty;
         }
 
         void IStartable.Start()
@@ -263,10 +269,12 @@ namespace Main
                     cpuHandCards = new CardData[state.OpponentHandCount];
                     for (int i = 0; i < cpuHandCards.Length; i++) cpuHandCards[i] = placeholder;
                     cpuDeckCards = state.OpponentDeck;
+                    _opponentUsername = string.IsNullOrEmpty(state.OpponentUsername) ? "ゲスト" : state.OpponentUsername;
                     WatchForOpponentSurrenderAsync(destroyCt).Forget();
                 }
                 else
                 {
+                    _opponentUsername = "CPU";
                     playerDeckFull = _deckModel.Count > 0
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
                         : allCards;
@@ -477,6 +485,9 @@ namespace Main
                 await UniTask.NextFrame(ct);
 
                 _waitingOverlay.style.display = DisplayStyle.None;
+
+                string localDisplayName = string.IsNullOrEmpty(_localUsername) ? "ゲスト" : _localUsername;
+                await PlayVsAnnouncementAsync(localDisplayName, _opponentUsername, ct);
 
                 Rect deckWorldRect = _playerDeckView.worldBound;
                 Rect opponentDeckWorldRect = _opponentDeckView.worldBound;

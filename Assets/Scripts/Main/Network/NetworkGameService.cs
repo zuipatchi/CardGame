@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Common.GameSession;
+using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Unity.Collections;
@@ -28,12 +29,14 @@ namespace Main.Network
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
+        private readonly string _localUsername;
         private ulong _opponentClientId;
 
-        public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase)
+        public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase, UsernameRepository usernameRepository)
         {
             _gameSessionModel = gameSessionModel;
             _cardDatabase = cardDatabase;
+            _localUsername = usernameRepository.Load() ?? string.Empty;
         }
 
         public async UniTask<OnlineInitialState> PrepareDecksAsync(IReadOnlyList<string> localDeckIds, CancellationToken ct)
@@ -65,6 +68,7 @@ namespace Main.Network
         {
             UniTaskCompletionSource receivedTcs = new UniTaskCompletionSource();
             string[] receivedIds = null;
+            string receivedUsername = string.Empty;
             ulong remoteClientId = 0;
 
             void OnDeckSubmit(ulong senderId, FastBufferReader reader)
@@ -73,6 +77,7 @@ namespace Main.Network
                 reader.ReadValueSafe(out string json);
                 DeckSubmitPayload payload = JsonUtility.FromJson<DeckSubmitPayload>(json);
                 receivedIds = payload.deckIds;
+                receivedUsername = payload.username ?? string.Empty;
                 remoteClientId = senderId;
                 receivedTcs.TrySetResult();
             }
@@ -120,7 +125,8 @@ namespace Main.Network
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
                 hostHand.Length, hostRemaining,
-                isLocalFirst: !hostGoesFirst);
+                isLocalFirst: !hostGoesFirst,
+                opponentUsername: _localUsername);
 
             return new OnlineInitialState
             {
@@ -128,7 +134,8 @@ namespace Main.Network
                 LocalDeck = hostRemaining,
                 OpponentHandCount = clientHand.Length,
                 OpponentDeck = clientRemaining,
-                IsLocalFirst = hostGoesFirst
+                IsLocalFirst = hostGoesFirst,
+                OpponentUsername = receivedUsername
             };
         }
 
@@ -150,7 +157,8 @@ namespace Main.Network
                     LocalDeck = _cardDatabase.BuildDeck(payload.localDeckIds),
                     OpponentHandCount = payload.opponentHandCount,
                     OpponentDeck = _cardDatabase.BuildDeck(payload.opponentDeckIds),
-                    IsLocalFirst = payload.isLocalFirst
+                    IsLocalFirst = payload.isLocalFirst,
+                    OpponentUsername = payload.opponentUsername ?? string.Empty
                 });
             }
 
@@ -180,7 +188,7 @@ namespace Main.Network
             _opponentClientId = NetworkManager.ServerClientId;
 
             string[] ids = localDeckIds.ToArray();
-            DeckSubmitPayload submitPayload = new DeckSubmitPayload { deckIds = ids };
+            DeckSubmitPayload submitPayload = new DeckSubmitPayload { deckIds = ids, username = _localUsername };
             string submitJson = JsonUtility.ToJson(submitPayload);
             using (FastBufferWriter writer = new FastBufferWriter(submitJson.Length * 2 + 8, Allocator.Temp))
             {
@@ -198,7 +206,8 @@ namespace Main.Network
             CardData[] clientDeck,
             int opponentHandCount,
             CardData[] opponentDeck,
-            bool isLocalFirst)
+            bool isLocalFirst,
+            string opponentUsername)
         {
             InitialStatePayload payload = new InitialStatePayload
             {
@@ -206,7 +215,8 @@ namespace Main.Network
                 localDeckIds = clientDeck.Select(c => c.Id).ToArray(),
                 opponentHandCount = opponentHandCount,
                 opponentDeckIds = opponentDeck.Select(c => c.Id).ToArray(),
-                isLocalFirst = isLocalFirst
+                isLocalFirst = isLocalFirst,
+                opponentUsername = opponentUsername
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
@@ -588,6 +598,7 @@ namespace Main.Network
         private sealed class DeckSubmitPayload
         {
             public string[] deckIds;
+            public string username;
         }
 
         [Serializable]
@@ -605,6 +616,7 @@ namespace Main.Network
             public int opponentHandCount;
             public string[] opponentDeckIds;
             public bool isLocalFirst;
+            public string opponentUsername;
         }
 
         [Serializable]

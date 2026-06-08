@@ -8,6 +8,13 @@ namespace Tests.EditMode
     {
         private const string SaveKey = "Username";
 
+        [SetUp]
+        public void SetUp()
+        {
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.Save();
+        }
+
         [TearDown]
         public void TearDown()
         {
