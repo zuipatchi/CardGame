@@ -82,15 +82,6 @@ namespace Main
                 }
 
                 await ApplyEventEffectAsync(eventData, isLocal, ct);
-
-                if (eventData.EventType == CardEventType.AtkBoost)
-                {
-                    await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
-                }
-                else if (eventData.EventType == CardEventType.DefBoost)
-                {
-                    await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
-                }
             }
 
             if (_isGameOver)
@@ -110,26 +101,6 @@ namespace Main
         {
             switch (data.EventType)
             {
-                case CardEventType.AtkBoost:
-                    if (isLocal)
-                    {
-                        _playerAtkBoost += data.EventValue;
-                    }
-                    else
-                    {
-                        _opponentAtkBoost += data.EventValue;
-                    }
-                    break;
-                case CardEventType.DefBoost:
-                    if (isLocal)
-                    {
-                        _playerDefBoost += data.EventValue;
-                    }
-                    else
-                    {
-                        _opponentDefBoost += data.EventValue;
-                    }
-                    break;
                 case CardEventType.Draw:
                     await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
                     break;
@@ -295,9 +266,7 @@ namespace Main
 
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-            int defBoost = isLocal ? _opponentDefBoost : _playerDefBoost;
-            int effectiveDef = targetChar.Data.Defense + defBoost;
-            int damage = Mathf.Max(0, baseAtk - effectiveDef);
+            int damage = Mathf.Max(0, baseAtk - targetChar.Data.Defense);
 
             if (damage == 0)
             {

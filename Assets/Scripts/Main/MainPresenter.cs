@@ -76,8 +76,6 @@ namespace Main
 
         [SerializeField] private GameObject _fireworkPrefab;
         [SerializeField] private GameObject _costEffectPrefab;
-        [SerializeField] private GameObject _atkBoostEffectPrefab;
-        [SerializeField] private GameObject _defBoostEffectPrefab;
         [SerializeField] private GameObject _drawEffectPrefab;
         [SerializeField] private GameObject _banishCharEffectPrefab;
         [SerializeField] private GameObject _recoverEffectPrefab;
@@ -91,9 +89,7 @@ namespace Main
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
         private VisualElement _phaseRowDraw;
-        private VisualElement _phaseRowCharacterSet;
-        private VisualElement _phaseRowPreBattle2;
-        private VisualElement _phaseRowBattle;
+        private VisualElement _phaseRowMain;
 
         private CardDetailModal _cardDetailModal;
         private bool _isGameOver;
@@ -105,10 +101,6 @@ namespace Main
         private Label _toastLabel;
         private CancellationTokenSource _toastCts;
 
-        private int _playerAtkBoost;
-        private int _opponentAtkBoost;
-        private int _playerDefBoost;
-        private int _opponentDefBoost;
         private bool _playerPoisoned;
         private bool _opponentPoisoned;
         private int _localBattleEndMillValue;
@@ -117,22 +109,31 @@ namespace Main
         private GameObject _rainDefeatEffect;
 
         private bool _onlineIsLocalFirst;
-        private bool _localHasPriority;
         private UniTask _preDrawReceiveTask;
         private bool _hasPreDrawTask;
-        private UniTask<string> _prePreBattle2ReceiveTask;
-        private bool _hasPrePreBattle2Task;
+        private UniTask<NetworkGameService.MainActionData> _preMainActionReceiveTask;
+        private bool _hasPreMainActionTask;
         private VisualElement _playerPriorityCoin;
         private VisualElement _opponentPriorityCoin;
 
-        private readonly StagedInput _charSetInput = new StagedInput();
-        private readonly StagedInput _prepInput = new StagedInput();
         private readonly StagedInput _switchInput = new StagedInput();
         private readonly StagedInput _evolveInput = new StagedInput();
         private int _evolveMinCost;
 
-        private UniTaskCompletionSource<(CardView attacker, CardView target)> _battleAttackTcs;
         private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
+        private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
+        private CardView _mainStagedCard;
+        private MainPhaseActionType _mainStagedType;
+
+        private enum MainPhaseActionType { None, PlaceChar, PlayEvent, Attack, Pass }
+
+        private struct MainPhaseAction
+        {
+            internal MainPhaseActionType _actionType;
+            internal CardView _card;
+            internal CardView _attacker;
+            internal CardView _target;
+        }
 
         private sealed class StagedInput
         {
@@ -405,9 +406,7 @@ namespace Main
 
                 VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
                 _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
-                _phaseRowCharacterSet = phaseIndicator.Q<VisualElement>("PhaseRowCharacterSet");
-                _phaseRowPreBattle2 = phaseIndicator.Q<VisualElement>("PhaseRowPreBattle2");
-                _phaseRowBattle = phaseIndicator.Q<VisualElement>("PhaseRowBattle");
+                _phaseRowMain = phaseIndicator.Q<VisualElement>("PhaseRowMain");
 
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
@@ -517,7 +516,7 @@ namespace Main
                     await RunCpuMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
                 }
 
-                await InitializePriorityAsync(ct);
+                await InitializeFirstTurnAsync(ct);
 
                 _surrenderCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCt);
                 RunGameAsync(_surrenderCts.Token).Forget();
@@ -774,26 +773,15 @@ namespace Main
 
         private void UpdatePhaseIndicator(TurnPhase phase)
         {
-            VisualElement[] rows =
+            if (phase == TurnPhase.Draw)
             {
-                _phaseRowDraw, _phaseRowCharacterSet,
-                _phaseRowPreBattle2, _phaseRowBattle,
-            };
-            TurnPhase[] phases =
+                _phaseRowDraw.AddToClassList("phase-row--active");
+                _phaseRowMain.RemoveFromClassList("phase-row--active");
+            }
+            else
             {
-                TurnPhase.Draw, TurnPhase.CharacterSet,
-                TurnPhase.PreBattle2, TurnPhase.Battle,
-            };
-            for (int i = 0; i < rows.Length; i++)
-            {
-                if (phases[i] == phase)
-                {
-                    rows[i].AddToClassList("phase-row--active");
-                }
-                else
-                {
-                    rows[i].RemoveFromClassList("phase-row--active");
-                }
+                _phaseRowDraw.RemoveFromClassList("phase-row--active");
+                _phaseRowMain.AddToClassList("phase-row--active");
             }
         }
     }

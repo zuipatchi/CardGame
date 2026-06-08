@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -9,95 +8,73 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── ドローフェーズ（両プレイヤーが毎ターン1枚ドロー）────────────────
+        // ─── ドローフェーズ（アクティブプレイヤーのみ1枚ドロー）──────────────────
 
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Draw);
 
-            // 事前登録タスクがあれば使う（PreBattle2 ループ後やマリガン同期後に登録済み）。
-            // なければここで登録する（フォールバック）。
-            UniTask drawReceiveTask;
-            if (_isOnline && _hasPreDrawTask)
-            {
-                drawReceiveTask = _preDrawReceiveTask;
-                _hasPreDrawTask = false;
-            }
-            else if (_isOnline)
-            {
-                drawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-            }
-            else
-            {
-                drawReceiveTask = UniTask.CompletedTask;
-            }
+            bool isLocalTurn = _gameModel.IsLocalTurn;
 
             await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
-            bool playerDeckEmpty = _playerDeckView.Count == 0;
-            bool opponentDeckEmpty = _opponentDeckView.Count == 0;
-            if (playerDeckEmpty || opponentDeckEmpty)
+            DeckView activeDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
+            if (activeDeck.Count == 0)
             {
                 _isGameOver = true;
-                if (playerDeckEmpty && opponentDeckEmpty)
-                {
-                    OnGameEnd(null);
-                }
-                else
-                {
-                    OnGameEnd(!playerDeckEmpty);
-                }
+                // アクティブプレイヤーのデッキが切れたら、そのプレイヤーの負け
+                OnGameEnd(isLocalTurn ? (bool?)false : true);
                 return;
             }
 
-            Rect playerDeckRect = _playerDeckView.worldBound;
-            Rect opponentDeckRect = _opponentDeckView.worldBound;
-            CardData playerDrawn = _playerDeckView.DrawTop();
-            CardData opponentDrawn = _opponentDeckView.DrawTop();
-            _playerDeckView.RefreshCount();
-            _opponentDeckView.RefreshCount();
-
-            if (_isOnline)
+            if (isLocalTurn)
             {
-                await OnlineDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, drawReceiveTask, ct);
+                CardData drawn = _playerDeckView.DrawTop();
+                _playerDeckView.RefreshCount();
+                if (drawn != null)
+                {
+                    Rect deckRect = _playerDeckView.worldBound;
+                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                }
+                if (_isOnline)
+                {
+                    _networkGameService.SendDrawNotification();
+                }
             }
             else
             {
-                await LocalDrawAsync(playerDrawn, playerDeckRect, opponentDrawn, opponentDeckRect, ct);
-            }
-        }
+                // 相手ターン: ドロー通知を待ってからアニメーション
+                UniTask drawReceiveTask;
+                if (_isOnline && _hasPreDrawTask)
+                {
+                    drawReceiveTask = _preDrawReceiveTask;
+                    _hasPreDrawTask = false;
+                }
+                else if (_isOnline)
+                {
+                    drawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                }
+                else
+                {
+                    drawReceiveTask = UniTask.CompletedTask;
+                }
 
-        private async UniTask OnlineDrawAsync(
-            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect,
-            UniTask receiveTask, CancellationToken ct)
-        {
-            if (playerDrawn != null)
-            {
-                await _handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct);
-            }
-            _networkGameService.SendDrawNotification();
-            await receiveTask.AttachExternalCancellation(ct);
-            if (opponentDrawn != null)
-            {
-                await PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct);
-            }
-        }
+                // メインアクション受信ハンドラを事前登録（ドロー通知受信後に相手がすぐ行動しても取りこぼさない）
+                if (_isOnline && !_hasPreMainActionTask)
+                {
+                    _preMainActionReceiveTask = _networkGameService.WaitForOpponentMainActionAsync(ct);
+                    _hasPreMainActionTask = true;
+                }
 
-        private async UniTask LocalDrawAsync(
-            CardData playerDrawn, Rect playerDeckRect, CardData opponentDrawn, Rect opponentDeckRect, CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            if (playerDrawn != null)
-            {
-                tasks.Add(_handView.AddCardAnimatedAsync(playerDrawn, playerDeckRect, 0f, ct));
-            }
-            if (opponentDrawn != null)
-            {
-                tasks.Add(PlayCpuDrawAsync(opponentDrawn, opponentDeckRect, ct));
-            }
-            if (tasks.Count > 0)
-            {
-                await UniTask.WhenAll(tasks);
+                await drawReceiveTask.AttachExternalCancellation(ct);
+
+                CardData drawn = _opponentDeckView.DrawTop();
+                _opponentDeckView.RefreshCount();
+                if (drawn != null)
+                {
+                    Rect deckRect = _opponentDeckView.worldBound;
+                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                }
             }
         }
     }

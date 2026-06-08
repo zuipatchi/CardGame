@@ -142,32 +142,6 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        // ─── AtkBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
-
-        private async UniTask PlayAtkBoostEffectAsync(CardView card, int value, CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"ATK +{value}", "atk-boost-label", card, ct));
-            if (_atkBoostEffectPrefab != null)
-            {
-                tasks.Add(PlayParticleAtCardAsync(card, _atkBoostEffectPrefab, ct));
-            }
-            await UniTask.WhenAll(tasks);
-        }
-
-        // ─── DefBoost エフェクト（ラベル上昇 + パーティクル同時再生）────────────
-
-        private async UniTask PlayDefBoostEffectAsync(CardView card, int value, CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DEF +{value}", "def-boost-label", card, ct));
-            if (_defBoostEffectPrefab != null)
-            {
-                tasks.Add(PlayParticleAtCardAsync(card, _defBoostEffectPrefab, ct));
-            }
-            await UniTask.WhenAll(tasks);
-        }
-
         // ─── コストエフェクト（カード中心に Prefab を再生）──────────────────
 
         private async UniTask PlayCostEffectAtCardAsync(CardView card, CancellationToken ct)

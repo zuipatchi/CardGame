@@ -385,6 +385,16 @@
     background-color: rgba(0, 30, 50, 0.65);
 }
 
+.turn-announcement-label--main {
+    color: rgb(255, 220, 100);
+    background-color: rgba(50, 35, 0, 0.65);
+}
+
+.turn-announcement-label--pass {
+    color: rgb(160, 160, 160);
+    background-color: rgba(30, 30, 30, 0.65);
+}
+
 .resolve-overlay {
     position: absolute;
     left: 0;

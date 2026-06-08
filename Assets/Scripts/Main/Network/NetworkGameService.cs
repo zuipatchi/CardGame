@@ -18,20 +18,49 @@ namespace Main.Network
         private const string k_DeckSubmit = "NGS_DeckSubmit";
         private const string k_InitialState = "NGS_InitialState";
         private const string k_ClientReady = "NGS_ClientReady";
-        private const string k_CharSet = "NGS_CharSet";
-        private const string k_PreBattle2 = "NGS_PreBattle2";
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
-        private const string k_BattleAttack = "NGS_BattleAttack";
+        private const string k_MainAction = "NGS_MainAction";
 
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
         private readonly string _localUsername;
         private ulong _opponentClientId;
+
+        public enum MainActionType
+        {
+            Pass,
+            PlaceChar,
+            PlayEvent,
+            Attack,
+        }
+
+        public readonly struct MainActionData
+        {
+            public readonly MainActionType ActionType;
+            public readonly string CardId;
+            public readonly string AttackerId;
+            public readonly string TargetId;
+
+            public bool IsPassed => ActionType == MainActionType.Pass;
+
+            public MainActionData(MainActionType actionType, string cardId = null, string attackerId = null, string targetId = null)
+            {
+                ActionType = actionType;
+                CardId = cardId;
+                AttackerId = attackerId;
+                TargetId = targetId;
+            }
+
+            public static MainActionData Pass() => new MainActionData(MainActionType.Pass);
+            public static MainActionData PlaceChar(string cardId) => new MainActionData(MainActionType.PlaceChar, cardId: cardId);
+            public static MainActionData PlayEvent(string cardId) => new MainActionData(MainActionType.PlayEvent, cardId: cardId);
+            public static MainActionData Attack(string attackerId, string targetId) => new MainActionData(MainActionType.Attack, attackerId: attackerId, targetId: targetId);
+        }
 
         public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase, UsernameRepository usernameRepository)
         {
@@ -287,7 +316,7 @@ namespace Main.Network
             return result;
         }
 
-        public void SendCharSetAction(string cardId)
+        public void SendMainAction(MainActionData action)
         {
             NetworkManager nm = NetworkManager.Singleton;
             if (nm == null)
@@ -299,34 +328,40 @@ namespace Main.Network
             {
                 return;
             }
-            CharSetPayload payload = new CharSetPayload
+            MainActionPayload payload = new MainActionPayload
             {
-                passed = string.IsNullOrEmpty(cardId),
-                cardId = cardId ?? string.Empty
+                actionType = (int)action.ActionType,
+                cardId = action.CardId ?? string.Empty,
+                attackerId = action.AttackerId ?? string.Empty,
+                targetId = action.TargetId ?? string.Empty
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
             {
                 writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_CharSet, _opponentClientId, writer);
+                messaging.SendNamedMessage(k_MainAction, _opponentClientId, writer);
             }
         }
 
-        public async UniTask<string> WaitForOpponentCharSetAsync(CancellationToken ct)
+        public UniTask<MainActionData> WaitForOpponentMainActionAsync(CancellationToken ct)
         {
             CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
+            UniTaskCompletionSource<MainActionData> tcs = new UniTaskCompletionSource<MainActionData>();
 
-            void OnCharSet(ulong senderId, FastBufferReader reader)
+            void OnMainAction(ulong senderId, FastBufferReader reader)
             {
-                messaging.UnregisterNamedMessageHandler(k_CharSet);
+                messaging.UnregisterNamedMessageHandler(k_MainAction);
                 reader.ReadValueSafe(out string json);
-                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
-                tcs.TrySetResult(payload.passed ? null : payload.cardId);
+                MainActionPayload payload = JsonUtility.FromJson<MainActionPayload>(json);
+                tcs.TrySetResult(new MainActionData(
+                    (MainActionType)payload.actionType,
+                    string.IsNullOrEmpty(payload.cardId) ? null : payload.cardId,
+                    string.IsNullOrEmpty(payload.attackerId) ? null : payload.attackerId,
+                    string.IsNullOrEmpty(payload.targetId) ? null : payload.targetId));
             }
 
-            messaging.RegisterNamedMessageHandler(k_CharSet, OnCharSet);
-            return await tcs.Task.AttachExternalCancellation(ct);
+            messaging.RegisterNamedMessageHandler(k_MainAction, OnMainAction);
+            return tcs.Task.AttachExternalCancellation(ct);
         }
 
         public void SendDrawNotification()
@@ -360,48 +395,6 @@ namespace Main.Network
 
             messaging.RegisterNamedMessageHandler(k_Draw, OnDraw);
             await tcs.Task.AttachExternalCancellation(ct);
-        }
-
-        public void SendPreBattle2Action(string cardId)
-        {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
-            if (messaging == null)
-            {
-                return;
-            }
-            CharSetPayload payload = new CharSetPayload
-            {
-                passed = string.IsNullOrEmpty(cardId),
-                cardId = cardId ?? string.Empty
-            };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_PreBattle2, _opponentClientId, writer);
-            }
-        }
-
-        public async UniTask<string> WaitForOpponentPreBattle2Async(CancellationToken ct)
-        {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
-
-            void OnPreBattle2(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_PreBattle2);
-                reader.ReadValueSafe(out string json);
-                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
-                tcs.TrySetResult(payload.passed ? null : payload.cardId);
-            }
-
-            messaging.RegisterNamedMessageHandler(k_PreBattle2, OnPreBattle2);
-            return await tcs.Task.AttachExternalCancellation(ct);
         }
 
         public void SendSwitchAction(string sacrificedCharId, string newCardId)
@@ -455,57 +448,6 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
-        public void SendBattleAttackAction(string attackerId, string targetId)
-        {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
-            if (messaging == null)
-            {
-                return;
-            }
-            bool passed = string.IsNullOrEmpty(attackerId);
-            BattleAttackPayload payload = new BattleAttackPayload
-            {
-                passed = passed,
-                attackerId = attackerId ?? string.Empty,
-                targetId = targetId ?? string.Empty
-            };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_BattleAttack, _opponentClientId, writer);
-            }
-        }
-
-        public async UniTask<(string attackerId, string targetId)> WaitForOpponentBattleAttackAsync(CancellationToken ct)
-        {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<(string, string)> tcs = new UniTaskCompletionSource<(string, string)>();
-
-            void OnBattleAttack(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_BattleAttack);
-                reader.ReadValueSafe(out string json);
-                BattleAttackPayload payload = JsonUtility.FromJson<BattleAttackPayload>(json);
-                if (payload.passed)
-                {
-                    tcs.TrySetResult((null, null));
-                }
-                else
-                {
-                    tcs.TrySetResult((payload.attackerId, payload.targetId));
-                }
-            }
-
-            messaging.RegisterNamedMessageHandler(k_BattleAttack, OnBattleAttack);
-            return await tcs.Task.AttachExternalCancellation(ct);
-        }
-
         public void SendEvolveAction(string cardId)
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -518,7 +460,7 @@ namespace Main.Network
             {
                 return;
             }
-            CharSetPayload payload = new CharSetPayload
+            EvolvePayload payload = new EvolvePayload
             {
                 passed = string.IsNullOrEmpty(cardId),
                 cardId = cardId ?? string.Empty
@@ -540,7 +482,7 @@ namespace Main.Network
             {
                 messaging.UnregisterNamedMessageHandler(k_Evolve);
                 reader.ReadValueSafe(out string json);
-                CharSetPayload payload = JsonUtility.FromJson<CharSetPayload>(json);
+                EvolvePayload payload = JsonUtility.FromJson<EvolvePayload>(json);
                 tcs.TrySetResult(payload.passed ? null : payload.cardId);
             }
 
@@ -645,15 +587,13 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_RequestDeck);
             m.UnregisterNamedMessageHandler(k_DeckSubmit);
             m.UnregisterNamedMessageHandler(k_InitialState);
-            m.UnregisterNamedMessageHandler(k_CharSet);
-            m.UnregisterNamedMessageHandler(k_PreBattle2);
+            m.UnregisterNamedMessageHandler(k_MainAction);
             m.UnregisterNamedMessageHandler(k_Draw);
             m.UnregisterNamedMessageHandler(k_Surrender);
             m.UnregisterNamedMessageHandler(k_Mulligan);
             m.UnregisterNamedMessageHandler(k_RecoverDeck);
             m.UnregisterNamedMessageHandler(k_Switch);
             m.UnregisterNamedMessageHandler(k_Evolve);
-            m.UnregisterNamedMessageHandler(k_BattleAttack);
         }
 
         [Serializable]
@@ -661,13 +601,6 @@ namespace Main.Network
         {
             public string[] deckIds;
             public string username;
-        }
-
-        [Serializable]
-        private sealed class CharSetPayload
-        {
-            public bool passed;
-            public string cardId;
         }
 
         [Serializable]
@@ -703,9 +636,17 @@ namespace Main.Network
         }
 
         [Serializable]
-        private sealed class BattleAttackPayload
+        private sealed class EvolvePayload
         {
             public bool passed;
+            public string cardId;
+        }
+
+        [Serializable]
+        private sealed class MainActionPayload
+        {
+            public int actionType;
+            public string cardId;
             public string attackerId;
             public string targetId;
         }
