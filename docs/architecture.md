@@ -53,9 +53,14 @@ CommonLifetimeScope   全シーン共通のシングルトンを登録
   ├── SoundPlayer
   ├── SoundStore
   ├── TransitionPresenter
-  └── SceneTransitioner
+  ├── SceneTransitioner
+  └── UsernameRepository
 
 TitleLifetimeScope         Title シーン固有のサービスを登録
+  ├── GameStartButtonPresenter  (RegisterComponentInHierarchy)
+  ├── AudioManager              (RegisterEntryPoint)
+  ├── UsernameModalPresenter    (RegisterComponentInHierarchy)
+  └── UsernameModalService      (RegisterEntryPoint)
 HomeLifetimeScope          Home シーン固有のサービスを登録
 DeckBuilderLifetimeScope   DeckBuilder シーン固有のサービスを登録
 MainLifetimeScope          Main シーン固有のサービスを登録
@@ -93,6 +98,21 @@ OptionPresenter
 - `IAsyncStartable` を実装したクラスは VContainer が StartAsync を呼ぶ
 - `Store` 系クラスは起動時に Addressables ロードを行い、`UniTask Loaded` プロパティで完了を通知する
 - 使う側は `await _store.Loaded` で待機してから使用する
+
+### MonoBehaviour のインジェクションタイミング
+
+`CommonSceneLoader.Awake()` は `async void` であり、`await UniTask.NextFrame()` の後に `BuildLifetimeScopes()` を呼ぶ。
+そのため **MonoBehaviour の `Awake/OnEnable/Start` が呼ばれる時点ではインジェクションが完了していない**。
+
+| コールバック | インジェクト済みフィールドを使えるか |
+|---|---|
+| `Awake` / `OnEnable` / `Start` | **不可**（injection 前） |
+| `[Inject] Construct(...)` | 可（injection と同時に呼ばれる） |
+| `IAsyncStartable.StartAsync()` | 可（Build 完了後に VContainer が呼ぶ） |
+| ユーザー操作イベントコールバック | 可（injection 完了後に発火） |
+
+「シーン起動時にインジェクト済みフィールドを使って何かしたい」場合は、`IAsyncStartable` を実装した純粋 C# サービスを `RegisterEntryPoint` で登録し、そこから MonoBehaviour の public メソッドを呼ぶ。
+`UsernameModalService` がこのパターンの例（起動時にユーザーネーム未登録ならモーダルを表示）。
 
 ```csharp
 // 例: AudioManager (Title シーン)
