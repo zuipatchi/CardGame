@@ -4,6 +4,7 @@
         <ui:VisualElement name="Panel" class="username-panel">
             <ui:Label text="プレイヤー名を入力してください" name="TitleLabel" class="username-title"/>
             <ui:TextField name="NameField" class="username-field"/>
+            <ui:Label name="ErrorLabel" class="username-error" text=""/>
             <ui:Button text="決定" name="ConfirmButton" class="username-confirm-btn"/>
         </ui:VisualElement>
     </ui:VisualElement>

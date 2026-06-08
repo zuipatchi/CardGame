@@ -14,6 +14,7 @@ namespace Title.Username
         private VisualElement _overlay;
         private TextField _nameField;
         private Button _confirmButton;
+        private Label _errorLabel;
 
         [Inject]
         public void Construct(UsernameRepository usernameRepository)
@@ -32,8 +33,10 @@ namespace Title.Username
             _overlay = root.Q<VisualElement>("Overlay");
             _nameField = root.Q<TextField>("NameField");
             _confirmButton = root.Q<Button>("ConfirmButton");
+            _errorLabel = root.Q<Label>("ErrorLabel");
 
             _confirmButton.SetEnabled(false);
+            _errorLabel.style.display = DisplayStyle.None;
             _nameField.RegisterValueChangedCallback(OnNameChanged);
             _confirmButton.RegisterCallback<ClickEvent>(OnConfirmClicked);
         }
@@ -50,17 +53,21 @@ namespace Title.Username
             _overlay = null;
             _nameField = null;
             _confirmButton = null;
+            _errorLabel = null;
         }
 
         private void OnNameChanged(ChangeEvent<string> evt)
         {
-            _confirmButton.SetEnabled(!string.IsNullOrWhiteSpace(evt.newValue?.Trim()));
+            bool valid = UsernameValidator.IsValid(evt.newValue, out string errorMessage);
+            _confirmButton.SetEnabled(valid);
+            _errorLabel.text = errorMessage;
+            _errorLabel.style.display = string.IsNullOrEmpty(errorMessage) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
         private void OnConfirmClicked(ClickEvent evt)
         {
             string name = _nameField.value.Trim();
-            if (string.IsNullOrEmpty(name))
+            if (!UsernameValidator.IsValid(name, out string _))
             {
                 return;
             }

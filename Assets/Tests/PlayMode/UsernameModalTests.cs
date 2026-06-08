@@ -89,9 +89,70 @@ namespace Tests.PlayMode
             Assert.AreEqual("StoredUser", saved, "PlayerPrefs に名前が保存されていません");
         }
 
+        [UnityTest]
+        public IEnumerator 半角17文字入力するとボタンが無効でエラーが表示される()
+        {
+            TextField nameField = FindNameField();
+            Button confirmButton = FindConfirmButton();
+            Label errorLabel = FindErrorLabel();
+            Assert.IsNotNull(nameField, "NameField が見つかりません");
+            Assert.IsNotNull(confirmButton, "ConfirmButton が見つかりません");
+            Assert.IsNotNull(errorLabel, "ErrorLabel が見つかりません");
+
+            nameField.value = "abcdefghijklmnopq";
+            yield return null;
+
+            Assert.IsFalse(confirmButton.enabledSelf, "ボタンが無効になっていません");
+            Assert.AreEqual(DisplayStyle.Flex, errorLabel.resolvedStyle.display, "エラーラベルが表示されていません");
+        }
+
+        [UnityTest]
+        public IEnumerator 全角9文字入力するとボタンが無効でエラーが表示される()
+        {
+            TextField nameField = FindNameField();
+            Button confirmButton = FindConfirmButton();
+            Label errorLabel = FindErrorLabel();
+            Assert.IsNotNull(nameField, "NameField が見つかりません");
+            Assert.IsNotNull(confirmButton, "ConfirmButton が見つかりません");
+            Assert.IsNotNull(errorLabel, "ErrorLabel が見つかりません");
+
+            nameField.value = "あいうえおかきくけ";
+            yield return null;
+
+            Assert.IsFalse(confirmButton.enabledSelf, "ボタンが無効になっていません");
+            Assert.AreEqual(DisplayStyle.Flex, errorLabel.resolvedStyle.display, "エラーラベルが表示されていません");
+        }
+
+        [UnityTest]
+        public IEnumerator エラー状態から有効な入力にするとエラーが消えてボタンが有効になる()
+        {
+            TextField nameField = FindNameField();
+            Button confirmButton = FindConfirmButton();
+            Label errorLabel = FindErrorLabel();
+            Assert.IsNotNull(nameField, "NameField が見つかりません");
+            Assert.IsNotNull(confirmButton, "ConfirmButton が見つかりません");
+            Assert.IsNotNull(errorLabel, "ErrorLabel が見つかりません");
+
+            nameField.value = "あいうえおかきくけ";
+            yield return null;
+
+            Assert.IsFalse(confirmButton.enabledSelf, "エラー後ボタンが無効になっていません");
+
+            nameField.value = "あいうえおかきく";
+            yield return null;
+
+            Assert.IsTrue(confirmButton.enabledSelf, "修正後ボタンが有効になっていません");
+            Assert.AreEqual(DisplayStyle.None, errorLabel.resolvedStyle.display, "修正後エラーラベルが消えていません");
+        }
+
         private static VisualElement FindOverlay()
         {
             return FindInTitleScene<VisualElement>("Overlay");
+        }
+
+        private static Label FindErrorLabel()
+        {
+            return FindInTitleScene<Label>("ErrorLabel");
         }
 
         private static TextField FindNameField()
