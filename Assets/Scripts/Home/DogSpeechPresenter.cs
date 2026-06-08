@@ -1,9 +1,11 @@
 using System;
 using System.Threading;
+using Common.Username;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home
@@ -39,10 +41,17 @@ namespace Home
 
         public bool IsRainy { get; set; }
 
+        private string _username;
         private VisualElement _speechBubble;
         private Label _speechLabel;
         private bool _isBubbleVisible;
         private CancellationTokenSource _speechCts;
+
+        [Inject]
+        public void Construct(UsernameRepository usernameRepository)
+        {
+            _username = usernameRepository.Load() ?? string.Empty;
+        }
 
         private void Awake()
         {
@@ -131,6 +140,7 @@ namespace Home
             {
                 return;
             }
+            text = text.Replace("{name}", _username);
             _speechCts?.Cancel();
             _speechCts?.Dispose();
             _speechCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);

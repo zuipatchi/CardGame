@@ -2,6 +2,7 @@
     <Style src="Home.uss"/>
     <ui:VisualElement name="HomeRoot" class="home-root">
         <ui:VisualElement name="DarkOverlay" class="home-dark-overlay" picking-mode="Ignore" />
+        <ui:Label name="UsernameLabel" class="home-username" picking-mode="Ignore" />
         <ui:Label name="CostOverToastLabel" class="home-cost-over-toast" />
         <ui:VisualElement class="home-buttons">
             <ui:Button name="DeckBuilderButton" class="home-button home-button--deck">

@@ -5,6 +5,7 @@ using Common.GameSession;
 using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
+using Common.Username;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -29,11 +30,12 @@ namespace Home
         private Button _battleButton;
         private Button _matchingButton;
         private Label _costOverToastLabel;
+        private Label _usernameLabel;
         private VisualElement _darkOverlay;
         private CancellationTokenSource _toastCts;
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel)
+        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, UsernameRepository usernameRepository)
         {
             _sceneTransitioner = sceneTransitioner;
             _soundPlayer = soundPlayer;
@@ -43,6 +45,7 @@ namespace Home
             _gameSessionModel = gameSessionModel;
             _deckModel.Clear();
             _deckRepository.Load(_deckModel);
+            _usernameLabel.text = $"ユーザーネーム：{usernameRepository.Load() ?? string.Empty}";
             if (_backgroundPresenter != null && _gameSessionModel.ShouldRainOnNextHome)
             {
                 _backgroundPresenter.IsRainy = true;
@@ -103,6 +106,7 @@ namespace Home
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
+            _usernameLabel = root.Q<Label>("UsernameLabel");
             _darkOverlay = root.Q<VisualElement>("DarkOverlay");
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
@@ -127,6 +131,7 @@ namespace Home
             _battleButton = null;
             _matchingButton = null;
             _costOverToastLabel = null;
+            _usernameLabel = null;
             _darkOverlay = null;
         }
 

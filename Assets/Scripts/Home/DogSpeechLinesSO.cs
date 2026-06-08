@@ -13,6 +13,8 @@ namespace Home
             "なにかくれる？",
             "みてみてー！",
             "いいてんきだわん",
+            "ねえねえ、{name}、あそぼ！",
+            "{name}、だいすきだわん！",
         };
 
         [SerializeField]
