@@ -23,7 +23,6 @@ namespace Main.Card
         private readonly Label _defLabel;
         private readonly Label _spdLabel;
         private readonly Label _hpLabel;
-        private readonly Label _chainLabel;
         private CardDragManipulator _dragManipulator;
         private Tween _playableHighlightTween;
         public bool IsFaceDown { get; private set; }
@@ -50,7 +49,6 @@ namespace Main.Card
             _defLabel = this.Q<Label>("DefLabel");
             _spdLabel = this.Q<Label>("SpdLabel");
             _hpLabel = this.Q<Label>("HpLabel");
-            _chainLabel = this.Q<Label>("ChainLabel");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -153,49 +151,6 @@ namespace Main.Card
             _backFace.style.display = DisplayStyle.None;
             _imageArea.style.display = DisplayStyle.Flex;
             ApplyTypeFrame(true);
-        }
-
-        public void SetChainNumber(int number)
-        {
-            if (number <= 0)
-            {
-                _chainLabel.style.display = DisplayStyle.None;
-                return;
-            }
-
-            _chainLabel.text = number is >= 1 and <= 9
-                ? ((char)(0x2460 + number - 1)).ToString()
-                : number.ToString();
-            _chainLabel.style.display = DisplayStyle.Flex;
-        }
-
-        public async UniTask FlashChainLabelAsync(CancellationToken ct)
-        {
-            if (_chainLabel.resolvedStyle.display == DisplayStyle.None)
-            {
-                return;
-            }
-
-            Color yellow = new Color(1f, 220f / 255f, 50f / 255f);
-            Color white = Color.white;
-            Color current = yellow;
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, white,  0.06f))
-                .Append(DOTween.To(() => current, v => { current = v; _chainLabel.style.color = new StyleColor(v); }, yellow, 0.06f))
-                .AppendInterval(0.04f)
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            _chainLabel.style.color = StyleKeyword.Null;
         }
 
         public void SetBackImage(Texture2D texture)

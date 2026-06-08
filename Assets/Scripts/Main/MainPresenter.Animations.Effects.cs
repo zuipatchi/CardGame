@@ -12,19 +12,6 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── Negate エフェクト（ラベル上昇 + パーティクル同時再生）─────────────
-
-        private async UniTask PlayNegateEffectAsync(CardView targetCard, CancellationToken ct)
-        {
-            List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("NEGATE!", "negate-label", targetCard, ct));
-            if (_negateEffectPrefab != null)
-            {
-                tasks.Add(PlayParticleAtCardAsync(targetCard, _negateEffectPrefab, ct));
-            }
-            await UniTask.WhenAll(tasks);
-        }
-
         private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
         {
             const float LabelW = 200f;

@@ -54,45 +54,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void SetChainNumber_1でラベルが表示され丸1になる()
-        {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            EventCardData data = new EventCardData("e1", "テスト", 0);
-            CardView view = new CardView(template, data);
-
-            view.SetChainNumber(1);
-
-            Label label = view.Q<Label>("ChainLabel");
-            Assert.AreEqual(DisplayStyle.Flex, label.style.display.value);
-            Assert.AreEqual("①", label.text);
-        }
-
-        [Test]
-        public void SetChainNumber_9でラベルが丸9になる()
-        {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            EventCardData data = new EventCardData("e1", "テスト", 0);
-            CardView view = new CardView(template, data);
-
-            view.SetChainNumber(9);
-
-            Assert.AreEqual("⑨", view.Q<Label>("ChainLabel").text);
-        }
-
-        [Test]
-        public void SetChainNumber_0でラベルが非表示になる()
-        {
-            VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            EventCardData data = new EventCardData("e1", "テスト", 0);
-            CardView view = new CardView(template, data);
-
-            view.SetChainNumber(3);
-            view.SetChainNumber(0);
-
-            Assert.AreEqual(DisplayStyle.None, view.Q<Label>("ChainLabel").style.display.value);
-        }
-
-        [Test]
         public void FaceUp_裏向きカードが表向きになる()
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);

@@ -57,7 +57,8 @@ namespace Main
                         await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                         await PayCostAsync(readied, _playerDeckView, _playerGraveyardView, ct);
                         if (_isGameOver) break;
-                        readied.SetChainNumber(_gameModel.ReadyQueue.Count);
+                        await ResolveSingleCardAsync(readied, ct);
+                        if (_isGameOver) break;
                     }
                 }
                 else
@@ -100,7 +101,8 @@ namespace Main
                             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
                             if (_isGameOver) break;
-                            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+                            await ResolveSingleCardAsync(card, ct);
+                            if (_isGameOver) break;
                         }
                         else
                         {
@@ -117,7 +119,7 @@ namespace Main
             HideActionButtons();
 
             // PreBattle2 ループ終了 = 最後のネットワーク同期点。
-            // 以降の解決フェーズ・戦闘フェーズはローカルアニメーションのみで数秒かかる場合があり、
+            // 以降の戦闘フェーズはローカルアニメーションのみで数秒かかる場合があり、
             // 先に終わった側が次ターンの DrawPhase でハンドラ未登録のまま NGS_Draw を受信して
             // メッセージが捨てられるのを防ぐため、ここで事前登録しておく。
             if (_isOnline)
@@ -125,8 +127,6 @@ namespace Main
                 _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
                 _hasPreDrawTask = true;
             }
-
-            await RunResolutionPhaseAsync(ct);
         }
 
         private async UniTask PlayOpponentPreBattle2OnlineAsync(string cardId, CancellationToken ct)
@@ -148,7 +148,7 @@ namespace Main
             _gameModel.ReadyCard(card);
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             await PayCostAsync(card, _opponentDeckView, _opponentGraveyardView, ct);
-            card.SetChainNumber(_gameModel.ReadyQueue.Count);
+            await ResolveSingleCardAsync(card, ct);
         }
 
         private async UniTask<CardView> WaitForPlayerPreBattle2InputAsync(CancellationToken ct)

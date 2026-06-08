@@ -402,7 +402,7 @@ namespace DeckBuilder
                 _costOverLabel.text = $"コストが{DeckModel.MaxCost}を超えています";
                 _costOverLabel.style.display = DisplayStyle.Flex;
             }
-            else if (!_deckModel.IsReady)
+            else if (!_deckModel.IsReady && _deckModel.Count > 0)
             {
                 _costOverLabel.text = $"デッキが{DeckModel.MaxCards}枚になっていません";
                 _costOverLabel.style.display = DisplayStyle.Flex;

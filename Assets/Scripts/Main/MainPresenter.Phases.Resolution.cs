@@ -13,119 +13,82 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── 解決フェーズ ────────────────────────────────────────────────
+        // ─── 即時解決（1枚）────────────────────────────────────────────────
 
-        private async UniTask RunResolutionPhaseAsync(CancellationToken ct)
+        private async UniTask ResolveSingleCardAsync(CardView card, CancellationToken ct)
         {
-            IReadOnlyList<CardView> queue = _gameModel.ReadyQueue;
-            if (queue.Count == 0)
+            bool isLocal = !card.IsOpponent;
+
+            card.SetState(CardState.Resolve);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
+
+            if (card.Data is EventCardData eventData)
+            {
+                if (eventData.EventType == CardEventType.Draw)
+                {
+                    await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+                }
+                else if (eventData.EventType == CardEventType.BanishChar)
+                {
+                    CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
+                    await PlayBanishCharEffectAsync(banishTarget, ct);
+                }
+                else if (eventData.EventType == CardEventType.Recover)
+                {
+                    await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
+                }
+                else if (eventData.EventType == CardEventType.Switch)
+                {
+                    CharacterSlotView switchSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+                    await PlaySwitchEffectAsync(card, switchSlot, ct);
+                }
+                else if (eventData.EventType == CardEventType.Evolve)
+                {
+                    CharacterSlotView evolveSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
+                    if (evolveSlot.CurrentCard != null)
+                    {
+                        await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveSlot, ct);
+                    }
+                }
+                else if (eventData.EventType == CardEventType.Poison)
+                {
+                    if (_poisonEffectPrefab != null)
+                    {
+                        await PlayParticleAtCardAsync(card, _poisonEffectPrefab, ct);
+                    }
+                }
+                else if (eventData.EventType == CardEventType.BattleEndMill)
+                {
+                    DeckView battleMillTarget = isLocal ? _opponentDeckView : _playerDeckView;
+                    if (_poisonEffectPrefab != null)
+                    {
+                        await PlayParticleAtUiPositionAsync(battleMillTarget, battleMillTarget.worldBound.center, _poisonEffectPrefab, ct);
+                    }
+                }
+
+                await ApplyEventEffectAsync(eventData, isLocal, ct);
+
+                if (eventData.EventType == CardEventType.AtkBoost)
+                {
+                    await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
+                }
+                else if (eventData.EventType == CardEventType.DefBoost)
+                {
+                    await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
+                }
+            }
+
+            if (_isGameOver)
             {
                 return;
             }
 
-            await PlayResolveAnimationAsync(ct);
+            FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+            field.RemoveCard(card);
+            GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            graveyard.AddCard(card);
 
-            bool skipNextEffect = false;
-
-            for (int i = queue.Count - 1; i >= 0; i--)
-            {
-                CardView card = queue[i];
-                await card.FlashChainLabelAsync(ct);
-                card.SetChainNumber(0);
-                card.SetState(CardState.Resolve);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
-
-                bool isLocal = !card.IsOpponent;
-
-                if (card.Data is EventCardData eventData)
-                {
-                    if (skipNextEffect)
-                    {
-                        skipNextEffect = false;
-                    }
-                    else if (eventData.EventType == CardEventType.Negate)
-                    {
-                        skipNextEffect = true;
-                        if (i > 0)
-                        {
-                            await PlayNegateEffectAsync(queue[i - 1], ct);
-                        }
-                    }
-                    else
-                    {
-                        if (eventData.EventType == CardEventType.Draw)
-                        {
-                            await PlayDrawEffectAsync(card, eventData.EventValue, ct);
-                        }
-                        else if (eventData.EventType == CardEventType.BanishChar)
-                        {
-                            CharacterSlotView banishTarget = isLocal ? _opponentCharacterSlot : _playerCharacterSlot;
-                            await PlayBanishCharEffectAsync(banishTarget, ct);
-                        }
-                        else if (eventData.EventType == CardEventType.Recover)
-                        {
-                            await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
-                        }
-                        else if (eventData.EventType == CardEventType.Switch)
-                        {
-                            CharacterSlotView switchSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
-                            await PlaySwitchEffectAsync(card, switchSlot, ct);
-                        }
-                        else if (eventData.EventType == CardEventType.Evolve)
-                        {
-                            CharacterSlotView evolveSlot = isLocal ? _playerCharacterSlot : _opponentCharacterSlot;
-                            if (evolveSlot.CurrentCard != null)
-                            {
-                                await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveSlot, ct);
-                            }
-                        }
-                        else if (eventData.EventType == CardEventType.Poison)
-                        {
-                            if (_poisonEffectPrefab != null)
-                            {
-                                await PlayParticleAtCardAsync(card, _poisonEffectPrefab, ct);
-                            }
-                        }
-                        else if (eventData.EventType == CardEventType.DeckMill)
-                        {
-                        }
-                        else if (eventData.EventType == CardEventType.BattleEndMill)
-                        {
-                            DeckView battleMillTarget = isLocal ? _opponentDeckView : _playerDeckView;
-                            if (_poisonEffectPrefab != null)
-                            {
-                                await PlayParticleAtUiPositionAsync(battleMillTarget, battleMillTarget.worldBound.center, _poisonEffectPrefab, ct);
-                            }
-                        }
-                        await ApplyEventEffectAsync(eventData, isLocal, ct);
-                        if (eventData.EventType == CardEventType.AtkBoost)
-                        {
-                            await PlayAtkBoostEffectAsync(card, eventData.EventValue, ct);
-                        }
-                        else if (eventData.EventType == CardEventType.DefBoost)
-                        {
-                            await PlayDefBoostEffectAsync(card, eventData.EventValue, ct);
-                        }
-                    }
-                }
-
-                if (_isGameOver)
-                {
-                    break;
-                }
-
-                FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
-                field.RemoveCard(card);
-                GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-                graveyard.AddCard(card);
-
-                card.SetState(CardState.Normal);
-
-                if (_isGameOver)
-                {
-                    break;
-                }
-            }
+            card.SetState(CardState.Normal);
         }
 
         private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)

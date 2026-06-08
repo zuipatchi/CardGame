@@ -82,7 +82,6 @@ namespace Main
         [SerializeField] private GameObject _defBoostEffectPrefab;
         [SerializeField] private GameObject _drawEffectPrefab;
         [SerializeField] private GameObject _banishCharEffectPrefab;
-        [SerializeField] private GameObject _negateEffectPrefab;
         [SerializeField] private GameObject _recoverEffectPrefab;
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
