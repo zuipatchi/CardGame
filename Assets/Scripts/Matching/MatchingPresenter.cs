@@ -4,6 +4,7 @@ using Common.GameSession;
 using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
+using Common.Username;
 using Cysharp.Threading.Tasks;
 using R3;
 using Unity.Services.Multiplayer;
@@ -25,6 +26,7 @@ namespace Matching
         private GameSessionModel _gameSessionModel;
         private SoundPlayer _soundPlayer;
         private SoundStore _soundStore;
+        private string _username;
 
         private Button _backButton;
         private ScrollView _roomList;
@@ -47,7 +49,8 @@ namespace Matching
             SceneTransitioner sceneTransitioner,
             GameSessionModel gameSessionModel,
             SoundPlayer soundPlayer,
-            SoundStore soundStore)
+            SoundStore soundStore,
+            UsernameRepository usernameRepository)
         {
             _model = model;
             _matchingService = matchingService;
@@ -55,6 +58,7 @@ namespace Matching
             _gameSessionModel = gameSessionModel;
             _soundPlayer = soundPlayer;
             _soundStore = soundStore;
+            _username = usernameRepository.Load() ?? string.Empty;
         }
 
         private void Awake()
@@ -279,7 +283,8 @@ namespace Matching
             try
             {
                 _model.State.Value = MatchingState.CreatingRoom;
-                IHostSession session = await _matchingService.CreateRoomAsync("Room", destroyCancellationToken);
+                string roomName = string.IsNullOrEmpty(_username) ? "Room" : $"{_username}のルーム";
+                IHostSession session = await _matchingService.CreateRoomAsync(roomName, destroyCancellationToken);
                 _model.State.Value = MatchingState.WaitingInCreatedRoom;
 
                 bool found = await _matchingService.WaitForPlayerAsync(session, _createRoomTimeoutDuration, destroyCancellationToken);
