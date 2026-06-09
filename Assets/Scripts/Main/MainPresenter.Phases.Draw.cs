@@ -19,15 +19,6 @@ namespace Main
 
             await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
-            DeckView activeDeck = isLocalTurn ? _playerDeckView : _opponentDeckView;
-            if (activeDeck.Count == 0)
-            {
-                _isGameOver = true;
-                // アクティブプレイヤーのデッキが切れたら、そのプレイヤーの負け
-                OnGameEnd(isLocalTurn ? (bool?)false : true);
-                return;
-            }
-
             if (isLocalTurn)
             {
                 CardData drawn = _playerDeckView.DrawTop();

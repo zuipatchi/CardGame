@@ -10,10 +10,6 @@ namespace Main.Card
         BanishChar,
         Recover,
         Switch,
-        CharDamage,
         Evolve,
-        Poison,
-        DeckMill,
-        BattleEndMill,
     }
 }

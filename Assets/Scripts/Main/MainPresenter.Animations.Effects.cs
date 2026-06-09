@@ -87,17 +87,6 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        // ─── Poison エフェクト（キャラ位置にパーティクル再生）──────────────────────
-
-        private async UniTask PlayPoisonEffectAsync(CardView targetChar, CancellationToken ct)
-        {
-            if (targetChar == null || _poisonEffectPrefab == null)
-            {
-                return;
-            }
-            await PlayParticleAtCardAsync(targetChar, _poisonEffectPrefab, ct);
-        }
-
         // ─── キャラ破壊エフェクト（パーティクル再生）────────────────────────────
 
         private async UniTask PlayCharDestroyEffectAsync(CardView targetChar, CancellationToken ct)

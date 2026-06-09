@@ -65,22 +65,6 @@ namespace Main
                         await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
                     }
                 }
-                else if (eventData.EventType == CardEventType.Poison)
-                {
-                    if (_poisonEffectPrefab != null)
-                    {
-                        await PlayParticleAtCardAsync(card, _poisonEffectPrefab, ct);
-                    }
-                }
-                else if (eventData.EventType == CardEventType.BattleEndMill)
-                {
-                    DeckView battleMillTarget = isLocal ? _opponentDeckView : _playerDeckView;
-                    if (_poisonEffectPrefab != null)
-                    {
-                        await PlayParticleAtUiPositionAsync(battleMillTarget, battleMillTarget.worldBound.center, _poisonEffectPrefab, ct);
-                    }
-                }
-
                 await ApplyEventEffectAsync(eventData, isLocal, ct);
             }
 
@@ -151,157 +135,9 @@ namespace Main
                 case CardEventType.Switch:
                     await ApplySwitchEffectAsync(isLocal, ct);
                     break;
-                case CardEventType.CharDamage:
-                    await ApplyCharDamageAsync(data.EventValue, isLocal, ct);
-                    break;
                 case CardEventType.Evolve:
                     await ApplyEvolveEffectAsync(isLocal, ct);
                     break;
-                case CardEventType.Poison:
-                    if (isLocal)
-                    {
-                        _opponentPoisoned = true;
-                    }
-                    else
-                    {
-                        _playerPoisoned = true;
-                    }
-                    break;
-                case CardEventType.DeckMill:
-                    await ApplyDeckMillEffectAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.BattleEndMill:
-                    if (isLocal)
-                    {
-                        _localBattleEndMillValue = data.EventValue;
-                    }
-                    else
-                    {
-                        _opponentBattleEndMillValue = data.EventValue;
-                    }
-                    break;
-            }
-        }
-
-        private async UniTask ApplyDeckMillEffectAsync(int count, bool isLocal, CancellationToken ct)
-        {
-            DeckView firstDeck = isLocal ? _playerDeckView : _opponentDeckView;
-            GraveyardView firstGrave = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-            DeckView secondDeck = isLocal ? _opponentDeckView : _playerDeckView;
-            GraveyardView secondGrave = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-
-            if (_deckMillEffectPrefab != null)
-            {
-                await PlayParticleAtUiPositionAsync(firstDeck, firstDeck.worldBound.center, _deckMillEffectPrefab, ct);
-            }
-
-            Rect firstDeckRect = firstDeck.worldBound;
-            List<CardView> firstMillCards = firstDeck.TakeFromTop(count);
-            if (firstMillCards.Count > 0)
-            {
-                await PlayDeckDamageAsync(firstMillCards, firstDeckRect, firstGrave, firstDeck, ct);
-            }
-
-            if (firstMillCards.Count < count)
-            {
-                _isGameOver = true;
-                OnGameEnd(!isLocal);
-                return;
-            }
-
-            if (_isGameOver)
-            {
-                return;
-            }
-
-            if (_deckMillEffectPrefab != null)
-            {
-                await PlayParticleAtUiPositionAsync(secondDeck, secondDeck.worldBound.center, _deckMillEffectPrefab, ct);
-            }
-
-            Rect secondDeckRect = secondDeck.worldBound;
-            List<CardView> secondMillCards = secondDeck.TakeFromTop(count);
-            if (secondMillCards.Count > 0)
-            {
-                await PlayDeckDamageAsync(secondMillCards, secondDeckRect, secondGrave, secondDeck, ct);
-            }
-
-            if (_isGameOver)
-            {
-                return;
-            }
-
-            if (secondMillCards.Count < count)
-            {
-                _isGameOver = true;
-                OnGameEnd(isLocal);
-            }
-        }
-
-        private async UniTask ApplyCharDamageAsync(int baseAtk, bool isLocal, CancellationToken ct)
-        {
-            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
-            IReadOnlyList<CardView> targetChars = targetField.Characters;
-
-            if (targetChars.Count == 0)
-            {
-                return;
-            }
-
-            CardView targetChar = targetChars[0];
-
-            // 裏向きのキャラが表向きになるまで待つ
-            if (targetChar.IsFaceDown)
-            {
-                await UniTask.WaitUntil(
-                    () => !targetField.Contains(targetChar) || !targetChar.IsFaceDown,
-                    cancellationToken: ct
-                );
-            }
-
-            if (!targetField.Contains(targetChar))
-            {
-                return;
-            }
-
-            DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
-            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-            int damage = baseAtk;
-
-            if (damage == 0)
-            {
-                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetChar, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-                return;
-            }
-
-            if (_charDamageEffectPrefab != null)
-            {
-                await PlayParticleAtUiPositionAsync(targetChar, targetChar.worldBound.center, _charDamageEffectPrefab, ct);
-            }
-
-            Rect targetDeckRect = targetDeck.worldBound;
-            await PlayDamageNumberFlyAsync(damage, targetChar.worldBound.center, targetDeck, ct);
-            List<CardView> damageCards = targetDeck.TakeFromTop(damage);
-            await PlayDeckDamageAsync(damageCards, targetDeckRect, targetGraveyard, targetDeck, ct);
-            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-
-            if (damageCards.Count < damage)
-            {
-                _isGameOver = true;
-                OnGameEnd(isLocal);
-                return;
-            }
-
-            targetChar.TakeDamage(damage);
-            bool charWillBeDestroyed = targetChar.CurrentHp <= 0;
-
-            if (charWillBeDestroyed && targetField.Contains(targetChar))
-            {
-                await PlayCharDestroyEffectAsync(targetChar, ct);
-                Rect destroyedFromRect = targetChar.worldBound;
-                targetField.RemoveCard(targetChar);
-                await FlyToGraveyardAsync(targetChar, destroyedFromRect, targetGraveyard, ct);
             }
         }
 
@@ -571,8 +407,6 @@ namespace Main
             {
                 if (deck.Count == 0)
                 {
-                    _isGameOver = true;
-                    OnGameEnd(isLocal ? (bool?)false : true);
                     break;
                 }
 

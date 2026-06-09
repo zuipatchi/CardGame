@@ -18,7 +18,6 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
     _attack: 2
-    _defense: 2
     _hp: 2
     _attribute: 6
   - _id: C002
@@ -26,7 +25,6 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 4ea4dc8ee98e85d4fa318babc4ed5bf5, type: 3}
     _attack: 2
-    _defense: 3
     _hp: 3
     _attribute: 0
   - _id: C003
@@ -34,7 +32,6 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: bcec6bde5394392488dac211d96b2002, type: 3}
     _attack: 0
-    _defense: 1
     _hp: 3
     _attribute: 2
   - _id: C004
@@ -42,7 +39,6 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
     _attack: 3
-    _defense: 3
     _hp: 2
     _attribute: 0
   - _id: C005
@@ -50,7 +46,6 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
     _attack: 3
-    _defense: 3
     _hp: 2
     _attribute: 2
   - _id: C006
@@ -58,7 +53,6 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 97a99ec574efee140b173f76324e529c, type: 3}
     _attack: 2
-    _defense: 2
     _hp: 2
     _attribute: 0
   - _id: C007
@@ -66,7 +60,6 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 00a8461bae2d58f49bf58801ed1e8667, type: 3}
     _attack: 3
-    _defense: 4
     _hp: 3
     _attribute: 2
   - _id: C008
@@ -74,7 +67,6 @@ MonoBehaviour:
     _cost: 4
     _image: {fileID: 21300000, guid: 6c47c0463ddbbf64faadfaa88f3a1f50, type: 3}
     _attack: 2
-    _defense: 2
     _hp: 3
     _attribute: 0
   - _id: C009
@@ -82,7 +74,6 @@ MonoBehaviour:
     _cost: 4
     _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
     _attack: 3
-    _defense: 3
     _hp: 3
     _attribute: 6
   - _id: C010
@@ -90,7 +81,6 @@ MonoBehaviour:
     _cost: 4
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
     _attack: 2
-    _defense: 4
     _hp: 5
     _attribute: 0
   - _id: C011
@@ -98,7 +88,6 @@ MonoBehaviour:
     _cost: 5
     _image: {fileID: 21300000, guid: cc980148a336d0147946c3bc164c869d, type: 3}
     _attack: 4
-    _defense: 4
     _hp: 3
     _attribute: 0
   - _id: C012
@@ -106,7 +95,6 @@ MonoBehaviour:
     _cost: 5
     _image: {fileID: 21300000, guid: 78ea85ca8f236634ca913f38387400a0, type: 3}
     _attack: 2
-    _defense: 5
     _hp: 6
     _attribute: 0
   - _id: C013
@@ -114,7 +102,6 @@ MonoBehaviour:
     _cost: 5
     _image: {fileID: 21300000, guid: b98a0b45c5eceef448971957a7680f53, type: 3}
     _attack: 3
-    _defense: 3
     _hp: 3
     _attribute: 0
   - _id: C014
@@ -122,7 +109,6 @@ MonoBehaviour:
     _cost: 6
     _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
     _attack: 4
-    _defense: 4
     _hp: 4
     _attribute: 6
   - _id: C015
@@ -130,7 +116,6 @@ MonoBehaviour:
     _cost: 6
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
     _attack: 6
-    _defense: 5
     _hp: 3
     _attribute: 0
   - _id: C016
@@ -138,6 +123,26 @@ MonoBehaviour:
     _cost: 6
     _image: {fileID: 21300000, guid: 1b36f0f45aa2eb7438afd5c07f19f9f8, type: 3}
     _attack: 3
-    _defense: 3
     _hp: 4
     _attribute: 0
+  - _id: C017
+    _cardName: "\u30D1\u30C3\u30C1\u5C11\u5E74"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 4b89463c6d0140042b3e3f223cf4c131, type: 3}
+    _attack: 1
+    _hp: 1
+    _attribute: 6
+  - _id: C018
+    _cardName: "\u30D1\u30C3\u30C1\u9752\u5E74"
+    _cost: 2
+    _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
+    _attack: 2
+    _hp: 2
+    _attribute: 6
+  - _id: C019
+    _cardName: "\u30D1\u30C3\u30C1\u8001\u4EBA"
+    _cost: 2
+    _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
+    _attack: 1
+    _hp: 1
+    _attribute: 6

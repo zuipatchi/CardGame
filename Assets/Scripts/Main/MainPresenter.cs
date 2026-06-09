@@ -76,10 +76,7 @@ namespace Main
         [SerializeField] private GameObject _recoverEffectPrefab;
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
-        [SerializeField] private GameObject _charDamageEffectPrefab;
         [SerializeField] private GameObject _evolveEffectPrefab;
-        [SerializeField] private GameObject _poisonEffectPrefab;
-        [SerializeField] private GameObject _deckMillEffectPrefab;
         [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
@@ -95,11 +92,6 @@ namespace Main
         private VisualElement _toastContainer;
         private Label _toastLabel;
         private CancellationTokenSource _toastCts;
-
-        private bool _playerPoisoned;
-        private bool _opponentPoisoned;
-        private int _localBattleEndMillValue;
-        private int _opponentBattleEndMillValue;
 
         private GameObject _rainDefeatEffect;
 

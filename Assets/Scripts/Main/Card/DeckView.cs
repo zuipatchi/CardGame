@@ -88,31 +88,6 @@ namespace Main.Card
             return ids;
         }
 
-        public List<CardView> TakeFromTop(int count)
-        {
-            int toTake = Mathf.Min(count, _deckCards.Count);
-            List<CardView> taken = new List<CardView>(toTake);
-            for (int i = 0; i < toTake; i++)
-            {
-                CardView top = _deckCards[_deckCards.Count - 1];
-                _deckCards.RemoveAt(_deckCards.Count - 1);
-                // RemoveFromHierarchy は呼ばない。アニメーション側が1枚ずつ移動させる
-                taken.Add(top);
-            }
-            return taken;
-        }
-
-        // アニメーションで1枚デッキから取り出したタイミングで呼ぶ（サイズ縮小 + カウント減算）
-        public void OnCardRemovedVisually()
-        {
-            _visualCount = Mathf.Max(0, _visualCount - 1);
-            UpdateSize(_visualCount);
-            if (int.TryParse(_countLabel.text, out int current))
-            {
-                _countLabel.text = Mathf.Max(0, current - 1).ToString();
-            }
-        }
-
         public void AddCardsAndShuffle(IReadOnlyList<CardData> cards)
         {
             CardData[] combined = new CardData[_deckCards.Count + cards.Count];

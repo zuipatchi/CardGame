@@ -213,27 +213,11 @@ namespace Main
             {
                 await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", target, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-                ResetTurnState();
                 return;
             }
 
             if (damage > 0)
             {
-                Vector2 damageOrigin = target?.worldBound.center ?? targetDeck.worldBound.center;
-                Rect deckRect = targetDeck.worldBound;
-                await PlayDamageNumberFlyAsync(damage, damageOrigin, targetDeck, ct);
-                List<CardView> damageCards = targetDeck.TakeFromTop(damage);
-                await PlayDeckDamageAsync(damageCards, deckRect, targetGraveyard, targetDeck, ct);
-                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-
-                if (damageCards.Count < damage)
-                {
-                    _isGameOver = true;
-                    OnGameEnd(isLocal);
-                    ResetTurnState();
-                    return;
-                }
-
                 target?.TakeDamage(damage);
             }
 
@@ -246,88 +230,12 @@ namespace Main
                 targetField.RemoveCard(target);
                 await FlyToGraveyardAsync(target, destroyedFromRect, targetGraveyard, ct);
             }
-
-            // 毒チェック（ダメージを受けたキャラが毒状態なら破壊）
-            bool targetPoisoned = isLocal ? _opponentPoisoned : _playerPoisoned;
-            if (!_isGameOver && targetPoisoned && damage > 0 && target != null && targetField.Contains(target))
-            {
-                await PlayPoisonEffectAsync(target, ct);
-                await PlayCharDestroyEffectAsync(target, ct);
-                Rect poisonedFromRect = target.worldBound;
-                targetField.RemoveCard(target);
-                await FlyToGraveyardAsync(target, poisonedFromRect, targetGraveyard, ct);
-            }
-
-            ResetTurnState();
-
-            if (!_isGameOver && (_localBattleEndMillValue > 0 || _opponentBattleEndMillValue > 0))
-            {
-                await ApplyBattleEndMillAsync(isLocal, ct);
-            }
-        }
-
-        // ─── バトルエンドミル ─────────────────────────────────────────────
-
-        private async UniTask ApplyBattleEndMillAsync(bool isLocalAttacker, CancellationToken ct)
-        {
-            DeckView firstDeck = isLocalAttacker ? _opponentDeckView : _playerDeckView;
-            GraveyardView firstGrave = isLocalAttacker ? _opponentGraveyardView : _playerGraveyardView;
-            int firstValue = isLocalAttacker ? _localBattleEndMillValue : _opponentBattleEndMillValue;
-
-            DeckView secondDeck = isLocalAttacker ? _playerDeckView : _opponentDeckView;
-            GraveyardView secondGrave = isLocalAttacker ? _playerGraveyardView : _opponentGraveyardView;
-            int secondValue = isLocalAttacker ? _opponentBattleEndMillValue : _localBattleEndMillValue;
-
-            if (!_isGameOver && firstValue > 0)
-            {
-                int firstMilled = await PlayPoisonMillAsync(firstDeck, firstGrave, firstValue, ct);
-                if (firstMilled < firstValue)
-                {
-                    _isGameOver = true;
-                    OnGameEnd(isLocalAttacker);
-                    return;
-                }
-            }
-
-            if (!_isGameOver && secondValue > 0)
-            {
-                int secondMilled = await PlayPoisonMillAsync(secondDeck, secondGrave, secondValue, ct);
-                if (secondMilled < secondValue)
-                {
-                    _isGameOver = true;
-                    OnGameEnd(!isLocalAttacker);
-                }
-            }
-        }
-
-        private async UniTask<int> PlayPoisonMillAsync(DeckView deck, GraveyardView graveyard, int count, CancellationToken ct)
-        {
-            if (_poisonEffectPrefab != null)
-            {
-                await PlayParticleAtUiPositionAsync(deck, deck.worldBound.center, _poisonEffectPrefab, ct);
-            }
-
-            Rect deckRect = deck.worldBound;
-            List<CardView> millCards = deck.TakeFromTop(count);
-            if (millCards.Count > 0)
-            {
-                await PlayDeckDamageAsync(millCards, deckRect, graveyard, deck, ct);
-            }
-            return millCards.Count;
         }
 
         private async UniTask FlyToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
             await FlyCardToDestAsync(card, fromRect, graveyard, ct, delay, duration);
             graveyard.AddCard(card);
-        }
-
-        private void ResetTurnState()
-        {
-            _playerPoisoned = false;
-            _opponentPoisoned = false;
-            _localBattleEndMillValue = 0;
-            _opponentBattleEndMillValue = 0;
         }
 
         // ─── CPU アクション選択 ───────────────────────────────────────────
