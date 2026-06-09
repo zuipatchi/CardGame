@@ -30,22 +30,6 @@ namespace Tests.EditMode
         }
 
         [Test]
-        public void CharacterCardData_Speedは設定値を返す()
-        {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, speed: 7);
-
-            Assert.AreEqual(7, card.Speed);
-        }
-
-        [Test]
-        public void CharacterCardData_Speed省略時は0を返す()
-        {
-            CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3);
-
-            Assert.AreEqual(0, card.Speed);
-        }
-
-        [Test]
         public void CharacterCardData_Hpは設定値を返す()
         {
             CharacterCardData card = new CharacterCardData("c1", "戦士", 2, 3, hp: 10);
@@ -75,14 +59,6 @@ namespace Tests.EditMode
             EventCardData card = new EventCardData("e1", "回復", 2);
 
             Assert.AreEqual(0, card.Hp);
-        }
-
-        [Test]
-        public void EventCardData_Speedは0を返す()
-        {
-            EventCardData card = new EventCardData("e1", "回復", 2);
-
-            Assert.AreEqual(0, card.Speed);
         }
 
         [Test]

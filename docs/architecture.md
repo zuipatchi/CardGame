@@ -317,8 +317,8 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ### カードシステム
 
 ```
-CardData              抽象基底クラス。id / name / cost / Attack / Defense / Speed / Hp / image(Sprite)
-  CharacterCardData   キャラカード。Attack / Defense / Speed / Hp 値を保持。メインフェーズで表向きにフィールドへ配置
+CardData              抽象基底クラス。id / name / cost / Attack / Defense / Hp / image(Sprite)
+  CharacterCardData   キャラカード。Attack / Defense / Hp 値を保持。メインフェーズで表向きにフィールドへ配置
   EventCardData       イベントカード。EventType と EventValue を保持。メインフェーズで即時解決し墓地へ
 
 EventType         enum（EffectType.cs）。
@@ -345,10 +345,9 @@ TurnPhase         enum。Draw / Main
 ```
 CardView          VisualElement サブクラス。Card.uxml をクローンしてデータをバインド
                   イラスト（Sprite）をカード全面背景の ImageArea に表示
-                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 毒アイコン / 回復量 → 防御 → 素早さ
+                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 毒アイコン / 回復量 → 防御
                   コスト：CostIcon.png にコスト数字を重ねた 36×36px バッジ
                   HP：HeartIcon.png に HP 数字を重ねた 36×36px バッジ（キャラカードのみ表示）
-                  速さ：SpeedIcon.png に速さ数字を重ねた 36×36px バッジ（キャラカードのみ表示）
                   防御：ShieldIcon.png に防御数字を重ねた 36×36px バッジ（キャラカードのみ表示）
                   攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（キャラ・技カードに表示。イベントは非表示）
                   毒：PoisonIcon.png バッジ（Poison 技カードのみ、攻撃力の下に表示）

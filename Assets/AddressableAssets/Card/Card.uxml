@@ -19,15 +19,9 @@
                     <ui:Label name="AtkLabel" class="game-card__atk" />
                 </ui:VisualElement>
 
-                <ui:VisualElement class="game-card__def-spd-row">
-                    <ui:VisualElement class="game-card__def-area">
-                        <ui:VisualElement class="game-card__shield-icon" />
-                        <ui:Label name="DefLabel" class="game-card__def" />
-                    </ui:VisualElement>
-                    <ui:VisualElement class="game-card__spd-area">
-                        <ui:VisualElement class="game-card__speed-icon" />
-                        <ui:Label name="SpdLabel" class="game-card__spd" />
-                    </ui:VisualElement>
+                <ui:VisualElement class="game-card__def-area">
+                    <ui:VisualElement class="game-card__shield-icon" />
+                    <ui:Label name="DefLabel" class="game-card__def" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

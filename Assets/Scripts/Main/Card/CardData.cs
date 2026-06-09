@@ -15,7 +15,6 @@ namespace Main.Card
 
         public virtual int Attack => 0;
         public virtual int Defense => 0;
-        public virtual int Speed => 0;
         public virtual int Hp => 0;
 
         protected CardData() { }
