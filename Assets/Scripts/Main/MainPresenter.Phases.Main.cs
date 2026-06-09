@@ -194,22 +194,20 @@ namespace Main
 
         private async UniTask ExecuteAttackAsync(CardView attacker, CardView target, bool isLocal, CancellationToken ct)
         {
-            if (attacker == null)
+            if (attacker == null || target == null)
             {
                 return;
             }
 
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
-            DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
 
-            VisualElement targetVE = target != null ? (VisualElement)target : targetDeck;
-            await PlayCardChargeAsync(attacker, targetVE, ct);
+            await PlayCardChargeAsync(attacker, target, ct);
 
             int atk = attacker.Data.Attack;
             int damage = atk;
 
-            if (damage == 0 && target != null)
+            if (damage == 0)
             {
                 await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", target, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
@@ -318,16 +316,6 @@ namespace Main
                             _actionType = MainPhaseActionType.Attack,
                             _attacker = capturedChar,
                             _target = targetChar
-                        });
-                        return true;
-                    }
-                    if (_opponentDeckView.worldBound.Contains(worldPos))
-                    {
-                        _mainActionTcs?.TrySetResult(new MainPhaseAction
-                        {
-                            _actionType = MainPhaseActionType.Attack,
-                            _attacker = capturedChar,
-                            _target = null
                         });
                         return true;
                     }

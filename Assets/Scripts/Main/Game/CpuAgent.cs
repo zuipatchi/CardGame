@@ -33,7 +33,7 @@ namespace Main.Game
             return bestIdx;
         }
 
-        // メインフェーズ攻撃：最高ATKキャラを選ぶ。相手キャラがいればATK最小を狙う。いなければデッキ直撃 (targetIdx = -1)
+        // メインフェーズ攻撃：最高ATKキャラを選ぶ。相手キャラがいればATK最小を狙う。いなければ攻撃しない (-1, -1)
         public static (int attackerIdx, int targetIdx) ChooseBattleAttack(
             IReadOnlyList<CardData> ownChars, IReadOnlyList<CardData> opponentChars)
         {
@@ -55,7 +55,7 @@ namespace Main.Game
 
             if (opponentChars.Count == 0)
             {
-                return (attackerIdx, -1);
+                return (-1, -1);
             }
 
             int targetIdx = 0;
