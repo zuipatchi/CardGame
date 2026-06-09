@@ -317,14 +317,14 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ### カードシステム
 
 ```
-CardData              抽象基底クラス。id / name / cost / Attack / Defense / Hp / Attribute / image(Sprite)
-  CharacterCardData   キャラカード。Attack / Defense / Hp / Attribute 値を保持。メインフェーズで表向きにフィールドへ配置
+CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite)
+  CharacterCardData   キャラカード。Attack / Hp / Attribute 値を保持。メインフェーズで表向きにフィールドへ配置
   EventCardData       イベントカード。EventType / EventValue / Attribute を保持。メインフェーズで即時解決し墓地へ
 
 CardAttribute     enum（CardAttribute.cs）。Red / Blue / Green / Yellow / Black / Purple / White
 
 EventType         enum（EffectType.cs）。
-                  None / AtkBoost（次の戦闘の ATK を加算）/ DefBoost（次の戦闘の有効 DEF を加算）
+                  None / AtkBoost（次の戦闘の ATK を加算）/ DefBoost（定義のみ。防御力が廃止されたため現在未使用）
                   Draw（EventValue 枚ドロー）/ Negate（相手のイベントを無効化）
                   BanishChar（相手キャラをフィールドから墓地へ）
                   Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
@@ -347,15 +347,14 @@ TurnPhase         enum。Draw / Main
 ```
 CardView          VisualElement サブクラス。Card.uxml をクローンしてデータをバインド
                   イラスト（Sprite）をカード全面背景の ImageArea に表示
-                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 毒アイコン / 回復量 → 防御
+                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 毒アイコン / 回復量
                   コスト：CostIcon.png にコスト数字を重ねた 36×36px バッジ
                   HP：HeartIcon.png に HP 数字を重ねた 36×36px バッジ（キャラカードのみ表示）
-                  防御：ShieldIcon.png に防御数字を重ねた 36×36px バッジ（キャラカードのみ表示）
                   攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（キャラ・技カードに表示。イベントは非表示）
                   毒：PoisonIcon.png バッジ（Poison 技カードのみ、攻撃力の下に表示）
                   回復量：HeartIcon.png に回復量数字を重ねた 36×36px バッジ（Recover 技カードのみ、攻撃力の下に表示）
 
-                  カード種別フレーム（キャラ=青 / 技=赤 / イベント=黄の 2px ボーダー）を ApplyTypeFrame(bool) で制御。裏向き時は非表示、ImageArea も非表示になりカード内容が見えない
+                  属性カラーフレーム（Red=赤 / Blue=青 / Green=緑 / Yellow=黄 / Black=黒紫 / Purple=紫 / White=白灰の 2px ボーダー）を ApplyTypeFrame(bool) で制御。裏向き時は非表示、ImageArea も非表示になりカード内容が見えない
                   State（Normal/Resolve）を持ち、Resolve 時は黄色枠で表示
                   IsOpponent フラグ（コンストラクタで設定）で相手カードかどうかを表す。バトル解決フェーズの isLocal 判定に使用
                   FlipAsync() で DOTween による裏返しアニメーション（表向き時にフレーム・ImageArea を表示、裏向き時に非表示）
@@ -476,7 +475,7 @@ RunMainPhaseAsync
 ExecuteAttackAsync  （Attack アクション実行時）
   → PlayCardChargeAsync: 攻撃キャラのコピーが「ウィンドアップ → 突撃 → ノックバック → 元位置へ戻る」演出
                           演出中は元カードを visibility: hidden で非表示
-  → ダメージ = MAX(0, ATK − DEF)。0 なら "NO DAMAGE" 表示
+  → ダメージ = ATK。0 なら "NO DAMAGE" 表示
   → damage > 0: PlayDamageNumberFlyAsync → PlayDeckDamageAsync でデッキカードを墓地へ
   → キャラ破壊: PlayCharDestroyEffectAsync → FlyToGraveyardAsync
   → 毒チェック・BattleEndMill 発動

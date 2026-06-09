@@ -143,7 +143,7 @@ PlayDeckDamageAsync
 
 **④ 対応済みの効果（既存 EventType をそのまま利用）**
 
-CharDamage / Draw / AtkBoost / DefBoost / Recover / Switch / Evolve / Poison / DeckMill など、`ApplyEventEffectAsync` が対応している全効果が使用可能。
+CharDamage / Draw / Recover / Switch / Evolve / Poison / DeckMill など、`ApplyEventEffectAsync` が対応している全効果が使用可能。AtkBoost / DefBoost は enum に定義済みだが現在未実装（DefBoost は防御力廃止により無効）。
 
 ---
 
