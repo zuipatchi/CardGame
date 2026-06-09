@@ -217,8 +217,6 @@ namespace Main
                 return;
             }
 
-            bool charWillBeDestroyed = target != null && damage >= target.Data.Hp;
-
             if (damage > 0)
             {
                 Vector2 damageOrigin = target?.worldBound.center ?? targetDeck.worldBound.center;
@@ -235,7 +233,11 @@ namespace Main
                     ResetTurnState();
                     return;
                 }
+
+                target?.TakeDamage(damage);
             }
+
+            bool charWillBeDestroyed = target != null && target.CurrentHp <= 0;
 
             if (charWillBeDestroyed && targetField.Contains(target))
             {

@@ -275,8 +275,6 @@ namespace Main
                 return;
             }
 
-            bool charWillBeDestroyed = damage >= targetChar.Data.Hp;
-
             if (_charDamageEffectPrefab != null)
             {
                 await PlayParticleAtUiPositionAsync(targetChar, targetChar.worldBound.center, _charDamageEffectPrefab, ct);
@@ -294,6 +292,9 @@ namespace Main
                 OnGameEnd(isLocal);
                 return;
             }
+
+            targetChar.TakeDamage(damage);
+            bool charWillBeDestroyed = targetChar.CurrentHp <= 0;
 
             if (charWillBeDestroyed && targetField.Contains(targetChar))
             {

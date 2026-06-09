@@ -19,11 +19,13 @@ namespace Main.Card
         private readonly VisualElement _hpArea;
         private readonly Label _atkLabel;
         private readonly Label _hpLabel;
+        private int _currentHp;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
         public CardData Data { get; }
         public CardState State { get; private set; }
+        public int CurrentHp => _currentHp;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -173,12 +175,25 @@ namespace Main.Card
             };
         }
 
+        public void TakeDamage(int damage)
+        {
+            _currentHp -= damage;
+            _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
+        }
+
+        public void ResetCurrentHp()
+        {
+            _currentHp = Data.Hp;
+            _hpLabel.text = _currentHp.ToString();
+        }
+
         private void Bind(CardData data)
         {
+            _currentHp = data.Hp;
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
             _atkLabel.text = data.Attack.ToString();
-            _hpLabel.text = data.Hp.ToString();
+            _hpLabel.text = _currentHp.ToString();
 
             _atkArea.style.display = data is EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;

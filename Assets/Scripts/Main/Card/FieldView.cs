@@ -66,6 +66,7 @@ namespace Main.Card
 
         public void PlaceCard(CardView card)
         {
+            card.ResetCurrentHp();
             card.RemoveDragManipulator();
             card.style.position = Position.Relative;
             card.style.left = StyleKeyword.Null;
