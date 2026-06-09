@@ -74,7 +74,7 @@ namespace Main
 
                 if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
                 {
-                    ShowToast("手札が足りません");
+                    ShowToast("コストが払えません");
                     return false;
                 }
 
@@ -104,7 +104,7 @@ namespace Main
                 {
                     if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
                     {
-                        ShowToast("手札が足りません");
+                        ShowToast("コストが払えません");
                         return false;
                     }
                     _playerFieldView.PlaceCard(card);
@@ -126,7 +126,7 @@ namespace Main
                 {
                     if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
                     {
-                        ShowToast("手札が足りません");
+                        ShowToast("コストが払えません");
                         return false;
                     }
                     bool placed = _playerFieldView.TryPlace(card, worldPos);
