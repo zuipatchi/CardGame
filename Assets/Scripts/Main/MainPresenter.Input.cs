@@ -71,9 +71,15 @@ namespace Main
 
                 _playerFieldView.PlaceCard(card);
                 _switchInput._card = card;
-                UpdateStagedButtons(_switchInput._card != null);
-                UpdateCostWarning(_switchInput._card);
-                if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                if (card.Data.Cost > 0)
+                {
+                    BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                }
+                else
+                {
+                    UpdateStagedButtons(true);
+                    if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                }
                 return true;
             }
 
@@ -90,9 +96,15 @@ namespace Main
                     _playerFieldView.PlaceCard(card);
                     _mainStagedCard = card;
                     _mainStagedType = MainPhaseActionType.PlaceChar;
-                    UpdateStagedButtons(true);
-                    UpdateCostWarning(card);
-                    if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                    if (card.Data.Cost > 0)
+                    {
+                        BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                    }
+                    else
+                    {
+                        UpdateStagedButtons(true);
+                        if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                    }
                     return true;
                 }
 
@@ -103,9 +115,15 @@ namespace Main
                     {
                         _mainStagedCard = card;
                         _mainStagedType = MainPhaseActionType.PlayEvent;
-                        UpdateStagedButtons(true);
-                        UpdateCostWarning(card);
-                        if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                        if (card.Data.Cost > 0)
+                        {
+                            BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                        }
+                        else
+                        {
+                            UpdateStagedButtons(true);
+                            if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
+                        }
                     }
                     return placed;
                 }
@@ -120,26 +138,30 @@ namespace Main
 
         private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CancellationToken ct)
         {
-            int required = Mathf.Min(cost, _handView.Cards.Count);
-            if (required == 0)
+            // BeginStagedCostSelection がドロップ時に先行して呼ばれた場合は TCS が既に存在する
+            if (_costSelectionTcs == null)
             {
-                return new List<CardView>();
+                int required = Mathf.Min(cost, _handView.Cards.Count);
+                if (required == 0)
+                {
+                    return new List<CardView>();
+                }
+
+                _requiredCostCount = required;
+                _costSelectionTcs = new UniTaskCompletionSource();
+                _selectedCostCards.Clear();
+
+                _costWarningLabel.text = _requiredCostCount < cost
+                    ? $"手札が足りません（{_requiredCostCount}/{cost}枚）"
+                    : $"コストを {_requiredCostCount} 枚選んでください";
+                _costWarningLabel.style.display = DisplayStyle.Flex;
+
+                foreach (CardView c in _handView.Cards)
+                {
+                    c.AddToClassList("cost-selectable");
+                }
+                ShowCostSelectionButtons();
             }
-
-            _requiredCostCount = required;
-            _costSelectionTcs = new UniTaskCompletionSource();
-            _selectedCostCards.Clear();
-
-            _costWarningLabel.text = required < cost
-                ? $"手札が足りません（{required}/{cost}枚）"
-                : $"コストを {required} 枚選んでください";
-            _costWarningLabel.style.display = DisplayStyle.Flex;
-
-            foreach (CardView c in _handView.Cards)
-            {
-                c.AddToClassList("cost-selectable");
-            }
-            ShowCostSelectionButtons();
 
             try
             {
@@ -188,7 +210,13 @@ namespace Main
                 card.AddToClassList("cost-selected");
             }
 
-            _okButton.SetEnabled(_selectedCostCards.Count >= _requiredCostCount);
+            bool enough = _selectedCostCards.Count >= _requiredCostCount;
+            _okButton.SetEnabled(enough);
+
+            if (enough && _optionModel.AutoOk.CurrentValue)
+            {
+                AutoOkAsync().Forget();
+            }
         }
 
         private void ShowCostSelectionButtons()
@@ -212,14 +240,15 @@ namespace Main
         {
             if (_costSelectionTcs != null)
             {
-                if (_selectedCostCards.Count >= _requiredCostCount)
+                if (_selectedCostCards.Count < _requiredCostCount)
                 {
-                    _costSelectionTcs.TrySetResult();
+                    return;
                 }
-                return;
+                // コスト TCS を解決し、このままステージ済みアクションの確定へ fall-through する
+                _costSelectionTcs.TrySetResult();
             }
 
-            // メインフェーズのカード確定（SET演出なし）
+            // メインフェーズのカード確定
             if (_gameModel.Phase == TurnPhase.Main && _mainActionTcs != null && _mainStagedCard != null)
             {
                 MainPhaseAction action = new MainPhaseAction
@@ -288,6 +317,7 @@ namespace Main
                 {
                     CardView card = _switchInput._card;
                     _switchInput._card = null;
+                    CancelStagedCostSelection();
                     ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                 }
                 return;
@@ -298,6 +328,7 @@ namespace Main
                 CardView card = _mainStagedCard;
                 _mainStagedCard = null;
                 _mainStagedType = MainPhaseActionType.None;
+                CancelStagedCostSelection();
                 ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
             }
         }
@@ -442,12 +473,60 @@ namespace Main
             _costWarningLabel.style.display = DisplayStyle.None;
         }
 
-        private void UpdateCostWarning(CardView card)
+        private void BeginStagedCostSelection(CardView staged, int availableForCost)
         {
-            // ドロップ直後に呼ばれるため staged card はまだ _entries に残っている → -1 で補正
-            int availableForCost = _handView.Cards.Count - 1;
-            bool show = card != null && card.Data.Cost > 0 && card.Data.Cost > availableForCost;
-            _costWarningLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            int cost = staged.Data.Cost;
+            int required = Mathf.Min(cost, availableForCost);
+            _requiredCostCount = required;
+            _costSelectionTcs = new UniTaskCompletionSource();
+            _selectedCostCards.Clear();
+
+            _costWarningLabel.text = required < cost
+                ? $"手札が足りません（{required}/{cost}枚）"
+                : $"コストを {required} 枚選んでください";
+            _costWarningLabel.style.display = DisplayStyle.Flex;
+
+            foreach (CardView c in _handView.Cards)
+            {
+                if (c != staged)
+                {
+                    c.AddToClassList("cost-selectable");
+                }
+            }
+
+            bool autoOk = _optionModel.AutoOk.CurrentValue;
+            _passButton.style.display = DisplayStyle.None;
+            _backButton.style.display = DisplayStyle.Flex;
+            _okButton.style.display = autoOk ? DisplayStyle.None : DisplayStyle.Flex;
+            _okButton.SetEnabled(required == 0);
+            _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
+
+            if (autoOk && required == 0)
+            {
+                AutoOkAsync().Forget();
+            }
+        }
+
+        private void CancelStagedCostSelection()
+        {
+            if (_costSelectionTcs == null)
+            {
+                return;
+            }
+
+            foreach (CardView c in _handView.Cards)
+            {
+                c.RemoveFromClassList("cost-selectable");
+                c.RemoveFromClassList("cost-selected");
+            }
+            foreach (CardView c in _selectedCostCards)
+            {
+                c.RemoveFromClassList("cost-selectable");
+                c.RemoveFromClassList("cost-selected");
+            }
+            _selectedCostCards.Clear();
+            _costSelectionTcs = null;
+            _requiredCostCount = 0;
         }
     }
 }
