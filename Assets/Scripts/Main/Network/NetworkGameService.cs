@@ -258,14 +258,20 @@ namespace Main.Network
             }
         }
 
-        public void SendMulliganDecision(bool mulliganed, string[] newDeckIds = null)
+        private static CustomMessagingManager GetMessagingManager()
         {
             NetworkManager nm = NetworkManager.Singleton;
             if (nm == null)
             {
-                return;
+                return null;
             }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+
+            return nm.CustomMessagingManager;
+        }
+
+        public void SendMulliganDecision(bool mulliganed, string[] newDeckIds = null)
+        {
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -320,12 +326,7 @@ namespace Main.Network
 
         public void SendMainAction(MainActionData action)
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -370,12 +371,7 @@ namespace Main.Network
 
         public void SendDrawNotification()
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -403,12 +399,7 @@ namespace Main.Network
 
         public void SendSwitchAction(string sacrificedCharId, string newCardId)
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -454,12 +445,7 @@ namespace Main.Network
 
         public void SendEvolveAction(string cardId)
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -506,12 +492,7 @@ namespace Main.Network
 
         private void SendDeckOrder(string messageName, string[] deckIds)
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
@@ -544,12 +525,7 @@ namespace Main.Network
 
         public void SendSurrenderNotification()
         {
-            NetworkManager nm = NetworkManager.Singleton;
-            if (nm == null)
-            {
-                return;
-            }
-            CustomMessagingManager messaging = nm.CustomMessagingManager;
+            CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;

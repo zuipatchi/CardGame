@@ -10,7 +10,6 @@ namespace Main.Card
     {
         private const int BaseCardCount = 5;
         private const float MinScale = 0.4f;
-        private const float CardWidth = 160f;
         private const float BaseMargin = 4f;
 
         private readonly List<CardView> _cards = new List<CardView>();
@@ -86,7 +85,7 @@ namespace Main.Card
         private void UpdateCardScales()
         {
             float scale = CurrentCardScale;
-            int margin = Mathf.RoundToInt((CardWidth / 2f) * (scale - CardScaleConstants.FieldSlot) + BaseMargin)
+            int margin = Mathf.RoundToInt((CardScaleConstants.CardWidth / 2f) * (scale - CardScaleConstants.FieldSlot) + BaseMargin)
                          - Mathf.Max(0, _cards.Count - BaseCardCount);
             foreach (CardView card in _cards)
             {

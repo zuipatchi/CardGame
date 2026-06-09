@@ -93,15 +93,15 @@ namespace Main
 
             CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: true, isOpponent: true);
             card.style.position = Position.Absolute;
-            card.style.left = deckRect.center.x - CardWidth / 2f;
-            card.style.top = deckRect.center.y - CardHeight / 2f;
+            card.style.left = deckRect.center.x - CardScaleConstants.CardWidth / 2f;
+            card.style.top = deckRect.center.y - CardScaleConstants.CardHeight / 2f;
             card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
             card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
             Rect handRect = _opponentHandView.worldBound;
-            float targetLeft = handRect.center.x - CardWidth / 2f;
-            float targetTop = handRect.yMax - CardHeight / 2f;
+            float targetLeft = handRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = handRect.yMax - CardScaleConstants.CardHeight / 2f;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
@@ -131,8 +131,8 @@ namespace Main
         private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
             card.style.position = Position.Absolute;
-            card.style.left = fromWorldRect.center.x - CardWidth / 2f;
-            card.style.top = fromWorldRect.center.y - CardHeight / 2f;
+            card.style.left = fromWorldRect.center.x - CardScaleConstants.CardWidth / 2f;
+            card.style.top = fromWorldRect.center.y - CardScaleConstants.CardHeight / 2f;
             card.style.width = StyleKeyword.Null;
             card.style.height = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);
@@ -144,8 +144,8 @@ namespace Main
             _dragLayer.Add(card);
 
             Rect destRect = dest.worldBound;
-            float targetLeft = destRect.center.x - CardWidth / 2f;
-            float targetTop = destRect.center.y - CardHeight / 2f;
+            float targetLeft = destRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = destRect.center.y - CardScaleConstants.CardHeight / 2f;
 
             if (delay > 0f)
             {
@@ -188,11 +188,11 @@ namespace Main
             const float CardInterval = 0.05f;
 
             Rect fromRect = sourceGraveyard.worldBound;
-            float startLeft = fromRect.center.x - CardWidth / 2f;
-            float startTop = fromRect.center.y - CardHeight / 2f;
+            float startLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float startTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
             Rect destRect = targetDeck.worldBound;
-            float targetLeft = destRect.center.x - CardWidth / 2f;
-            float targetTop = destRect.center.y - CardHeight / 2f;
+            float targetLeft = destRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = destRect.center.y - CardScaleConstants.CardHeight / 2f;
 
             List<CardView> tempCards = new List<CardView>(cards.Count);
             List<UniTaskCompletionSource> tcsList = new List<UniTaskCompletionSource>(cards.Count);
@@ -369,15 +369,15 @@ namespace Main
             const float CardInterval = 0.06f;
 
             Rect toRect = graveyard.worldBound;
-            float targetLeft = toRect.center.x - CardWidth / 2f;
-            float targetTop = toRect.center.y - CardHeight / 2f;
+            float targetLeft = toRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = toRect.center.y - CardScaleConstants.CardHeight / 2f;
 
             for (int i = 0; i < costEntries.Count; i++)
             {
                 (CardView c, Rect fromRect) = costEntries[i];
 
-                float startLeft = fromRect.center.x - CardWidth / 2f;
-                float startTop = fromRect.center.y - CardHeight / 2f;
+                float startLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+                float startTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
 
                 c.style.position = Position.Absolute;
                 c.style.left = startLeft;
@@ -437,10 +437,10 @@ namespace Main
             const float CardInterval = 0.06f;
 
             Rect toRect = graveyard.worldBound;
-            float startLeft = fromRect.center.x - CardWidth / 2f;
-            float startTop = fromRect.center.y - CardHeight / 2f;
-            float targetLeft = toRect.center.x - CardWidth / 2f;
-            float targetTop = toRect.center.y - CardHeight / 2f;
+            float startLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float startTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+            float targetLeft = toRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = toRect.center.y - CardScaleConstants.CardHeight / 2f;
 
             List<(EventCardData data, bool isLocal)> graveTriggers = null;
 
@@ -521,8 +521,8 @@ namespace Main
             }
 
             Rect deckRect = deck.worldBound;
-            float targetLeft = deckRect.center.x - CardWidth / 2f;
-            float targetTop = deckRect.center.y - CardHeight / 2f;
+            float targetLeft = deckRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = deckRect.center.y - CardScaleConstants.CardHeight / 2f;
 
             List<(CardView card, Rect fromRect)> entries = new List<(CardView, Rect)>();
             foreach (CardView c in snapshot)
@@ -554,10 +554,10 @@ namespace Main
 
             GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
             Rect graveBound = graveyard.worldBound;
-            float cardLeft = graveBound.center.x - CardWidth / 2f;
+            float cardLeft = graveBound.center.x - CardScaleConstants.CardWidth / 2f;
             // プレイヤーの墓地（画面下）は上方向、相手の墓地（画面上）は下方向へ配置
             float cardTop = isLocal
-                ? graveBound.yMin - CardHeight - 4f
+                ? graveBound.yMin - CardScaleConstants.CardHeight - 4f
                 : graveBound.yMax + 4f;
 
             CardView tempCard = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false);
@@ -595,8 +595,8 @@ namespace Main
             CancellationToken ct)
         {
             card.style.position = Position.Absolute;
-            card.style.left = fromRect.center.x - CardWidth / 2f;
-            card.style.top = fromRect.center.y - CardHeight / 2f;
+            card.style.left = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            card.style.top = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
             card.style.width = StyleKeyword.Null;
             card.style.height = StyleKeyword.Null;
             card.style.rotate = new Rotate(0);

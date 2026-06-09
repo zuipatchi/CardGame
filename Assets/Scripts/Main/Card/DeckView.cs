@@ -8,8 +8,6 @@ namespace Main.Card
     {
         private const float StackOffsetX = 1f;
         private const float StackOffsetY = -1f;
-        private const float CardWidth = 160f;
-        private const float CardHeight = 220f;
 
         private readonly VisualTreeAsset _cardTemplate;
         private readonly Texture2D _backImage;
@@ -182,8 +180,8 @@ namespace Main.Card
 
         private void UpdateSize(int count)
         {
-            style.width = count > 1 ? CardWidth + (count - 1) * StackOffsetX : CardWidth;
-            style.height = count > 1 ? CardHeight + (count - 1) * Mathf.Abs(StackOffsetY) : CardHeight;
+            style.width = count > 1 ? CardScaleConstants.CardWidth + (count - 1) * StackOffsetX : CardScaleConstants.CardWidth;
+            style.height = count > 1 ? CardScaleConstants.CardHeight + (count - 1) * Mathf.Abs(StackOffsetY) : CardScaleConstants.CardHeight;
         }
     }
 }

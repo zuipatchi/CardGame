@@ -10,8 +10,6 @@ namespace Main.Card
 {
     public sealed class HandView : VisualElement
     {
-        private const float CardWidth = 160f;
-        private const float CardHeight = 220f;
         private const float CardSpacing = 100f;
         private const float MaxAngleDeg = 20f;
         private const float ArcLiftMax = 20f;
@@ -44,7 +42,7 @@ namespace Main.Card
             _isOpponent = isOpponent;
 
             style.overflow = Overflow.Visible;
-            style.height = CardHeight + ArcLiftMax;
+            style.height = CardScaleConstants.CardHeight + ArcLiftMax;
 
             if (cards.Length == 0)
             {
@@ -85,7 +83,7 @@ namespace Main.Card
             _dragLayer.Add(card);
 
             Rect handRect = worldBound;
-            float targetLeft = handRect.center.x - CardWidth / 2f;
+            float targetLeft = handRect.center.x - CardScaleConstants.CardWidth / 2f;
             float targetTop = handRect.yMin;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
@@ -164,7 +162,7 @@ namespace Main.Card
             _dragLayer.Add(card);
 
             Rect handRect = worldBound;
-            float targetLeft = handRect.center.x - CardWidth / 2f;
+            float targetLeft = handRect.center.x - CardScaleConstants.CardWidth / 2f;
             float targetTop = handRect.yMin;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
@@ -228,7 +226,7 @@ namespace Main.Card
         private void ApplyPositions(bool animate)
         {
             int count = _entries.Count;
-            style.width = count > 0 ? (count - 1) * CardSpacing + CardWidth : 0;
+            style.width = count > 0 ? (count - 1) * CardSpacing + CardScaleConstants.CardWidth : 0;
 
             float centerIndex = (count - 1) / 2f;
             for (int i = 0; i < count; i++)

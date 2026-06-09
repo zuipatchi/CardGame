@@ -14,8 +14,8 @@ namespace Main
         private async UniTask PlayCardChargeAsync(CardView attacker, VisualElement defender, CancellationToken ct)
         {
             Rect fromRect = attacker.worldBound;
-            float w = CardWidth;
-            float h = CardHeight;
+            float w = CardScaleConstants.CardWidth;
+            float h = CardScaleConstants.CardHeight;
             float flyLeft = fromRect.center.x - w / 2f;
             float flyTop = fromRect.center.y - h / 2f;
 

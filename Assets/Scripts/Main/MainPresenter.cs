@@ -24,8 +24,6 @@ namespace Main
         private const float DrawStagger = 0.12f;
         private const float CpuThinkSeconds = 0.8f;
         private const float CpuCardFlyDuration = 0.3f;
-        private const float CardWidth = 160f;
-        private const float CardHeight = 220f;
 
         private const float AnimationShortDelay = 0.25f;
 
