@@ -15,15 +15,12 @@ namespace Main.Card
         private const float CardSpacing = 100f;
         private const float MaxAngleDeg = 20f;
         private const float ArcLiftMax = 20f;
-        private const float HoverScaleTarget = 1.5f;
-        private const float HoverDuration = 0.15f;
         private const float RelayoutDuration = 0.2f;
         private const float FlyDuration = 0.3f;
 
         private struct HandCardEntry
         {
             public CardView Card;
-            public Tween ScaleTween;
         }
 
         public Func<CardView, Vector2, bool> OnCardDropped;
@@ -148,8 +145,6 @@ namespace Main.Card
                 return;
             }
 
-            HandCardEntry entry = _entries[idx];
-            entry.ScaleTween?.Kill();
             DOTween.Kill(card);
             _entries.RemoveAt(idx);
             card.RemoveFromHierarchy();
@@ -281,22 +276,7 @@ namespace Main.Card
                     return;
                 }
 
-                int idx = IndexOf(capturedCard);
-                if (idx < 0)
-                {
-                    return;
-                }
-
-                HandCardEntry entry = _entries[idx];
-                entry.ScaleTween?.Kill();
                 capturedCard.BringToFront();
-                entry.ScaleTween = DOTween.To(
-                    () => capturedCard.style.scale.value.value.x,
-                    s => capturedCard.style.scale = new Scale(new Vector3(s, s, 1f)),
-                    HoverScaleTarget,
-                    HoverDuration
-                ).SetEase(Ease.OutQuad);
-                _entries[idx] = entry;
             });
 
             capturedCard.RegisterCallback<PointerLeaveEvent>(_ =>
@@ -312,35 +292,13 @@ namespace Main.Card
                     return;
                 }
 
-                HandCardEntry entry = _entries[idx];
-                entry.ScaleTween?.Kill();
                 Insert(Math.Min(idx, childCount - 1), capturedCard);
-                entry.ScaleTween = DOTween.To(
-                    () => capturedCard.style.scale.value.value.x,
-                    s => capturedCard.style.scale = new Scale(new Vector3(s, s, 1f)),
-                    1f,
-                    HoverDuration
-                ).SetEase(Ease.OutQuad);
-                _entries[idx] = entry;
             });
 
             if (_dragLayer == null)
             {
                 return;
             }
-
-            capturedCard.RegisterCallback<PointerDownEvent>(_ =>
-            {
-                int idx = IndexOf(capturedCard);
-                if (idx >= 0)
-                {
-                    HandCardEntry entry = _entries[idx];
-                    entry.ScaleTween?.Kill();
-                    capturedCard.style.scale = new Scale(Vector3.one);
-                    entry.ScaleTween = null;
-                    _entries[idx] = entry;
-                }
-            });
 
             ReattachDragManipulator(capturedCard);
         }
@@ -363,7 +321,6 @@ namespace Main.Card
                     int idx = IndexOf(capturedCard);
                     if (idx >= 0)
                     {
-                        _entries[idx].ScaleTween?.Kill();
                         _entries.RemoveAt(idx);
                     }
 
