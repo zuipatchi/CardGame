@@ -405,7 +405,6 @@ namespace Main
                 _evolveInput._tcs = null;
                 _evolveMinCost = 0;
                 HideActionButtons();
-                RefreshHandHighlights();
             }
         }
 
@@ -549,7 +548,6 @@ namespace Main
             {
                 _switchInput._tcs = null;
                 HideActionButtons();
-                RefreshHandHighlights();
             }
         }
 

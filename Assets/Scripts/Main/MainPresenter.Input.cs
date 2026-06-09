@@ -448,14 +448,6 @@ namespace Main
             return false;
         }
 
-        private void RefreshHandHighlights()
-        {
-            foreach (CardView card in _handView.Cards)
-            {
-                card.SetPlayableHighlight(IsCardPlayable(card));
-            }
-        }
-
         private bool HasPlayableCards()
         {
             foreach (CardView card in _handView.Cards)
@@ -472,7 +464,6 @@ namespace Main
 
         private void UpdateStagedButtons(bool hasStaged)
         {
-            RefreshHandHighlights();
             bool autoOk = _optionModel.AutoOk.CurrentValue;
             _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
             _backButton.style.display = (hasStaged && !autoOk) ? DisplayStyle.Flex : DisplayStyle.None;

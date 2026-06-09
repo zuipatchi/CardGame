@@ -430,7 +430,6 @@ namespace Main
 
             ShowActionButtons();
             UpdateStagedButtons(false);
-            RefreshHandHighlights();
 
             try
             {
@@ -442,7 +441,6 @@ namespace Main
                 _mainStagedCard = null;
                 _mainStagedType = MainPhaseActionType.None;
                 HideActionButtons();
-                RefreshHandHighlights();
                 foreach ((CardView card, AttackArrowManipulator manip) in manipulators)
                 {
                     manip.ClearArrow();

@@ -22,7 +22,6 @@ namespace Main.Card
         private readonly Label _defLabel;
         private readonly Label _hpLabel;
         private CardDragManipulator _dragManipulator;
-        private Tween _playableHighlightTween;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
         public CardData Data { get; }
@@ -67,47 +66,6 @@ namespace Main.Card
             {
                 ApplyTypeFrame(true);
             }
-        }
-
-        public void SetPlayableHighlight(bool playable)
-        {
-            _playableHighlightTween?.Kill();
-            _playableHighlightTween = null;
-            _cardRoot.style.borderTopColor = StyleKeyword.Null;
-            _cardRoot.style.borderRightColor = StyleKeyword.Null;
-            _cardRoot.style.borderBottomColor = StyleKeyword.Null;
-            _cardRoot.style.borderLeftColor = StyleKeyword.Null;
-            _cardRoot.style.borderTopWidth = StyleKeyword.Null;
-            _cardRoot.style.borderRightWidth = StyleKeyword.Null;
-            _cardRoot.style.borderBottomWidth = StyleKeyword.Null;
-            _cardRoot.style.borderLeftWidth = StyleKeyword.Null;
-            if (!playable)
-            {
-                return;
-            }
-
-            _cardRoot.style.borderTopWidth = 4f;
-            _cardRoot.style.borderRightWidth = 4f;
-            _cardRoot.style.borderBottomWidth = 4f;
-            _cardRoot.style.borderLeftWidth = 4f;
-
-            Color typeColor = GetAttributeColor(Data.Attribute);
-
-            float t = 0f;
-            _playableHighlightTween = DOTween.To(
-                () => t,
-                v =>
-                {
-                    t = v;
-                    Color c = Color.Lerp(typeColor, Color.white, v);
-                    _cardRoot.style.borderTopColor = new StyleColor(c);
-                    _cardRoot.style.borderRightColor = new StyleColor(c);
-                    _cardRoot.style.borderBottomColor = new StyleColor(c);
-                    _cardRoot.style.borderLeftColor = new StyleColor(c);
-                },
-                1f,
-                0.5f
-            ).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
         }
 
         public void AttachDragManipulator(CardDragManipulator manipulator)
