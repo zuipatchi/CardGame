@@ -26,15 +26,18 @@ namespace Main
             if (isLocalTurn)
             {
                 MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
-                string[] costCardIds = await ExecuteLocalMainActionAsync(action, ct);
+                string[] costCardIds = await ExecuteLocalMainCostAsync(action, ct);
 
-                // コスト支払い完了後に送信（相手ドロー通知はロスト防止のため送信前に登録）
+                // コスト支払い完了後すぐに送信（解決アニメーション前に相手へ通知することでテンポ改善）
+                // 相手ドロー通知はロスト防止のため送信前に登録
                 if (_isOnline)
                 {
                     _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
                     _hasPreDrawTask = true;
                     _networkGameService.SendMainAction(ToNetworkAction(action, costCardIds));
                 }
+
+                await ExecuteLocalMainResolveAsync(action, ct);
             }
             else if (_isOnline)
             {
@@ -62,24 +65,33 @@ namespace Main
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
 
-        private async UniTask<string[]> ExecuteLocalMainActionAsync(MainPhaseAction action, CancellationToken ct)
+        private async UniTask<string[]> ExecuteLocalMainCostAsync(MainPhaseAction action, CancellationToken ct)
         {
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlaceChar:
-                    return await PayHandCostAsync(action._card, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                 case MainPhaseActionType.PlayEvent:
-                {
-                    string[] costIds = await PayHandCostAsync(action._card, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
+                    return await PayHandCostAsync(action._card, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
+                default:
+                    return Array.Empty<string>();
+            }
+        }
+
+        private async UniTask ExecuteLocalMainResolveAsync(MainPhaseAction action, CancellationToken ct)
+        {
+            switch (action._actionType)
+            {
+                case MainPhaseActionType.PlayEvent:
                     await ResolveSingleCardAsync(action._card, ct);
-                    return costIds;
-                }
+                    break;
                 case MainPhaseActionType.Attack:
                     await ExecuteAttackAsync(action._attacker, action._target, isLocal: true, ct);
-                    return Array.Empty<string>();
+                    break;
+                case MainPhaseActionType.PlaceChar:
+                    break;
                 default:
                     await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
-                    return Array.Empty<string>();
+                    break;
             }
         }
 
