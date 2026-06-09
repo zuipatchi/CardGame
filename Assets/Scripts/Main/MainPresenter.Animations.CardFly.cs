@@ -270,7 +270,7 @@ namespace Main
 
         // ─── コスト払い（手札から選択→墓地）─────────────────────────────
 
-        private async UniTask<string[]> PayHandCostAsync(CardView card, HandView hand, GraveyardView graveyard, bool isLocalPlayer, CancellationToken ct, bool announce = true, string[] costCardIds = null)
+        private async UniTask<string[]> PayHandCostAsync(CardView card, HandView hand, GraveyardView graveyard, bool isLocalPlayer, CancellationToken ct, string[] costCardIds = null)
         {
             if (_isGameOver)
             {
@@ -346,18 +346,10 @@ namespace Main
                 return Array.Empty<string>();
             }
 
-            List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayHandCostFlyAsync(costEntries, graveyard, ct));
-            tasks.Add(PlayCostEffectAtCardAsync(card, ct));
-            if (announce)
-            {
-                string costClass = isLocalPlayer
-                    ? "turn-announcement-label--cost"
-                    : "turn-announcement-label--cost-opponent";
-                tasks.Add(UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
-                    .ContinueWith(() => PlayAnnouncementAsync($"PAY {cost} COSTS", costClass, ct)));
-            }
-            await UniTask.WhenAll(tasks);
+            await UniTask.WhenAll(
+                PlayHandCostFlyAsync(costEntries, graveyard, ct),
+                PlayCostEffectAtCardAsync(card, ct));
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
             return isLocalPlayer
                 ? costEntries.Select(e => e.costCard.Data.Id).ToArray()
@@ -390,6 +382,7 @@ namespace Main
                 c.style.position = Position.Absolute;
                 c.style.left = startLeft;
                 c.style.top = startTop;
+                c.style.bottom = StyleKeyword.Null;
                 c.style.width = StyleKeyword.Null;
                 c.style.height = StyleKeyword.Null;
                 c.style.rotate = new Rotate(0);
@@ -399,13 +392,16 @@ namespace Main
                 c.style.marginRight = StyleKeyword.Null;
                 _dragLayer.Add(c);
 
+                float curLeft = startLeft;
+                float curTop = startTop;
+                float curScale = CardScaleConstants.HandDeck;
                 UniTaskCompletionSource tcs = new UniTaskCompletionSource();
                 Sequence seq = DOTween.Sequence()
-                    .Join(DOTween.To(() => c.style.left.value.value, v => c.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
-                    .Join(DOTween.To(() => c.style.top.value.value, v => c.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => curLeft, v => { curLeft = v; c.style.left = v; }, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => curTop, v => { curTop = v; c.style.top = v; }, targetTop, FlyDuration).SetEase(Ease.InQuad))
                     .Join(DOTween.To(
-                        () => c.style.scale.value.value.x,
-                        s => c.style.scale = new Scale(new Vector3(s, s, 1f)),
+                        () => curScale,
+                        s => { curScale = s; c.style.scale = new Scale(new Vector3(s, s, 1f)); },
                         0f, FlyDuration).SetEase(Ease.InQuad))
                     .OnComplete(() => tcs.TrySetResult());
 
