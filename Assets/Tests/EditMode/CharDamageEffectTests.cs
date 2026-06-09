@@ -14,7 +14,7 @@ namespace Tests.EditMode
         private static CardView MakeCharacter(int defense, int hp)
         {
             VisualTreeAsset template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TemplatePath);
-            return new CardView(template, new CharacterCardData("C001", "戦士", 2, 3, defense, 0, hp));
+            return new CardView(template, new CharacterCardData("C001", "戦士", 2, 3, defense, hp));
         }
 
         private static int CalculateDamage(int baseAtk, int charDef, int defBoost, bool hasChar)
