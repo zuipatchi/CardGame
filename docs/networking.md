@@ -361,6 +361,7 @@ await PlayAnnouncementAsync("イベントフェーズ", ..., ct);
 | `NGS_CharSet` | Both | キャラセットフェーズ行動（passed / cardId） |
 | `NGS_PreBattle2` | Both | 戦闘前2フェーズ行動（passed / cardId） |
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
+| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / costCardIds[]）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
