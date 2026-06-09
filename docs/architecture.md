@@ -324,15 +324,12 @@ CardData              抽象基底クラス。id / name / cost / Attack / Hp / A
 CardAttribute     enum（CardAttribute.cs）。Red / Blue / Green / Yellow / Black / Purple / White
 
 EventType         enum（EffectType.cs）。
-                  None / AtkBoost（次の戦闘の ATK を加算）/ DefBoost（定義のみ。防御力が廃止されたため現在未使用）
-                  Draw（EventValue 枚ドロー）/ Negate（相手のイベントを無効化）
+                  None / AtkBoost / DefBoost（enum に定義のみ。現在は未使用）
+                  Draw（EventValue 枚ドロー）/ Negate（enum に定義のみ。現在は未使用）
                   BanishChar（相手キャラをフィールドから墓地へ）
                   Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
-                  Switch（自分のキャラを手札に戻して別キャラを配置）/ CharDamage（相手キャラに直接ダメージ）
+                  Switch（自分のキャラを手札に戻して別キャラを配置）
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
-                  Poison（攻撃を受けたキャラを戦闘後に破壊する毒効果。1ターン限り）
-                  DeckMill（両デッキ上から EventValue 枚を即時墓地へ。発動プレイヤーのデッキを先に処理し、要求枚数を出し切れなかった側が敗北）
-                  BattleEndMill（**永続効果**。攻撃終了後に相手デッキ上から EventValue 枚を墓地へ）
 
 CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
 
@@ -347,16 +344,14 @@ TurnPhase         enum。Draw / Main
 ```
 CardView          VisualElement サブクラス。Card.uxml をクローンしてデータをバインド
                   イラスト（Sprite）をカード全面背景の ImageArea に表示
-                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力 → 毒アイコン / 回復量
+                  カード情報は左上に縦一列表示：カード名 → コスト → （キャラ）HP → 攻撃力
                   コスト：CostIcon.png にコスト数字を重ねた 36×36px バッジ
-                  HP：HeartIcon.png に HP 数字を重ねた 36×36px バッジ（キャラカードのみ表示）。ランタイムの残 HP は `CurrentHp` フィールドで管理し `TakeDamage(n)` で減算（ラベルは 0 未満表示しない）
-                  攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（キャラ・技カードに表示。イベントは非表示）
-                  毒：PoisonIcon.png バッジ（Poison 技カードのみ、攻撃力の下に表示）
-                  回復量：HeartIcon.png に回復量数字を重ねた 36×36px バッジ（Recover 技カードのみ、攻撃力の下に表示）
+                  HP：HeartIcon.png に HP 数字を重ねた 36×36px バッジ（キャラカードのみ表示）。ランタイムの残 HP は `CurrentHp` フィールドで管理し、`TakeDamage(n)` で同期的に減算、`TakeDamageAsync(n, ct)` でアニメーション付き減算（ラベルは 0 未満表示しない）
+                  攻撃力：AttackIcon.png に攻撃力数字を重ねた 36×36px バッジ（キャラカードに表示。イベントは非表示）
 
                   属性カラーフレーム（Red=赤 / Blue=青 / Green=緑 / Yellow=黄 / Black=黒紫 / Purple=紫 / White=白灰の 2px ボーダー）を ApplyTypeFrame(bool) で制御。裏向き時は非表示、ImageArea も非表示になりカード内容が見えない
                   State（Normal/Resolve）を持ち、Resolve 時は黄色枠で表示
-                  IsOpponent フラグ（コンストラクタで設定）で相手カードかどうかを表す。バトル解決フェーズの isLocal 判定に使用
+                  IsOpponent フラグ（コンストラクタで設定）で相手カードかどうかを表す。メインフェーズの isLocal 判定に使用
                   FlipAsync() で DOTween による裏返しアニメーション（表向き時にフレーム・ImageArea を表示、裏向き時に非表示）
                   AttachDragManipulator() / RemoveDragManipulator() でドラッグ着脱
 HandView          VisualElement サブクラス。手札を扇状に表示（60% スケール）
@@ -476,17 +471,9 @@ ExecuteAttackAsync  （Attack アクション実行時）
   → PlayCardChargeAsync: 攻撃キャラのコピーが「ウィンドアップ → 突撃 → ノックバック → 元位置へ戻る」演出
                           演出中は元カードを visibility: hidden で非表示
   → ダメージ = ATK。0 なら "NO DAMAGE" 表示
-  → damage > 0: PlayDamageNumberFlyAsync → PlayDeckDamageAsync でデッキカードを墓地へ
+  → damage > 0: PlayParticleAtCardAsync（ヒットエフェクト）→ PlayHitDamageEffectAsync（フローティング「-N」ラベル）→ TakeDamageAsync（HP アニメーション）
   → キャラ破壊: PlayCharDestroyEffectAsync → FlyToGraveyardAsync
-  → 毒チェック・BattleEndMill 発動
 ```
-
-**ダメージ墓地送りアニメーション（PlayDeckDamageAsync）:**
-- `TakeFromTop(n)` で取り出した CardView を 1 枚ずつ逐次処理（0.06 秒間隔）
-- DragLayer に移動（UI Toolkit が DeckView から自動除去）直後に `OnCardRemovedVisually()` を呼んでデッキ表示を縮小
-- DragLayer に絶対配置してデッキ位置から墓地アイコン中央へ飛翔（0.3 秒、InQuad）しながらスケールを 0 に縮小
-- 到着後に `graveyard.AddCard(card)` で登録
-- 呼び出し側が先攻→後攻の順に逐次呼び出す
 
 **フライアニメーション（FlyCardToDestAsync）:**
 - `worldBound` をカード除去前にキャプチャ

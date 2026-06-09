@@ -87,20 +87,16 @@ public enum EventType
 
 演出のタイミングによって2パターンある（`ResolveSingleCardAsync` の `if/else if` ブランチ内に記述）：
 
-- **効果適用前に演出**（Draw / BanishChar）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラスロット上に「BANISH!」ラベル+パーティクルを表示してから破壊する。
-- **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内で `await FlyCardToDestAsync(...)` 等を呼ぶ。`worldBound` はスロット除去前に記録すること。
+- **効果適用前に演出**（Draw / BanishChar）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラ上に「BANISH!」ラベル+パーティクルを表示してから破壊する。
+- **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内で `await FlyCardToDestAsync(...)` 等を呼ぶ。`worldBound` はフィールドから除去前に記録すること。
 
 パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。回転が必要な場合は `PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct, Quaternion.Euler(x, y, z))` のように4引数版を使う。
 フローティングラベルのみの場合は `PlayFloatingLabelAsync(text, cssClass, anchor, ct)` を呼ぶ。`anchor` には演出の基準となる `VisualElement`（カードやスロット等）を渡す。CSS クラス名で見た目をカスタマイズする。
 ラベル + パーティクルの組み合わせは `PlayXxxEffectAsync` から `PlayFloatingLabelAsync` と `PlayParticleAtCardAsync` を `UniTask.WhenAll` で並列実行するパターンを使う。
 
-**解決フェーズ中にプレイヤー入力が必要な効果（Switch / Evolve 相当）の場合**
+**イベント効果解決中（メインフェーズ内の即時解決）にプレイヤー入力が必要な効果（Switch / Evolve 相当）の場合**
 
 `MainPresenter.cs` に `private readonly StagedInput _xxxInput = new StagedInput();` と必要なら状態変数（例: `private int _evolveMinCost;`）を追加し、`MainPresenter.Input.cs` の `HandlePlayerCardDrop` / `TryTakeStagedInput` / `OnPassClicked` / `OnBackClicked` / `CanPlayerDragCard` / `IsCardPlayable` の各メソッドに `_xxxInput._tcs != null` のチェックを追加する。`_switchInput` / `_evolveInput` の実装が参考例。`WaitForPlayerXxxInputAsync` でボタン表示・TCS 完了待ちを行い、`ApplyXxxEffectAsync` から `await WaitForPlayerXxxInputAsync(ct)` で結果を受け取る。ドロップ時にすでに `PlaceCard` が呼ばれるため、TCS 完了後に再度 `PlaceCard` しないこと。
-
-**解決後に速さを再評価する場合（Evolve 相当）**
-
-解決フェーズでキャラが変わりうる効果を追加したら、`MainPresenter.Phases.cs` の `RunTurnAsync` 内で `RunPreBattle2PhaseAsync` の**後**に `DetermineFirstMover` を再度呼んで `_gameModel.SetInitialTurn` を更新することで、戦闘フェーズの先攻後攻に反映される。
 
 ---
 
