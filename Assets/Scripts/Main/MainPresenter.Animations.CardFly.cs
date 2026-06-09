@@ -430,6 +430,11 @@ namespace Main
                 c.style.marginRight = StyleKeyword.Null;
                 _dragLayer.Add(c);
 
+                if (c.IsFaceDown)
+                {
+                    await c.FlipAsync(ct);
+                }
+
                 float curLeft = startLeft;
                 float curTop = startTop;
                 float curScale = CardScaleConstants.HandDeck;
