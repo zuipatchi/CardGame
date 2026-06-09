@@ -26,16 +26,15 @@ namespace Main
             if (isLocalTurn)
             {
                 MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
+                string[] costCardIds = await ExecuteLocalMainActionAsync(action, ct);
 
-                // 相手ドロー通知を事前登録（行動送信後すぐに相手ターンが来ても取りこぼさない）
+                // コスト支払い完了後に送信（相手ドロー通知はロスト防止のため送信前に登録）
                 if (_isOnline)
                 {
                     _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
                     _hasPreDrawTask = true;
-                    _networkGameService.SendMainAction(ToNetworkAction(action));
+                    _networkGameService.SendMainAction(ToNetworkAction(action, costCardIds));
                 }
-
-                await ExecuteLocalMainActionAsync(action, ct);
             }
             else if (_isOnline)
             {
@@ -63,22 +62,24 @@ namespace Main
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
 
-        private async UniTask ExecuteLocalMainActionAsync(MainPhaseAction action, CancellationToken ct)
+        private async UniTask<string[]> ExecuteLocalMainActionAsync(MainPhaseAction action, CancellationToken ct)
         {
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlaceChar:
-                    await PayCostAsync(action._card, _playerDeckView, _playerGraveyardView, ct);
-                    break;
+                    return await PayHandCostAsync(action._card, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                 case MainPhaseActionType.PlayEvent:
+                {
+                    string[] costIds = await PayHandCostAsync(action._card, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                     await ResolveSingleCardAsync(action._card, ct);
-                    break;
+                    return costIds;
+                }
                 case MainPhaseActionType.Attack:
                     await ExecuteAttackAsync(action._attacker, action._target, isLocal: true, ct);
-                    break;
+                    return Array.Empty<string>();
                 default:
                     await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
-                    break;
+                    return Array.Empty<string>();
             }
         }
 
@@ -96,7 +97,7 @@ namespace Main
                     CardView fieldCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(fieldCard, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(fieldCard);
-                    await PayCostAsync(fieldCard, _opponentDeckView, _opponentGraveyardView, ct);
+                    await PayHandCostAsync(fieldCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                     break;
                 }
                 case MainPhaseActionType.PlayEvent:
@@ -107,6 +108,7 @@ namespace Main
                     CardView eventCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(eventCard, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(eventCard);
+                    await PayHandCostAsync(eventCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                     await ResolveSingleCardAsync(eventCard, ct);
                     break;
                 }
@@ -138,7 +140,7 @@ namespace Main
                         CardView fieldCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                         await FlyCardToDestAsync(fieldCard, fromRect, _opponentFieldView, ct);
                         _opponentFieldView.PlaceCard(fieldCard);
-                        await PayCostAsync(fieldCard, _opponentDeckView, _opponentGraveyardView, ct);
+                        await PayHandCostAsync(fieldCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: networkAction.CostCardIds);
                     }
                     break;
                 }
@@ -155,6 +157,7 @@ namespace Main
                         CardView eventCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                         await FlyCardToDestAsync(eventCard, fromRect, _opponentFieldView, ct);
                         _opponentFieldView.PlaceCard(eventCard);
+                        await PayHandCostAsync(eventCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: networkAction.CostCardIds);
                         await ResolveSingleCardAsync(eventCard, ct);
                     }
                     break;
@@ -438,14 +441,14 @@ namespace Main
 
         // ─── ネットワークアクション変換 ─────────────────────────────────────
 
-        private static NetworkGameService.MainActionData ToNetworkAction(MainPhaseAction action)
+        private static NetworkGameService.MainActionData ToNetworkAction(MainPhaseAction action, string[] costCardIds = null)
         {
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlaceChar:
-                    return NetworkGameService.MainActionData.PlaceChar(action._card.Data.Id);
+                    return NetworkGameService.MainActionData.PlaceChar(action._card.Data.Id, costCardIds);
                 case MainPhaseActionType.PlayEvent:
-                    return NetworkGameService.MainActionData.PlayEvent(action._card.Data.Id);
+                    return NetworkGameService.MainActionData.PlayEvent(action._card.Data.Id, costCardIds);
                 case MainPhaseActionType.Attack:
                     return NetworkGameService.MainActionData.Attack(
                         action._attacker?.Data.Id,

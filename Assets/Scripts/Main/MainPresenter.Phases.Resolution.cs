@@ -441,7 +441,7 @@ namespace Main
                 }
                 if (newChar != null)
                 {
-                    await PayCostAsync(newChar, _playerDeckView, _playerGraveyardView, ct);
+                    await PayHandCostAsync(newChar, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                 }
             }
             else if (_isOnline)
@@ -481,7 +481,7 @@ namespace Main
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(newChar);
-                    await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
+                    await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
             }
             else
@@ -502,7 +502,7 @@ namespace Main
                     await FlyCardToDestAsync(newChar, fromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
                     await newChar.FlipAsync(ct);
-                    await PayCostAsync(newChar, _opponentDeckView, _opponentGraveyardView, ct);
+                    await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
             }
         }

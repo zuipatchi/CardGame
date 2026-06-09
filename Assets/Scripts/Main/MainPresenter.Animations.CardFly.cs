@@ -268,32 +268,90 @@ namespace Main
             deck.style.scale = new Scale(Vector3.one);
         }
 
-        // ─── コスト払い（デッキ上から→墓地）───────────────────────────────
+        // ─── コスト払い（手札から選択→墓地）─────────────────────────────
 
-        private async UniTask PayCostAsync(CardView card, DeckView deck, GraveyardView graveyard, CancellationToken ct, bool announce = true)
+        private async UniTask<string[]> PayHandCostAsync(CardView card, HandView hand, GraveyardView graveyard, bool isLocalPlayer, CancellationToken ct, bool announce = true, string[] costCardIds = null)
         {
             if (_isGameOver)
             {
-                return;
+                return Array.Empty<string>();
             }
 
             int cost = card.Data.Cost;
             if (cost <= 0)
             {
-                return;
+                return Array.Empty<string>();
             }
 
-            bool willLose = cost > deck.Count;
+            List<(CardView costCard, Rect fromRect)> costEntries;
 
-            Rect deckRect = deck.worldBound;
-            List<CardView> costCards = deck.TakeFromTop(cost);
+            if (isLocalPlayer)
+            {
+                List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, ct);
+                costEntries = new List<(CardView costCard, Rect fromRect)>();
+                foreach (CardView c in selected)
+                {
+                    costEntries.Add((c, c.worldBound));
+                }
+                foreach ((CardView c, Rect _) in costEntries)
+                {
+                    hand.RemoveCard(c);
+                }
+            }
+            else
+            {
+                costEntries = new List<(CardView costCard, Rect fromRect)>();
+                IReadOnlyList<CardView> handCards = hand.Cards;
+
+                if (costCardIds != null && costCardIds.Length > 0)
+                {
+                    // オンライン相手：手札はプレースホルダーなのでIDからデータを引いて新規CardViewを作る
+                    // 手札の先頭N枚を視覚的に減らす（どのカードかは不明なので先頭から除去）
+                    int toRemove = Mathf.Min(costCardIds.Length, handCards.Count);
+                    List<Rect> fromRects = new List<Rect>();
+                    for (int i = 0; i < costCardIds.Length; i++)
+                    {
+                        fromRects.Add(i < handCards.Count ? handCards[i].worldBound : hand.worldBound);
+                    }
+                    for (int i = 0; i < toRemove; i++)
+                    {
+                        hand.RemoveCard(handCards[i]);
+                    }
+                    for (int i = 0; i < costCardIds.Length; i++)
+                    {
+                        if (_cardDatabase.TryGet(costCardIds[i], out CardData costData))
+                        {
+                            CardView costCard = new CardView(_cardStore.CardTemplate, costData, _cardStore.CardBack, faceDown: false, isOpponent: true);
+                            costEntries.Add((costCard, fromRects[i]));
+                        }
+                    }
+                }
+                else
+                {
+                    // CPU：先頭N枚を自動選択
+                    int take = Mathf.Min(cost, hand.Cards.Count);
+                    for (int i = 0; i < take; i++)
+                    {
+                        costEntries.Add((handCards[i], handCards[i].worldBound));
+                    }
+                    foreach ((CardView c, Rect _) in costEntries)
+                    {
+                        hand.RemoveCard(c);
+                    }
+                }
+            }
+
+            if (costEntries.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayDeckDamageAsync(costCards, deckRect, graveyard, deck, ct));
+            tasks.Add(PlayHandCostFlyAsync(costEntries, graveyard, ct));
             tasks.Add(PlayCostEffectAtCardAsync(card, ct));
             if (announce)
             {
-                string costClass = deck == _playerDeckView
+                string costClass = isLocalPlayer
                     ? "turn-announcement-label--cost"
                     : "turn-announcement-label--cost-opponent";
                 tasks.Add(UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct)
@@ -301,10 +359,71 @@ namespace Main
             }
             await UniTask.WhenAll(tasks);
 
-            if (willLose)
+            return isLocalPlayer
+                ? costEntries.Select(e => e.costCard.Data.Id).ToArray()
+                : Array.Empty<string>();
+        }
+
+        // ─── 手札コストカード飛翔演出 ─────────────────────────────────────
+
+        private async UniTask PlayHandCostFlyAsync(List<(CardView card, Rect fromRect)> costEntries, GraveyardView graveyard, CancellationToken ct)
+        {
+            if (costEntries.Count == 0)
             {
-                _isGameOver = true;
-                OnGameEnd(deck == _playerDeckView ? (bool?)false : true);
+                return;
+            }
+
+            const float FlyDuration = 0.3f;
+            const float CardInterval = 0.06f;
+
+            Rect toRect = graveyard.worldBound;
+            float targetLeft = toRect.center.x - CardWidth / 2f;
+            float targetTop = toRect.center.y - CardHeight / 2f;
+
+            for (int i = 0; i < costEntries.Count; i++)
+            {
+                (CardView c, Rect fromRect) = costEntries[i];
+
+                float startLeft = fromRect.center.x - CardWidth / 2f;
+                float startTop = fromRect.center.y - CardHeight / 2f;
+
+                c.style.position = Position.Absolute;
+                c.style.left = startLeft;
+                c.style.top = startTop;
+                c.style.width = StyleKeyword.Null;
+                c.style.height = StyleKeyword.Null;
+                c.style.rotate = new Rotate(0);
+                c.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
+                c.style.transformOrigin = StyleKeyword.Null;
+                c.style.marginLeft = StyleKeyword.Null;
+                c.style.marginRight = StyleKeyword.Null;
+                _dragLayer.Add(c);
+
+                UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+                Sequence seq = DOTween.Sequence()
+                    .Join(DOTween.To(() => c.style.left.value.value, v => c.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => c.style.top.value.value, v => c.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(
+                        () => c.style.scale.value.value.x,
+                        s => c.style.scale = new Scale(new Vector3(s, s, 1f)),
+                        0f, FlyDuration).SetEase(Ease.InQuad))
+                    .OnComplete(() => tcs.TrySetResult());
+
+                ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+                try { await tcs.Task; }
+                catch (OperationCanceledException) { }
+
+                if (c.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(c);
+                }
+                graveyard.AddCard(c);
+
+                if (i < costEntries.Count - 1)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(CardInterval), cancellationToken: ct);
+                }
             }
         }
 

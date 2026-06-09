@@ -122,6 +122,10 @@ namespace Main
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
 
+        private UniTaskCompletionSource _costSelectionTcs;
+        private readonly List<CardView> _selectedCostCards = new List<CardView>();
+        private int _requiredCostCount;
+
         private enum MainPhaseActionType { None, PlaceChar, PlayEvent, Attack, Pass }
 
         private struct MainPhaseAction
@@ -312,7 +316,15 @@ namespace Main
                 _handView.OnCardAddedBack = card => card.SetPlayableHighlight(IsCardPlayable(card));
 
                 _cardDetailModal = new CardDetailModal(mainRoot);
-                _handView.OnCardClicked = card => _cardDetailModal.Show(card.Data);
+                _handView.OnCardClicked = card =>
+                {
+                    if (_costSelectionTcs != null)
+                    {
+                        HandleCostCardClick(card);
+                        return;
+                    }
+                    _cardDetailModal.Show(card.Data);
+                };
                 _playerFieldView.OnCardClicked = card =>
                 {
                     if (_fieldCharSelectionTcs != null)
@@ -359,7 +371,7 @@ namespace Main
                 _backButton.clicked += OnBackClicked;
                 _passButton.clicked += OnPassClicked;
 
-                _costWarningLabel = new Label("コストを払うとデッキが0枚になります");
+                _costWarningLabel = new Label("手札が足りません");
                 _costWarningLabel.AddToClassList("main-cost-warning-label");
                 _costWarningLabel.pickingMode = PickingMode.Ignore;
                 _costWarningLabel.style.display = DisplayStyle.None;

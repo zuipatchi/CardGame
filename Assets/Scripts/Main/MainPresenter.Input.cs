@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
@@ -114,6 +116,90 @@ namespace Main
             return false;
         }
 
+        // ─── コスト選択待ち ──────────────────────────────────────────────
+
+        private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CancellationToken ct)
+        {
+            int required = Mathf.Min(cost, _handView.Cards.Count);
+            if (required == 0)
+            {
+                return new List<CardView>();
+            }
+
+            _requiredCostCount = required;
+            _costSelectionTcs = new UniTaskCompletionSource();
+            _selectedCostCards.Clear();
+
+            _costWarningLabel.text = required < cost
+                ? $"手札が足りません（{required}/{cost}枚）"
+                : $"コストを {required} 枚選んでください";
+            _costWarningLabel.style.display = DisplayStyle.Flex;
+
+            foreach (CardView c in _handView.Cards)
+            {
+                c.AddToClassList("cost-selectable");
+            }
+            ShowCostSelectionButtons();
+
+            try
+            {
+                await _costSelectionTcs.Task.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException) { }
+
+            foreach (CardView c in _handView.Cards)
+            {
+                c.RemoveFromClassList("cost-selectable");
+                c.RemoveFromClassList("cost-selected");
+            }
+            foreach (CardView c in _selectedCostCards)
+            {
+                c.RemoveFromClassList("cost-selectable");
+                c.RemoveFromClassList("cost-selected");
+            }
+
+            _costWarningLabel.text = "手札が足りません";
+            _okButton.SetEnabled(true);
+            HideActionButtons();
+
+            List<CardView> result = new List<CardView>(_selectedCostCards);
+            _selectedCostCards.Clear();
+            _costSelectionTcs = null;
+            _requiredCostCount = 0;
+
+            return result;
+        }
+
+        private void HandleCostCardClick(CardView card)
+        {
+            if (_costSelectionTcs == null)
+            {
+                return;
+            }
+
+            if (_selectedCostCards.Contains(card))
+            {
+                _selectedCostCards.Remove(card);
+                card.RemoveFromClassList("cost-selected");
+            }
+            else if (_selectedCostCards.Count < _requiredCostCount)
+            {
+                _selectedCostCards.Add(card);
+                card.AddToClassList("cost-selected");
+            }
+
+            _okButton.SetEnabled(_selectedCostCards.Count >= _requiredCostCount);
+        }
+
+        private void ShowCostSelectionButtons()
+        {
+            _passButton.style.display = DisplayStyle.None;
+            _backButton.style.display = DisplayStyle.None;
+            _okButton.style.display = DisplayStyle.Flex;
+            _okButton.SetEnabled(false);
+            _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
+        }
+
         // ─── ボタンハンドラ ──────────────────────────────────────────────
 
         private async UniTaskVoid AutoOkAsync()
@@ -124,6 +210,15 @@ namespace Main
 
         private async void OnOkClicked()
         {
+            if (_costSelectionTcs != null)
+            {
+                if (_selectedCostCards.Count >= _requiredCostCount)
+                {
+                    _costSelectionTcs.TrySetResult();
+                }
+                return;
+            }
+
             // メインフェーズのカード確定（SET演出なし）
             if (_gameModel.Phase == TurnPhase.Main && _mainActionTcs != null && _mainStagedCard != null)
             {
@@ -349,7 +444,9 @@ namespace Main
 
         private void UpdateCostWarning(CardView card)
         {
-            bool show = card != null && card.Data.Cost > 0 && card.Data.Cost >= _playerDeckView.Count;
+            // ドロップ直後に呼ばれるため staged card はまだ _entries に残っている → -1 で補正
+            int availableForCost = _handView.Cards.Count - 1;
+            bool show = card != null && card.Data.Cost > 0 && card.Data.Cost > availableForCost;
             _costWarningLabel.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
