@@ -207,8 +207,7 @@ namespace Main
             await PlayCardChargeAsync(attacker, targetVE, ct);
 
             int atk = attacker.Data.Attack;
-            int def = target?.Data.Defense ?? 0;
-            int damage = Mathf.Max(0, atk - def);
+            int damage = atk;
 
             if (damage == 0 && target != null)
             {

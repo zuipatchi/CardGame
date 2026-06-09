@@ -272,36 +272,6 @@
     -unity-text-align: middle-center;
 }
 
-.game-card__def-area {
-    position: relative;
-    width: 40px;
-    height: 40px;
-}
-
-.game-card__shield-icon {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url("../Icon/ShieldIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-
-.game-card__def {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    -unity-font-style: bold;
-    color: rgb(255, 255, 255);
-    -unity-text-align: middle-center;
-}
-
 .game-card__hp-area {
     position: relative;
     width: 36px;

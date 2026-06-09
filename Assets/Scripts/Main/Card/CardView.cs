@@ -16,10 +16,8 @@ namespace Main.Card
         private readonly Label _costLabel;
         private readonly Label _nameLabel;
         private readonly VisualElement _atkArea;
-        private readonly VisualElement _defArea;
         private readonly VisualElement _hpArea;
         private readonly Label _atkLabel;
-        private readonly Label _defLabel;
         private readonly Label _hpLabel;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
@@ -39,10 +37,8 @@ namespace Main.Card
             _costLabel = this.Q<Label>("CostLabel");
             _nameLabel = this.Q<Label>("NameLabel");
             _atkArea = this.Q<VisualElement>(className: "game-card__atk-area");
-            _defArea = this.Q<VisualElement>(className: "game-card__def-area");
             _hpArea = this.Q<VisualElement>(className: "game-card__hp-area");
             _atkLabel = this.Q<Label>("AtkLabel");
-            _defLabel = this.Q<Label>("DefLabel");
             _hpLabel = this.Q<Label>("HpLabel");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
@@ -182,13 +178,10 @@ namespace Main.Card
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
             _atkLabel.text = data.Attack.ToString();
-            _defLabel.text = data.Defense.ToString();
             _hpLabel.text = data.Hp.ToString();
 
             _atkArea.style.display = data is EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;
-            _defArea.style.display = data is CharacterCardData
-                ? DisplayStyle.Flex : DisplayStyle.None;
             _hpArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
 

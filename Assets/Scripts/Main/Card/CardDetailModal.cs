@@ -66,7 +66,6 @@ namespace Main.Card
             {
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力");
-                AddIconStatRow(statsGrid, "card-detail-stat-icon--def", charData.Defense.ToString(), "防御");
             }
             else if (data is EventCardData eventData)
             {

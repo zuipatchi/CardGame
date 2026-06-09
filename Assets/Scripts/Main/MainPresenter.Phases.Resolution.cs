@@ -266,7 +266,7 @@ namespace Main
 
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-            int damage = Mathf.Max(0, baseAtk - targetChar.Data.Defense);
+            int damage = baseAtk;
 
             if (damage == 0)
             {

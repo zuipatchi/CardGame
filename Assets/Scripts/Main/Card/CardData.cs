@@ -14,7 +14,6 @@ namespace Main.Card
         public Sprite Image => _image;
 
         public virtual int Attack => 0;
-        public virtual int Defense => 0;
         public virtual int Hp => 0;
         public virtual CardAttribute Attribute => CardAttribute.White;
 
