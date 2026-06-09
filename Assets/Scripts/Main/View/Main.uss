@@ -1163,25 +1163,9 @@
 /* ─── コスト選択ハイライト ──────────────────────────────────────────── */
 
 .cost-selectable {
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-left-color: rgba(255, 200, 50, 0.9);
-    border-right-color: rgba(255, 200, 50, 0.9);
-    border-top-color: rgba(255, 200, 50, 0.9);
-    border-bottom-color: rgba(255, 200, 50, 0.9);
 }
 
 .cost-selected {
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-left-color: rgba(255, 80, 80, 0.9);
-    border-right-color: rgba(255, 80, 80, 0.9);
-    border-top-color: rgba(255, 80, 80, 0.9);
-    border-bottom-color: rgba(255, 80, 80, 0.9);
     opacity: 0.65;
 }
 
