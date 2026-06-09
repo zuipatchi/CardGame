@@ -165,7 +165,7 @@
 | 状態 | 説明 |
 |---|---|
 | Normal | フィールド上で待機中 |
-| Resolve | イベントカードの効果処理中（`ResolveSingleCardAsync` 実行中）。黄色枠で表示 |
+| Resolve | イベントカードの効果処理中（`ResolveSingleCardAsync` 実行中） |
 
 ---
 
