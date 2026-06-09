@@ -72,6 +72,12 @@ namespace Main
                     return false;
                 }
 
+                if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                {
+                    ShowToast("手札が足りません");
+                    return false;
+                }
+
                 _playerFieldView.PlaceCard(card);
                 _switchInput._card = card;
                 if (card.Data.Cost > 0)
@@ -96,6 +102,11 @@ namespace Main
 
                 if (card.Data is CharacterCardData)
                 {
+                    if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                    {
+                        ShowToast("手札が足りません");
+                        return false;
+                    }
                     _playerFieldView.PlaceCard(card);
                     _mainStagedCard = card;
                     _mainStagedType = MainPhaseActionType.PlaceChar;
@@ -113,6 +124,11 @@ namespace Main
 
                 if (card.Data is EventCardData)
                 {
+                    if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                    {
+                        ShowToast("手札が足りません");
+                        return false;
+                    }
                     bool placed = _playerFieldView.TryPlace(card, worldPos);
                     if (placed)
                     {
