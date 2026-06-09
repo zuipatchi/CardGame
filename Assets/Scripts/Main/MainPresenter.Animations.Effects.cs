@@ -151,6 +151,9 @@ namespace Main
                 return;
             }
 
+            // PlaceCard 直後はレイアウトパスが未実行で worldBound が不正値になるため
+            // 1フレーム待って座標を確定させる
+            await UniTask.Yield(cancellationToken: ct);
             await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
         }
 
