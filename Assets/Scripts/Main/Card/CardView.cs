@@ -181,6 +181,30 @@ namespace Main.Card
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
         }
 
+        public async UniTask TakeDamageAsync(int damage, CancellationToken ct)
+        {
+            _currentHp -= damage;
+            _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
+
+            float scaleVal = 1f;
+            float colorT = 1f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.5f, 0.08f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 0f, 0.08f))
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.25f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 1f, 0.35f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            _hpArea.style.scale = new Scale(Vector3.one);
+            _hpLabel.style.color = StyleKeyword.Null;
+        }
+
         public void ResetCurrentHp()
         {
             _currentHp = Data.Hp;

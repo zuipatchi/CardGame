@@ -1092,6 +1092,18 @@
     height: 60px;
 }
 
+/* ─── ダメージフローティングラベル ─────────────────────────────────────── */
+.damage-label {
+    font-size: 54px;
+    -unity-font-style: bold;
+    color: rgb(255, 50, 50);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 180px;
+    height: 80px;
+}
+
 /* ─── NO ATTACK フローティングラベル ────────────────────────────────────── */
 .no-attack-label {
     font-size: 30px;

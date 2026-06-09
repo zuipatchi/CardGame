@@ -53,6 +53,13 @@ namespace Main
             label.RemoveFromHierarchy();
         }
 
+        // ─── ダメージ演出（フローティング数値）──────────────────────────────────
+
+        private UniTask PlayHitDamageEffectAsync(CardView target, int damage, CancellationToken ct)
+        {
+            return PlayFloatingLabelAsync($"-{damage}", "damage-label", target, ct);
+        }
+
         // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────
 
         private async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)

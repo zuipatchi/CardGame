@@ -216,7 +216,13 @@ namespace Main
 
             if (damage > 0)
             {
-                target?.TakeDamage(damage);
+                if (_hitEffectPrefab != null)
+                {
+                    await PlayParticleAtCardAsync(target, _hitEffectPrefab, ct);
+                }
+                await PlayHitDamageEffectAsync(target, damage, ct);
+                await target.TakeDamageAsync(damage, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             }
 
             bool charWillBeDestroyed = target != null && target.CurrentHp <= 0;
