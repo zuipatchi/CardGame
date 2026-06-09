@@ -9,102 +9,48 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── ATKカウンター演出 ────────────────────────────────────────────
+        // ─── カード突撃演出 ───────────────────────────────────────────────
 
-        private async UniTask PlaySingleSideAtkCounterAsync(
-            VisualElement atkOverlay, Label atkLabel, int atk, CancellationToken ct)
+        private async UniTask PlayCardChargeAsync(CardView attacker, VisualElement defender, CancellationToken ct)
         {
-            const float countDuration = 0.8f;
-            const float holdDuration = 0.3f;
+            Rect fromRect = attacker.worldBound;
+            float w = CardWidth;
+            float h = CardHeight;
+            float flyLeft = fromRect.center.x - w / 2f;
+            float flyTop = fromRect.center.y - h / 2f;
 
-            atkOverlay.BringToFront();
-            atkLabel.text = "0";
-            atkOverlay.style.display = DisplayStyle.Flex;
-            atkOverlay.style.opacity = 0f;
+            attacker.style.visibility = Visibility.Hidden;
 
-            float val = 0f;
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => atkOverlay.style.opacity.value, v => atkOverlay.style.opacity = v, 1f, 0.2f))
-                .Join(DOTween.To(() => val, v => { val = v; atkLabel.text = Mathf.RoundToInt(v).ToString(); }, atk, countDuration).SetEase(Ease.OutQuad))
-                .AppendInterval(holdDuration)
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try
-            {
-                await tcs.Task;
-            }
-            catch (System.OperationCanceledException) { }
-        }
-
-        // ─── ATKカウンターオーバーレイが対象キャラへ突撃 ────────────────────
-
-        private async UniTask PlayAttackIconAsync(
-            VisualElement atkOverlay, VisualElement defender, int atk, CancellationToken ct)
-        {
-            Rect fromRect = atkOverlay.worldBound;
-            Rect toRect = defender.worldBound;
-            float w = fromRect.width;
-            float h = fromRect.height;
-
-            VisualElement flyingOverlay = new VisualElement();
-            flyingOverlay.pickingMode = PickingMode.Ignore;
-            flyingOverlay.style.position = Position.Absolute;
-            flyingOverlay.style.width = w;
-            flyingOverlay.style.height = h;
-            flyingOverlay.style.alignItems = Align.Center;
-            flyingOverlay.style.justifyContent = Justify.Center;
-            flyingOverlay.style.flexDirection = FlexDirection.Column;
-            float flyLeft = fromRect.x;
-            float flyTop = fromRect.y;
-            flyingOverlay.style.left = flyLeft;
-            flyingOverlay.style.top = flyTop;
-
-            VisualElement iconWrapper = new VisualElement();
-            iconWrapper.pickingMode = PickingMode.Ignore;
-            iconWrapper.AddToClassList("atk-counter-icon-wrapper");
-            flyingOverlay.Add(iconWrapper);
-
-            VisualElement icon = new VisualElement();
-            icon.pickingMode = PickingMode.Ignore;
-            icon.AddToClassList("atk-counter-icon");
-            iconWrapper.Add(icon);
-
-            Label atkLabel = new Label(atk.ToString());
-            atkLabel.pickingMode = PickingMode.Ignore;
-            atkLabel.AddToClassList("atk-counter-label");
-            flyingOverlay.Add(atkLabel);
-
-            atkOverlay.style.display = DisplayStyle.None;
-            _dragLayer.Add(flyingOverlay);
+            CardView tempCard = new CardView(
+                _cardStore.CardTemplate, attacker.Data, _cardStore.CardBack,
+                faceDown: false, isOpponent: attacker.IsOpponent);
+            tempCard.pickingMode = PickingMode.Ignore;
+            tempCard.style.position = Position.Absolute;
+            tempCard.style.left = flyLeft;
+            tempCard.style.top = flyTop;
+            tempCard.style.width = StyleKeyword.Null;
+            tempCard.style.height = StyleKeyword.Null;
+            _dragLayer.Add(tempCard);
 
             Vector2 fromCenter = fromRect.center;
-            Vector2 toCenter = toRect.center;
-            (float windupLeft, float windupTop, float targetLeft, float targetTop, float facingAngle, Vector2 kbEnd) = ComputeAttackGeometry(fromCenter, toCenter, w / 2f, h / 2f);
-            float rotAngle = 0f;
-            float kbT = 0f;
+            Vector2 toCenter = defender.worldBound.center;
+            (float windupLeft, float windupTop, float targetLeft, float targetTop, _, Vector2 kbEnd) =
+                ComputeAttackGeometry(fromCenter, toCenter, w / 2f, h / 2f);
+            float kbEndLeft = kbEnd.x - w / 2f;
+            float kbEndTop = kbEnd.y - h / 2f;
+            float startLeft = flyLeft;
+            float startTop = flyTop;
 
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => flyLeft, v => { flyLeft = v; flyingOverlay.style.left = v; }, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine))
-                .Join(DOTween.To(() => flyTop, v => { flyTop = v; flyingOverlay.style.top = v; }, windupTop, AttackWindupDuration).SetEase(Ease.OutSine))
-                .Join(DOTween.To(() => rotAngle, v =>
-                {
-                    rotAngle = v;
-                    iconWrapper.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree));
-                }, facingAngle, AttackWindupDuration).SetEase(Ease.OutSine))
-                .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; flyingOverlay.style.left = v; }, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic))
-                .Join(DOTween.To(() => flyTop, v => { flyTop = v; flyingOverlay.style.top = v; }, targetTop, AttackFlyDuration).SetEase(Ease.InCubic))
-                .Append(DOTween.To(() => kbT, v =>
-                {
-                    kbT = v;
-                    Vector2 pos = Vector2.Lerp(toCenter, kbEnd, v);
-                    flyingOverlay.style.left = pos.x - w / 2f;
-                    flyingOverlay.style.top = pos.y - h / 2f;
-                }, 1f, AttackKnockbackDuration).SetEase(Ease.OutQuad))
+                .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; tempCard.style.left = v; }, windupLeft, AttackWindupDuration).SetEase(Ease.OutSine))
+                .Join(DOTween.To(() => flyTop, v => { flyTop = v; tempCard.style.top = v; }, windupTop, AttackWindupDuration).SetEase(Ease.OutSine))
+                .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; tempCard.style.left = v; }, targetLeft, AttackFlyDuration).SetEase(Ease.InCubic))
+                .Join(DOTween.To(() => flyTop, v => { flyTop = v; tempCard.style.top = v; }, targetTop, AttackFlyDuration).SetEase(Ease.InCubic))
+                .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; tempCard.style.left = v; }, kbEndLeft, AttackKnockbackDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => flyTop, v => { flyTop = v; tempCard.style.top = v; }, kbEndTop, AttackKnockbackDuration).SetEase(Ease.OutQuad))
+                .Append(DOTween.To(() => flyLeft, v => { flyLeft = v; tempCard.style.left = v; }, startLeft, AttackChargeReturnDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => flyTop, v => { flyTop = v; tempCard.style.top = v; }, startTop, AttackChargeReturnDuration).SetEase(Ease.OutQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
@@ -115,10 +61,12 @@ namespace Main
             }
             catch (System.OperationCanceledException) { }
 
-            if (flyingOverlay.parent != null)
+            if (tempCard.parent != null)
             {
-                flyingOverlay.RemoveFromHierarchy();
+                tempCard.RemoveFromHierarchy();
             }
+
+            attacker.style.visibility = Visibility.Visible;
         }
 
         // ─── 攻撃ジオメトリ計算 ──────────────────────────────────────────

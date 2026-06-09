@@ -31,9 +31,10 @@ namespace Main
 
         private const float AttackWindupDuration = 0.15f;
         private const float AttackWindupDistance = 50f;
-        private const float AttackFlyDuration = 0.65f;
+        private const float AttackFlyDuration = 0.25f;
         private const float AttackKnockbackDistance = 35f;
         private const float AttackKnockbackDuration = 0.15f;
+        private const float AttackChargeReturnDuration = 0.30f;
 
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
@@ -61,10 +62,6 @@ namespace Main
         private Label _turnLabel;
         private VisualElement _resolveOverlay;
         private Label _resolveLabel;
-        private VisualElement _playerAtkCounterOverlay;
-        private Label _playerAtkCounterLabel;
-        private VisualElement _opponentAtkCounterOverlay;
-        private Label _opponentAtkCounterLabel;
         private VisualElement _mainRoot;
         private VisualElement _dragLayer;
         private Label _costWarningLabel;
@@ -300,42 +297,6 @@ namespace Main
 
                 _playerFieldView = new FieldView();
                 playerFieldArea.Add(_playerFieldView);
-
-                _playerAtkCounterOverlay = new VisualElement();
-                _playerAtkCounterOverlay.AddToClassList("atk-counter-overlay");
-                _playerAtkCounterOverlay.pickingMode = PickingMode.Ignore;
-                _playerAtkCounterOverlay.style.display = DisplayStyle.None;
-                VisualElement playerAtkIconWrapper = new VisualElement();
-                playerAtkIconWrapper.AddToClassList("atk-counter-icon-wrapper");
-                playerAtkIconWrapper.pickingMode = PickingMode.Ignore;
-                VisualElement playerAtkIcon = new VisualElement();
-                playerAtkIcon.AddToClassList("atk-counter-icon");
-                playerAtkIcon.pickingMode = PickingMode.Ignore;
-                playerAtkIconWrapper.Add(playerAtkIcon);
-                _playerAtkCounterOverlay.Add(playerAtkIconWrapper);
-                _playerAtkCounterLabel = new Label("0");
-                _playerAtkCounterLabel.pickingMode = PickingMode.Ignore;
-                _playerAtkCounterLabel.AddToClassList("atk-counter-label");
-                _playerAtkCounterOverlay.Add(_playerAtkCounterLabel);
-                _playerFieldView.Add(_playerAtkCounterOverlay);
-
-                _opponentAtkCounterOverlay = new VisualElement();
-                _opponentAtkCounterOverlay.AddToClassList("atk-counter-overlay");
-                _opponentAtkCounterOverlay.pickingMode = PickingMode.Ignore;
-                _opponentAtkCounterOverlay.style.display = DisplayStyle.None;
-                VisualElement opponentAtkIconWrapper = new VisualElement();
-                opponentAtkIconWrapper.AddToClassList("atk-counter-icon-wrapper");
-                opponentAtkIconWrapper.pickingMode = PickingMode.Ignore;
-                VisualElement opponentAtkIcon = new VisualElement();
-                opponentAtkIcon.AddToClassList("atk-counter-icon");
-                opponentAtkIcon.pickingMode = PickingMode.Ignore;
-                opponentAtkIconWrapper.Add(opponentAtkIcon);
-                _opponentAtkCounterOverlay.Add(opponentAtkIconWrapper);
-                _opponentAtkCounterLabel = new Label("0");
-                _opponentAtkCounterLabel.pickingMode = PickingMode.Ignore;
-                _opponentAtkCounterLabel.AddToClassList("atk-counter-label");
-                _opponentAtkCounterOverlay.Add(_opponentAtkCounterLabel);
-                _opponentFieldView.Add(_opponentAtkCounterOverlay);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],

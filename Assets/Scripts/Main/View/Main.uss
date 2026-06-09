@@ -434,17 +434,6 @@
     overflow: visible;
 }
 
-.atk-counter-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
 .atk-counter-icon-wrapper {
     position: absolute;
     left: 0;
@@ -455,28 +444,12 @@
     justify-content: center;
 }
 
-.atk-counter-icon {
-    width: 200px;
-    height: 200px;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-    opacity: 0.4;
-}
-
 .damage-fly-icon {
     width: 200px;
     height: 200px;
     background-image: url("project://database/Assets/AddressableAssets/Icon/DamageIcon.png");
     -unity-background-scale-mode: scale-to-fit;
     opacity: 0.4;
-}
-
-.atk-counter-label {
-    font-size: 120px;
-    -unity-font-style: bold;
-    color: rgb(255, 220, 50);
-    -unity-text-outline-width: 6px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
 .damage-number-label {

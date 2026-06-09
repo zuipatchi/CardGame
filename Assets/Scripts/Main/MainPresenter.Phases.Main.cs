@@ -184,19 +184,14 @@ namespace Main
                 return;
             }
 
-            VisualElement atkOverlay = isLocal ? _playerAtkCounterOverlay : _opponentAtkCounterOverlay;
-            Label atkLabel = isLocal ? _playerAtkCounterLabel : _opponentAtkCounterLabel;
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
 
-            int atk = attacker.Data.Attack;
-
-            await PlaySingleSideAtkCounterAsync(atkOverlay, atkLabel, atk, ct);
             VisualElement targetVE = target != null ? (VisualElement)target : targetDeck;
-            await PlayAttackIconAsync(atkOverlay, targetVE, atk, ct);
-            atkOverlay.style.display = DisplayStyle.None;
+            await PlayCardChargeAsync(attacker, targetVE, ct);
 
+            int atk = attacker.Data.Attack;
             int def = target?.Data.Defense ?? 0;
             int damage = Mathf.Max(0, atk - def);
 
