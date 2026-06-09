@@ -283,24 +283,21 @@ namespace Main
                 return Array.Empty<string>();
             }
 
-            List<(CardView costCard, Rect fromRect)> costEntries;
+            List<(CardView costCard, Rect fromRect, Action beforeAnimate)> costEntries;
 
             if (isLocalPlayer)
             {
                 List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, card.Data.Attribute, ct);
-                costEntries = new List<(CardView costCard, Rect fromRect)>();
+                costEntries = new List<(CardView, Rect, Action)>();
                 foreach (CardView c in selected)
                 {
-                    costEntries.Add((c, c.worldBound));
-                }
-                foreach ((CardView c, Rect _) in costEntries)
-                {
-                    hand.RemoveCard(c);
+                    CardView captured = c;
+                    costEntries.Add((c, c.worldBound, () => hand.RemoveCard(captured)));
                 }
             }
             else
             {
-                costEntries = new List<(CardView costCard, Rect fromRect)>();
+                costEntries = new List<(CardView, Rect, Action)>();
                 IReadOnlyList<CardView> handCards = hand.Cards;
 
                 if (costCardIds != null && costCardIds.Length > 0)
@@ -309,20 +306,26 @@ namespace Main
                     // 手札の先頭N枚を視覚的に減らす（どのカードかは不明なので先頭から除去）
                     int toRemove = Mathf.Min(costCardIds.Length, handCards.Count);
                     List<Rect> fromRects = new List<Rect>();
+                    List<CardView> placeholders = new List<CardView>();
                     for (int i = 0; i < costCardIds.Length; i++)
                     {
                         fromRects.Add(i < handCards.Count ? handCards[i].worldBound : hand.worldBound);
                     }
                     for (int i = 0; i < toRemove; i++)
                     {
-                        hand.RemoveCard(handCards[i]);
+                        placeholders.Add(handCards[i]);
                     }
                     for (int i = 0; i < costCardIds.Length; i++)
                     {
                         if (_cardDatabase.TryGet(costCardIds[i], out CardData costData))
                         {
                             CardView costCard = new CardView(_cardStore.CardTemplate, costData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                            costEntries.Add((costCard, fromRects[i]));
+                            CardView placeholder = i < placeholders.Count ? placeholders[i] : null;
+                            HandView capturedHand = hand;
+                            Action beforeAnimate = placeholder != null
+                                ? () => capturedHand.RemoveCard(placeholder)
+                                : (Action)(() => { });
+                            costEntries.Add((costCard, fromRects[i], beforeAnimate));
                         }
                     }
                 }
@@ -347,12 +350,14 @@ namespace Main
 
                         if (matchIdx >= 0)
                         {
-                            costEntries.Add((handCards[matchIdx], handCards[matchIdx].worldBound));
+                            CardView mc = handCards[matchIdx];
+                            costEntries.Add((mc, mc.worldBound, () => hand.RemoveCard(mc)));
                             for (int i = 0; i < handCards.Count && costEntries.Count < take; i++)
                             {
                                 if (i != matchIdx)
                                 {
-                                    costEntries.Add((handCards[i], handCards[i].worldBound));
+                                    CardView hc = handCards[i];
+                                    costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
                                 }
                             }
                         }
@@ -360,7 +365,8 @@ namespace Main
                         {
                             for (int i = 0; i < take; i++)
                             {
-                                costEntries.Add((handCards[i], handCards[i].worldBound));
+                                CardView hc = handCards[i];
+                                costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
                             }
                         }
                     }
@@ -368,13 +374,9 @@ namespace Main
                     {
                         for (int i = 0; i < take; i++)
                         {
-                            costEntries.Add((handCards[i], handCards[i].worldBound));
+                            CardView hc = handCards[i];
+                            costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
                         }
-                    }
-
-                    foreach ((CardView c, Rect _) in costEntries)
-                    {
-                        hand.RemoveCard(c);
                     }
                 }
             }
@@ -396,7 +398,7 @@ namespace Main
 
         // ─── 手札コストカード飛翔演出 ─────────────────────────────────────
 
-        private async UniTask PlayHandCostFlyAsync(List<(CardView card, Rect fromRect)> costEntries, GraveyardView graveyard, CancellationToken ct)
+        private async UniTask PlayHandCostFlyAsync(List<(CardView card, Rect fromRect, Action beforeAnimate)> costEntries, GraveyardView graveyard, CancellationToken ct)
         {
             if (costEntries.Count == 0)
             {
@@ -412,7 +414,9 @@ namespace Main
 
             for (int i = 0; i < costEntries.Count; i++)
             {
-                (CardView c, Rect fromRect) = costEntries[i];
+                (CardView c, Rect fromRect, Action beforeAnimate) = costEntries[i];
+
+                beforeAnimate();
 
                 float startLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
                 float startTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
