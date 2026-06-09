@@ -351,13 +351,12 @@ namespace Main
                         if (matchIdx >= 0)
                         {
                             CardView mc = handCards[matchIdx];
-                            costEntries.Add((mc, mc.worldBound, () => hand.RemoveCard(mc)));
+                            costEntries.Add(MakeCpuCostEntry(mc, hand));
                             for (int i = 0; i < handCards.Count && costEntries.Count < take; i++)
                             {
                                 if (i != matchIdx)
                                 {
-                                    CardView hc = handCards[i];
-                                    costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
+                                    costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
                                 }
                             }
                         }
@@ -365,8 +364,7 @@ namespace Main
                         {
                             for (int i = 0; i < take; i++)
                             {
-                                CardView hc = handCards[i];
-                                costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
+                                costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
                             }
                         }
                     }
@@ -374,8 +372,7 @@ namespace Main
                     {
                         for (int i = 0; i < take; i++)
                         {
-                            CardView hc = handCards[i];
-                            costEntries.Add((hc, hc.worldBound, () => hand.RemoveCard(hc)));
+                            costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
                         }
                     }
                 }
@@ -394,6 +391,13 @@ namespace Main
             return isLocalPlayer
                 ? costEntries.Select(e => e.costCard.Data.Id).ToArray()
                 : Array.Empty<string>();
+        }
+
+        private (CardView costCard, Rect fromRect, Action beforeAnimate) MakeCpuCostEntry(CardView handCard, HandView hand)
+        {
+            CardView faceUpCard = new CardView(_cardStore.CardTemplate, handCard.Data, _cardStore.CardBack, faceDown: false, isOpponent: true);
+            Rect from = handCard.worldBound;
+            return (faceUpCard, from, () => hand.RemoveCard(handCard));
         }
 
         // ─── 手札コストカード飛翔演出 ─────────────────────────────────────
