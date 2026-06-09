@@ -438,50 +438,6 @@ namespace Main
             await UniTask.WhenAll(tasks);
         }
 
-        // ─── グレイブトリガー発動演出（カード＋カード名を画面中央に表示）────────────
-
-        private async UniTask PlayGraveTriggerDisplayAsync(EventCardData data, bool isLocal, CancellationToken ct)
-        {
-            const float AppearDuration = 0.25f;
-            const float HoldDuration = 0.8f;
-            const float FadeDuration = 0.25f;
-
-            GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-            Rect graveBound = graveyard.worldBound;
-            float cardLeft = graveBound.center.x - CardScaleConstants.CardWidth / 2f;
-            // プレイヤーの墓地（画面下）は上方向、相手の墓地（画面上）は下方向へ配置
-            float cardTop = isLocal
-                ? graveBound.yMin - CardScaleConstants.CardHeight - 4f
-                : graveBound.yMax + 4f;
-
-            CardView tempCard = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false);
-            tempCard.style.position = Position.Absolute;
-            tempCard.style.left = cardLeft;
-            tempCard.style.top = cardTop;
-            tempCard.style.width = StyleKeyword.Null;
-            tempCard.style.height = StyleKeyword.Null;
-            tempCard.style.opacity = 0f;
-            tempCard.pickingMode = PickingMode.Ignore;
-            _dragLayer.Add(tempCard);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(() => tempCard.style.opacity.value, v => tempCard.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
-                .AppendInterval(HoldDuration)
-                .Append(DOTween.To(() => tempCard.style.opacity.value, v => tempCard.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            if (tempCard.parent == _dragLayer)
-            {
-                _dragLayer.Remove(tempCard);
-            }
-        }
-
         private async UniTask FlyCardToDeckPositionAsync(
             CardView card, Rect fromRect,
             float targetLeft, float targetTop,

@@ -388,12 +388,6 @@ namespace Main
             }
         }
 
-        private async UniTask FireGraveTriggerAsync(EventCardData data, bool isLocal, CancellationToken ct)
-        {
-            await PlayGraveTriggerDisplayAsync(data, isLocal, ct);
-            await ApplyEventEffectAsync(data, isLocal, ct);
-        }
-
         private async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
         {
             if (count <= 0)
