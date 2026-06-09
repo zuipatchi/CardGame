@@ -19,7 +19,6 @@ namespace Main
         {
             bool isLocal = !card.IsOpponent;
 
-            card.SetState(CardState.Resolve);
             await UniTask.Delay(TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
 
             if (card.Data is EventCardData eventData)
@@ -78,7 +77,6 @@ namespace Main
             GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
             graveyard.AddCard(card);
 
-            card.SetState(CardState.Normal);
         }
 
         private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
