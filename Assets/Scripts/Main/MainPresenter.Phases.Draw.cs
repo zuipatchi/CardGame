@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -76,6 +77,8 @@ namespace Main
                     await PlayCpuDrawAsync(drawn, deckRect, ct);
                 }
             }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
     }
 }
