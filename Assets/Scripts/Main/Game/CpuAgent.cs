@@ -5,13 +5,13 @@ namespace Main.Game
 {
     public sealed class CpuAgent
     {
-        // キャラセットフェーズ：キャラカードのインデックスを返す。なければ -1（パス）
+        // メインフェーズ（キャラを出す）：キャラカードのインデックスを返す。なければ -1（パス）
         public static int ChooseCharacterSetCardIndex(IReadOnlyList<CardData> hand)
         {
             return FindFirst<CharacterCardData>(hand);
         }
 
-        // 戦闘前2フェーズ：イベントカードのインデックスを返す。なければ -1（パス）
+        // メインフェーズ（イベントを使う）：イベントカードのインデックスを返す。なければ -1（パス）
         public static int ChooseEventCardIndex(IReadOnlyList<CardData> hand)
         {
             return FindFirst<EventCardData>(hand);
