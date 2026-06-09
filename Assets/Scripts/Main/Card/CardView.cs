@@ -91,9 +91,7 @@ namespace Main.Card
             _cardRoot.style.borderBottomWidth = 4f;
             _cardRoot.style.borderLeftWidth = 4f;
 
-            Color typeColor = Data is CharacterCardData
-                ? new Color(0.1f, 0.6f, 1.0f, 1f)
-                : new Color(1.0f, 0.9f, 0.1f, 1f);
+            Color typeColor = GetAttributeColor(Data.Attribute);
 
             float t = 0f;
             _playableHighlightTween = DOTween.To(
@@ -197,8 +195,28 @@ namespace Main.Card
 
         private void ApplyTypeFrame(bool visible)
         {
-            _cardRoot.EnableInClassList("game-card--character", visible && Data is CharacterCardData);
-            _cardRoot.EnableInClassList("game-card--event", visible && Data is EventCardData);
+            _cardRoot.EnableInClassList("game-card--attr-red", visible && Data.Attribute == CardAttribute.Red);
+            _cardRoot.EnableInClassList("game-card--attr-blue", visible && Data.Attribute == CardAttribute.Blue);
+            _cardRoot.EnableInClassList("game-card--attr-green", visible && Data.Attribute == CardAttribute.Green);
+            _cardRoot.EnableInClassList("game-card--attr-yellow", visible && Data.Attribute == CardAttribute.Yellow);
+            _cardRoot.EnableInClassList("game-card--attr-black", visible && Data.Attribute == CardAttribute.Black);
+            _cardRoot.EnableInClassList("game-card--attr-purple", visible && Data.Attribute == CardAttribute.Purple);
+            _cardRoot.EnableInClassList("game-card--attr-white", visible && Data.Attribute == CardAttribute.White);
+        }
+
+        private static Color GetAttributeColor(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => new Color(0.86f, 0.24f, 0.24f, 1f),
+                CardAttribute.Blue => new Color(0.27f, 0.51f, 0.90f, 1f),
+                CardAttribute.Green => new Color(0.24f, 0.78f, 0.31f, 1f),
+                CardAttribute.Yellow => new Color(0.86f, 0.75f, 0.20f, 1f),
+                CardAttribute.Black => new Color(0.39f, 0.39f, 0.47f, 1f),
+                CardAttribute.Purple => new Color(0.67f, 0.31f, 0.86f, 1f),
+                CardAttribute.White => new Color(0.82f, 0.82f, 0.88f, 1f),
+                _ => new Color(0.82f, 0.82f, 0.88f, 1f)
+            };
         }
 
         private void Bind(CardData data)

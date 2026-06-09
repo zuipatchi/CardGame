@@ -96,18 +96,7 @@
     display: none;
 }
 
-.game-card--character {
-    border-left-color: rgb(70, 130, 230);
-    border-right-color: rgb(70, 130, 230);
-    border-top-color: rgb(70, 130, 230);
-    border-bottom-color: rgb(70, 130, 230);
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-top-width: 2px;
-    border-bottom-width: 2px;
-}
-
-.game-card--skill {
+.game-card--attr-red {
     border-left-color: rgb(220, 60, 60);
     border-right-color: rgb(220, 60, 60);
     border-top-color: rgb(220, 60, 60);
@@ -118,11 +107,66 @@
     border-bottom-width: 2px;
 }
 
-.game-card--event {
-    border-left-color: rgb(210, 185, 50);
-    border-right-color: rgb(210, 185, 50);
-    border-top-color: rgb(210, 185, 50);
-    border-bottom-color: rgb(210, 185, 50);
+.game-card--attr-blue {
+    border-left-color: rgb(70, 130, 230);
+    border-right-color: rgb(70, 130, 230);
+    border-top-color: rgb(70, 130, 230);
+    border-bottom-color: rgb(70, 130, 230);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--attr-green {
+    border-left-color: rgb(60, 200, 80);
+    border-right-color: rgb(60, 200, 80);
+    border-top-color: rgb(60, 200, 80);
+    border-bottom-color: rgb(60, 200, 80);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--attr-yellow {
+    border-left-color: rgb(220, 190, 50);
+    border-right-color: rgb(220, 190, 50);
+    border-top-color: rgb(220, 190, 50);
+    border-bottom-color: rgb(220, 190, 50);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--attr-black {
+    border-left-color: rgb(100, 100, 120);
+    border-right-color: rgb(100, 100, 120);
+    border-top-color: rgb(100, 100, 120);
+    border-bottom-color: rgb(100, 100, 120);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--attr-purple {
+    border-left-color: rgb(170, 80, 220);
+    border-right-color: rgb(170, 80, 220);
+    border-top-color: rgb(170, 80, 220);
+    border-bottom-color: rgb(170, 80, 220);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.game-card--attr-white {
+    border-left-color: rgb(210, 210, 225);
+    border-right-color: rgb(210, 210, 225);
+    border-top-color: rgb(210, 210, 225);
+    border-bottom-color: rgb(210, 210, 225);
     border-left-width: 2px;
     border-right-width: 2px;
     border-top-width: 2px;
