@@ -11,6 +11,9 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
+        private CardAttribute _playedCardAttribute;
+        private string _costBaseMessage;
+
         // ─── ドロップハンドラ ────────────────────────────────────────────
 
         private bool HandlePlayerCardDrop(CardView card, Vector2 worldPos)
@@ -136,7 +139,7 @@ namespace Main
 
         // ─── コスト選択待ち ──────────────────────────────────────────────
 
-        private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CancellationToken ct)
+        private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CardAttribute playedAttribute, CancellationToken ct)
         {
             // BeginStagedCostSelection がドロップ時に先行して呼ばれた場合は TCS が既に存在する
             if (_costSelectionTcs == null)
@@ -148,12 +151,14 @@ namespace Main
                 }
 
                 _requiredCostCount = required;
+                _playedCardAttribute = playedAttribute;
                 _costSelectionTcs = new UniTaskCompletionSource();
                 _selectedCostCards.Clear();
 
-                _costWarningLabel.text = _requiredCostCount < cost
+                _costBaseMessage = _requiredCostCount < cost
                     ? $"手札が足りません（{_requiredCostCount}/{cost}枚）"
                     : $"コストを {_requiredCostCount} 枚選んでください";
+                _costWarningLabel.text = _costBaseMessage;
                 _costWarningLabel.style.display = DisplayStyle.Flex;
 
                 foreach (CardView c in _handView.Cards)
@@ -210,10 +215,22 @@ namespace Main
                 card.AddToClassList("cost-selected");
             }
 
-            bool enough = _selectedCostCards.Count >= _requiredCostCount;
-            _okButton.SetEnabled(enough);
+            bool countOk = _selectedCostCards.Count >= _requiredCostCount;
+            bool attrOk = IsCostAttributeSatisfied();
+            bool canConfirm = countOk && attrOk;
 
-            if (enough && _optionModel.AutoOk.CurrentValue)
+            _okButton.SetEnabled(canConfirm);
+
+            if (countOk && !attrOk)
+            {
+                _costWarningLabel.text = $"「{AttributeDisplayName(_playedCardAttribute)}」のカードを1枚以上含めてください";
+            }
+            else
+            {
+                _costWarningLabel.text = _costBaseMessage;
+            }
+
+            if (canConfirm && _optionModel.AutoOk.CurrentValue)
             {
                 AutoOkAsync().Forget();
             }
@@ -241,6 +258,10 @@ namespace Main
             if (_costSelectionTcs != null)
             {
                 if (_selectedCostCards.Count < _requiredCostCount)
+                {
+                    return;
+                }
+                if (!IsCostAttributeSatisfied())
                 {
                     return;
                 }
@@ -478,12 +499,14 @@ namespace Main
             int cost = staged.Data.Cost;
             int required = Mathf.Min(cost, availableForCost);
             _requiredCostCount = required;
+            _playedCardAttribute = staged.Data.Attribute;
             _costSelectionTcs = new UniTaskCompletionSource();
             _selectedCostCards.Clear();
 
-            _costWarningLabel.text = required < cost
+            _costBaseMessage = required < cost
                 ? $"手札が足りません（{required}/{cost}枚）"
                 : $"コストを {required} 枚選んでください";
+            _costWarningLabel.text = _costBaseMessage;
             _costWarningLabel.style.display = DisplayStyle.Flex;
 
             foreach (CardView c in _handView.Cards)
@@ -498,10 +521,11 @@ namespace Main
             _passButton.style.display = DisplayStyle.None;
             _backButton.style.display = DisplayStyle.Flex;
             _okButton.style.display = autoOk ? DisplayStyle.None : DisplayStyle.Flex;
-            _okButton.SetEnabled(required == 0);
+            bool initialOk = IsCostAttributeSatisfied();
+            _okButton.SetEnabled(initialOk);
             _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
 
-            if (autoOk && required == 0)
+            if (autoOk && initialOk)
             {
                 AutoOkAsync().Forget();
             }
@@ -527,6 +551,41 @@ namespace Main
             _selectedCostCards.Clear();
             _costSelectionTcs = null;
             _requiredCostCount = 0;
+        }
+
+        // ─── 属性バリデーション ───────────────────────────────────────────
+
+        private bool IsCostAttributeSatisfied()
+        {
+            if (_requiredCostCount == 0 || _playedCardAttribute == CardAttribute.White)
+            {
+                return true;
+            }
+
+            foreach (CardView c in _selectedCostCards)
+            {
+                if (c.Data.Attribute == _playedCardAttribute || c.Data.Attribute == CardAttribute.White)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string AttributeDisplayName(CardAttribute attr)
+        {
+            return attr switch
+            {
+                CardAttribute.Red => "赤",
+                CardAttribute.Blue => "青",
+                CardAttribute.Green => "緑",
+                CardAttribute.Yellow => "黄",
+                CardAttribute.Black => "黒",
+                CardAttribute.Purple => "紫",
+                CardAttribute.White => "白",
+                _ => attr.ToString()
+            };
         }
     }
 }

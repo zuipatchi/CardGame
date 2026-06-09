@@ -287,7 +287,7 @@ namespace Main
 
             if (isLocalPlayer)
             {
-                List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, ct);
+                List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, card.Data.Attribute, ct);
                 costEntries = new List<(CardView costCard, Rect fromRect)>();
                 foreach (CardView c in selected)
                 {
@@ -328,12 +328,50 @@ namespace Main
                 }
                 else
                 {
-                    // CPU：先頭N枚を自動選択
-                    int take = Mathf.Min(cost, hand.Cards.Count);
-                    for (int i = 0; i < take; i++)
+                    // CPU：属性制約を満たすコスト選択（同属性 or White を優先して1枚確保）
+                    CardAttribute neededAttr = card.Data.Attribute;
+                    int take = Mathf.Min(cost, handCards.Count);
+
+                    if (neededAttr != CardAttribute.White)
                     {
-                        costEntries.Add((handCards[i], handCards[i].worldBound));
+                        int matchIdx = -1;
+                        for (int i = 0; i < handCards.Count; i++)
+                        {
+                            CardAttribute a = handCards[i].Data.Attribute;
+                            if (a == neededAttr || a == CardAttribute.White)
+                            {
+                                matchIdx = i;
+                                break;
+                            }
+                        }
+
+                        if (matchIdx >= 0)
+                        {
+                            costEntries.Add((handCards[matchIdx], handCards[matchIdx].worldBound));
+                            for (int i = 0; i < handCards.Count && costEntries.Count < take; i++)
+                            {
+                                if (i != matchIdx)
+                                {
+                                    costEntries.Add((handCards[i], handCards[i].worldBound));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < take; i++)
+                            {
+                                costEntries.Add((handCards[i], handCards[i].worldBound));
+                            }
+                        }
                     }
+                    else
+                    {
+                        for (int i = 0; i < take; i++)
+                        {
+                            costEntries.Add((handCards[i], handCards[i].worldBound));
+                        }
+                    }
+
                     foreach ((CardView c, Rect _) in costEntries)
                     {
                         hand.RemoveCard(c);
