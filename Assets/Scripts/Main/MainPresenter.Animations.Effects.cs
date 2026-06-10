@@ -154,6 +154,19 @@ namespace Main
             container.RemoveFromHierarchy();
         }
 
+        // ─── AoE ダメージエフェクト（敵フィールド中央にパーティクル再生）──────────────
+        // DamageAllEnemies 用。敵キャラの有無に関わらずフィールド中央で再生する。
+        private async UniTask PlayAreaDamageEffectAsync(FieldView field, CancellationToken ct)
+        {
+            if (field == null || _areaDamageEffectPrefab == null)
+            {
+                return;
+            }
+            // フィールド全体を覆うよう少し拡大して再生する
+            const float AreaDamageEffectScale = 1.8f;
+            await PlayParticleAtUiPositionAsync(field, field.worldBound.center, _areaDamageEffectPrefab, ct, scale: AreaDamageEffectScale);
+        }
+
         // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────
 
         private async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)

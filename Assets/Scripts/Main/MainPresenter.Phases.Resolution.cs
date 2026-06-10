@@ -129,6 +129,9 @@ namespace Main
                     targetGraveyard.AddCard(banishTarget);
                     break;
                 }
+                case CardEventType.DamageAllEnemies:
+                    await ApplyDamageAllEnemiesAsync(charData.EffectValue, isLocal, ct);
+                    break;
             }
         }
 
@@ -189,7 +192,61 @@ namespace Main
                 case CardEventType.Evolve:
                     await ApplyEvolveEffectAsync(isLocal, ct);
                     break;
+                case CardEventType.DamageAllEnemies:
+                    await ApplyDamageAllEnemiesAsync(data.EventValue, isLocal, ct);
+                    break;
             }
+        }
+
+        // 発動側から見た敵フィールドのキャラ全員に同時にダメージを与え、HP 0 以下のキャラを破壊する
+        private async UniTask ApplyDamageAllEnemiesAsync(int damage, bool isLocal, CancellationToken ct)
+        {
+            if (damage <= 0)
+            {
+                return;
+            }
+
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+
+            // 破壊で Characters が変化するためスナップショットを取る
+            List<CardView> targets = new List<CardView>(targetField.Characters);
+
+            // 敵フィールド中央に AoE パーティクル演出を再生（敵キャラがいなくても再生）。
+            // 同時に全敵へダメージ数値＋HP揺れを適用する
+            List<UniTask> hitTasks = new List<UniTask>();
+            hitTasks.Add(PlayAreaDamageEffectAsync(targetField, ct));
+            foreach (CardView target in targets)
+            {
+                hitTasks.Add(ApplyDamageToCharAsync(target, damage, ct));
+            }
+            await UniTask.WhenAll(hitTasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+
+            // HP 0 以下になったキャラをまとめて破壊
+            List<UniTask> destroyTasks = new List<UniTask>();
+            foreach (CardView target in targets)
+            {
+                if (target.CurrentHp <= 0 && targetField.Contains(target))
+                {
+                    destroyTasks.Add(DestroyCharToGraveyardAsync(target, targetField, targetGraveyard, ct));
+                }
+            }
+            await UniTask.WhenAll(destroyTasks);
+        }
+
+        private async UniTask ApplyDamageToCharAsync(CardView target, int damage, CancellationToken ct)
+        {
+            await PlayHitDamageEffectAsync(target, damage, ct);
+            await target.TakeDamageAsync(damage, ct);
+        }
+
+        private async UniTask DestroyCharToGraveyardAsync(CardView target, FieldView field, GraveyardView graveyard, CancellationToken ct)
+        {
+            await PlayCharDestroyEffectAsync(target, ct);
+            Rect fromRect = target.worldBound;
+            field.RemoveCard(target);
+            await FlyToGraveyardAsync(target, fromRect, graveyard, ct);
         }
 
         private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)

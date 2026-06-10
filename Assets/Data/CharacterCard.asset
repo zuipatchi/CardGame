@@ -97,10 +97,10 @@ MonoBehaviour:
     _attack: 2
     _hp: 4
     _attribute: 0
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _description: 
+    _effectTrigger: 1
+    _effectType: 10
+    _effectValue: 2
+    _description: "\u30D5\u30A3\u30FC\u30EB\u30C9\u306B\u51FA\u305F\u6642\u5168\u3066\u306E\u30AD\u30E3\u30E9\u306B2\u30C0\u30E1\u30FC\u30B8"
   - _id: C009
     _cardName: "\u52C7\u8005\u306E\u5F1F"
     _cost: 1
