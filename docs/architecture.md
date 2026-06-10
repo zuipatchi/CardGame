@@ -326,7 +326,7 @@ CardData              抽象基底クラス。id / name / cost / Attack / Hp / A
 CardAttribute     enum（CardAttribute.cs）。Red / Blue / Green / Yellow / Black / Purple / White
 
 CharacterEffectTrigger  enum（CharacterEffectTrigger.cs）。キャラの効果発動タイミング。
-                  None / OnEnter（登場時。Draw・BanishChar を実装済み）/ OnAttack・OnDestroy（enum に定義のみ。将来拡張用）
+                  None / OnEnter（登場時。Draw・BanishChar を実装済み）/ OnAttack（攻撃時。Draw・BanishChar を実装済み）/ OnDestroy（enum に定義のみ。将来拡張用）
 
 EventType         enum（EffectType.cs）。
                   None / AtkBoost / DefBoost（enum に定義のみ。現在は未使用）
@@ -480,6 +480,7 @@ RunMainPhaseAsync
       オンライン: WaitForOpponentMainActionAsync で相手アクション受信
 
 ExecuteAttackAsync  （Attack アクション実行時）
+  → ResolveCharacterAttackEffectAsync: 攻撃キャラの OnAttack 効果を発動（Draw・BanishChar）
   → PlayCardChargeAsync: 攻撃キャラのコピーが「ウィンドアップ → 突撃 → ノックバック → 元位置へ戻る」演出
                           演出中は元カードを visibility: hidden で非表示
   → ダメージ = ATK。0 なら "NO DAMAGE" 表示
