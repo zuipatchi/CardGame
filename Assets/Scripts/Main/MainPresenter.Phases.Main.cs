@@ -82,7 +82,7 @@ namespace Main
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlayEvent:
-                    ActivateHeartsIfRed(action._card.Data, playedByLocal: true);
+                    OnCardPlayed(action._card.Data, playedByLocal: true);
                     await ResolveSingleCardAsync(action._card, ct);
                     break;
                 case MainPhaseActionType.Attack:
@@ -96,7 +96,7 @@ namespace Main
                     }
                     break;
                 case MainPhaseActionType.PlaceChar:
-                    ActivateHeartsIfRed(action._card.Data, playedByLocal: true);
+                    OnCardPlayed(action._card.Data, playedByLocal: true);
                     await ResolveCharacterEnterEffectAsync(action._card, isLocal: true, ct);
                     break;
                 default:
@@ -192,7 +192,7 @@ namespace Main
             CardView playedCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
             await FlyCardToDestAsync(playedCard, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(playedCard);
-            ActivateHeartsIfRed(cardData, playedByLocal: false);
+            OnCardPlayed(cardData, playedByLocal: false);
             await PayHandCostAsync(playedCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: costCardIds);
             if (isEvent)
             {
@@ -263,18 +263,57 @@ namespace Main
             graveyard.AddCard(card);
         }
 
-        // ─── ハート勝利条件 ──────────────────────────────────────────────
+        // ─── プレイ時トリガー（勝利条件の武装）──────────────────────────────
 
-        // 赤属性カードのプレイで、プレイした側の攻撃対象ハートを出現させる（一度出たら永続）
-        private void ActivateHeartsIfRed(CardData playedCard, bool playedByLocal)
+        // 青属性の勝利条件（自デッキ0で勝利）の武装状態
+        private bool _playerBlueWinArmed;
+        private bool _opponentBlueWinArmed;
+
+        // カードのプレイ（キャラ配置 or イベント使用）時に呼ぶ。赤＝ハート出現、青＝デッキ0勝利の武装
+        private void OnCardPlayed(CardData playedCard, bool playedByLocal)
         {
-            if (!HeartRule.ActivatesHearts(playedCard))
+            // 赤属性: プレイした側の攻撃対象ハートを出現させる（一度出たら永続）
+            if (HeartRule.ActivatesHearts(playedCard))
             {
-                return;
+                LifeHeartsView hearts = playedByLocal ? _opponentLifeHearts : _playerLifeHearts;
+                hearts.Activate();
             }
 
-            LifeHeartsView hearts = playedByLocal ? _opponentLifeHearts : _playerLifeHearts;
-            hearts.Activate();
+            // 青属性: プレイした側の「自デッキ0で勝利」を武装する（一度武装したら永続）
+            if (BlueRule.ActivatesBlueWin(playedCard))
+            {
+                if (playedByLocal && !_playerBlueWinArmed)
+                {
+                    _playerBlueWinArmed = true;
+                    _playerDeckView.ShowBlueWinIcon();
+                }
+                else if (!playedByLocal && !_opponentBlueWinArmed)
+                {
+                    _opponentBlueWinArmed = true;
+                    _opponentDeckView.ShowBlueWinIcon();
+                }
+            }
+        }
+
+        // 青属性の勝利条件判定：武装済みでデッキが0枚なら、そのプレイヤーの勝利。
+        // デッキが減る各ドロー処理の直後に呼ぶ。勝利が成立したら true を返す。
+        private bool CheckBlueWin(bool isLocalDeck)
+        {
+            if (_isGameOver)
+            {
+                return false;
+            }
+
+            bool armed = isLocalDeck ? _playerBlueWinArmed : _opponentBlueWinArmed;
+            DeckView deck = isLocalDeck ? _playerDeckView : _opponentDeckView;
+            if (!BlueRule.IsBlueWin(armed, deck.Count))
+            {
+                return false;
+            }
+
+            _isGameOver = true;
+            OnGameEnd(playerWins: isLocalDeck);
+            return true;
         }
 
         // ハート攻撃：突進 → パーティクル → ハート削除。3個目を破壊した側が勝利

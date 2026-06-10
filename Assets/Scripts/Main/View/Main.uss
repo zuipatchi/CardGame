@@ -172,6 +172,16 @@
     height: 80px;
 }
 
+.deck-blue-win-icon {
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    right: -20px;
+    bottom: -20px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/WaterIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .graveyard-count-icon {
     position: absolute;
     left: 0;

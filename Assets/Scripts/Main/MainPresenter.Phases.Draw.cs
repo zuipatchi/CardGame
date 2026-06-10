@@ -32,6 +32,10 @@ namespace Main
                 {
                     _networkGameService.SendDrawNotification();
                 }
+                if (CheckBlueWin(isLocalDeck: true))
+                {
+                    return;
+                }
             }
             else
             {
@@ -66,6 +70,10 @@ namespace Main
                 {
                     Rect deckRect = _opponentDeckView.worldBound;
                     await PlayCpuDrawAsync(drawn, deckRect, ct);
+                }
+                if (CheckBlueWin(isLocalDeck: false))
+                {
+                    return;
                 }
             }
 

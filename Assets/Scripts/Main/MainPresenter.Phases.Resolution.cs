@@ -234,7 +234,7 @@ namespace Main
                 }
                 if (placed != null)
                 {
-                    ActivateHeartsIfRed(placed.Data, playedByLocal: true);
+                    OnCardPlayed(placed.Data, playedByLocal: true);
                 }
                 if (placed != null && _evolveEffectPrefab != null)
                 {
@@ -255,7 +255,7 @@ namespace Main
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    ActivateHeartsIfRed(cardData, playedByLocal: false);
+                    OnCardPlayed(cardData, playedByLocal: false);
                     if (_evolveEffectPrefab != null)
                     {
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
@@ -273,7 +273,7 @@ namespace Main
                     _opponentHandView.RemoveCard(newChar);
                     await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    ActivateHeartsIfRed(newChar.Data, playedByLocal: false);
+                    OnCardPlayed(newChar.Data, playedByLocal: false);
                     if (_evolveEffectPrefab != null)
                     {
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
@@ -334,7 +334,7 @@ namespace Main
                 }
                 if (newChar != null)
                 {
-                    ActivateHeartsIfRed(newChar.Data, playedByLocal: true);
+                    OnCardPlayed(newChar.Data, playedByLocal: true);
                     await PayHandCostAsync(newChar, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                 }
             }
@@ -375,7 +375,7 @@ namespace Main
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(newChar);
-                    ActivateHeartsIfRed(cardData, playedByLocal: false);
+                    OnCardPlayed(cardData, playedByLocal: false);
                     await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
             }
@@ -396,7 +396,7 @@ namespace Main
                     _opponentHandView.RemoveCard(newChar);
                     await FlyCardToDestAsync(newChar, fromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    ActivateHeartsIfRed(newChar.Data, playedByLocal: false);
+                    OnCardPlayed(newChar.Data, playedByLocal: false);
                     await newChar.FlipAsync(ct);
                     await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
@@ -485,6 +485,8 @@ namespace Main
 
             // ドロー演出完了後、次の処理へ進む前に少し待つ
             await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
+
+            CheckBlueWin(isLocalDeck: isLocal);
         }
     }
 }
