@@ -79,6 +79,13 @@ namespace Matching
             _errorCloseButton = root.Q<Button>("ErrorCloseButton");
         }
 
+        private void OnDestroy()
+        {
+            _autoRefreshCts?.Cancel();
+            _autoRefreshCts?.Dispose();
+            _autoRefreshCts = null;
+        }
+
         void IStartable.Start()
         {
             _backButton.clicked += () =>
