@@ -183,17 +183,23 @@ namespace Main.Card
 
         public async UniTask TakeDamageAsync(int damage, CancellationToken ct)
         {
-            _currentHp -= damage;
-            _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
-
             float scaleVal = 1f;
             float colorT = 1f;
+            float shakeX = 0f;
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
-                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.5f, 0.08f).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 0f, 0.08f))
-                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.25f).SetEase(Ease.OutBack))
-                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 1f, 0.35f).SetEase(Ease.OutQuad))
+                // HP アイコン拡大 + 赤く + カード右へ
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 2.2f, 0.07f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 0f, 0.07f))
+                .Join(DOTween.To(() => shakeX, v => { shakeX = v; _cardRoot.style.translate = new StyleTranslate(new Translate(v, 0f)); }, 14f, 0.07f).SetEase(Ease.OutQuad))
+                // シェイク（左→右→中央）
+                .Append(DOTween.To(() => shakeX, v => { shakeX = v; _cardRoot.style.translate = new StyleTranslate(new Translate(v, 0f)); }, -12f, 0.07f).SetEase(Ease.InOutSine))
+                .Append(DOTween.To(() => shakeX, v => { shakeX = v; _cardRoot.style.translate = new StyleTranslate(new Translate(v, 0f)); }, 7f, 0.06f).SetEase(Ease.InOutSine))
+                .Append(DOTween.To(() => shakeX, v => { shakeX = v; _cardRoot.style.translate = new StyleTranslate(new Translate(v, 0f)); }, 0f, 0.06f).SetEase(Ease.InOutSine))
+                // HP アイコン戻る + 色戻る（シェイク最後のステップに相乗り）
+                .Join(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.28f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.red, Color.white, v)); }, 1f, 0.42f).SetEase(Ease.OutQuad))
                 .OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
@@ -203,6 +209,10 @@ namespace Main.Card
 
             _hpArea.style.scale = new Scale(Vector3.one);
             _hpLabel.style.color = StyleKeyword.Null;
+            _cardRoot.style.translate = new StyleTranslate(new Translate(0f, 0f));
+
+            _currentHp -= damage;
+            _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
         }
 
         public void ResetCurrentHp()
