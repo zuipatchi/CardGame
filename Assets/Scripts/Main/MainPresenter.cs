@@ -52,6 +52,8 @@ namespace Main
         private DeckView _opponentDeckView;
         private GraveyardView _playerGraveyardView;
         private GraveyardView _opponentGraveyardView;
+        private LifeHeartsView _playerLifeHearts;    // 自分のライフ（自分フィールド左下・相手が攻撃する）
+        private LifeHeartsView _opponentLifeHearts;  // 相手のライフ（相手フィールド右上・自分が攻撃する）
         private VisualElement _actionButtonsArea;
         private Button _okButton;
         private Button _backButton;
@@ -125,6 +127,7 @@ namespace Main
             internal CardView _card;
             internal CardView _attacker;
             internal CardView _target;
+            internal bool _targetsHeart;
         }
 
         private sealed class StagedInput
@@ -292,6 +295,12 @@ namespace Main
 
                 _playerFieldView = new FieldView();
                 playerFieldArea.Add(_playerFieldView);
+
+                _opponentLifeHearts = new LifeHeartsView(isOpponent: true);
+                opponentFieldArea.Add(_opponentLifeHearts);
+
+                _playerLifeHearts = new LifeHeartsView(isOpponent: false);
+                playerFieldArea.Add(_playerLifeHearts);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],

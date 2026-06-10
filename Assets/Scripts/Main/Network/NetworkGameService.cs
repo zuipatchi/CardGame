@@ -45,23 +45,25 @@ namespace Main.Network
             public readonly string CardId;
             public readonly string AttackerId;
             public readonly string TargetId;
+            public readonly bool TargetsHeart;
             public readonly string[] CostCardIds;
 
             public bool IsPassed => ActionType == MainActionType.Pass;
 
-            public MainActionData(MainActionType actionType, string cardId = null, string attackerId = null, string targetId = null, string[] costCardIds = null)
+            public MainActionData(MainActionType actionType, string cardId = null, string attackerId = null, string targetId = null, bool targetsHeart = false, string[] costCardIds = null)
             {
                 ActionType = actionType;
                 CardId = cardId;
                 AttackerId = attackerId;
                 TargetId = targetId;
+                TargetsHeart = targetsHeart;
                 CostCardIds = costCardIds ?? Array.Empty<string>();
             }
 
             public static MainActionData Pass() => new MainActionData(MainActionType.Pass);
             public static MainActionData PlaceChar(string cardId, string[] costCardIds = null) => new MainActionData(MainActionType.PlaceChar, cardId: cardId, costCardIds: costCardIds);
             public static MainActionData PlayEvent(string cardId, string[] costCardIds = null) => new MainActionData(MainActionType.PlayEvent, cardId: cardId, costCardIds: costCardIds);
-            public static MainActionData Attack(string attackerId, string targetId) => new MainActionData(MainActionType.Attack, attackerId: attackerId, targetId: targetId);
+            public static MainActionData Attack(string attackerId, string targetId, bool targetsHeart = false) => new MainActionData(MainActionType.Attack, attackerId: attackerId, targetId: targetId, targetsHeart: targetsHeart);
         }
 
         public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase, UsernameRepository usernameRepository)
@@ -337,6 +339,7 @@ namespace Main.Network
                 cardId = action.CardId ?? string.Empty,
                 attackerId = action.AttackerId ?? string.Empty,
                 targetId = action.TargetId ?? string.Empty,
+                targetsHeart = action.TargetsHeart,
                 costCardIds = action.CostCardIds
             };
             string json = JsonUtility.ToJson(payload);
@@ -362,6 +365,7 @@ namespace Main.Network
                     string.IsNullOrEmpty(payload.cardId) ? null : payload.cardId,
                     string.IsNullOrEmpty(payload.attackerId) ? null : payload.attackerId,
                     string.IsNullOrEmpty(payload.targetId) ? null : payload.targetId,
+                    payload.targetsHeart,
                     payload.costCardIds));
             }
 
@@ -629,6 +633,7 @@ namespace Main.Network
             public string cardId;
             public string attackerId;
             public string targetId;
+            public bool targetsHeart;
             public string[] costCardIds;
         }
     }

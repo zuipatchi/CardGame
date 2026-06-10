@@ -33,6 +33,22 @@ namespace Main.Game
             return bestIdx;
         }
 
+        // ハート攻撃：ATK 1 以上のキャラの中で最高 ATK のインデックスを返す。いなければ -1
+        public static int ChooseHeartAttacker(IReadOnlyList<CardData> ownChars)
+        {
+            int bestIdx = -1;
+            int bestAtk = 0;
+            for (int i = 0; i < ownChars.Count; i++)
+            {
+                if (ownChars[i].Attack > bestAtk)
+                {
+                    bestAtk = ownChars[i].Attack;
+                    bestIdx = i;
+                }
+            }
+            return bestIdx;
+        }
+
         // メインフェーズ攻撃：最高ATKキャラを選ぶ。相手キャラがいればATK最小を狙う。いなければ攻撃しない (-1, -1)
         public static (int attackerIdx, int targetIdx) ChooseBattleAttack(
             IReadOnlyList<CardData> ownChars, IReadOnlyList<CardData> opponentChars)

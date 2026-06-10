@@ -82,12 +82,21 @@ namespace Main
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlayEvent:
+                    ActivateHeartsIfRed(action._card.Data, playedByLocal: true);
                     await ResolveSingleCardAsync(action._card, ct);
                     break;
                 case MainPhaseActionType.Attack:
-                    await ExecuteAttackAsync(action._attacker, action._target, isLocal: true, ct);
+                    if (action._targetsHeart)
+                    {
+                        await ExecuteHeartAttackAsync(action._attacker, isLocal: true, ct);
+                    }
+                    else
+                    {
+                        await ExecuteAttackAsync(action._attacker, action._target, isLocal: true, ct);
+                    }
                     break;
                 case MainPhaseActionType.PlaceChar:
+                    ActivateHeartsIfRed(action._card.Data, playedByLocal: true);
                     break;
                 default:
                     await PlayPassAnnouncementAsync(ct);
@@ -108,7 +117,14 @@ namespace Main
                     await ExecuteOpponentCardPlayAsync(action._card.Data, action._card, isEvent: true, costCardIds: null, ct);
                     break;
                 case MainPhaseActionType.Attack:
-                    await ExecuteAttackAsync(action._attacker, action._target, isLocal: false, ct);
+                    if (action._targetsHeart)
+                    {
+                        await ExecuteHeartAttackAsync(action._attacker, isLocal: false, ct);
+                    }
+                    else
+                    {
+                        await ExecuteAttackAsync(action._attacker, action._target, isLocal: false, ct);
+                    }
                     break;
                 default:
                     await PlayPassAnnouncementAsync(ct);
@@ -146,6 +162,11 @@ namespace Main
                 {
                     CardView attacker = _opponentFieldView.Characters
                         .FirstOrDefault(c => c.Data.Id == networkAction.AttackerId);
+                    if (networkAction.TargetsHeart)
+                    {
+                        await ExecuteHeartAttackAsync(attacker, isLocal: false, ct);
+                        break;
+                    }
                     CardView target = networkAction.TargetId != null
                         ? _playerFieldView.Characters.FirstOrDefault(c => c.Data.Id == networkAction.TargetId)
                         : null;
@@ -170,6 +191,7 @@ namespace Main
             CardView playedCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
             await FlyCardToDestAsync(playedCard, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(playedCard);
+            ActivateHeartsIfRed(cardData, playedByLocal: false);
             await PayHandCostAsync(playedCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: costCardIds);
             if (isEvent)
             {
@@ -234,12 +256,74 @@ namespace Main
             graveyard.AddCard(card);
         }
 
+        // ─── ハート勝利条件 ──────────────────────────────────────────────
+
+        // 赤属性カードのプレイで、プレイした側の攻撃対象ハートを出現させる（一度出たら永続）
+        private void ActivateHeartsIfRed(CardData playedCard, bool playedByLocal)
+        {
+            if (!HeartRule.ActivatesHearts(playedCard))
+            {
+                return;
+            }
+
+            LifeHeartsView hearts = playedByLocal ? _opponentLifeHearts : _playerLifeHearts;
+            hearts.Activate();
+        }
+
+        // ハート攻撃：突進 → パーティクル → ハート削除。3個目を破壊した側が勝利
+        private async UniTask ExecuteHeartAttackAsync(CardView attacker, bool isLocal, CancellationToken ct)
+        {
+            LifeHeartsView targetHearts = isLocal ? _opponentLifeHearts : _playerLifeHearts;
+            if (attacker == null || !targetHearts.CanBeAttacked)
+            {
+                return;
+            }
+
+            VisualElement targetHeart = targetHearts.PeekNextHeart();
+            await PlayCardChargeAsync(attacker, targetHeart, ct);
+
+            if (!HeartRule.CanBreakHeart(attacker.Data.Attack))
+            {
+                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetHeart, ct);
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+                return;
+            }
+
+            if (_charDestroyEffectPrefab != null)
+            {
+                await PlayParticleAtUiPositionAsync(targetHeart, targetHeart.worldBound.center, _charDestroyEffectPrefab, ct);
+            }
+            targetHearts.RemoveHeart();
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+
+            if (targetHearts.Remaining == 0 && !_isGameOver)
+            {
+                _isGameOver = true;
+                OnGameEnd(playerWins: isLocal);
+            }
+        }
+
         // ─── CPU アクション選択 ───────────────────────────────────────────
 
         private MainPhaseAction CpuChooseMainAction()
         {
             IReadOnlyList<CardView> cpuChars = _opponentFieldView.Characters;
             IReadOnlyList<CardView> playerChars = _playerFieldView.Characters;
+
+            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）
+            if (_playerLifeHearts.CanBeAttacked && cpuChars.Count > 0)
+            {
+                int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(cpuChars.Select(c => c.Data).ToList());
+                if (heartAttackerIdx >= 0)
+                {
+                    return new MainPhaseAction
+                    {
+                        _actionType = MainPhaseActionType.Attack,
+                        _attacker = cpuChars[heartAttackerIdx],
+                        _targetsHeart = true
+                    };
+                }
+            }
 
             // キャラがいれば攻撃
             if (cpuChars.Count > 0)
@@ -317,6 +401,16 @@ namespace Main
                         });
                         return true;
                     }
+                    if (_opponentLifeHearts.ContainsPoint(worldPos))
+                    {
+                        _mainActionTcs?.TrySetResult(new MainPhaseAction
+                        {
+                            _actionType = MainPhaseActionType.Attack,
+                            _attacker = capturedChar,
+                            _targetsHeart = true
+                        });
+                        return true;
+                    }
                     return false;
                 };
                 charCard.AddManipulator(arrowManip);
@@ -357,7 +451,8 @@ namespace Main
                 case MainPhaseActionType.Attack:
                     return NetworkGameService.MainActionData.Attack(
                         action._attacker?.Data.Id,
-                        action._target?.Data.Id);
+                        action._target?.Data.Id,
+                        action._targetsHeart);
                 default:
                     return NetworkGameService.MainActionData.Pass();
             }

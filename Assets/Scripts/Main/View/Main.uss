@@ -1314,3 +1314,27 @@
     margin-left: 48px;
     margin-right: 48px;
 }
+
+.life-hearts {
+    position: absolute;
+    flex-direction: row;
+}
+
+.life-hearts--opponent {
+    top: 8px;
+    right: 8px;
+}
+
+.life-hearts--player {
+    bottom: 8px;
+    left: 8px;
+}
+
+.life-heart {
+    width: 56px;
+    height: 56px;
+    margin-left: 4px;
+    margin-right: 4px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
