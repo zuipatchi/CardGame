@@ -201,7 +201,7 @@ Assets/Scripts/<Scene>/<Feature>/
 ```
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
-  ├── Icon/        HeartIcon.png（コスト・デッキ枚数バッジ用）、AttackIcon.png（攻撃力バッジ用）、GraveIcon.png（墓地枚数バッジ用）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
+  ├── Icon/        HeartIcon.png（コストバッジ・ハート勝利条件アイコン用）、AttackIcon.png（攻撃力バッジ用）、GraveIcon.png（墓地枚数バッジ用）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
   ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButton.png（OKボタン画像）、returnButton.png（戻るボタン画像）、PassButton.png（パスボタン画像）、HomeBackground.png（Home 画面背景・晴れ）、HomeBackgroundRain.png（Home 画面背景・雨）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
@@ -376,7 +376,7 @@ FieldView         VisualElement サブクラス。横長フィールドエリア
                   TryGetCardAt(Vector2) でワールド座標から CardView を取得（戦闘攻撃対象選択用）
 DeckView          VisualElement サブクラス。デッキを積み重ねで表示（裏向き、60% スケール）
                   deck-view CSS クラス付き（背景・枠線は透明）
-                  デッキ上方に HeartIcon.png + 残り枚数を重ねた 80×80px バッジを表示
+                  デッキ中央に残り枚数の数字のみ（黒アウトライン付き）を 80×80px バッジ領域に重ねて表示
                   DrawTop() で一番上の CardData を取り出してデッキから除去（枚数ラベルは更新しない）
                   RefreshCount() で枚数ラベルを現在の _deckCards.Count に同期（RunDrawPhaseAsync がドロー直前に呼ぶ）
                   TakeFromTop(n) で上から n 枚を CardView リストとして取り出す（ダメージアニメーション連携用）。ビジュアル除去は行わずリストのみ更新
