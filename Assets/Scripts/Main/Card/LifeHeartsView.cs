@@ -10,13 +10,19 @@ namespace Main.Card
     public sealed class LifeHeartsView : VisualElement
     {
         private readonly List<VisualElement> _hearts = new List<VisualElement>();
+        private readonly bool _isOpponent;
 
         public bool IsActive { get; private set; }
         public int Remaining => _hearts.Count;
         public bool CanBeAttacked => IsActive && _hearts.Count > 0;
 
+        // 相手側コンテナは右端アンカーのため、削除時に残ハートが右へ詰まる。
+        // 見た目のギャップとパーティクル位置を一致させるため、相手側は左端・自分側は右端を破壊する
+        private int NextHeartIndex => _isOpponent ? 0 : _hearts.Count - 1;
+
         public LifeHeartsView(bool isOpponent)
         {
+            _isOpponent = isOpponent;
             AddToClassList("life-hearts");
             AddToClassList(isOpponent ? "life-hearts--opponent" : "life-hearts--player");
             pickingMode = PickingMode.Ignore;
@@ -48,10 +54,10 @@ namespace Main.Card
             return CanBeAttacked && worldBound.Contains(worldPos);
         }
 
-        // 次に攻撃を受けるハート（右端）
+        // 次に攻撃を受けるハート
         public VisualElement PeekNextHeart()
         {
-            return _hearts.Count > 0 ? _hearts[_hearts.Count - 1] : null;
+            return _hearts.Count > 0 ? _hearts[NextHeartIndex] : null;
         }
 
         public void RemoveHeart()
@@ -60,8 +66,9 @@ namespace Main.Card
             {
                 return;
             }
-            VisualElement heart = _hearts[_hearts.Count - 1];
-            _hearts.RemoveAt(_hearts.Count - 1);
+            int index = NextHeartIndex;
+            VisualElement heart = _hearts[index];
+            _hearts.RemoveAt(index);
             heart.RemoveFromHierarchy();
         }
     }
