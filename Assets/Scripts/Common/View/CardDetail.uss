@@ -44,18 +44,53 @@
     -unity-background-scale-mode: stretch-to-fill;
 }
 
-.card-detail-image--character {
+.card-detail-image--attr-red {
+    border-left-color: rgb(220, 60, 60);
+    border-right-color: rgb(220, 60, 60);
+    border-top-color: rgb(220, 60, 60);
+    border-bottom-color: rgb(220, 60, 60);
+}
+
+.card-detail-image--attr-blue {
     border-left-color: rgb(70, 130, 230);
     border-right-color: rgb(70, 130, 230);
     border-top-color: rgb(70, 130, 230);
     border-bottom-color: rgb(70, 130, 230);
 }
 
-.card-detail-image--event {
-    border-left-color: rgb(210, 185, 50);
-    border-right-color: rgb(210, 185, 50);
-    border-top-color: rgb(210, 185, 50);
-    border-bottom-color: rgb(210, 185, 50);
+.card-detail-image--attr-green {
+    border-left-color: rgb(60, 200, 80);
+    border-right-color: rgb(60, 200, 80);
+    border-top-color: rgb(60, 200, 80);
+    border-bottom-color: rgb(60, 200, 80);
+}
+
+.card-detail-image--attr-yellow {
+    border-left-color: rgb(220, 190, 50);
+    border-right-color: rgb(220, 190, 50);
+    border-top-color: rgb(220, 190, 50);
+    border-bottom-color: rgb(220, 190, 50);
+}
+
+.card-detail-image--attr-black {
+    border-left-color: rgb(100, 100, 120);
+    border-right-color: rgb(100, 100, 120);
+    border-top-color: rgb(100, 100, 120);
+    border-bottom-color: rgb(100, 100, 120);
+}
+
+.card-detail-image--attr-purple {
+    border-left-color: rgb(170, 80, 220);
+    border-right-color: rgb(170, 80, 220);
+    border-top-color: rgb(170, 80, 220);
+    border-bottom-color: rgb(170, 80, 220);
+}
+
+.card-detail-image--attr-white {
+    border-left-color: rgb(210, 210, 225);
+    border-right-color: rgb(210, 210, 225);
+    border-top-color: rgb(210, 210, 225);
+    border-bottom-color: rgb(210, 210, 225);
 }
 
 .card-detail-stats {

@@ -32,9 +32,7 @@ namespace Main.Card
                 imageArea.style.backgroundImage = new StyleBackground(data.Image);
             }
 
-            string imageTypeClass = data is CharacterCardData ? "card-detail-image--character" :
-                                    "card-detail-image--event";
-            imageArea.AddToClassList(imageTypeClass);
+            imageArea.AddToClassList(GetAttributeImageClass(data.Attribute));
             panel.Add(imageArea);
 
             VisualElement stats = new VisualElement();
@@ -93,6 +91,21 @@ namespace Main.Card
 
             _overlay.RemoveFromHierarchy();
             _overlay = null;
+        }
+
+        private static string GetAttributeImageClass(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "card-detail-image--attr-red",
+                CardAttribute.Blue => "card-detail-image--attr-blue",
+                CardAttribute.Green => "card-detail-image--attr-green",
+                CardAttribute.Yellow => "card-detail-image--attr-yellow",
+                CardAttribute.Black => "card-detail-image--attr-black",
+                CardAttribute.Purple => "card-detail-image--attr-purple",
+                CardAttribute.White => "card-detail-image--attr-white",
+                _ => "card-detail-image--attr-white"
+            };
         }
 
         private static void AddIconStatRow(VisualElement container, string iconClass, string valueText, string labelText)
