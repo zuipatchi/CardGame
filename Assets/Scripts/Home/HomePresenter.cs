@@ -154,7 +154,7 @@ namespace Home
         private void OnBattleClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsReady || _deckModel.IsCostOver)
+            if (!_deckModel.IsValid)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
@@ -171,7 +171,7 @@ namespace Home
         private void OnMatchingClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsReady || _deckModel.IsCostOver)
+            if (!_deckModel.IsValid)
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;

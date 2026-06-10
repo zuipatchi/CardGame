@@ -90,7 +90,7 @@ namespace Main
                 case MainPhaseActionType.PlaceChar:
                     break;
                 default:
-                    await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
+                    await PlayPassAnnouncementAsync(ct);
                     break;
             }
         }
@@ -102,33 +102,16 @@ namespace Main
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlaceChar:
-                {
-                    CardData cardData = action._card.Data;
-                    Rect fromRect = action._card.worldBound;
-                    _opponentHandView.RemoveCard(action._card);
-                    CardView fieldCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                    await FlyCardToDestAsync(fieldCard, fromRect, _opponentFieldView, ct);
-                    _opponentFieldView.PlaceCard(fieldCard);
-                    await PayHandCostAsync(fieldCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
+                    await ExecuteOpponentCardPlayAsync(action._card.Data, action._card, isEvent: false, costCardIds: null, ct);
                     break;
-                }
                 case MainPhaseActionType.PlayEvent:
-                {
-                    CardData cardData = action._card.Data;
-                    Rect fromRect = action._card.worldBound;
-                    _opponentHandView.RemoveCard(action._card);
-                    CardView eventCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                    await FlyCardToDestAsync(eventCard, fromRect, _opponentFieldView, ct);
-                    _opponentFieldView.PlaceCard(eventCard);
-                    await PayHandCostAsync(eventCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
-                    await ResolveSingleCardAsync(eventCard, ct);
+                    await ExecuteOpponentCardPlayAsync(action._card.Data, action._card, isEvent: true, costCardIds: null, ct);
                     break;
-                }
                 case MainPhaseActionType.Attack:
                     await ExecuteAttackAsync(action._attacker, action._target, isLocal: false, ct);
                     break;
                 default:
-                    await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
+                    await PlayPassAnnouncementAsync(ct);
                     break;
             }
         }
@@ -144,15 +127,8 @@ namespace Main
                     if (_cardDatabase.TryGet(networkAction.CardId, out CardData cardData))
                     {
                         IReadOnlyList<CardView> hand = _opponentHandView.Cards;
-                        Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentFieldView.worldBound;
-                        if (hand.Count > 0)
-                        {
-                            _opponentHandView.RemoveCard(hand[0]);
-                        }
-                        CardView fieldCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                        await FlyCardToDestAsync(fieldCard, fromRect, _opponentFieldView, ct);
-                        _opponentFieldView.PlaceCard(fieldCard);
-                        await PayHandCostAsync(fieldCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: networkAction.CostCardIds);
+                        CardView handCard = hand.Count > 0 ? hand[0] : null;
+                        await ExecuteOpponentCardPlayAsync(cardData, handCard, isEvent: false, costCardIds: networkAction.CostCardIds, ct);
                     }
                     break;
                 }
@@ -161,16 +137,8 @@ namespace Main
                     if (_cardDatabase.TryGet(networkAction.CardId, out CardData cardData))
                     {
                         IReadOnlyList<CardView> hand = _opponentHandView.Cards;
-                        Rect fromRect = hand.Count > 0 ? hand[0].worldBound : _opponentFieldView.worldBound;
-                        if (hand.Count > 0)
-                        {
-                            _opponentHandView.RemoveCard(hand[0]);
-                        }
-                        CardView eventCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
-                        await FlyCardToDestAsync(eventCard, fromRect, _opponentFieldView, ct);
-                        _opponentFieldView.PlaceCard(eventCard);
-                        await PayHandCostAsync(eventCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: networkAction.CostCardIds);
-                        await ResolveSingleCardAsync(eventCard, ct);
+                        CardView handCard = hand.Count > 0 ? hand[0] : null;
+                        await ExecuteOpponentCardPlayAsync(cardData, handCard, isEvent: true, costCardIds: networkAction.CostCardIds, ct);
                     }
                     break;
                 }
@@ -185,9 +153,33 @@ namespace Main
                     break;
                 }
                 default:
-                    await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
+                    await PlayPassAnnouncementAsync(ct);
                     break;
             }
+        }
+
+        // ─── 相手カード配置・イベント実行（CPU / オンライン共通） ────────
+
+        private async UniTask ExecuteOpponentCardPlayAsync(CardData cardData, CardView handCard, bool isEvent, string[] costCardIds, CancellationToken ct)
+        {
+            Rect fromRect = handCard != null ? handCard.worldBound : _opponentFieldView.worldBound;
+            if (handCard != null)
+            {
+                _opponentHandView.RemoveCard(handCard);
+            }
+            CardView playedCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
+            await FlyCardToDestAsync(playedCard, fromRect, _opponentFieldView, ct);
+            _opponentFieldView.PlaceCard(playedCard);
+            await PayHandCostAsync(playedCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: costCardIds);
+            if (isEvent)
+            {
+                await ResolveSingleCardAsync(playedCard, ct);
+            }
+        }
+
+        private async UniTask PlayPassAnnouncementAsync(CancellationToken ct)
+        {
+            await PlayAnnouncementAsync("パス", "turn-announcement-label--pass", ct);
         }
 
         // ─── 攻撃実行（一方向のみ） ──────────────────────────────────────

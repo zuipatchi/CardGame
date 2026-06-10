@@ -27,6 +27,7 @@ namespace Common.Deck
         public bool IsReady => Count == MaxCards;
         public bool IsOver => Count > MaxCards;
         public bool IsCostOver => TotalCost > MaxCost;
+        public bool IsValid => IsReady && !IsCostOver;
 
         public IReadOnlyList<string> CardIds
         {
