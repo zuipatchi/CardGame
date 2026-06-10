@@ -46,10 +46,6 @@ namespace Main.Card
             VisualElement badge = new VisualElement();
             badge.AddToClassList("deck-count-badge");
 
-            VisualElement heartIcon = new VisualElement();
-            heartIcon.AddToClassList("deck-count-heart-icon");
-            badge.Add(heartIcon);
-
             _countLabel = new Label(cards.Length.ToString());
             _countLabel.AddToClassList("deck-count-label");
             badge.Add(_countLabel);
