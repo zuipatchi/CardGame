@@ -25,5 +25,13 @@ namespace Main.Card
             _cardName = name;
             _cost = cost;
         }
+
+#if UNITY_EDITOR
+        // エディタ専用：ID 自動採番用（CharacterCardSO / EventCardSO の OnValidate から呼ばれる）
+        public void EditorSetId(string id)
+        {
+            _id = id;
+        }
+#endif
     }
 }
