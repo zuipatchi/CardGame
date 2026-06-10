@@ -14,6 +14,76 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _cards:
   - _id: C001
+    _cardName: "\u30D1\u30C3\u30C1\u5C11\u5E74"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 4b89463c6d0140042b3e3f223cf4c131, type: 3}
+    _attack: 1
+    _hp: 2
+    _attribute: 6
+  - _id: C002
+    _cardName: "\u30D1\u30C3\u30C1\u9752\u5E74"
+    _cost: 2
+    _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
+    _attack: 2
+    _hp: 4
+    _attribute: 6
+  - _id: C003
+    _cardName: "\u30D1\u30C3\u30C1\u4E2D\u5E74"
+    _cost: 3
+    _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
+    _attack: 2
+    _hp: 4
+    _attribute: 6
+  - _id: C004
+    _cardName: "\u30D1\u30C3\u30C1\u8001\u4EBA"
+    _cost: 2
+    _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
+    _attack: 1
+    _hp: 2
+    _attribute: 6
+  - _id: C005
+    _cardName: "\u30B4\u30D6\u30EA\u30F3\u30AE\u30E3\u30F3\u30B0"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 8bb63c7698aa5c74da9c01dc6efc8db5, type: 3}
+    _attack: 1
+    _hp: 2
+    _attribute: 0
+  - _id: C004
+    _cardName: "\u30D1\u30C1\u30C9\u30E9\u306E\u96DB"
+    _cost: 1
+    _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
+    _attack: 1
+    _hp: 2
+    _attribute: 0
+  - _id: C010
+    _cardName: "\u708E\u9B5A"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
+    _attack: 2
+    _hp: 4
+    _attribute: 0
+  - _id: C015
+    _cardName: "\u6012\u3063\u305F\u30C9\u30E9\u30B4\u30F3"
+    _cost: 3
+    _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
+    _attack: 2
+    _hp: 4
+    _attribute: 0
+  - _id: C016
+    _cardName: "\u30B6\u30EA\u30AC\u30CB\u30DE\u30F3"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 1b36f0f45aa2eb7438afd5c07f19f9f8, type: 3}
+    _attack: 1
+    _hp: 5
+    _attribute: 0
+  - _id: C011
+    _cardName: "\u9B54\u6CD5\u4F7F\u3044"
+    _cost: 5
+    _image: {fileID: 21300000, guid: cc980148a336d0147946c3bc164c869d, type: 3}
+    _attack: 4
+    _hp: 3
+    _attribute: 0
+  - _id: C001
     _cardName: "\u5F1F\u3071\u3063\u3061"
     _cost: 2
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
@@ -34,13 +104,6 @@ MonoBehaviour:
     _attack: 0
     _hp: 3
     _attribute: 2
-  - _id: C004
-    _cardName: "\u3071\u3063\u3061\u306E\u5B50\u4F9B"
-    _cost: 2
-    _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
-    _attack: 3
-    _hp: 2
-    _attribute: 0
   - _id: C005
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30D1\u30C3\u30C1"
     _cost: 3
@@ -76,20 +139,6 @@ MonoBehaviour:
     _attack: 3
     _hp: 3
     _attribute: 6
-  - _id: C010
-    _cardName: "\u708E\u9B5A"
-    _cost: 4
-    _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
-    _attack: 2
-    _hp: 5
-    _attribute: 0
-  - _id: C011
-    _cardName: "\u9B54\u6CD5\u4F7F\u3044"
-    _cost: 5
-    _image: {fileID: 21300000, guid: cc980148a336d0147946c3bc164c869d, type: 3}
-    _attack: 4
-    _hp: 3
-    _attribute: 0
   - _id: C012
     _cardName: "\u3071\u3061\u3069\u3063\u304F"
     _cost: 5
@@ -118,38 +167,3 @@ MonoBehaviour:
     _attack: 6
     _hp: 3
     _attribute: 0
-  - _id: C016
-    _cardName: "\u30B6\u30EA\u30AC\u30CB\u30DE\u30F3"
-    _cost: 6
-    _image: {fileID: 21300000, guid: 1b36f0f45aa2eb7438afd5c07f19f9f8, type: 3}
-    _attack: 3
-    _hp: 4
-    _attribute: 0
-  - _id: C017
-    _cardName: "\u30D1\u30C3\u30C1\u5C11\u5E74"
-    _cost: 1
-    _image: {fileID: 21300000, guid: 4b89463c6d0140042b3e3f223cf4c131, type: 3}
-    _attack: 1
-    _hp: 1
-    _attribute: 6
-  - _id: C018
-    _cardName: "\u30D1\u30C3\u30C1\u9752\u5E74"
-    _cost: 2
-    _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
-    _attack: 2
-    _hp: 2
-    _attribute: 6
-  - _id: C019
-    _cardName: "\u30D1\u30C3\u30C1\u4E2D\u5E74"
-    _cost: 3
-    _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
-    _attack: 2
-    _hp: 2
-    _attribute: 6
-  - _id: C020
-    _cardName: "\u30D1\u30C3\u30C1\u8001\u4EBA"
-    _cost: 2
-    _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
-    _attack: 1
-    _hp: 1
-    _attribute: 6
