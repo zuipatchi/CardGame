@@ -53,6 +53,54 @@ namespace Main
             label.RemoveFromHierarchy();
         }
 
+        // ─── シールドブロック演出（ダメージ 0 時にアイコン表示）──────────────────
+
+        private async UniTask PlayShieldBlockEffectAsync(VisualElement anchor, CancellationToken ct)
+        {
+            const float IconSize = 160f;
+            const float RiseDist = 50f;
+            const float AppearDuration = 0.2f;
+            const float HoldDuration = 0.5f;
+            const float FadeDuration = 0.4f;
+
+            VisualElement container = new VisualElement();
+            container.pickingMode = PickingMode.Ignore;
+            container.style.position = Position.Absolute;
+            container.style.width = IconSize;
+            container.style.height = IconSize;
+            container.style.opacity = 0f;
+            container.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("shield-fly-icon");
+            icon.pickingMode = PickingMode.Ignore;
+            container.Add(icon);
+
+            Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
+            float left = anchorLocal.x - IconSize / 2f;
+            float top = anchorLocal.y - IconSize / 2f;
+            float targetTop = top - RiseDist;
+            container.style.left = left;
+            container.style.top = top;
+            _dragLayer.Add(container);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => container.style.scale.value.value.x, v => container.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => top, v => { top = v; container.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            container.RemoveFromHierarchy();
+        }
+
         // ─── ダメージ演出（アイコン＋フローティング数値）──────────────────────────
 
         private async UniTask PlayHitDamageEffectAsync(CardView target, int damage, CancellationToken ct)

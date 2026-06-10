@@ -230,7 +230,7 @@ namespace Main
 
             if (damage == 0)
             {
-                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", target, ct);
+                await PlayShieldBlockEffectAsync(target, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                 return;
             }
@@ -293,7 +293,7 @@ namespace Main
 
             if (!HeartRule.CanBreakHeart(attacker.Data.Attack))
             {
-                await PlayFloatingLabelAsync("NO DAMAGE", "guard-label", targetHeart, ct);
+                await PlayShieldBlockEffectAsync(targetHeart, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                 return;
             }

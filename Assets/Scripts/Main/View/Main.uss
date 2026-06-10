@@ -436,6 +436,17 @@
     justify-content: center;
 }
 
+.shield-fly-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.8;
+}
+
 .damage-fly-icon {
     position: absolute;
     left: 0;
