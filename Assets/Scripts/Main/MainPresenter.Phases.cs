@@ -79,11 +79,13 @@ namespace Main
             }
         }
 
-        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false)
+        // winAttribute: 色による勝利条件で決着した場合の勝因属性（赤=ハート / 青=デッキ0）。
+        // 降参・タイムアウトなど色に依らない決着では null。
+        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false, CardAttribute? winAttribute = null)
         {
             _optionPresenter.ClearSurrenderHandler();
             _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
-            PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, destroyCancellationToken).Forget();
+            PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, winAttribute, destroyCancellationToken).Forget();
         }
     }
 }

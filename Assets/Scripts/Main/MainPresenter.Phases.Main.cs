@@ -312,7 +312,7 @@ namespace Main
             }
 
             _isGameOver = true;
-            OnGameEnd(playerWins: isLocalDeck);
+            OnGameEnd(playerWins: isLocalDeck, winAttribute: CardAttribute.Blue);
             return true;
         }
 
@@ -349,7 +349,7 @@ namespace Main
             if (targetHearts.Remaining == 0 && !_isGameOver)
             {
                 _isGameOver = true;
-                OnGameEnd(playerWins: isLocal);
+                OnGameEnd(playerWins: isLocal, winAttribute: CardAttribute.Red);
             }
         }
 

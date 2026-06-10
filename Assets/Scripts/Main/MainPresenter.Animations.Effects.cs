@@ -357,7 +357,7 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
-        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, CancellationToken ct)
+        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, CardAttribute? winAttribute, CancellationToken ct)
         {
             if (_mulliganOverlay != null)
             {
@@ -379,16 +379,38 @@ namespace Main
                 _rainDefeatEffect = Instantiate(_rainDefeatEffectPrefab, new Vector3(0f, 15f, 0f), Quaternion.identity);
             }
 
-            string text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
-            string labelClass = playerWins == null ? "game-end-label--draw"
-                : playerWins.Value ? "game-end-label--win" : "game-end-label--lose";
-
-            _gameEndLabel.text = text;
             _gameEndLabel.RemoveFromClassList("game-end-label--win");
             _gameEndLabel.RemoveFromClassList("game-end-label--lose");
             _gameEndLabel.RemoveFromClassList("game-end-label--draw");
-            _gameEndLabel.AddToClassList(labelClass);
+
+            if (winAttribute.HasValue)
+            {
+                // 色による勝利条件: 「〇色勝利／〇色敗北」を勝因の属性色で表示し、属性アイコンを紋章として出す
+                bool isWin = playerWins == true;
+                _gameEndLabel.text = $"{GetWinColorName(winAttribute.Value)}{(isWin ? "勝利" : "敗北")}";
+
+                Color color = GetWinColor(winAttribute.Value);
+                if (!isWin)
+                {
+                    color = new Color(color.r * 0.55f, color.g * 0.55f, color.b * 0.55f, 1f);
+                }
+                _gameEndLabel.style.color = color;
+
+                ApplyEmblemAttribute(winAttribute.Value);
+                _gameEndEmblem.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                // 降参・タイムアウト・引き分けなど色に依らない決着
+                _gameEndLabel.text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
+                _gameEndLabel.style.color = StyleKeyword.Null;
+                _gameEndLabel.AddToClassList(playerWins == null ? "game-end-label--draw"
+                    : playerWins.Value ? "game-end-label--win" : "game-end-label--lose");
+                _gameEndEmblem.style.display = DisplayStyle.None;
+            }
+
             _gameEndLabel.style.scale = new Scale(new Vector3(0.3f, 0.3f, 1f));
+            _gameEndEmblem.style.scale = new Scale(new Vector3(0.3f, 0.3f, 1f));
 
             if (isSurrenderWin)
             {
@@ -419,6 +441,10 @@ namespace Main
                     () => _gameEndLabel.style.scale.value.value.x,
                     v => _gameEndLabel.style.scale = new Scale(new Vector3(v, v, 1f)),
                     1f, 0.4f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(
+                    () => _gameEndEmblem.style.scale.value.value.x,
+                    v => _gameEndEmblem.style.scale = new Scale(new Vector3(v, v, 1f)),
+                    1f, 0.4f).SetEase(Ease.OutBack))
                 .AppendInterval(0.3f)
                 .Append(DOTween.To(
                     () => _gameEndTitleButton.style.opacity.value,
@@ -430,6 +456,48 @@ namespace Main
 
             try { await tcs.Task; }
             catch (OperationCanceledException) { }
+        }
+
+        // 勝因の属性に対応する紋章（属性アイコン）クラスを適用する
+        private void ApplyEmblemAttribute(CardAttribute attribute)
+        {
+            _gameEndEmblem.EnableInClassList("game-end-emblem--red", attribute == CardAttribute.Red);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--blue", attribute == CardAttribute.Blue);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--green", attribute == CardAttribute.Green);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--yellow", attribute == CardAttribute.Yellow);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--black", attribute == CardAttribute.Black);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--purple", attribute == CardAttribute.Purple);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--white", attribute == CardAttribute.White);
+        }
+
+        private static string GetWinColorName(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "赤色",
+                CardAttribute.Blue => "青色",
+                CardAttribute.Green => "緑色",
+                CardAttribute.Yellow => "黄色",
+                CardAttribute.Black => "黒色",
+                CardAttribute.Purple => "紫色",
+                CardAttribute.White => "白色",
+                _ => ""
+            };
+        }
+
+        private static Color GetWinColor(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => new Color(0.92f, 0.32f, 0.32f, 1f),
+                CardAttribute.Blue => new Color(0.36f, 0.60f, 0.96f, 1f),
+                CardAttribute.Green => new Color(0.32f, 0.84f, 0.40f, 1f),
+                CardAttribute.Yellow => new Color(0.94f, 0.82f, 0.30f, 1f),
+                CardAttribute.Black => new Color(0.58f, 0.58f, 0.68f, 1f),
+                CardAttribute.Purple => new Color(0.74f, 0.42f, 0.92f, 1f),
+                CardAttribute.White => new Color(0.92f, 0.92f, 0.96f, 1f),
+                _ => Color.white
+            };
         }
 
         private async UniTaskVoid SpawnFireworksAsync(CancellationToken ct)

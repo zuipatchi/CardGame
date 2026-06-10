@@ -729,6 +729,41 @@
     flex-direction: column;
 }
 
+.game-end-emblem {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.game-end-emblem--red {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/FireIcon.png");
+}
+
+.game-end-emblem--blue {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/WaterIcon.png");
+}
+
+.game-end-emblem--green {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
+}
+
+.game-end-emblem--yellow {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/DiceIcon.png");
+}
+
+.game-end-emblem--black {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ClockIcon.png");
+}
+
+.game-end-emblem--purple {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/DevilIcon.png");
+}
+
+.game-end-emblem--white {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/FlowerIcon.png");
+}
+
 .game-end-label {
     font-size: 96px;
     -unity-font-style: bold;

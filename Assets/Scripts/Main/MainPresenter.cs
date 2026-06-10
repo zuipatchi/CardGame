@@ -66,6 +66,7 @@ namespace Main
         private VisualElement _dragLayer;
         private Label _costWarningLabel;
         private VisualElement _gameEndOverlay;
+        private VisualElement _gameEndEmblem;
         private Label _gameEndLabel;
         private Label _gameEndSubLabel;
         private Button _gameEndTitleButton;
@@ -383,6 +384,11 @@ namespace Main
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
                 _gameEndOverlay.style.display = DisplayStyle.None;
+                _gameEndEmblem = new VisualElement();
+                _gameEndEmblem.AddToClassList("game-end-emblem");
+                _gameEndEmblem.pickingMode = PickingMode.Ignore;
+                _gameEndEmblem.style.display = DisplayStyle.None;
+                _gameEndOverlay.Add(_gameEndEmblem);
                 _gameEndLabel = new Label();
                 _gameEndLabel.AddToClassList("game-end-label");
                 _gameEndLabel.pickingMode = PickingMode.Ignore;
