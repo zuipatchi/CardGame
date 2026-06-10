@@ -122,6 +122,20 @@ public enum EventType
 
 ---
 
+## 2-C. コスト支払い時に作用する受動効果（CostBoost 相当）を追加する
+
+`Draw` 等の「プレイ時に解決される効果」とは異なり、`CostBoost` は**手札からコストとして支払うときだけ作用する受動プロパティ**。`ApplyEventEffectAsync` / `ResolveCharacterEnterEffectAsync` の `switch` には**追加しない**（通常プレイ時は無効果）。
+
+実装は「カードが何コスト分として数えられるか」を表す `CardData.CostPaymentValue`（virtual、通常 1）で表現する。
+
+- **判定箇所**: [CardData.cs](../Assets/Scripts/Main/Card/CardData.cs) の `public virtual int CostPaymentValue => 1;` を、[CharacterCardData.cs](../Assets/Scripts/Main/Card/CharacterCardData.cs) / [EventCardData.cs](../Assets/Scripts/Main/Card/EventCardData.cs) で `override` してカードの種別/値から導出する（CostBoost なら `Max(1, 値)`）。
+- **コスト計算**: [MainPresenter.Input.CostSelection.cs](../Assets/Scripts/Main/MainPresenter.Input.CostSelection.cs) の `CostCapacityExcluding` / `SelectedCostValue` が `CostPaymentValue` を合算する。コスト判定は「枚数」ではなく「合計コスト値」で行うため、新しい受動効果を足すときもこの2メソッドが算出経路になる。
+- **CPU**: [MainPresenter.Animations.CostFly.cs](../Assets/Scripts/Main/MainPresenter.Animations.CostFly.cs) の `ChooseCpuCostCards` が合計コスト値ベースで自動選択する。
+- **オンライン**: 払ったカードIDの送受信のみで整合（受信側もIDからデータ復元して `CostPaymentValue` を得る）。追加同期は不要。
+- 説明は Description に手書きする（専用の表示UIは追加しない方針）。
+
+---
+
 ## 3. 新しいターンフェーズを追加する
 
 ### 手順
