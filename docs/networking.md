@@ -304,7 +304,7 @@ else
 | `NGS_InitialState` | Host → Client | 初期手札・デッキ・先攻後攻 + ホストのユーザーネーム |
 | `NGS_Mulligan` | Both | マリガン実施有無 + マリガン後のデッキ順序（mulliganed / newDeckIds。マリガンしない場合 newDeckIds は null） |
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
-| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / costCardIds[]）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
+| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsHeart / costCardIds[]）。targetsHeart=true はハート攻撃（ハート勝利条件）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |

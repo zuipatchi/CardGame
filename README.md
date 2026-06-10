@@ -3,10 +3,9 @@
 ここには開発者向けのメモを記載する
 
 ## 開発の進め方
-1. `/feature` を実行して新機能を実装する（ヒアリング→実装→テストまで自動で進む）
-2. PlayMode: Window → General → Test Runner → PlayMode タブ → Run All で自動テストを実行する
-3. Unity Editor で Play して動作確認する
-4. 問題なければ `/ship` を実行してコミット・ドキュメント更新まで行う
+1. `/feature` を実行して新機能を実装する（ヒアリング→実装→レビューまで自動で進む）
+2. Unity Editor で Play して動作確認する（自動テストは作成しない方針。CLAUDE.md 参照）
+3. 問題なければ `/ship` を実行してコミット・ドキュメント更新まで行う
 
 ## テストプレイの仕方
 Multiplayer play mode を使用してオンライン対戦を行う
