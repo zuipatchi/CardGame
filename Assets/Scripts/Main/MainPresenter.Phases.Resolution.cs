@@ -82,15 +82,27 @@ namespace Main
         // ─── キャラ登場時効果 ────────────────────────────────────────────────
         // 通常配置（ローカル PlaceChar / 相手カードプレイ）で配置確定したキャラの
         // EffectTrigger == OnEnter 効果を発動する。Switch / Evolve 配置は対象外。
-        // 既存のイベント効果解決処理（演出 + 適用）を流用する。
-        private async UniTask ResolveCharacterEnterEffectAsync(CardView placedChar, bool isLocal, CancellationToken ct)
+        private UniTask ResolveCharacterEnterEffectAsync(CardView placedChar, bool isLocal, CancellationToken ct)
         {
-            if (placedChar.Data is not CharacterCardData charData)
+            return ResolveCharacterTriggeredEffectAsync(placedChar, CharacterEffectTrigger.OnEnter, isLocal, ct);
+        }
+
+        // ─── キャラ攻撃時効果 ────────────────────────────────────────────────
+        // キャラ攻撃・ハート攻撃の攻撃宣言時に、攻撃側キャラの EffectTrigger == OnAttack 効果を発動する。
+        private UniTask ResolveCharacterAttackEffectAsync(CardView attacker, bool isLocal, CancellationToken ct)
+        {
+            return ResolveCharacterTriggeredEffectAsync(attacker, CharacterEffectTrigger.OnAttack, isLocal, ct);
+        }
+
+        // 指定トリガーのキャラ効果を発動する。既存のイベント効果解決処理（演出 + 適用）を流用する。
+        private async UniTask ResolveCharacterTriggeredEffectAsync(CardView sourceCard, CharacterEffectTrigger trigger, bool isLocal, CancellationToken ct)
+        {
+            if (sourceCard == null || sourceCard.Data is not CharacterCardData charData)
             {
                 return;
             }
 
-            if (charData.EffectTrigger != CharacterEffectTrigger.OnEnter || charData.EffectType == CardEventType.None)
+            if (charData.EffectTrigger != trigger || charData.EffectType == CardEventType.None)
             {
                 return;
             }
@@ -98,7 +110,7 @@ namespace Main
             switch (charData.EffectType)
             {
                 case CardEventType.Draw:
-                    await PlayDrawEffectAsync(placedChar, charData.EffectValue, ct);
+                    await PlayDrawEffectAsync(sourceCard, charData.EffectValue, ct);
                     await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
                     break;
                 case CardEventType.BanishChar:

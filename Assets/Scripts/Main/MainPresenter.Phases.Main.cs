@@ -221,6 +221,8 @@ namespace Main
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
 
+            await ResolveCharacterAttackEffectAsync(attacker, isLocal, ct);
+
             await PlayCardChargeAsync(attacker, target, ct);
 
             int atk = attacker.Data.Attack;
@@ -283,6 +285,8 @@ namespace Main
             {
                 return;
             }
+
+            await ResolveCharacterAttackEffectAsync(attacker, isLocal, ct);
 
             VisualElement targetHeart = targetHearts.PeekNextHeart();
             await PlayCardChargeAsync(attacker, targetHeart, ct);

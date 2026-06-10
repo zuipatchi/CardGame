@@ -113,6 +113,17 @@ MonoBehaviour:
     _effectValue: 1
     _description: "\u30D5\u30A3\u30FC\u30EB\u30C9\u306B\u51FA\u305F\u66421\u679A\u30C9\u30ED\u30FC"
   - _id: C010
+    _cardName: "\u52C7\u8005\u306E\u5144"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
+    _attack: 3
+    _hp: 6
+    _attribute: 1
+    _effectTrigger: 2
+    _effectType: 3
+    _effectValue: 1
+    _description: "\u653B\u6483\u3057\u305F\u3068\u304D1\u679A\u30C9\u30ED\u30FC"
+  - _id: C011
     _cardName: "\u30B6\u30EA\u30AC\u30CB\u30DE\u30F3"
     _cost: 1
     _image: {fileID: 21300000, guid: 1b36f0f45aa2eb7438afd5c07f19f9f8, type: 3}
@@ -123,7 +134,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C011
+  - _id: C012
     _cardName: "\u9B54\u6CD5\u4F7F\u3044"
     _cost: 5
     _image: {fileID: 21300000, guid: cc980148a336d0147946c3bc164c869d, type: 3}
@@ -134,7 +145,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C012
+  - _id: C013
     _cardName: "\u30C9\u30C3\u30B0"
     _cost: 2
     _image: {fileID: 21300000, guid: 4ea4dc8ee98e85d4fa318babc4ed5bf5, type: 3}
@@ -145,7 +156,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C013
+  - _id: C014
     _cardName: "\u3071\u3061\u866B"
     _cost: 2
     _image: {fileID: 21300000, guid: bcec6bde5394392488dac211d96b2002, type: 3}
@@ -156,7 +167,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C014
+  - _id: C015
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30D1\u30C3\u30C1"
     _cost: 3
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
@@ -167,7 +178,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C015
+  - _id: C016
     _cardName: "\u3071\u3063\u3061\u306E\u5973\u76D7\u8CCA"
     _cost: 3
     _image: {fileID: 21300000, guid: 97a99ec574efee140b173f76324e529c, type: 3}
@@ -178,7 +189,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C016
+  - _id: C017
     _cardName: "\u5927\u86C7\u30E2\u30CA\u2015\u30AF"
     _cost: 3
     _image: {fileID: 21300000, guid: 00a8461bae2d58f49bf58801ed1e8667, type: 3}
@@ -189,7 +200,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C017
+  - _id: C018
     _cardName: "\u30B8\u30E3\u30C3\u30AF\u30B6\u30EA\u30C3\u30D1\u30C3\u30C1"
     _cost: 4
     _image: {fileID: 21300000, guid: 6c47c0463ddbbf64faadfaa88f3a1f50, type: 3}
@@ -200,7 +211,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C018
+  - _id: C019
     _cardName: "\u3071\u3063\u3061"
     _cost: 4
     _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
@@ -211,7 +222,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C019
+  - _id: C020
     _cardName: "\u3071\u3061\u3069\u3063\u304F"
     _cost: 5
     _image: {fileID: 21300000, guid: 78ea85ca8f236634ca913f38387400a0, type: 3}
@@ -222,24 +233,13 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _description: 
-  - _id: C020
+  - _id: C021
     _cardName: "\u7FA4\u99AC\u306E\u30B6\u30EA\u30AC\u30CB"
     _cost: 5
     _image: {fileID: 21300000, guid: b98a0b45c5eceef448971957a7680f53, type: 3}
     _attack: 3
     _hp: 3
     _attribute: 0
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _description: 
-  - _id: C021
-    _cardName: "\u5144\u3071\u3063\u3061"
-    _cost: 6
-    _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
-    _attack: 4
-    _hp: 4
-    _attribute: 6
     _effectTrigger: 0
     _effectType: 0
     _effectValue: 0
