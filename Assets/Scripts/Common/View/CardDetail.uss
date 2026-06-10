@@ -112,6 +112,11 @@
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     align-self: flex-start;
+}
+
+.card-detail-header-row {
+    flex-direction: row;
+    align-items: center;
     margin-bottom: 12px;
 }
 
@@ -206,10 +211,38 @@
 }
 
 .card-detail-attr-icon {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 8px;
+    width: 64px;
+    height: 64px;
+    margin-left: 12px;
     -unity-background-scale-mode: scale-to-fit;
+}
+
+.card-detail-attr-icon--red {
+    background-image: url("../../../AddressableAssets/Icon/FireIcon.png");
+}
+
+.card-detail-attr-icon--blue {
+    background-image: url("../../../AddressableAssets/Icon/WaterIcon.png");
+}
+
+.card-detail-attr-icon--green {
+    background-image: url("../../../AddressableAssets/Icon/MedalIcon.png");
+}
+
+.card-detail-attr-icon--yellow {
+    background-image: url("../../../AddressableAssets/Icon/DiceIcon.png");
+}
+
+.card-detail-attr-icon--black {
+    background-image: url("../../../AddressableAssets/Icon/ClockIcon.png");
+}
+
+.card-detail-attr-icon--purple {
+    background-image: url("../../../AddressableAssets/Icon/DevilIcon.png");
+}
+
+.card-detail-attr-icon--white {
+    background-image: url("../../../AddressableAssets/Icon/FlowerIcon.png");
 }
 
 .card-detail-description {

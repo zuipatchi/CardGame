@@ -38,13 +38,19 @@ namespace Main.Card
             VisualElement stats = new VisualElement();
             stats.AddToClassList("card-detail-stats");
 
+            VisualElement headerRow = new VisualElement();
+            headerRow.AddToClassList("card-detail-header-row");
+
             string typeName = data is CharacterCardData ? "CHARACTER" : "EVENT";
             string typeClass = data is CharacterCardData ? "card-detail-type--character" :
                                "card-detail-type--event";
             Label typeLabel = new Label(typeName);
             typeLabel.AddToClassList("card-detail-type");
             typeLabel.AddToClassList(typeClass);
-            stats.Add(typeLabel);
+            headerRow.Add(typeLabel);
+
+            headerRow.Add(CreateAttributeBadge(data.Attribute));
+            stats.Add(headerRow);
 
             Label nameLabel = new Label(data.CardName);
             nameLabel.AddToClassList("card-detail-name");
@@ -97,6 +103,29 @@ namespace Main.Card
 
             _overlay.RemoveFromHierarchy();
             _overlay = null;
+        }
+
+        private static VisualElement CreateAttributeBadge(CardAttribute attribute)
+        {
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("card-detail-attr-icon");
+            icon.AddToClassList(GetAttributeIconClass(attribute));
+            return icon;
+        }
+
+        private static string GetAttributeIconClass(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "card-detail-attr-icon--red",
+                CardAttribute.Blue => "card-detail-attr-icon--blue",
+                CardAttribute.Green => "card-detail-attr-icon--green",
+                CardAttribute.Yellow => "card-detail-attr-icon--yellow",
+                CardAttribute.Black => "card-detail-attr-icon--black",
+                CardAttribute.Purple => "card-detail-attr-icon--purple",
+                CardAttribute.White => "card-detail-attr-icon--white",
+                _ => "card-detail-attr-icon--white"
+            };
         }
 
         private static string GetAttributeImageClass(CardAttribute attribute)
