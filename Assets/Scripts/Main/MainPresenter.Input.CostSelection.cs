@@ -13,6 +13,31 @@ namespace Main
         private CardAttribute _playedCardAttribute;
         private string _costBaseMessage;
 
+        // 手札の指定カードを除いた、コストとして支払える総コスト値（各カードの CostPaymentValue 合計）
+        private int CostCapacityExcluding(CardView excluded)
+        {
+            int sum = 0;
+            foreach (CardView c in _handView.Cards)
+            {
+                if (c != excluded)
+                {
+                    sum += c.Data.CostPaymentValue;
+                }
+            }
+            return sum;
+        }
+
+        // 現在選択中のコストカードの総コスト値
+        private int SelectedCostValue()
+        {
+            int sum = 0;
+            foreach (CardView c in _selectedCostCards)
+            {
+                sum += c.Data.CostPaymentValue;
+            }
+            return sum;
+        }
+
         // ─── コスト選択待ち ──────────────────────────────────────────────
 
         private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CardAttribute playedAttribute, CancellationToken ct)
@@ -20,20 +45,20 @@ namespace Main
             // BeginStagedCostSelection がドロップ時に先行して呼ばれた場合は TCS が既に存在する
             if (_costSelectionTcs == null)
             {
-                int required = Mathf.Min(cost, _handView.Cards.Count);
+                int required = Mathf.Min(cost, CostCapacityExcluding(null));
                 if (required == 0)
                 {
                     return new List<CardView>();
                 }
 
-                _requiredCostCount = required;
+                _requiredCost = required;
                 _playedCardAttribute = playedAttribute;
                 _costSelectionTcs = new UniTaskCompletionSource();
                 _selectedCostCards.Clear();
 
-                _costBaseMessage = _requiredCostCount < cost
-                    ? $"手札が足りません（{_requiredCostCount}/{cost}枚）"
-                    : $"コストを {_requiredCostCount} 枚選んでください";
+                _costBaseMessage = _requiredCost < cost
+                    ? $"手札が足りません（{_requiredCost}/{cost}）"
+                    : $"コストを {_requiredCost} 支払ってください";
                 _costWarningLabel.text = _costBaseMessage;
                 _costWarningLabel.style.display = DisplayStyle.Flex;
 
@@ -68,7 +93,7 @@ namespace Main
             List<CardView> result = new List<CardView>(_selectedCostCards);
             _selectedCostCards.Clear();
             _costSelectionTcs = null;
-            _requiredCostCount = 0;
+            _requiredCost = 0;
 
             return result;
         }
@@ -85,13 +110,13 @@ namespace Main
                 _selectedCostCards.Remove(card);
                 card.RemoveFromClassList("cost-selected");
             }
-            else if (_selectedCostCards.Count < _requiredCostCount)
+            else if (SelectedCostValue() < _requiredCost)
             {
                 _selectedCostCards.Add(card);
                 card.AddToClassList("cost-selected");
             }
 
-            bool countOk = _selectedCostCards.Count >= _requiredCostCount;
+            bool countOk = SelectedCostValue() >= _requiredCost;
             bool attrOk = IsCostAttributeSatisfied();
             bool canConfirm = countOk && attrOk;
 
@@ -121,18 +146,18 @@ namespace Main
             _actionButtonsArea.AddToClassList("main-action-buttons-area--visible");
         }
 
-        private void BeginStagedCostSelection(CardView staged, int availableForCost)
+        private void BeginStagedCostSelection(CardView staged)
         {
             int cost = staged.Data.Cost;
-            int required = Mathf.Min(cost, availableForCost);
-            _requiredCostCount = required;
+            int required = Mathf.Min(cost, CostCapacityExcluding(staged));
+            _requiredCost = required;
             _playedCardAttribute = staged.Data.Attribute;
             _costSelectionTcs = new UniTaskCompletionSource();
             _selectedCostCards.Clear();
 
             _costBaseMessage = required < cost
-                ? $"手札が足りません（{required}/{cost}枚）"
-                : $"コストを {required} 枚選んでください";
+                ? $"手札が足りません（{required}/{cost}）"
+                : $"コストを {required} 支払ってください";
             _costWarningLabel.text = _costBaseMessage;
             _costWarningLabel.style.display = DisplayStyle.Flex;
 
@@ -177,14 +202,14 @@ namespace Main
             }
             _selectedCostCards.Clear();
             _costSelectionTcs = null;
-            _requiredCostCount = 0;
+            _requiredCost = 0;
         }
 
         // ─── 属性バリデーション ───────────────────────────────────────────
 
         private bool IsCostAttributeSatisfied()
         {
-            if (_requiredCostCount == 0 || _playedCardAttribute == CardAttribute.White)
+            if (_requiredCost == 0 || _playedCardAttribute == CardAttribute.White)
             {
                 return true;
             }

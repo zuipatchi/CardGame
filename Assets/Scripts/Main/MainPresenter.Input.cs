@@ -67,7 +67,7 @@ namespace Main
                     return false;
                 }
 
-                if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
                 {
                     ShowToast("コストが払えません");
                     return false;
@@ -77,7 +77,7 @@ namespace Main
                 _switchInput._card = card;
                 if (card.Data.Cost > 0)
                 {
-                    BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                    BeginStagedCostSelection(card);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace Main
 
                 if (card.Data is CharacterCardData)
                 {
-                    if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                    if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
                     {
                         ShowToast("コストが払えません");
                         return false;
@@ -107,7 +107,7 @@ namespace Main
                     _mainStagedType = MainPhaseActionType.PlaceChar;
                     if (card.Data.Cost > 0)
                     {
-                        BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                        BeginStagedCostSelection(card);
                     }
                     else
                     {
@@ -119,7 +119,7 @@ namespace Main
 
                 if (card.Data is EventCardData)
                 {
-                    if (card.Data.Cost > 0 && card.Data.Cost > _handView.Cards.Count - 1)
+                    if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
                     {
                         ShowToast("コストが払えません");
                         return false;
@@ -131,7 +131,7 @@ namespace Main
                         _mainStagedType = MainPhaseActionType.PlayEvent;
                         if (card.Data.Cost > 0)
                         {
-                            BeginStagedCostSelection(card, _handView.Cards.Count - 1);
+                            BeginStagedCostSelection(card);
                         }
                         else
                         {
@@ -160,7 +160,7 @@ namespace Main
         {
             if (_costSelectionTcs != null)
             {
-                if (_selectedCostCards.Count < _requiredCostCount)
+                if (SelectedCostValue() < _requiredCost)
                 {
                     return;
                 }

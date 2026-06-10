@@ -118,7 +118,7 @@ namespace Main
 
         private UniTaskCompletionSource _costSelectionTcs;
         private readonly List<CardView> _selectedCostCards = new List<CardView>();
-        private int _requiredCostCount;
+        private int _requiredCost;
 
         private enum MainPhaseActionType { None, PlaceChar, PlayEvent, Attack, Pass }
 

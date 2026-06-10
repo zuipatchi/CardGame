@@ -17,6 +17,10 @@ namespace Main.Card
         public virtual int Hp => 0;
         public virtual CardAttribute Attribute => CardAttribute.White;
 
+        // 手札からコストとして支払うときに、このカードが何コスト分として数えられるか（通常は1）。
+        // EventType.CostBoost を持つカードは設定されたコスト値を返す。
+        public virtual int CostPaymentValue => 1;
+
         protected CardData() { }
 
         protected CardData(string id, string name, int cost)

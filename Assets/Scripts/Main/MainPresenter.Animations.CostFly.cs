@@ -75,49 +75,10 @@ namespace Main
                 }
                 else
                 {
-                    // CPU：属性制約を満たすコスト選択（同属性 or White を優先して1枚確保）
-                    CardAttribute neededAttr = card.Data.Attribute;
-                    int take = Mathf.Min(cost, handCards.Count);
-
-                    if (neededAttr != CardAttribute.White)
+                    // CPU：属性制約を満たしつつ、コスト値の合計が cost に達するまで手札を選ぶ
+                    foreach (CardView c in ChooseCpuCostCards(card.Data, handCards))
                     {
-                        int matchIdx = -1;
-                        for (int i = 0; i < handCards.Count; i++)
-                        {
-                            CardAttribute a = handCards[i].Data.Attribute;
-                            if (a == neededAttr || a == CardAttribute.White)
-                            {
-                                matchIdx = i;
-                                break;
-                            }
-                        }
-
-                        if (matchIdx >= 0)
-                        {
-                            CardView mc = handCards[matchIdx];
-                            costEntries.Add(MakeCpuCostEntry(mc, hand));
-                            for (int i = 0; i < handCards.Count && costEntries.Count < take; i++)
-                            {
-                                if (i != matchIdx)
-                                {
-                                    costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < take; i++)
-                            {
-                                costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < take; i++)
-                        {
-                            costEntries.Add(MakeCpuCostEntry(handCards[i], hand));
-                        }
+                        costEntries.Add(MakeCpuCostEntry(c, hand));
                     }
                 }
             }
@@ -142,6 +103,48 @@ namespace Main
             CardView faceUpCard = new CardView(_cardStore.CardTemplate, handCard.Data, _cardStore.CardBack, faceDown: false, isOpponent: true);
             Rect from = handCard.worldBound;
             return (faceUpCard, from, () => hand.RemoveCard(handCard));
+        }
+
+        // CPU のコストカード選択：属性制約用に同属性 or White を1枚確保し、
+        // 残りはコスト値（CostPaymentValue）の合計が cost に達するまで手札先頭から選ぶ。
+        private static List<CardView> ChooseCpuCostCards(CardData played, IReadOnlyList<CardView> handCards)
+        {
+            int cost = played.Cost;
+            CardAttribute neededAttr = played.Attribute;
+            List<CardView> chosen = new List<CardView>();
+            HashSet<CardView> used = new HashSet<CardView>();
+            int paid = 0;
+
+            if (neededAttr != CardAttribute.White)
+            {
+                foreach (CardView c in handCards)
+                {
+                    if (c.Data.Attribute == neededAttr || c.Data.Attribute == CardAttribute.White)
+                    {
+                        chosen.Add(c);
+                        used.Add(c);
+                        paid += c.Data.CostPaymentValue;
+                        break;
+                    }
+                }
+            }
+
+            foreach (CardView c in handCards)
+            {
+                if (paid >= cost)
+                {
+                    break;
+                }
+                if (used.Contains(c))
+                {
+                    continue;
+                }
+                chosen.Add(c);
+                used.Add(c);
+                paid += c.Data.CostPaymentValue;
+            }
+
+            return chosen;
         }
 
         // ─── 手札コストカード飛翔演出 ─────────────────────────────────────

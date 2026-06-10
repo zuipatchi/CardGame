@@ -36,5 +36,11 @@ namespace Main.Card
         public EventType EffectType => _effectType;
         public int EffectValue => _effectValue;
         public string Description => _description;
+
+        // OnUsedAsCost + CostBoost のキャラは、コスト支払い時に EffectValue 分（最低1）として数える
+        public override int CostPaymentValue =>
+            _effectTrigger == CharacterEffectTrigger.OnUsedAsCost && _effectType == EventType.CostBoost
+                ? Mathf.Max(1, _effectValue)
+                : 1;
     }
 }

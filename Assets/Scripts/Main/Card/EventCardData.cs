@@ -18,6 +18,10 @@ namespace Main.Card
         public bool TriggerOnGrave => _triggerOnGrave;
         public override CardAttribute Attribute => _attribute;
 
+        // CostBoost のイベントは、コスト支払い時に EventValue 分（最低1）として数える
+        public override int CostPaymentValue =>
+            _eventType == EventType.CostBoost ? Mathf.Max(1, _eventValue) : 1;
+
         public EventCardData() { }
 
         public EventCardData(string id, string name, int cost, CardAttribute attribute = CardAttribute.White)
