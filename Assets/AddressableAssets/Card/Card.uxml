@@ -10,13 +10,13 @@
                     <ui:Label name="CostLabel" class="game-card__cost" />
                 </ui:VisualElement>
                 <ui:VisualElement name="AttributeIcon" class="game-card__attribute-icon" />
-                <ui:VisualElement class="game-card__hp-area">
-                    <ui:VisualElement class="game-card__hp-icon" />
-                    <ui:Label name="HpLabel" class="game-card__hp" />
-                </ui:VisualElement>
                 <ui:VisualElement class="game-card__atk-area">
                     <ui:VisualElement class="game-card__attack-icon" />
                     <ui:Label name="AtkLabel" class="game-card__atk" />
+                </ui:VisualElement>
+                <ui:VisualElement class="game-card__hp-area">
+                    <ui:VisualElement class="game-card__hp-icon" />
+                    <ui:Label name="HpLabel" class="game-card__hp" />
                 </ui:VisualElement>
 
             </ui:VisualElement>
