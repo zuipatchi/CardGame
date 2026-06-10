@@ -320,9 +320,13 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ```
 CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite)
   CharacterCardData   キャラカード。Attack / Hp / Attribute 値を保持。メインフェーズで表向きにフィールドへ配置
-  EventCardData       イベントカード。EventType / EventValue / Attribute を保持。メインフェーズで即時解決し墓地へ
+                      登場時効果として EffectTrigger / EffectType（EventType 流用）/ EffectValue / Description（説明テキスト）を保持
+  EventCardData       イベントカード。EventType / EventValue / Attribute / Description を保持。メインフェーズで即時解決し墓地へ
 
 CardAttribute     enum（CardAttribute.cs）。Red / Blue / Green / Yellow / Black / Purple / White
+
+CharacterEffectTrigger  enum（CharacterEffectTrigger.cs）。キャラの効果発動タイミング。
+                  None / OnEnter（登場時。Draw・BanishChar を実装済み）/ OnAttack・OnDestroy（enum に定義のみ。将来拡張用）
 
 EventType         enum（EffectType.cs）。
                   None / AtkBoost / DefBoost（enum に定義のみ。現在は未使用）

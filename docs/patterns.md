@@ -104,6 +104,24 @@ public enum EventType
 
 ---
 
+## 2-B. キャラカードに登場時効果を追加する
+
+キャラカードは `EffectTrigger`（[CharacterEffectTrigger.cs](../Assets/Scripts/Main/Card/CharacterEffectTrigger.cs)）に `OnEnter` を設定すると、通常配置でフィールドに出した瞬間に効果が発動する。効果種別は `EventType`（イベントと共通）を流用する。
+
+**① カードデータに効果を設定する**
+
+`CharacterCardSO`（[CharacterCard.asset](../Assets/Data/CharacterCard.asset)）のインスペクターで対象キャラの `Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。
+
+**② 効果種別の解決処理を追加する**
+
+[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ResolveCharacterEnterEffectAsync` の `switch` に `case CardEventType.Xxx:` を追加する。既存のイベント効果解決ヘルパー（`PlayDrawEffectAsync` / `ApplyDrawEffectAsync` / `PlayBanishCharEffectAsync` 等）を流用できる。現状は `Draw` と `BanishChar` を実装済み。
+
+**発動箇所**: 通常配置パス（ローカル `ExecuteLocalMainResolveAsync` の `PlaceChar` ／ 相手 `ExecuteOpponentCardPlayAsync` のキャラ配置後）で `ResolveCharacterEnterEffectAsync` を呼んでいる。CPU・オンライン相手も同経路でカバーされ、効果はカードデータから導出されるため追加のネットワーク同期は不要。Switch / Evolve での配置は対象外。
+
+**将来拡張**: `OnAttack`（攻撃時）/ `OnDestroy`（破壊時）は enum に定義済み。実装する際は攻撃確定処理 / キャラ破壊処理にそれぞれ同様の解決呼び出しを追加する。
+
+---
+
 ## 3. 新しいターンフェーズを追加する
 
 ### 手順
