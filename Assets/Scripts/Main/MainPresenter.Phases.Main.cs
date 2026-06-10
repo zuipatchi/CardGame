@@ -97,6 +97,7 @@ namespace Main
                     break;
                 case MainPhaseActionType.PlaceChar:
                     ActivateHeartsIfRed(action._card.Data, playedByLocal: true);
+                    await ResolveCharacterEnterEffectAsync(action._card, isLocal: true, ct);
                     break;
                 default:
                     await PlayPassAnnouncementAsync(ct);
@@ -196,6 +197,10 @@ namespace Main
             if (isEvent)
             {
                 await ResolveSingleCardAsync(playedCard, ct);
+            }
+            else
+            {
+                await ResolveCharacterEnterEffectAsync(playedCard, isLocal: false, ct);
             }
         }
 

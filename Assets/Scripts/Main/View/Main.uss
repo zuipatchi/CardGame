@@ -1040,7 +1040,7 @@
 .draw-label {
     font-size: 36px;
     -unity-font-style: bold;
-    color: rgb(100, 220, 130);
+    color: rgb(70, 150, 235);
     -unity-text-outline-width: 3px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
     -unity-text-align: middle-center;

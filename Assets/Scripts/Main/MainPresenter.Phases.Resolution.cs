@@ -79,6 +79,47 @@ namespace Main
 
         }
 
+        // ─── キャラ登場時効果 ────────────────────────────────────────────────
+        // 通常配置（ローカル PlaceChar / 相手カードプレイ）で配置確定したキャラの
+        // EffectTrigger == OnEnter 効果を発動する。Switch / Evolve 配置は対象外。
+        // 既存のイベント効果解決処理（演出 + 適用）を流用する。
+        private async UniTask ResolveCharacterEnterEffectAsync(CardView placedChar, bool isLocal, CancellationToken ct)
+        {
+            if (placedChar.Data is not CharacterCardData charData)
+            {
+                return;
+            }
+
+            if (charData.EffectTrigger != CharacterEffectTrigger.OnEnter || charData.EffectType == CardEventType.None)
+            {
+                return;
+            }
+
+            switch (charData.EffectType)
+            {
+                case CardEventType.Draw:
+                    await PlayDrawEffectAsync(placedChar, charData.EffectValue, ct);
+                    await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
+                    break;
+                case CardEventType.BanishChar:
+                {
+                    FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+                    if (targetField.Characters.Count == 0)
+                    {
+                        break;
+                    }
+                    CardView banishTarget = targetField.Characters[0];
+                    await PlayBanishCharEffectAsync(banishTarget, ct);
+                    Rect fromRect = banishTarget.worldBound;
+                    targetField.RemoveCard(banishTarget);
+                    await FlyCardToDestAsync(banishTarget, fromRect, targetGraveyard, ct);
+                    targetGraveyard.AddCard(banishTarget);
+                    break;
+                }
+            }
+        }
+
         private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
         {
             switch (data.EventType)
@@ -429,6 +470,9 @@ namespace Main
                     await PlayCpuDrawAsync(drawn, deckRect, ct);
                 }
             }
+
+            // ドロー演出完了後、次の処理へ進む前に少し待つ
+            await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
         }
     }
 }

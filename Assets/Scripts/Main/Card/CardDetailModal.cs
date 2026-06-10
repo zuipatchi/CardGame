@@ -62,8 +62,14 @@ namespace Main.Card
 
             if (data is CharacterCardData charData)
             {
-                AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力");
+                AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
+                if (!string.IsNullOrEmpty(charData.Description))
+                {
+                    Label descLabel = new Label(charData.Description);
+                    descLabel.AddToClassList("card-detail-description");
+                    stats.Add(descLabel);
+                }
             }
             else if (data is EventCardData eventData)
             {

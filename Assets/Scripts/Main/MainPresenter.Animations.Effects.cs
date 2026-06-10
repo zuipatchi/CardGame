@@ -117,7 +117,7 @@ namespace Main
         private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DRAW +{value}", "draw-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"DRAW {value}", "draw-label", card, ct));
             if (_drawEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _drawEffectPrefab, ct));
