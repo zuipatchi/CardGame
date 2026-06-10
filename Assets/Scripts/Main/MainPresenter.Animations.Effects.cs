@@ -162,7 +162,7 @@ namespace Main
             return PlayParticleAtUiPositionAsync(card, card.worldBound.center, prefab, ct, rotation);
         }
 
-        private async UniTask PlayParticleAtUiPositionAsync(VisualElement panelRef, Vector2 uiPos, GameObject prefab, CancellationToken ct, Quaternion rotation = default)
+        private async UniTask PlayParticleAtUiPositionAsync(VisualElement panelRef, Vector2 uiPos, GameObject prefab, CancellationToken ct, Quaternion rotation = default, float scale = 1f)
         {
             if (panelRef.panel == null)
             {
@@ -219,6 +219,17 @@ namespace Main
 
             GameObject effect = Instantiate(prefab, worldPos, rotation == default ? Quaternion.identity : rotation);
             SetLayerRecursive(effect, EffectLayer);
+
+            // scale 指定時はパーティクル全体を Transform スケールに追従させて縮小する
+            if (!Mathf.Approximately(scale, 1f))
+            {
+                foreach (ParticleSystem childPs in effect.GetComponentsInChildren<ParticleSystem>())
+                {
+                    ParticleSystem.MainModule childMain = childPs.main;
+                    childMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+                }
+                effect.transform.localScale *= scale;
+            }
 
             float waitSeconds = 2f;
             ParticleSystem ps = effect.GetComponentInChildren<ParticleSystem>();

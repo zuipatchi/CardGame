@@ -291,7 +291,9 @@ namespace Main
 
             if (_charDestroyEffectPrefab != null)
             {
-                await PlayParticleAtUiPositionAsync(targetHeart, targetHeart.worldBound.center, _charDestroyEffectPrefab, ct);
+                // ハートはカードより小さいためパーティクルを縮小して再生する
+                const float HeartEffectScale = 0.4f;
+                await PlayParticleAtUiPositionAsync(targetHeart, targetHeart.worldBound.center, _charDestroyEffectPrefab, ct, scale: HeartEffectScale);
             }
             targetHearts.RemoveHeart();
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
