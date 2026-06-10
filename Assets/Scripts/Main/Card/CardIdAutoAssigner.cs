@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Main.Card
 {
-    // カード SO のリスト要素に一意の ID を自動採番するエディタ専用ヘルパー。
-    // 空の ID と重複した ID のみ採番し、既存の一意な ID は変更しない。
+    // カード SO のリスト要素にリスト順で ID を自動採番するエディタ専用ヘルパー。
+    // 先頭から prefix + 3桁連番（C001, C002, …）を割り当て、並び替え時も常に振り直す。
     public static class CardIdAutoAssigner
     {
         // 採番を行った場合は true を返す（呼び出し側で SetDirty するため）
@@ -15,48 +15,24 @@ namespace Main.Card
                 return false;
             }
 
-            HashSet<string> seenIds = new HashSet<string>();
-            HashSet<int> usedNumbers = new HashSet<int>();
-            List<T> needsId = new List<T>();
-
-            foreach (T card in cards)
+            bool changed = false;
+            for (int i = 0; i < cards.Count; i++)
             {
+                T card = cards[i];
                 if (card == null)
                 {
                     continue;
                 }
 
-                string id = card.Id;
-                if (string.IsNullOrEmpty(id) || !seenIds.Add(id))
+                string expected = $"{prefix}{i + 1:D3}";
+                if (card.Id != expected)
                 {
-                    // 空 ID、または先行要素と重複 → 採番対象
-                    needsId.Add(card);
-                    continue;
-                }
-
-                if (id.StartsWith(prefix) && int.TryParse(id.Substring(prefix.Length), out int number))
-                {
-                    usedNumbers.Add(number);
+                    card.EditorSetId(expected);
+                    changed = true;
                 }
             }
 
-            if (needsId.Count == 0)
-            {
-                return false;
-            }
-
-            int next = 1;
-            foreach (T card in needsId)
-            {
-                while (usedNumbers.Contains(next))
-                {
-                    next++;
-                }
-                usedNumbers.Add(next);
-                card.EditorSetId($"{prefix}{next:D3}");
-            }
-
-            return true;
+            return changed;
         }
     }
 }

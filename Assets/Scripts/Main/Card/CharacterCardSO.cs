@@ -11,7 +11,7 @@ namespace Main.Card
         public IReadOnlyList<CharacterCardData> Cards => _cards;
 
 #if UNITY_EDITOR
-        // 空 ID・重複 ID に C### を自動採番する（既存の一意な ID は変更しない）
+        // リスト順に C### を自動採番する（並び替え時も振り直す）
         private void OnValidate()
         {
             if (CardIdAutoAssigner.AssignIds(_cards, "C"))
