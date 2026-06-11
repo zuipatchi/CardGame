@@ -185,10 +185,6 @@ namespace Home
             {
                 return $"デッキが{DeckModel.MaxCards}枚を超えています";
             }
-            if (_deckModel.IsCostOver)
-            {
-                return $"デッキのコストが{DeckModel.MaxCost}を超えています";
-            }
             return $"デッキが{DeckModel.MaxCards}枚になっていません";
         }
 

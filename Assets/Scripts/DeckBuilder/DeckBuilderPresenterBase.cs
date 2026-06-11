@@ -46,7 +46,6 @@ namespace DeckBuilder
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;
-        private Label _deckCardCountLabel;
         private Button _clearDeckButton;
         private Label _costOverLabel;
         private VisualElement _cardListDragLayer;
@@ -149,11 +148,6 @@ namespace DeckBuilder
                 _deckCountLabel.AddToClassList("deckbuilder-deck-count");
                 _deckCountLabel.style.marginLeft = 20;
                 topLeftButtons.Add(_deckCountLabel);
-
-                _deckCardCountLabel = new Label();
-                _deckCardCountLabel.name = "DeckCardCountLabel";
-                _deckCardCountLabel.AddToClassList("deckbuilder-deck-card-count");
-                topLeftButtons.Add(_deckCardCountLabel);
 
                 InitializeDeck();
 
@@ -412,7 +406,6 @@ namespace DeckBuilder
         {
             _deckListScrollView.Clear();
             _deckCountLabel.text = $"枚数 {_deckModel.Count}/{DeckModel.MaxCards}";
-            _deckCardCountLabel.text = $"コスト {_deckModel.TotalCost}/{DeckModel.MaxCost}";
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();
@@ -501,16 +494,10 @@ namespace DeckBuilder
             _clearDeckButton.style.display = _deckModel.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
 
             bool isOver = _deckModel.IsOver;
-            bool isCostOver = _deckModel.IsCostOver;
 
             if (isOver)
             {
                 _costOverLabel.text = $"{DeckModel.MaxCards}枚を超えています";
-                _costOverLabel.style.display = DisplayStyle.Flex;
-            }
-            else if (isCostOver)
-            {
-                _costOverLabel.text = $"コストが{DeckModel.MaxCost}を超えています";
                 _costOverLabel.style.display = DisplayStyle.Flex;
             }
             else if (!_deckModel.IsReady && _deckModel.Count > 0)
@@ -530,15 +517,6 @@ namespace DeckBuilder
             else
             {
                 _deckCountLabel.RemoveFromClassList("deckbuilder-deck-count--over");
-            }
-
-            if (isCostOver)
-            {
-                _deckCardCountLabel.AddToClassList("deckbuilder-deck-card-count--over");
-            }
-            else
-            {
-                _deckCardCountLabel.RemoveFromClassList("deckbuilder-deck-card-count--over");
             }
         }
 

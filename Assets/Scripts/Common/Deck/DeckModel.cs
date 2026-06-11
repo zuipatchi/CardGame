@@ -5,7 +5,6 @@ namespace Common.Deck
     public sealed class DeckModel
     {
         public const int MaxCards = 30;
-        public const int MaxCost = 80;
 
         private readonly List<(string id, int cost)> _entries = new List<(string id, int cost)>();
 
@@ -26,8 +25,7 @@ namespace Common.Deck
 
         public bool IsReady => Count == MaxCards;
         public bool IsOver => Count > MaxCards;
-        public bool IsCostOver => TotalCost > MaxCost;
-        public bool IsValid => IsReady && !IsCostOver;
+        public bool IsValid => IsReady;
 
         public IReadOnlyList<string> CardIds
         {
