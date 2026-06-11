@@ -126,6 +126,10 @@ namespace Main
         private readonly HashSet<CardView> _playerSeasonedChars = new HashSet<CardView>();
         private readonly HashSet<CardView> _opponentSeasonedChars = new HashSet<CardView>();
 
+        // NextCardCostFree 効果: 次にプレイするカード1枚のコストを0にする（使うまで持続）
+        private bool _playerNextCardFree;
+        private bool _opponentNextCardFree;
+
         private UniTaskCompletionSource _costSelectionTcs;
         private readonly List<CardView> _selectedCostCards = new List<CardView>();
         private int _requiredCost;

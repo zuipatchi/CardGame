@@ -147,6 +147,9 @@ namespace Main
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
                     break;
+                case CardEventType.NextCardCostFree:
+                    await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
+                    break;
             }
         }
 
@@ -220,7 +223,24 @@ namespace Main
                 case CardEventType.GainVictoryPoints:
                     await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
                     break;
+                case CardEventType.NextCardCostFree:
+                    await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
+                    break;
             }
+        }
+
+        // 次にプレイするカード1枚のコストを0にする（使うまで持続）。発動側のフラグを立て、発動カード上に告知を出す
+        private async UniTask ApplyNextCardCostFreeAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (isLocal)
+            {
+                _playerNextCardFree = true;
+            }
+            else
+            {
+                _opponentNextCardFree = true;
+            }
+            await PlayFloatingLabelAsync("コスト0", "cost-free-label", sourceCard, ct);
         }
 
         // 発動側から見た敵フィールドのキャラ全員に同時にダメージを与え、HP 0 以下のキャラを破壊する

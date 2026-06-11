@@ -102,7 +102,8 @@ namespace Main
                         ShowToast("フィールドがいっぱいです");
                         return false;
                     }
-                    if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
+                    int effectiveCost = EffectivePlayerCost(card);
+                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card))
                     {
                         ShowToast("コストが払えません");
                         return false;
@@ -110,7 +111,7 @@ namespace Main
                     _playerFieldView.PlaceCard(card);
                     _mainStagedCard = card;
                     _mainStagedType = MainPhaseActionType.PlaceChar;
-                    if (card.Data.Cost > 0)
+                    if (effectiveCost > 0)
                     {
                         BeginStagedCostSelection(card);
                     }
@@ -124,7 +125,8 @@ namespace Main
 
                 if (card.Data is EventCardData)
                 {
-                    if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
+                    int effectiveCost = EffectivePlayerCost(card);
+                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card))
                     {
                         ShowToast("コストが払えません");
                         return false;
@@ -134,7 +136,7 @@ namespace Main
                     {
                         _mainStagedCard = card;
                         _mainStagedType = MainPhaseActionType.PlayEvent;
-                        if (card.Data.Cost > 0)
+                        if (effectiveCost > 0)
                         {
                             BeginStagedCostSelection(card);
                         }

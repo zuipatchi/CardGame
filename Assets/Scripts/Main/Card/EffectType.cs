@@ -27,5 +27,7 @@ namespace Main.Card
         // EventValue2 / EffectValue2 体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。
         // 召喚キャラの OnEnter も発動する。
         SummonChar,
+        // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
+        NextCardCostFree,
     }
 }

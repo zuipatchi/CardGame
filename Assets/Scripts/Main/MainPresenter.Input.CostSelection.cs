@@ -13,6 +13,13 @@ namespace Main
         private CardAttribute _playedCardAttribute;
         private string _costBaseMessage;
 
+        // ローカルプレイヤーがこのカードをプレイする際の実効コスト。
+        // NextCardCostFree 効果が立っていれば 0（次の1枚が無料）。
+        private int EffectivePlayerCost(CardView card)
+        {
+            return _playerNextCardFree ? 0 : card.Data.Cost;
+        }
+
         // 手札の指定カードを除いた、コストとして支払える総コスト値（各カードの CostPaymentValue 合計）
         private int CostCapacityExcluding(CardView excluded)
         {

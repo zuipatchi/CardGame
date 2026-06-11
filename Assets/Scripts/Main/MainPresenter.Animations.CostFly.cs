@@ -21,8 +21,32 @@ namespace Main
                 return Array.Empty<string>();
             }
 
+            // NextCardCostFree: 自分でコストを決める側（ローカル / CPU）はフラグが立っていれば0コストで支払い完了
+            if (isLocalPlayer || costCardIds == null)
+            {
+                bool free = isLocalPlayer ? _playerNextCardFree : _opponentNextCardFree;
+                if (free)
+                {
+                    if (isLocalPlayer)
+                    {
+                        _playerNextCardFree = false;
+                    }
+                    else
+                    {
+                        _opponentNextCardFree = false;
+                    }
+                    return Array.Empty<string>();
+                }
+            }
+
             int cost = card.Data.Cost;
             if (cost <= 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            // オンライン相手が無料でプレイした（支払いカードID＝空）場合は何も支払わない
+            if (!isLocalPlayer && costCardIds != null && costCardIds.Length == 0)
             {
                 return Array.Empty<string>();
             }
