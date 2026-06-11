@@ -41,17 +41,19 @@ public sealed class XxxCardSO : ScriptableObject
 
 **③ `CardDatabase` に追加する**
 
-[CardDatabase.cs](../Assets/Scripts/Main/Card/CardDatabase.cs) の `_characterCards` / `_skillCards` / `_eventCards` と同じ要領でフィールドを追加し、`Build()` と `AllCards` で `Register` / `AddAll` を呼ぶ。
+[CardDatabase.cs](../Assets/Scripts/Main/Card/CardDatabase.cs) は属性別 SO の配列 `_characterCardSets` / `_eventCardSets` を保持し、`Build()` と `AllCards` で全 SO を走査して集約する。新しいカード種別を増やす場合は同じ要領で配列フィールドを追加し、`Register` / `AddAll` を呼ぶ。
 
 **④ SO アセットを作って CardDatabase にアサイン**
 
-Unity Editor → Project ウィンドウ → Create → Card → Xxx Cards でアセットを作成し、`CardDatabase` SO の Inspector にアサインする。
+`CharacterCardSO` / `EventCardSO` は**属性ごとに分割**して管理する（`Assets/Data/{属性}/CharacterCards_{属性}.asset` 等）。Create → Card → Xxx Cards でアセットを作り、SO の Inspector で `Attribute`（その SO が扱う属性）を設定して、`CardDatabase` の対応する配列にアサインする。
 
 **⑤ カードデータを実際に入力**
 
-SO の Inspector に `_cards` リストを追加してカードを入力。ID 命名規則: `X001`, `X002`, …（X = 種別頭文字）
+該当属性の SO の Inspector で `_cards` リストにカードを追加して入力する。各カードの `Attribute` は SO が一括設定するため**インスペクタでは読み取り専用（グレー表示）**で、SO の `Attribute` に自動追従する。
 
-ID は SO の `OnValidate` で**リスト順に自動採番**される（`CardIdAutoAssigner`。CharacterCardSO = `C###`、EventCardSO = `E###`。先頭要素が `X001`）。要素の追加・削除・並び替えのたびに全 ID が振り直されるため、手動で ID を入力する必要はない。新しい SO を追加する場合も同じ要領で `OnValidate` + `CardIdAutoAssigner.AssignIds(_cards, "X")` を実装する。
+ID は SO の `OnValidate` で**自動採番**される（`CardIdAutoAssigner`）。採番規則は **`C{(属性番号)×1000 + リスト連番}`**（属性番号 = `(int)CardAttribute + 1`。赤=`C1001`/青=`C2001`/…、イベントは `E1001`…）。1属性あたり最大999枚・最大9属性で、属性別 SO 間でも一意・"C{番号}" 形式を保つ（SummonChar 互換）。要素の追加・削除・並び替えのたびに振り直されるため手入力不要。
+
+> 既存の単一 SO を属性別へ分割する移行ツール：メニュー **`Card → 属性別SOに分割`**（[CardSoAttributeSplitter.cs](../Assets/Scripts/Editor/CardSoAttributeSplitter.cs)）。属性で振り分けて各フォルダに SO を生成し CardDatabase へアサインする。複数属性が混在する SO は属性を上書きしない（レガシー SO の破壊防止）。
 
 **注意**: 保存済みデッキ・`CpuDeck.asset` はカード ID で参照しているため、マスターリストの並び替え・途中挿入で ID が変わると参照先のカードが変わる。並び替えた後はデッキ内容を確認すること。
 
@@ -116,7 +118,7 @@ public enum EventType
 
 **① カードデータに効果を設定する**
 
-`CharacterCardSO`（[CharacterCard.asset](../Assets/Data/CharacterCard.asset)）のインスペクターで対象キャラの `Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。
+対象キャラが属する属性別 `CharacterCardSO`（`Assets/Data/{属性}/CharacterCards_{属性}.asset`）のインスペクターで、`Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。
 
 **② 効果種別の解決処理を追加する**
 

@@ -334,10 +334,12 @@ EventType         enum（EffectType.cs）。
                   Switch（自分のキャラを手札に戻して別キャラを配置）
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
 
-CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（インスペクター編集用）
-                  ID は OnValidate でリスト順に自動採番（CardIdAutoAssigner・エディタ専用。CharacterCardSO=C### / EventCardSO=E###。先頭要素が X001 で、追加・削除・並び替えのたびに全 ID を振り直す）
+CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（属性ごとに分割。Assets/Data/{属性}/ に配置）
+                  SO ごとに Attribute を持ち、所属カードの属性を一括設定する（カードの Attribute はインスペクタで読み取り専用＝ReadOnly 属性）
+                  ID は OnValidate で自動採番（CardIdAutoAssigner・エディタ専用）。規則は C{(属性番号)×1000+連番}（赤=C1001/青=C2001…、属性番号=(int)CardAttribute+1。E も同様）。属性別 SO 間でも一意・"C{番号}" 形式（SummonChar 互換）。1属性最大999枚・最大9属性
+                  既存の単一 SO を属性別へ分割する移行ツール：メニュー Card → 属性別SOに分割（CardSoAttributeSplitter）
 
-CardDatabase      ScriptableObject。List<CardData> をインスペクターで編集、Dictionary でルックアップ
+CardDatabase      ScriptableObject。属性別 SO の配列 _characterCardSets / _eventCardSets を集約し、Dictionary でルックアップ
 CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
 
 TurnPhase         enum。Draw / Main

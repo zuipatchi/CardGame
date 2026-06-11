@@ -24,7 +24,7 @@
 | CostBoost | 通常プレイ時は**無効果**。手札からコストとして支払うときに、このカードを EventValue 分のコストとして数える（コスト倍化）。キャラに付ける場合は `CharacterEffectTrigger.OnUsedAsCost` と併用、イベントは `EventType=CostBoost` 単体で判定 | コスト換算値（例: 2） |
 | DamageAllEnemies | 発動側から見た敵フィールドのキャラ全員に EventValue 分のダメージを同時に与え、HP が 0 以下になったキャラを破壊する。敵フィールド中央に AoE パーティクル演出を再生（敵キャラが0体でも演出は再生） | ダメージ量 |
 | DamageEnemy | 発動側から見た敵キャラを**値1体**選び、それぞれに**値2分**のダメージを同時に与え、HP が 0 以下なら破壊する。対象はプレイヤーがクリックで選択（選択中は金枠ハイライト `selectable-char`、選択済みは赤枠 `selected-char`、残り体数をトースト表示）。対象数が敵の数以上なら全員が対象（選択不要）・0体なら空振り。CPU は攻撃力上位を狙う。オンラインは対象をフィールドのインデックス配列で同期（`NGS_DamageTarget`） | 値1=対象数 / 値2=ダメージ量 |
-| SummonChar | 発動側の自フィールドに、指定キャラ（**値1**=キャラIDの数字部分→"C###"）を**値2**体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。召喚キャラの OnEnter も発動する。フィールドが9体（`FieldView.MaxCharacters`）で打ち切り（OnEnter 連鎖もここで自然停止）。存在しない／キャラ以外のIDは空振り | 値1=召喚キャラID数字 / 値2=体数 |
+| SummonChar | 発動側の自フィールドに、指定キャラ（**値1**=キャラIDの数字部分→"C{番号}"。例 1001→C1001）を**値2**体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。召喚キャラの OnEnter も発動する。フィールドが9体（`FieldView.MaxCharacters`）で打ち切り（OnEnter 連鎖もここで自然停止）。存在しない／キャラ以外のIDは空振り | 値1=召喚キャラID数字 / 値2=体数 |
 | GainVictoryPoints | 発動した側の勝利点（緑属性の勝利条件）に EventValue 分を加算する。20到達でそのプレイヤーが勝利。発動カードの上に MedalIcon フロート → 勝利点カウンターで加点演出 | 加算する勝利点 |
 
 > `AtkBoost` / `DefBoost` / `Negate` は enum に定義のみで未実装。
@@ -35,26 +35,28 @@
 
 ### イベントカード
 
-[EventCards.asset](../Assets/Data/EventCards.asset)（`EventCardSO`）のリストにカードを追加し、インスペクターで設定する。
+属性別の `EventCardSO`（`Assets/Data/{属性}/EventCards_{属性}.asset`）のリストにカードを追加し、インスペクターで設定する。
 
 | フィールド | 説明 |
 |---|---|
-| Card Name / Cost / Image / Attribute | 名前・コスト・画像・属性（`CardAttribute`） |
+| Card Name / Cost / Image | 名前・コスト・画像 |
+| Attribute | 属性。**SO が一括設定するためカード個別では読み取り専用（グレー表示）**。SO の `Attribute` に追従する |
 | Event Type | 効果種別（上表の `EventType`） |
 | Event Value | 効果の数値（上表「値の意味」の値1） |
 | Event Value 2 | 2つ目の数値（SummonChar の体数など。使わない効果は 0） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Trigger On Grave | ON にすると、このカードが墓地に送られたときにコストを支払わずに効果が発動する |
 
-- ID（`E###`）はリスト順に自動採番される（`CardIdAutoAssigner`）
+- ID は属性ごとに自動採番される：`E{(属性番号)×1000 + 連番}`（赤=`E1001`/青=`E2001`/…。`CardIdAutoAssigner`）
 
 ### キャラカード
 
-[CharacterCard.asset](../Assets/Data/CharacterCard.asset)（`CharacterCardSO`）のリストで設定する。
+属性別の `CharacterCardSO`（`Assets/Data/{属性}/CharacterCards_{属性}.asset`）のリストで設定する。
 
 | フィールド | 説明 |
 |---|---|
-| Attack / Hp / Cost / Image / Attribute | ステータス |
+| Attack / Hp / Cost / Image | ステータス |
+| Attribute | 属性。**SO が一括設定するためカード個別では読み取り専用（グレー表示）** |
 | Effect Trigger | 発動タイミング（下表） |
 | Effect Type | 効果種別（イベントと共通の `EventType`） |
 | Effect Value | 効果の数値（値1） |
@@ -71,7 +73,7 @@
 | OnUsedAsCost | 手札からコストとして支払うとき（`EffectType=CostBoost` と併用してコスト倍化に使う） |
 | OnDestroy | 破壊時（enum 定義のみ・未実装） |
 
-- ID（`C###`）はリスト順に自動採番される（`CardIdAutoAssigner`）
+- ID は属性ごとに自動採番される：`C{(属性番号)×1000 + 連番}`（赤=`C1001`/青=`C2001`/…。`CardIdAutoAssigner`）
 
 ---
 
@@ -80,7 +82,7 @@
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える（コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
 - **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints**: イベント・キャラ（OnEnter / OnAttack）両方で使用可能。
 - **DamageEnemy**: **値1=対象数、値2=ダメージ**（値2が0だとダメージ0で無効果になる点に注意）。プレイヤーが敵キャラを値1体クリックで選ぶ（`selectable-char` でハイライト、選択済みは `selected-char` で赤枠）。対象数が敵の数以上なら全員が対象・0体なら空振り。選んだ全対象に同時ダメージ。オンラインでは対象をフィールドのインデックス配列で相手へ送るため、同名カードが複数いても曖昧にならない。
-- **SummonChar**: 値1=召喚キャラIDの数字部分（7→"C007"）、値2=体数（0は1体）。手札・デッキを消費せず自フィールドに新規生成し、召喚キャラの OnEnter も発動する。フィールドは9体上限（`FieldView.MaxCharacters`）で、満杯になると召喚は打ち切られ OnEnter 連鎖も自然停止する（自己召喚カードでも無限ループにならない）。オンラインは召喚IDがカードデータで確定するため追加同期不要（決定的）。
+- **SummonChar**: 値1=召喚キャラIDの数字部分（例 1001→"C1001"。ID採番は属性別、下記「設定方法」参照）、値2=体数（0は1体）。手札・デッキを消費せず自フィールドに新規生成し、召喚キャラの OnEnter も発動する。フィールドは9体上限（`FieldView.MaxCharacters`）で、満杯になると召喚は打ち切られ OnEnter 連鎖も自然停止する（自己召喚カードでも無限ループにならない）。オンラインは召喚IDがカードデータで確定するため追加同期不要（決定的）。
 - **GainVictoryPoints**: 加点カードは**緑属性**で作る（緑カードをプレイした側に勝利点表示が出現するため）。
 - 勝敗に関わる属性（赤=ハート / 青=デッキ0 / 緑=勝利点20）の挙動は [rules.md](rules.md)「勝敗条件」を参照。
 - オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
