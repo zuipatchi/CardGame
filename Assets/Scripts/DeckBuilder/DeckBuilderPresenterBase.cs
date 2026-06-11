@@ -21,6 +21,29 @@ namespace DeckBuilder
 
         private enum CardTypeFilter { All, Character, Event }
 
+        private sealed class CardListItem
+        {
+            public VisualElement Element { get; }
+            public CardAttribute Attribute { get; }
+
+            public CardListItem(VisualElement element, CardAttribute attribute)
+            {
+                Element = element;
+                Attribute = attribute;
+            }
+        }
+
+        private static readonly CardAttribute[] FilterAttributes =
+        {
+            CardAttribute.Red,
+            CardAttribute.Blue,
+            CardAttribute.Green,
+            CardAttribute.Yellow,
+            CardAttribute.Black,
+            CardAttribute.Purple,
+            CardAttribute.White,
+        };
+
         private VisualElement _deckBuilderRoot;
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
@@ -44,6 +67,10 @@ namespace DeckBuilder
         private VisualElement _eventCardSection;
         private Button _filterCharacterButton;
         private Button _filterEventButton;
+        private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
+        private readonly Dictionary<CardAttribute, Button> _attributeFilterButtons = new Dictionary<CardAttribute, Button>();
+        private readonly List<CardListItem> _characterCardItems = new List<CardListItem>();
+        private readonly List<CardListItem> _eventCardItems = new List<CardListItem>();
 
         void IStartable.Start()
         {
@@ -103,6 +130,18 @@ namespace DeckBuilder
                 topLeftButtons.Add(_filterCharacterButton);
                 topLeftButtons.Add(_filterEventButton);
 
+                for (int i = 0; i < FilterAttributes.Length; i++)
+                {
+                    CardAttribute attribute = FilterAttributes[i];
+                    Button attributeButton = CreateAttributeFilterButton(attribute);
+                    if (i == 0)
+                    {
+                        attributeButton.style.marginLeft = 10;
+                    }
+                    _attributeFilterButtons[attribute] = attributeButton;
+                    topLeftButtons.Add(attributeButton);
+                }
+
                 _deckCountLabel = new Label();
                 _deckCountLabel.name = "DeckCountLabel";
                 _deckCountLabel.AddToClassList("deckbuilder-deck-count");
@@ -118,8 +157,8 @@ namespace DeckBuilder
 
                 _cardListScrollView.Clear();
                 IReadOnlyList<CardData> allCards = _cardDatabase.AllCards;
-                _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character");
-                _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event");
+                _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character", _characterCardItems);
+                _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event", _eventCardItems);
 
                 RefreshDeckPanel();
                 _deckBuilderRoot.Add(_cardListDragLayer);
@@ -131,7 +170,7 @@ namespace DeckBuilder
         protected abstract void SaveDeck();
         protected abstract void NavigateBack();
 
-        private VisualElement AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass)
+        private VisualElement AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass, List<CardListItem> itemsOut)
         {
             List<CardData> cardList = new List<CardData>(cards);
             if (cardList.Count == 0)
@@ -181,6 +220,7 @@ namespace DeckBuilder
                 };
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
+                itemsOut.Add(new CardListItem(cardView, cardData.Attribute));
             }
             wrapper.Add(grid);
             _cardListScrollView.Add(wrapper);
@@ -200,24 +240,96 @@ namespace DeckBuilder
             return btn;
         }
 
+        private Button CreateAttributeFilterButton(CardAttribute attribute)
+        {
+            Button btn = new Button();
+            btn.AddToClassList("deckbuilder-button--filter-attr");
+
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("deckbuilder-filter-attr-icon");
+            icon.AddToClassList(GetFilterAttributeIconClass(attribute));
+            icon.pickingMode = PickingMode.Ignore;
+            btn.Add(icon);
+
+            CardAttribute captured = attribute;
+            btn.clicked += () =>
+            {
+                if (_attributeFilter.Contains(captured))
+                {
+                    _attributeFilter.Remove(captured);
+                }
+                else
+                {
+                    _attributeFilter.Add(captured);
+                }
+                RefreshFilter();
+            };
+            return btn;
+        }
+
+        private static string GetFilterAttributeIconClass(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "deckbuilder-filter-attr-icon--red",
+                CardAttribute.Blue => "deckbuilder-filter-attr-icon--blue",
+                CardAttribute.Green => "deckbuilder-filter-attr-icon--green",
+                CardAttribute.Yellow => "deckbuilder-filter-attr-icon--yellow",
+                CardAttribute.Black => "deckbuilder-filter-attr-icon--black",
+                CardAttribute.Purple => "deckbuilder-filter-attr-icon--purple",
+                CardAttribute.White => "deckbuilder-filter-attr-icon--white",
+                _ => "deckbuilder-filter-attr-icon--white"
+            };
+        }
+
         private void RefreshFilter()
         {
-            bool showCharacter = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Character;
-            bool showEvent = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Event;
+            bool showCharacterType = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Character;
+            bool showEventType = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Event;
+
+            int characterVisible = ApplyAttributeFilterToItems(_characterCardItems);
+            int eventVisible = ApplyAttributeFilterToItems(_eventCardItems);
 
             if (_characterCardSection != null)
             {
-                _characterCardSection.style.display = showCharacter ? DisplayStyle.Flex : DisplayStyle.None;
+                _characterCardSection.style.display = showCharacterType && characterVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
             if (_eventCardSection != null)
             {
-                _eventCardSection.style.display = showEvent ? DisplayStyle.Flex : DisplayStyle.None;
+                _eventCardSection.style.display = showEventType && eventVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
             UpdateFilterButtonState(_filterCharacterButton, CardTypeFilter.Character, "deckbuilder-button--filter--character");
             UpdateFilterButtonState(_filterEventButton, CardTypeFilter.Event, "deckbuilder-button--filter--event");
 
+            foreach (KeyValuePair<CardAttribute, Button> pair in _attributeFilterButtons)
+            {
+                if (_attributeFilter.Contains(pair.Key))
+                {
+                    pair.Value.AddToClassList("deckbuilder-button--filter-attr--active");
+                }
+                else
+                {
+                    pair.Value.RemoveFromClassList("deckbuilder-button--filter-attr--active");
+                }
+            }
+
             RefreshDeckPanel();
+        }
+
+        private int ApplyAttributeFilterToItems(List<CardListItem> items)
+        {
+            int visible = 0;
+            foreach (CardListItem item in items)
+            {
+                bool match = _attributeFilter.Count == 0 || _attributeFilter.Contains(item.Attribute);
+                item.Element.style.display = match ? DisplayStyle.Flex : DisplayStyle.None;
+                if (match)
+                {
+                    visible++;
+                }
+            }
+            return visible;
         }
 
         private void UpdateFilterButtonState(Button btn, CardTypeFilter filterType, string activeClass)
@@ -234,12 +346,14 @@ namespace DeckBuilder
 
         private bool ShouldShowCardInDeck(CardData cardData)
         {
-            return _cardTypeFilter switch
+            bool typeMatch = _cardTypeFilter switch
             {
                 CardTypeFilter.Character => cardData is CharacterCardData,
                 CardTypeFilter.Event => cardData is EventCardData,
                 _ => true,
             };
+            bool attributeMatch = _attributeFilter.Count == 0 || _attributeFilter.Contains(cardData.Attribute);
+            return typeMatch && attributeMatch;
         }
 
         private void OnRemoveClicked(string id)
@@ -315,7 +429,7 @@ namespace DeckBuilder
                 counts[id]++;
             }
 
-            bool canReorder = _cardTypeFilter == CardTypeFilter.All;
+            bool canReorder = true;
 
             _deckRowOrder.Clear();
             foreach (string id in order)
@@ -555,15 +669,47 @@ namespace DeckBuilder
                 return;
             }
 
-            List<string> newOrder = new List<string>(_deckRowOrder);
-            newOrder.RemoveAt(currentIndex);
+            List<string> newVisibleOrder = new List<string>(_deckRowOrder);
+            newVisibleOrder.RemoveAt(currentIndex);
             int adjustedTarget = targetIndex > currentIndex ? targetIndex - 1 : targetIndex;
-            adjustedTarget = Mathf.Clamp(adjustedTarget, 0, newOrder.Count);
-            newOrder.Insert(adjustedTarget, _draggingId);
+            adjustedTarget = Mathf.Clamp(adjustedTarget, 0, newVisibleOrder.Count);
+            newVisibleOrder.Insert(adjustedTarget, _draggingId);
 
-            _deckModel.Reorder(newOrder);
+            _deckModel.Reorder(MergeIntoFullOrder(newVisibleOrder));
             RefreshDeckPanel();
             SaveDeck();
+        }
+
+        // フィルタで一部の行のみ表示している場合でも並べ替えできるよう、
+        // 表示行の新しい順序を全カードの順序へ差し込む。非表示カードは元の位置を保持する。
+        private List<string> MergeIntoFullOrder(List<string> newVisibleOrder)
+        {
+            List<string> fullOrder = new List<string>();
+            HashSet<string> seen = new HashSet<string>();
+            foreach (string id in _deckModel.CardIds)
+            {
+                if (seen.Add(id))
+                {
+                    fullOrder.Add(id);
+                }
+            }
+
+            HashSet<string> visibleSet = new HashSet<string>(newVisibleOrder);
+            List<string> result = new List<string>(fullOrder.Count);
+            int nextVisible = 0;
+            foreach (string id in fullOrder)
+            {
+                if (visibleSet.Contains(id) && nextVisible < newVisibleOrder.Count)
+                {
+                    result.Add(newVisibleOrder[nextVisible]);
+                    nextVisible++;
+                }
+                else
+                {
+                    result.Add(id);
+                }
+            }
+            return result;
         }
 
         private void EndReorder()
