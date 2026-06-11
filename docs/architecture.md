@@ -463,21 +463,24 @@ InitializeFirstTurnAsync  （ゲーム開始時に1度だけ実行）
   → コイントスアニメーション（PlayCoinTossAsync）で先攻後攻を決定
   → 後攻プレイヤーに1枚補正ドロー
 
+RunTurnAsync  （各ターンの先頭）
+  → PlayTurnStartAnnouncementAsync: 自分の番は "YOUR TURN"、相手の番は "ENEMY TURN" を告知
+
 RunDrawPhaseAsync
   → 手番プレイヤーのみ1枚ドロー
       ローカルターン:  ドローアニメーション → SendDrawNotification で相手に通知
       相手ターン:     WaitForOpponentDrawAsync でドロー通知受信 → 相手ドロー演出
 
-RunMainPhaseAsync
-  → "メインフェーズ" 告知
-  → 手番プレイヤーが1アクション選択して実行:
-      ローカル: WaitForPlayerMainActionAsync で入力待ち
+RunMainPhaseAsync  （手番プレイヤーは EndButton／Pass を出すまで制限なく行動を繰り返すループ）
+  → 各メインフェーズ開始時に攻撃済み記録をクリアし、場のキャラを「召喚酔いなし」として記録（ReseasonChars）
+  → ローカル(RunLocalMainLoopAsync): WaitForPlayerMainActionAsync で入力待ちを繰り返す
                   手札キャラ → フィールドへドロップ（PlaceChar）
                   手札イベント → フィールドへドロップ（PlayEvent）→ 即時解決
-                  フィールドキャラ → AttackArrowManipulator で矢印を引いて攻撃（Attack）
-                  パスボタン → Pass
-      CPU:      CpuChooseMainAction() で攻撃優先・次にキャラ・イベント・パスを選択
-      オンライン: WaitForOpponentMainActionAsync で相手アクション受信
+                  攻撃可能キャラ（attackable-char でハイライト） → AttackArrowManipulator で矢印を引いて攻撃（Attack）
+                  EndButton → ターン終了（オンラインは Pass を相手へ送る）
+      CPU(RunCpuMainLoopAsync):  CpuChooseMainAction() で攻撃優先・次にキャラ・イベント、無ければ終了を選択し繰り返す
+      オンライン(RunOnlineOpponentMainLoopAsync): WaitForOpponentMainActionAsync で相手アクションを Pass 受信まで繰り返し受信
+  → 各キャラの攻撃はターン1回まで（_attackedThisTurn）、このターン登場したキャラは攻撃不可（召喚酔い）
 
 ExecuteAttackAsync  （Attack アクション実行時）
   → ResolveCharacterAttackEffectAsync: 攻撃キャラの OnAttack 効果を発動（Draw・BanishChar）
