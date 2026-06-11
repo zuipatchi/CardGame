@@ -49,7 +49,8 @@ namespace Main.Card
             style.display = DisplayStyle.Flex;
         }
 
-        public bool ContainsPoint(Vector2 worldPos)
+        // ワールド座標が攻撃可能なハート領域内かどうか（VisualElement.ContainsPoint はローカル座標のため別名）
+        public bool ContainsWorldPoint(Vector2 worldPos)
         {
             return CanBeAttacked && worldBound.Contains(worldPos);
         }

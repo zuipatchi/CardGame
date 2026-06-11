@@ -15,6 +15,9 @@ namespace Main
     {
         // ─── メインフェーズ ──────────────────────────────────────────────
 
+        // メインフェーズ：アクティブプレイヤーは EndButton（オンラインは Pass）を押すまで
+        // 枚数・攻撃回数の制限なく行動できる。各キャラの攻撃はターンに1回まで、
+        // このターンに登場したキャラ（召喚酔い）は攻撃できない。
         private async UniTask RunMainPhaseAsync(CancellationToken ct)
         {
             UpdatePhaseIndicator(TurnPhase.Main);
@@ -23,44 +26,133 @@ namespace Main
 
             await PlayAnnouncementAsync("メインフェーズ", "turn-announcement-label--main", ct);
 
+            _attackedThisTurn.Clear();
+
             if (isLocalTurn)
             {
+                // ターン開始時に場にいるキャラは召喚酔いが明ける
+                ReseasonChars(_playerFieldView, _playerSeasonedChars);
+                await RunLocalMainLoopAsync(ct);
+            }
+            else if (_isOnline)
+            {
+                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+                await RunOnlineOpponentMainLoopAsync(ct);
+            }
+            else
+            {
+                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+                await RunCpuMainLoopAsync(ct);
+            }
+        }
+
+        // ─── メインフェーズ ループ（ローカル） ─────────────────────────────
+        private async UniTask RunLocalMainLoopAsync(CancellationToken ct)
+        {
+            while (!_isGameOver)
+            {
                 MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
+                if (action._actionType == MainPhaseActionType.Pass)
+                {
+                    // ターン終了。オンラインは Pass を終了の合図として相手へ送る
+                    if (_isOnline)
+                    {
+                        // 相手ターンのドロー通知をロストしないよう送信前に登録
+                        _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                        _hasPreDrawTask = true;
+                        _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
+                    }
+                    break;
+                }
+
                 string[] costCardIds = await ExecuteLocalMainCostAsync(action, ct);
 
-                // コスト支払い完了後すぐに送信（解決アニメーション前に相手へ通知することでテンポ改善）
-                // 相手ドロー通知はロスト防止のため送信前に登録
                 if (_isOnline)
                 {
-                    _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-                    _hasPreDrawTask = true;
                     _networkGameService.SendMainAction(ToNetworkAction(action, costCardIds));
+                }
+
+                if (action._actionType == MainPhaseActionType.Attack && action._attacker != null)
+                {
+                    _attackedThisTurn.Add(action._attacker);
                 }
 
                 await ExecuteLocalMainResolveAsync(action, ct);
             }
-            else if (_isOnline)
-            {
-                UniTask<NetworkGameService.MainActionData> receiveTask;
-                if (_hasPreMainActionTask)
-                {
-                    receiveTask = _preMainActionReceiveTask;
-                    _hasPreMainActionTask = false;
-                }
-                else
-                {
-                    receiveTask = _networkGameService.WaitForOpponentMainActionAsync(ct);
-                }
+        }
 
-                NetworkGameService.MainActionData networkAction = await receiveTask.AttachExternalCancellation(ct);
-                await ExecuteOnlineOpponentMainActionAsync(networkAction, ct);
+        // ─── メインフェーズ ループ（オンライン相手） ───────────────────────
+        private async UniTask RunOnlineOpponentMainLoopAsync(CancellationToken ct)
+        {
+            UniTask<NetworkGameService.MainActionData> receiveTask;
+            if (_hasPreMainActionTask)
+            {
+                receiveTask = _preMainActionReceiveTask;
+                _hasPreMainActionTask = false;
             }
             else
             {
+                receiveTask = _networkGameService.WaitForOpponentMainActionAsync(ct);
+            }
+
+            while (!_isGameOver)
+            {
+                NetworkGameService.MainActionData networkAction = await receiveTask.AttachExternalCancellation(ct);
+                if (networkAction.IsPassed)
+                {
+                    break;
+                }
+
+                // 連続送信を取りこぼさないよう、解決アニメーションの前に次の受信を登録する
+                receiveTask = _networkGameService.WaitForOpponentMainActionAsync(ct);
+                await ExecuteOnlineOpponentMainActionAsync(networkAction, ct);
+            }
+        }
+
+        // ─── メインフェーズ ループ（CPU） ──────────────────────────────────
+        private async UniTask RunCpuMainLoopAsync(CancellationToken ct)
+        {
+            while (!_isGameOver)
+            {
                 MainPhaseAction action = CpuChooseMainAction();
+                if (action._actionType == MainPhaseActionType.Pass)
+                {
+                    break;
+                }
+
                 await UniTask.Delay(TimeSpan.FromSeconds(CpuThinkSeconds), cancellationToken: ct);
+
+                if (action._actionType == MainPhaseActionType.Attack && action._attacker != null)
+                {
+                    _attackedThisTurn.Add(action._attacker);
+                }
+
                 await ExecuteCpuMainActionAsync(action, ct);
             }
+        }
+
+        // ─── 召喚酔い・攻撃済み 管理 ───────────────────────────────────────
+
+        // ターン開始時に場にいる全キャラを「召喚酔いなし」として記録する。
+        // このターンに登場したキャラはここに含まれず、攻撃できない（召喚酔い）。
+        private void ReseasonChars(FieldView field, HashSet<CardView> seasoned)
+        {
+            seasoned.Clear();
+            foreach (CardView c in field.Characters)
+            {
+                seasoned.Add(c);
+            }
+        }
+
+        // キャラが攻撃可能か：このターン未攻撃 かつ 召喚酔いしていない
+        private bool CanCharAttack(CardView card, FieldView ownerField)
+        {
+            if (_attackedThisTurn.Contains(card))
+            {
+                return false;
+            }
+            HashSet<CardView> seasoned = ownerField == _playerFieldView ? _playerSeasonedChars : _opponentSeasonedChars;
+            return seasoned.Contains(card);
         }
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
@@ -391,30 +483,33 @@ namespace Main
             IReadOnlyList<CardView> cpuChars = _opponentFieldView.Characters;
             IReadOnlyList<CardView> playerChars = _playerFieldView.Characters;
 
+            // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
+            List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
+
             // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）
-            if (_playerLifeHearts.CanBeAttacked && cpuChars.Count > 0)
+            if (_playerLifeHearts.CanBeAttacked && availableAttackers.Count > 0)
             {
-                int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(cpuChars.Select(c => c.Data).ToList());
+                int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(availableAttackers.Select(c => c.Data).ToList());
                 if (heartAttackerIdx >= 0)
                 {
                     return new MainPhaseAction
                     {
                         _actionType = MainPhaseActionType.Attack,
-                        _attacker = cpuChars[heartAttackerIdx],
+                        _attacker = availableAttackers[heartAttackerIdx],
                         _targetsHeart = true
                     };
                 }
             }
 
             // キャラがいれば攻撃
-            if (cpuChars.Count > 0)
+            if (availableAttackers.Count > 0)
             {
                 (int atkIdx, int tgtIdx) = CpuAgent.ChooseBattleAttack(
-                    cpuChars.Select(c => c.Data).ToList(),
+                    availableAttackers.Select(c => c.Data).ToList(),
                     playerChars.Select(c => c.Data).ToList());
                 if (atkIdx >= 0)
                 {
-                    CardView attacker = cpuChars[atkIdx];
+                    CardView attacker = availableAttackers[atkIdx];
                     CardView target = tgtIdx >= 0 && tgtIdx < playerChars.Count ? playerChars[tgtIdx] : null;
                     return new MainPhaseAction
                     {
@@ -469,9 +564,17 @@ namespace Main
 
             foreach (CardView charCard in _playerFieldView.Characters)
             {
+                // 攻撃済み・召喚酔いのキャラには攻撃矢印を付けない
+                if (!CanCharAttack(charCard, _playerFieldView))
+                {
+                    continue;
+                }
+                // このターン攻撃できるキャラをハイライト
+                charCard.AddToClassList("attackable-char");
                 CardView capturedChar = charCard;
                 AttackArrowManipulator arrowManip = new AttackArrowManipulator(_dragLayer);
-                arrowManip.CanStart = () => _gameModel.Phase == TurnPhase.Main && _mainStagedCard == null;
+                arrowManip.CanStart = () => _gameModel.Phase == TurnPhase.Main && _mainStagedCard == null
+                    && CanCharAttack(capturedChar, _playerFieldView);
                 arrowManip.OnAttackTarget = (worldPos) =>
                 {
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
@@ -485,7 +588,7 @@ namespace Main
                         });
                         return true;
                     }
-                    if (_opponentLifeHearts.ContainsPoint(worldPos))
+                    if (_opponentLifeHearts.ContainsWorldPoint(worldPos))
                     {
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
                         {
@@ -518,6 +621,7 @@ namespace Main
                 {
                     manip.ClearArrow();
                     card.RemoveManipulator(manip);
+                    card.RemoveFromClassList("attackable-char");
                 }
             }
         }

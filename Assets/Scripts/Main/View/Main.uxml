@@ -14,6 +14,7 @@
         <ui:VisualElement name="HandArea" class="main-hand-area" />
         <ui:VisualElement name="ActionButtonsArea" class="main-action-buttons-area">
             <ui:Button name="PassButton" class="action-button action-button--pass" />
+            <ui:Button name="EndButton" class="action-button action-button--end" />
             <ui:Button name="BackButton" class="action-button action-button--back" />
             <ui:Button name="OkButton" class="action-button action-button--ok" />
         </ui:VisualElement>

@@ -60,6 +60,7 @@ namespace Main
         private Button _okButton;
         private Button _backButton;
         private Button _passButton;
+        private Button _endButton;
         private VisualElement _turnOverlay;
         private Label _turnLabel;
         private VisualElement _resolveOverlay;
@@ -121,6 +122,12 @@ namespace Main
         private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
+
+        // このターンすでに攻撃したキャラ（1キャラ1回まで）。各メインフェーズ開始時にクリア
+        private readonly HashSet<CardView> _attackedThisTurn = new HashSet<CardView>();
+        // 召喚酔いしていない（自メインフェーズ開始時から場にいる）キャラ。場に新規登場したキャラは含まれず攻撃不可
+        private readonly HashSet<CardView> _playerSeasonedChars = new HashSet<CardView>();
+        private readonly HashSet<CardView> _opponentSeasonedChars = new HashSet<CardView>();
 
         private UniTaskCompletionSource _costSelectionTcs;
         private readonly List<CardView> _selectedCostCards = new List<CardView>();
@@ -384,9 +391,11 @@ namespace Main
                 _okButton = root.Q<Button>("OkButton");
                 _backButton = root.Q<Button>("BackButton");
                 _passButton = root.Q<Button>("PassButton");
+                _endButton = root.Q<Button>("EndButton");
                 _okButton.clicked += OnOkClicked;
                 _backButton.clicked += OnBackClicked;
                 _passButton.clicked += OnPassClicked;
+                _endButton.clicked += OnEndTurnClicked;
 
                 _costWarningLabel = new Label("手札が足りません");
                 _costWarningLabel.AddToClassList("main-cost-warning-label");

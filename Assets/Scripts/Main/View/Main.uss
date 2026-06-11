@@ -299,6 +299,46 @@
     border-bottom-width: 0;
 }
 
+.action-button--end {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: none;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/AddressableAssets/Image/EndButton.png");
+    -unity-background-scale-mode: scale-to-fit;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+/* このターン攻撃できる（未攻撃かつ召喚酔いでない）自キャラのハイライト */
+.attackable-char {
+    scale: 1.04 1.04;
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.attackable-char .game-card {
+    border-left-color: rgb(120, 230, 255);
+    border-right-color: rgb(120, 230, 255);
+    border-top-color: rgb(120, 230, 255);
+    border-bottom-color: rgb(120, 230, 255);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.attackable-char .game-card:hover {
+    border-left-color: rgb(180, 245, 255);
+    border-right-color: rgb(180, 245, 255);
+    border-top-color: rgb(180, 245, 255);
+    border-bottom-color: rgb(180, 245, 255);
+}
+
 .turn-announcement-overlay {
     position: absolute;
     left: 0;

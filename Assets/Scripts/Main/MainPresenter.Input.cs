@@ -296,6 +296,18 @@ namespace Main
             }
         }
 
+        // EndButton：メインフェーズでターンを終了する（ステージ中・サブ選択中は無効）
+        private void OnEndTurnClicked()
+        {
+            if (_gameModel.Phase == TurnPhase.Main && _gameModel.IsLocalTurn
+                && _mainActionTcs != null && _mainStagedCard == null
+                && _evolveInput._tcs == null && _switchInput._tcs == null)
+            {
+                HideActionButtons();
+                _mainActionTcs.TrySetResult(new MainPhaseAction { _actionType = MainPhaseActionType.Pass });
+            }
+        }
+
         // ─── ドラッグ可否判定 ────────────────────────────────────────────
 
         private bool CanPlayerDragCard()
@@ -373,9 +385,26 @@ namespace Main
         private void UpdateStagedButtons(bool hasStaged)
         {
             bool autoOk = _optionModel.AutoOk.CurrentValue;
-            _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
+
+            // メインフェーズのアクション選択中（Evolve/Switch のサブ選択でない）かどうか
+            bool mainPhaseChoice = _mainActionTcs != null && _evolveInput._tcs == null && _switchInput._tcs == null;
+
             _backButton.style.display = (hasStaged && !autoOk) ? DisplayStyle.Flex : DisplayStyle.None;
             _okButton.style.display = (hasStaged && !autoOk) ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (mainPhaseChoice)
+            {
+                // メイン: 未ステージ時は EndButton（ターン終了）、ステージ時は OK/Back
+                _passButton.style.display = DisplayStyle.None;
+                _endButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+            else
+            {
+                // Evolve/Switch のスキップ選択: 未ステージ時は Pass
+                _endButton.style.display = DisplayStyle.None;
+                _passButton.style.display = hasStaged ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
             if (!hasStaged)
             {
                 _costWarningLabel.style.display = DisplayStyle.None;
@@ -390,6 +419,7 @@ namespace Main
         private void HideActionButtons()
         {
             _actionButtonsArea.RemoveFromClassList("main-action-buttons-area--visible");
+            _endButton.style.display = DisplayStyle.None;
             _costWarningLabel.style.display = DisplayStyle.None;
         }
 
