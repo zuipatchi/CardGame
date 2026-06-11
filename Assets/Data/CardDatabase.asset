@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86e45f60580ef9c48bac9a26f8685c36, type: 3}
   m_Name: CardDatabase
   m_EditorClassIdentifier: Main::Main.Card.CardDatabase
-  _characterCards: {fileID: 11400000, guid: 8fd3182ad1f35424d8a89d7fe75fa888, type: 2}
-  _skillCards: {fileID: 11400000, guid: 9054c3034f70db648abafd72e3f697cf, type: 2}
-  _eventCards: {fileID: 11400000, guid: 87f1627760303df4cb698f4aaa701a5c, type: 2}
+  _characterCardSets:
+  - {fileID: 11400000, guid: 9fd36af62b608344d9d820ecddc0f207, type: 2}
+  - {fileID: 11400000, guid: d848dd277fcc1624590f89422f332e05, type: 2}
+  - {fileID: 11400000, guid: cbb68ed72fb82f44a8c33bf9edc8c336, type: 2}
+  _eventCardSets:
+  - {fileID: 11400000, guid: d22dd94a48f673a48ad7c495763df7d4, type: 2}
+  - {fileID: 11400000, guid: e9fa43d536a87164cba36c4e0592b867, type: 2}
+  - {fileID: 11400000, guid: 3fdeb664ffe7f5e418c17b419d83fa6f, type: 2}
+  - {fileID: 11400000, guid: da4148aefccb9cc4792df2ae7e274651, type: 2}

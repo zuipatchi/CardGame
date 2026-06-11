@@ -8,7 +8,8 @@ namespace Main.Card
     {
         [SerializeField] private int _attack;
         [SerializeField] private int _hp;
-        [SerializeField] private CardAttribute _attribute;
+        // 属性は所属する CharacterCardSO（属性別 SO）が一括設定するため、インスペクタでは読み取り専用
+        [SerializeField, ReadOnly] private CardAttribute _attribute;
         [SerializeField] private CharacterEffectTrigger _effectTrigger;
         [SerializeField] private EventType _effectType;
         [SerializeField] private int _effectValue;
@@ -46,5 +47,13 @@ namespace Main.Card
             _effectTrigger == CharacterEffectTrigger.OnUsedAsCost && _effectType == EventType.CostBoost
                 ? Mathf.Max(1, _effectValue)
                 : 1;
+
+#if UNITY_EDITOR
+        // 属性別 SO が所属カードの属性を一括設定するためのエディタ専用 setter
+        public void EditorSetAttribute(CardAttribute attribute)
+        {
+            _attribute = attribute;
+        }
+#endif
     }
 }

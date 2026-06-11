@@ -11,7 +11,8 @@ namespace Main.Card
         [SerializeField] private int _eventValue2;
         [SerializeField] private string _description;
         [SerializeField] private bool _triggerOnGrave;
-        [SerializeField] private CardAttribute _attribute;
+        // 属性は所属する EventCardSO（属性別 SO）が一括設定するため、インスペクタでは読み取り専用
+        [SerializeField, ReadOnly] private CardAttribute _attribute;
 
         public EventType EventType => _eventType;
         public int EventValue => _eventValue;
@@ -24,6 +25,14 @@ namespace Main.Card
         // CostBoost のイベントは、コスト支払い時に EventValue 分（最低1）として数える
         public override int CostPaymentValue =>
             _eventType == EventType.CostBoost ? Mathf.Max(1, _eventValue) : 1;
+
+#if UNITY_EDITOR
+        // 属性別 SO が所属カードの属性を一括設定するためのエディタ専用 setter
+        public void EditorSetAttribute(CardAttribute attribute)
+        {
+            _attribute = attribute;
+        }
+#endif
 
         public EventCardData() { }
 

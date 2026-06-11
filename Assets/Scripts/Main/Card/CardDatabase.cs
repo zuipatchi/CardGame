@@ -6,8 +6,8 @@ namespace Main.Card
     [CreateAssetMenu(fileName = "CardDatabase", menuName = "Card/CardDatabase")]
     public sealed class CardDatabase : ScriptableObject
     {
-        [SerializeField] private CharacterCardSO _characterCards;
-        [SerializeField] private EventCardSO _eventCards;
+        [SerializeField] private CharacterCardSO[] _characterCardSets;
+        [SerializeField] private EventCardSO[] _eventCardSets;
 
         private Dictionary<string, CardData> _dict;
 
@@ -19,8 +19,20 @@ namespace Main.Card
         private void Build()
         {
             _dict = new Dictionary<string, CardData>();
-            Register(_characterCards != null ? _characterCards.Cards : null);
-            Register(_eventCards != null ? _eventCards.Cards : null);
+            if (_characterCardSets != null)
+            {
+                foreach (CharacterCardSO so in _characterCardSets)
+                {
+                    Register(so != null ? so.Cards : null);
+                }
+            }
+            if (_eventCardSets != null)
+            {
+                foreach (EventCardSO so in _eventCardSets)
+                {
+                    Register(so != null ? so.Cards : null);
+                }
+            }
         }
 
         private void Register<T>(IReadOnlyList<T> cards) where T : CardData
@@ -61,8 +73,20 @@ namespace Main.Card
             get
             {
                 List<CardData> all = new List<CardData>();
-                AddAll(all, _characterCards != null ? _characterCards.Cards : null);
-                AddAll(all, _eventCards != null ? _eventCards.Cards : null);
+                if (_characterCardSets != null)
+                {
+                    foreach (CharacterCardSO so in _characterCardSets)
+                    {
+                        AddAll(all, so != null ? so.Cards : null);
+                    }
+                }
+                if (_eventCardSets != null)
+                {
+                    foreach (EventCardSO so in _eventCardSets)
+                    {
+                        AddAll(all, so != null ? so.Cards : null);
+                    }
+                }
                 return all;
             }
         }
@@ -103,5 +127,14 @@ namespace Main.Card
         }
 
         public CardData this[string id] => _dict[id];
+
+#if UNITY_EDITOR
+        // 移行ツール用：属性別 SO 配列を差し替える
+        public void EditorSetSets(CharacterCardSO[] characterSets, EventCardSO[] eventSets)
+        {
+            _characterCardSets = characterSets;
+            _eventCardSets = eventSets;
+        }
+#endif
     }
 }
