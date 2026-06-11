@@ -487,7 +487,7 @@ ExecuteAttackAsync  （Attack アクション実行時）
   → PlayCardChargeAsync: 攻撃キャラのコピーが「ウィンドアップ → 突撃 → ノックバック → 元位置へ戻る」演出
                           演出中は元カードを visibility: hidden で非表示
   → ダメージ = ATK。0 なら "NO DAMAGE" 表示
-  → damage > 0: PlayParticleAtCardAsync（ヒットエフェクト）→ PlayHitDamageEffectAsync（フローティング「-N」ラベル）→ TakeDamageAsync（HP アニメーション）
+  → damage > 0: PlayParticleAtCardAsync（ヒットエフェクト）→ TakeDamageAsync（HP アニメーション）
   → キャラ破壊: PlayCharDestroyEffectAsync → FlyToGraveyardAsync
 ```
 
