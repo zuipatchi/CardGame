@@ -104,7 +104,9 @@ public enum EventType
 
 **フィールドのキャラをクリックで対象選択する効果（Switch / Evolve の自軍選択 / DamageEnemy の敵選択）の場合**
 
-`MainPresenter.cs` に `private UniTaskCompletionSource<CardView> _xxxSelectionTcs;` を追加し、対象フィールドの `OnCardClicked`（`_playerFieldView` = 自軍 / `_opponentFieldView` = 敵）の先頭で `_xxxSelectionTcs != null` なら `TrySetResult(card)` して `return` するように分岐する。待機ヘルパーでは対象キャラに `selectable-char` クラスを付与（金枠＋拡大ハイライト。スタイルは [Main.uss](../Assets/Scripts/Main/View/Main.uss) の `.selectable-char`）して `ShowToast(...)` で案内し、`finally` でクラスを除去する。候補が1体なら選択不要で自動確定。オンライン対戦では選択結果を**フィールドのインデックス**で相手へ送る（`NetworkGameService` に `SendXxx` / `WaitForOpponentXxxAsync` と専用メッセージキー・ペイロードを追加。同名カードが複数いても曖昧にならない）。候補が1体のときは両クライアントとも自動で先頭を選ぶため送受信を行わない。`ResolveDamageEnemyTargetAsync` が参考例。
+`MainPresenter.cs` に選択用 TCS（単数なら `UniTaskCompletionSource<CardView>`、複数選択なら `UniTaskCompletionSource<List<CardView>>` ＋選択リスト・必要数フィールド）を追加し、対象フィールドの `OnCardClicked`（`_playerFieldView` = 自軍 / `_opponentFieldView` = 敵）の先頭で「選択中なら専用ハンドラを呼んで `return`」するよう分岐する。待機ヘルパーでは対象キャラに `selectable-char` クラスを付与（金枠＋拡大ハイライト。スタイルは [Main.uss](../Assets/Scripts/Main/View/Main.uss) の `.selectable-char`）して `ShowToast(...)` で案内し、`finally` でクラスを除去する。
+
+複数選択（DamageEnemy）の場合は、クリックハンドラで未選択キャラを選択リストへ追加して `selected-char`（赤枠）を付け、残り体数をトーストで更新し、必要数に達したら `TrySetResult(list)` で確定する。対象数が候補数以上なら選択不要で全員を対象にする。オンラインでは選んだ対象を**フィールドのインデックス配列**で相手へ送る（`NetworkGameService` の `SendDamageTargets` / `WaitForOpponentDamageTargetsAsync` と専用メッセージキー・ペイロード。同名カードが複数いても曖昧にならない）。選択が不要なケース（全員が対象）では送受信しない。`ResolveDamageEnemyTargetsAsync` / `HandleEnemyCharSelectionClick` が参考例。
 
 ---
 
