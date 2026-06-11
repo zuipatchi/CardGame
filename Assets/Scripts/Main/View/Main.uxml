@@ -18,20 +18,5 @@
             <ui:Button name="BackButton" class="action-button action-button--back" />
             <ui:Button name="OkButton" class="action-button action-button--ok" />
         </ui:VisualElement>
-        <ui:VisualElement name="PhaseIndicator" class="phase-indicator">
-            <ui:VisualElement name="PhaseRowDraw" class="phase-row">
-                <ui:VisualElement class="phase-dot-col">
-                    <ui:VisualElement class="phase-dot" />
-                    <ui:VisualElement class="phase-line" />
-                </ui:VisualElement>
-                <ui:Label class="phase-label" text="ドロー" />
-            </ui:VisualElement>
-            <ui:VisualElement name="PhaseRowMain" class="phase-row">
-                <ui:VisualElement class="phase-dot-col">
-                    <ui:VisualElement class="phase-dot" />
-                </ui:VisualElement>
-                <ui:Label class="phase-label" text="メイン" />
-            </ui:VisualElement>
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

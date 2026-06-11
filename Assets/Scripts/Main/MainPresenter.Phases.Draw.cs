@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
-using Main.Game;
 using UnityEngine;
 
 namespace Main
@@ -13,11 +12,7 @@ namespace Main
 
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
-            UpdatePhaseIndicator(TurnPhase.Draw);
-
             bool isLocalTurn = _gameModel.IsLocalTurn;
-
-            await PlayAnnouncementAsync("ドローフェーズ", "turn-announcement-label--draw", ct);
 
             if (isLocalTurn)
             {

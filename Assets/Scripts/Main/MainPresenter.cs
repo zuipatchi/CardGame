@@ -88,9 +88,6 @@ namespace Main
         [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
 
-        private VisualElement _phaseRowDraw;
-        private VisualElement _phaseRowMain;
-
         private CardDetailModal _cardDetailModal;
         private bool _isGameOver;
         private bool _isOnline;
@@ -403,10 +400,6 @@ namespace Main
                 _costWarningLabel.style.display = DisplayStyle.None;
                 mainRoot.Add(_costWarningLabel);
 
-                VisualElement phaseIndicator = root.Q<VisualElement>("PhaseIndicator");
-                _phaseRowDraw = phaseIndicator.Q<VisualElement>("PhaseRowDraw");
-                _phaseRowMain = phaseIndicator.Q<VisualElement>("PhaseRowMain");
-
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
                 _gameEndOverlay.style.display = DisplayStyle.None;
@@ -569,20 +562,6 @@ namespace Main
             if (_rainDefeatEffect != null)
             {
                 Destroy(_rainDefeatEffect);
-            }
-        }
-
-        private void UpdatePhaseIndicator(TurnPhase phase)
-        {
-            if (phase == TurnPhase.Draw)
-            {
-                _phaseRowDraw.AddToClassList("phase-row--active");
-                _phaseRowMain.RemoveFromClassList("phase-row--active");
-            }
-            else
-            {
-                _phaseRowDraw.RemoveFromClassList("phase-row--active");
-                _phaseRowMain.AddToClassList("phase-row--active");
             }
         }
     }

@@ -20,11 +20,7 @@ namespace Main
         // このターンに登場したキャラ（召喚酔い）は攻撃できない。
         private async UniTask RunMainPhaseAsync(CancellationToken ct)
         {
-            UpdatePhaseIndicator(TurnPhase.Main);
-
             bool isLocalTurn = _gameModel.IsLocalTurn;
-
-            await PlayAnnouncementAsync("メインフェーズ", "turn-announcement-label--main", ct);
 
             _attackedThisTurn.Clear();
 

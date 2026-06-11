@@ -17,6 +17,14 @@ namespace Main
             await PlayAnnouncementAsync("PASS", labelClass, ct);
         }
 
+        // ターン開始告知：自分の番は「YOUR TURN」（シアン）、相手の番は「ENEMY TURN」（赤）
+        private async UniTask PlayTurnStartAnnouncementAsync(bool isLocalTurn, CancellationToken ct)
+        {
+            string text = isLocalTurn ? "YOUR TURN" : "ENEMY TURN";
+            string labelClass = isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            await PlayAnnouncementAsync(text, labelClass, ct);
+        }
+
         private async UniTask PlayAnnouncementAsync(string text, string labelClass, CancellationToken ct)
         {
             _turnLabel.text = text;

@@ -28,6 +28,8 @@ namespace Main
 
         private async UniTask RunTurnAsync(CancellationToken ct)
         {
+            await PlayTurnStartAnnouncementAsync(_gameModel.IsLocalTurn, ct);
+
             await RunDrawPhaseAsync(ct);
             if (_isGameOver)
             {
