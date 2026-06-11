@@ -8,12 +8,15 @@ namespace Main.Card
     {
         [SerializeField] private EventType _eventType;
         [SerializeField] private int _eventValue;
+        [SerializeField] private int _eventValue2;
         [SerializeField] private string _description;
         [SerializeField] private bool _triggerOnGrave;
         [SerializeField] private CardAttribute _attribute;
 
         public EventType EventType => _eventType;
         public int EventValue => _eventValue;
+        // 効果ごとの2つ目の数値（例: SummonChar の召喚体数）。未使用の効果では 0
+        public int EventValue2 => _eventValue2;
         public string Description => _description;
         public bool TriggerOnGrave => _triggerOnGrave;
         public override CardAttribute Attribute => _attribute;
@@ -30,11 +33,12 @@ namespace Main.Card
             _attribute = attribute;
         }
 
-        public EventCardData(string id, string name, int cost, EventType eventType, int eventValue, string description = "", bool triggerOnGrave = false, CardAttribute attribute = CardAttribute.White)
+        public EventCardData(string id, string name, int cost, EventType eventType, int eventValue, string description = "", bool triggerOnGrave = false, CardAttribute attribute = CardAttribute.White, int eventValue2 = 0)
             : base(id, name, cost)
         {
             _eventType = eventType;
             _eventValue = eventValue;
+            _eventValue2 = eventValue2;
             _description = description;
             _triggerOnGrave = triggerOnGrave;
             _attribute = attribute;

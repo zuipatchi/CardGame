@@ -68,7 +68,7 @@ namespace Main
                 {
                     await PlayFloatingMedalAsync(card, ct);
                 }
-                await ApplyEventEffectAsync(eventData, isLocal, ct);
+                await ApplyEventEffectAsync(eventData, isLocal, card, ct);
             }
 
             if (_isGameOver)
@@ -139,6 +139,9 @@ namespace Main
                 case CardEventType.DamageEnemy:
                     await ApplyDamageEnemyAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.SummonChar:
+                    await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
+                    break;
                 case CardEventType.GainVictoryPoints:
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
@@ -146,7 +149,7 @@ namespace Main
             }
         }
 
-        private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
+        private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CardView sourceCard, CancellationToken ct)
         {
             switch (data.EventType)
             {
@@ -208,6 +211,9 @@ namespace Main
                     break;
                 case CardEventType.DamageEnemy:
                     await ApplyDamageEnemyAsync(data.EventValue, isLocal, ct);
+                    break;
+                case CardEventType.SummonChar:
+                    await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
                     break;
                 case CardEventType.GainVictoryPoints:
                     await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
@@ -355,6 +361,50 @@ namespace Main
                     c.RemoveFromClassList("selectable-char");
                 }
             }
+        }
+
+        // 発動側の自フィールドに、charNumber が示すキャラ（"C###"）を count 体新規生成して配置する。
+        // count が 0 以下なら1体扱い。手札・デッキは消費しない。召喚キャラの OnEnter も発動する。
+        // フィールドが満杯（FieldView.MaxCharacters）になったら打ち切る。満杯で新キャラが出ないため
+        // OnEnter 連鎖もここで自然に停止する（無限ループにならない）。
+        private async UniTask ApplySummonCharAsync(int charNumber, int count, bool isLocal, Rect fromRect, CancellationToken ct)
+        {
+            if (charNumber <= 0)
+            {
+                return;
+            }
+
+            string id = $"C{charNumber:D3}";
+            if (!_cardDatabase.TryGet(id, out CardData data) || data is not CharacterCardData)
+            {
+                return;
+            }
+
+            FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+            int summonCount = count <= 0 ? 1 : count;
+            for (int i = 0; i < summonCount; i++)
+            {
+                if (field.IsCharactersFull)
+                {
+                    break;
+                }
+                await SummonSingleCharAsync(data, field, isLocal, fromRect, ct);
+            }
+        }
+
+        // SummonChar の1体分：飛来 → 配置 → 勝利条件武装 → 演出 → 登場時効果（OnEnter）
+        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, Rect fromRect, CancellationToken ct)
+        {
+            CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
+            await FlyCardToDestAsync(newChar, fromRect, field, ct);
+            field.PlaceCard(newChar);
+            OnCardPlayed(data, playedByLocal: isLocal);
+            if (_evolveEffectPrefab != null)
+            {
+                await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+            }
+
+            await ResolveCharacterEnterEffectAsync(newChar, isLocal, ct);
         }
 
         private async UniTask ApplyDamageToCharAsync(CardView target, int damage, CancellationToken ct)

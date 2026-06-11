@@ -428,15 +428,18 @@ namespace Main
             IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
             List<CardData> handData = cpuHand.Select(c => c.Data).ToList();
 
-            // キャラカードを出す
-            int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData);
-            if (charIdx >= 0)
+            // キャラカードを出す（フィールドが満杯のときは出さない）
+            if (!_opponentFieldView.IsCharactersFull)
             {
-                return new MainPhaseAction
+                int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData);
+                if (charIdx >= 0)
                 {
-                    _actionType = MainPhaseActionType.PlaceChar,
-                    _card = cpuHand[charIdx]
-                };
+                    return new MainPhaseAction
+                    {
+                        _actionType = MainPhaseActionType.PlaceChar,
+                        _card = cpuHand[charIdx]
+                    };
+                }
             }
 
             // イベントカードを使う

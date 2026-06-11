@@ -97,6 +97,11 @@ namespace Main
 
                 if (card.Data is CharacterCardData)
                 {
+                    if (_playerFieldView.IsCharactersFull)
+                    {
+                        ShowToast("フィールドがいっぱいです");
+                        return false;
+                    }
                     if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
                     {
                         ShowToast("コストが払えません");

@@ -22,5 +22,9 @@ namespace Main.Card
         // 発動側から見た敵フィールドのキャラ1体に EventValue / EffectValue 分のダメージを与え、
         // HP が 0 以下になったキャラを破壊する。対象はプレイヤーが選択（敵が1体なら自動・0体なら空振り）。
         DamageEnemy,
+        // 発動側の自フィールドに、EventValue / EffectValue が示すキャラ（数字部分→"C###"）を
+        // EventValue2 / EffectValue2 体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。
+        // 召喚キャラの OnEnter も発動する。
+        SummonChar,
     }
 }

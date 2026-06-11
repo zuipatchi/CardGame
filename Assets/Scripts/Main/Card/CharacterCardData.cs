@@ -12,12 +12,13 @@ namespace Main.Card
         [SerializeField] private CharacterEffectTrigger _effectTrigger;
         [SerializeField] private EventType _effectType;
         [SerializeField] private int _effectValue;
+        [SerializeField] private int _effectValue2;
         [SerializeField] private string _description;
 
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "")
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -26,6 +27,7 @@ namespace Main.Card
             _effectTrigger = effectTrigger;
             _effectType = effectType;
             _effectValue = effectValue;
+            _effectValue2 = effectValue2;
             _description = description;
         }
 
@@ -35,6 +37,8 @@ namespace Main.Card
         public CharacterEffectTrigger EffectTrigger => _effectTrigger;
         public EventType EffectType => _effectType;
         public int EffectValue => _effectValue;
+        // 効果ごとの2つ目の数値（例: SummonChar の召喚体数）。未使用の効果では 0
+        public int EffectValue2 => _effectValue2;
         public string Description => _description;
 
         // OnUsedAsCost + CostBoost のキャラは、コスト支払い時に EffectValue 分（最低1）として数える

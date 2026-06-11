@@ -8,6 +8,9 @@ namespace Main.Card
 {
     public sealed class FieldView : VisualElement
     {
+        // フィールドに並べられるキャラの上限（通常配置・召喚など全配置経路で共通）
+        public const int MaxCharacters = 9;
+
         private const int BaseCardCount = 5;
         private const float MinScale = 0.4f;
         private const float BaseMargin = 4f;
@@ -19,6 +22,9 @@ namespace Main.Card
 
         public IReadOnlyList<CardView> Characters =>
             _cards.Where(c => c.Data is CharacterCardData).ToList();
+
+        // キャラ数が上限に達しているか（イベントカードは墓地行きのため対象外）
+        public bool IsCharactersFull => Characters.Count >= MaxCharacters;
 
         public bool Contains(CardView card) => _cards.Contains(card);
 
