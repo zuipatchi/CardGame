@@ -53,6 +53,53 @@ namespace Main
             label.RemoveFromHierarchy();
         }
 
+        // ─── MedalIcon フローティング（GainVictoryPoints 発動カードの上に表示）──────
+        private async UniTask PlayFloatingMedalAsync(VisualElement anchor, CancellationToken ct)
+        {
+            const float IconSize = 140f;
+            const float RiseDist = 80f;
+            const float AppearDuration = 0.2f;
+            const float HoldDuration = 0.35f;
+            const float FadeDuration = 0.45f;
+
+            VisualElement container = new VisualElement();
+            container.pickingMode = PickingMode.Ignore;
+            container.style.position = Position.Absolute;
+            container.style.width = IconSize;
+            container.style.height = IconSize;
+            container.style.opacity = 0f;
+            container.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
+
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("medal-fly-icon");
+            icon.pickingMode = PickingMode.Ignore;
+            container.Add(icon);
+
+            Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
+            float left = anchorLocal.x - IconSize / 2f;
+            float top = anchorLocal.y - IconSize / 2f;
+            float targetTop = top - RiseDist;
+            container.style.left = left;
+            container.style.top = top;
+            _dragLayer.Add(container);
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => container.style.scale.value.value.x, v => container.style.scale = new Scale(new Vector3(v, v, 1f)), 1f, AppearDuration).SetEase(Ease.OutBack))
+                .AppendInterval(HoldDuration)
+                .Append(DOTween.To(() => top, v => { top = v; container.style.top = v; }, targetTop, FadeDuration).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 0f, FadeDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            container.RemoveFromHierarchy();
+        }
+
         // ─── シールドブロック演出（ダメージ 0 時にアイコン表示）──────────────────
 
         private async UniTask PlayShieldBlockEffectAsync(VisualElement anchor, CancellationToken ct)
@@ -165,6 +212,51 @@ namespace Main
             // フィールド全体を覆うよう少し拡大して再生する
             const float AreaDamageEffectScale = 1.8f;
             await PlayParticleAtUiPositionAsync(field, field.worldBound.center, _areaDamageEffectPrefab, ct, scale: AreaDamageEffectScale);
+        }
+
+        // ─── 勝利点獲得演出（緑属性の勝利条件）──────────────────────────────
+        // 数字を from→to へカウントアップ、「+N」を浮かび上がらせ、メダルを弾ませる。
+        private async UniTask PlayVictoryPointGainAsync(VictoryPointsView view, int from, int to, int amount, CancellationToken ct)
+        {
+            // 「+N」フローティングラベルをメダル位置に生成
+            Label plus = new Label($"+{amount}");
+            plus.AddToClassList("victory-points-gain-label");
+            plus.pickingMode = PickingMode.Ignore;
+            plus.style.position = Position.Absolute;
+            Vector2 center = _dragLayer.WorldToLocal(view.worldBound.center);
+            float startTop = center.y;
+            plus.style.left = center.x;
+            plus.style.top = startTop;
+            plus.style.opacity = 0f;
+            _dragLayer.Add(plus);
+
+            int shown = from;
+            float pulse = 1f;
+            float floatTop = startTop;
+
+            // 先に「+N」フローティング（2）とメダルの弾み（3）を同時、その後に数字カウントアップ（1）
+            const float CountUpStart = 0.55f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                // メダルを弾ませる（3）
+                .Append(DOTween.To(() => pulse, v => { pulse = v; view.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.45f, 0.15f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => pulse, v => { pulse = v; view.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.4f).SetEase(Ease.OutBack))
+                // 「+N」を出現 → 上昇しながらフェードアウト（2）
+                .Insert(0f, DOTween.To(() => plus.style.opacity.value, v => plus.style.opacity = v, 1f, 0.15f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => floatTop, v => { floatTop = v; plus.style.top = v; }, startTop - 64f, 0.4f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => plus.style.opacity.value, v => plus.style.opacity = v, 0f, 0.4f).SetEase(Ease.InQuad))
+                // 数字カウントアップ（1）— 2・3 が終わってから
+                .Insert(CountUpStart, DOTween.To(() => shown, v => { shown = v; view.SetDisplayedPoints(v); }, to, 0.5f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            view.SetDisplayedPoints(to);
+            view.style.scale = new Scale(Vector3.one);
+            plus.RemoveFromHierarchy();
         }
 
         // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────

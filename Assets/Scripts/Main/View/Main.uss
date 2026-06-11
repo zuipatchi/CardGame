@@ -1395,3 +1395,57 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
     -unity-background-scale-mode: scale-to-fit;
 }
+
+/* ─── 勝利点（緑属性の勝利条件）───────────────────────────────── */
+
+.victory-points {
+    position: absolute;
+    flex-direction: row;
+    align-items: center;
+    transform-origin: center;
+}
+
+.victory-points--opponent {
+    top: 76px;
+    right: 8px;
+}
+
+.victory-points--player {
+    bottom: 76px;
+    left: 8px;
+}
+
+.victory-points-icon {
+    width: 56px;
+    height: 56px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.victory-points-label {
+    font-size: 40px;
+    -unity-font-style: bold;
+    color: rgb(60, 200, 80);
+    margin-left: 6px;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.victory-points-gain-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(120, 235, 130);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.medal-fly-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    opacity: 0.8;
+}

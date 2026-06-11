@@ -17,5 +17,7 @@ namespace Main.Card
         // 発動側から見た敵フィールドのキャラ全員に EventValue / EffectValue 分のダメージを与え、
         // HP が 0 以下になったキャラを破壊する。敵キャラがいなければ空振り。
         DamageAllEnemies,
+        // 発動した側の勝利点（緑属性の勝利条件）に EventValue / EffectValue 分を加算する。
+        GainVictoryPoints,
     }
 }

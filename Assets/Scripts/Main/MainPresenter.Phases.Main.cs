@@ -293,6 +293,37 @@ namespace Main
                     _opponentDeckView.ShowBlueWinIcon();
                 }
             }
+
+            // 緑属性: プレイした側の勝利点表示を出現させる（一度出たら永続）
+            if (GreenRule.ActivatesVictoryPoints(playedCard))
+            {
+                VictoryPointsView victoryPoints = playedByLocal ? _playerVictoryPoints : _opponentVictoryPoints;
+                victoryPoints.Activate();
+            }
+        }
+
+        // 緑属性の勝利条件：プレイした側の勝利点に加算し、WinPoints 到達でそのプレイヤーの勝利。
+        // GainVictoryPoints 効果の解決時に呼ぶ。
+        // 勝利点表示のアクティブ化は緑カードのプレイ（OnCardPlayed）のみが行う。ここでは Activate しない。
+        private async UniTask AddVictoryPoints(int amount, bool toLocal, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            VictoryPointsView victoryPoints = toLocal ? _playerVictoryPoints : _opponentVictoryPoints;
+            int from = victoryPoints.Points;
+            victoryPoints.AddPoints(amount);
+
+            // 数字カウントアップ + 「+N」フローティング + メダルの弾み演出
+            await PlayVictoryPointGainAsync(victoryPoints, from, victoryPoints.Points, amount, ct);
+
+            if (!_isGameOver && GreenRule.IsGreenWin(victoryPoints.Points))
+            {
+                _isGameOver = true;
+                OnGameEnd(playerWins: toLocal, winAttribute: CardAttribute.Green);
+            }
         }
 
         // 青属性の勝利条件判定：武装済みでデッキが0枚なら、そのプレイヤーの勝利。

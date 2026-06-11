@@ -64,6 +64,10 @@ namespace Main
                         await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
                     }
                 }
+                else if (eventData.EventType == CardEventType.GainVictoryPoints)
+                {
+                    await PlayFloatingMedalAsync(card, ct);
+                }
                 await ApplyEventEffectAsync(eventData, isLocal, ct);
             }
 
@@ -132,6 +136,10 @@ namespace Main
                 case CardEventType.DamageAllEnemies:
                     await ApplyDamageAllEnemiesAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.GainVictoryPoints:
+                    await PlayFloatingMedalAsync(sourceCard, ct);
+                    await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
+                    break;
             }
         }
 
@@ -194,6 +202,9 @@ namespace Main
                     break;
                 case CardEventType.DamageAllEnemies:
                     await ApplyDamageAllEnemiesAsync(data.EventValue, isLocal, ct);
+                    break;
+                case CardEventType.GainVictoryPoints:
+                    await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
                     break;
             }
         }

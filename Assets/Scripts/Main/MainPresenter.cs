@@ -54,6 +54,8 @@ namespace Main
         private GraveyardView _opponentGraveyardView;
         private LifeHeartsView _playerLifeHearts;    // 自分のライフ（自分フィールド左下・相手が攻撃する）
         private LifeHeartsView _opponentLifeHearts;  // 相手のライフ（相手フィールド右上・自分が攻撃する）
+        private VictoryPointsView _playerVictoryPoints;    // 自分の勝利点（自分フィールド左下）
+        private VictoryPointsView _opponentVictoryPoints;  // 相手の勝利点（相手フィールド右上）
         private VisualElement _actionButtonsArea;
         private Button _okButton;
         private Button _backButton;
@@ -303,6 +305,12 @@ namespace Main
 
                 _playerLifeHearts = new LifeHeartsView(isOpponent: false);
                 playerFieldArea.Add(_playerLifeHearts);
+
+                _opponentVictoryPoints = new VictoryPointsView(isOpponent: true);
+                opponentFieldArea.Add(_opponentVictoryPoints);
+
+                _playerVictoryPoints = new VictoryPointsView(isOpponent: false);
+                playerFieldArea.Add(_playerVictoryPoints);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
