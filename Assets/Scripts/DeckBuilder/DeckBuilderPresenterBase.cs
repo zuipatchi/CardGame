@@ -19,8 +19,6 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
 
-        private enum CardTypeFilter { All, Character, Event }
-
         private sealed class CardListItem
         {
             public VisualElement Element { get; }
@@ -62,12 +60,16 @@ namespace DeckBuilder
         private VisualElement _reorderGhost;
         private VisualElement _reorderIndicator;
         private int _reorderInsertIndex;
-        private CardTypeFilter _cardTypeFilter = CardTypeFilter.All;
+        // フィルタは各ボタンの ON/OFF。ON のカテゴリのカードのみ表示する（種別×属性の AND）。
+        // シーン遷移ごとに presenter が生成され、すべて ON（全表示）で始まる。
+        private bool _showCharacterCards = true;
+        private bool _showEventCards = true;
         private VisualElement _characterCardSection;
         private VisualElement _eventCardSection;
         private Button _filterCharacterButton;
         private Button _filterEventButton;
-        private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
+        // ON になっている属性の集合。初期状態は全属性 ON。
+        private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>(FilterAttributes);
         private readonly Dictionary<CardAttribute, Button> _attributeFilterButtons = new Dictionary<CardAttribute, Button>();
         private readonly List<CardListItem> _characterCardItems = new List<CardListItem>();
         private readonly List<CardListItem> _eventCardItems = new List<CardListItem>();
@@ -125,8 +127,8 @@ namespace DeckBuilder
                 analyzeButton.clicked += () => _deckAnalysisModal.Show(_deckModel);
 
                 VisualElement topLeftButtons = root.Q<VisualElement>(className: "deckbuilder-top-left-buttons");
-                _filterCharacterButton = CreateFilterButton("キャラ", CardTypeFilter.Character);
-                _filterEventButton = CreateFilterButton("イベント", CardTypeFilter.Event);
+                _filterCharacterButton = CreateTypeFilterButton("キャラ", isCharacter: true);
+                _filterEventButton = CreateTypeFilterButton("イベント", isCharacter: false);
                 topLeftButtons.Add(_filterCharacterButton);
                 topLeftButtons.Add(_filterEventButton);
 
@@ -160,7 +162,8 @@ namespace DeckBuilder
                 _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character", _characterCardItems);
                 _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event", _eventCardItems);
 
-                RefreshDeckPanel();
+                // 全ボタン ON の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
+                RefreshFilter();
                 _deckBuilderRoot.Add(_cardListDragLayer);
             }
             catch (OperationCanceledException) { }
@@ -227,14 +230,21 @@ namespace DeckBuilder
             return wrapper;
         }
 
-        private Button CreateFilterButton(string text, CardTypeFilter filterType)
+        private Button CreateTypeFilterButton(string text, bool isCharacter)
         {
             Button btn = new Button();
             btn.text = text;
             btn.AddToClassList("deckbuilder-button--filter");
             btn.clicked += () =>
             {
-                _cardTypeFilter = _cardTypeFilter == filterType ? CardTypeFilter.All : filterType;
+                if (isCharacter)
+                {
+                    _showCharacterCards = !_showCharacterCards;
+                }
+                else
+                {
+                    _showEventCards = !_showEventCards;
+                }
                 RefreshFilter();
             };
             return btn;
@@ -284,34 +294,26 @@ namespace DeckBuilder
 
         private void RefreshFilter()
         {
-            bool showCharacterType = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Character;
-            bool showEventType = _cardTypeFilter == CardTypeFilter.All || _cardTypeFilter == CardTypeFilter.Event;
-
+            // 属性が ON のカードだけ表示（OFF 属性は非表示）。各セクションの表示中カード数を得る
             int characterVisible = ApplyAttributeFilterToItems(_characterCardItems);
             int eventVisible = ApplyAttributeFilterToItems(_eventCardItems);
 
+            // 種別が ON かつ表示中カードがあるセクションのみ表示する
             if (_characterCardSection != null)
             {
-                _characterCardSection.style.display = showCharacterType && characterVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _characterCardSection.style.display = _showCharacterCards && characterVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
             if (_eventCardSection != null)
             {
-                _eventCardSection.style.display = showEventType && eventVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _eventCardSection.style.display = _showEventCards && eventVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
-            UpdateFilterButtonState(_filterCharacterButton, CardTypeFilter.Character, "deckbuilder-button--filter--character");
-            UpdateFilterButtonState(_filterEventButton, CardTypeFilter.Event, "deckbuilder-button--filter--event");
-
+            // ボタンの ON/OFF ハイライト
+            SetButtonActive(_filterCharacterButton, _showCharacterCards, "deckbuilder-button--filter--character");
+            SetButtonActive(_filterEventButton, _showEventCards, "deckbuilder-button--filter--event");
             foreach (KeyValuePair<CardAttribute, Button> pair in _attributeFilterButtons)
             {
-                if (_attributeFilter.Contains(pair.Key))
-                {
-                    pair.Value.AddToClassList("deckbuilder-button--filter-attr--active");
-                }
-                else
-                {
-                    pair.Value.RemoveFromClassList("deckbuilder-button--filter-attr--active");
-                }
+                SetButtonActive(pair.Value, _attributeFilter.Contains(pair.Key), "deckbuilder-button--filter-attr--active");
             }
 
             RefreshDeckPanel();
@@ -322,7 +324,7 @@ namespace DeckBuilder
             int visible = 0;
             foreach (CardListItem item in items)
             {
-                bool match = _attributeFilter.Count == 0 || _attributeFilter.Contains(item.Attribute);
+                bool match = _attributeFilter.Contains(item.Attribute);
                 item.Element.style.display = match ? DisplayStyle.Flex : DisplayStyle.None;
                 if (match)
                 {
@@ -332,9 +334,9 @@ namespace DeckBuilder
             return visible;
         }
 
-        private void UpdateFilterButtonState(Button btn, CardTypeFilter filterType, string activeClass)
+        private static void SetButtonActive(Button btn, bool active, string activeClass)
         {
-            if (_cardTypeFilter == filterType)
+            if (active)
             {
                 btn.AddToClassList(activeClass);
             }
@@ -346,13 +348,8 @@ namespace DeckBuilder
 
         private bool ShouldShowCardInDeck(CardData cardData)
         {
-            bool typeMatch = _cardTypeFilter switch
-            {
-                CardTypeFilter.Character => cardData is CharacterCardData,
-                CardTypeFilter.Event => cardData is EventCardData,
-                _ => true,
-            };
-            bool attributeMatch = _attributeFilter.Count == 0 || _attributeFilter.Contains(cardData.Attribute);
+            bool typeMatch = cardData is CharacterCardData ? _showCharacterCards : _showEventCards;
+            bool attributeMatch = _attributeFilter.Contains(cardData.Attribute);
             return typeMatch && attributeMatch;
         }
 
