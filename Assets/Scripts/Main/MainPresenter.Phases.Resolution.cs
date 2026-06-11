@@ -467,7 +467,6 @@ namespace Main
 
         private async UniTask ApplyDamageToCharAsync(CardView target, int damage, CancellationToken ct)
         {
-            await PlayHitDamageEffectAsync(target, damage, ct);
             await target.TakeDamageAsync(damage, ct);
         }
 

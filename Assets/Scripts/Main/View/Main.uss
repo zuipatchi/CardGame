@@ -497,31 +497,6 @@
     opacity: 0.8;
 }
 
-.damage-fly-icon {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/DamageIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-    opacity: 0.4;
-}
-
-.damage-number-label {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    font-size: 80px;
-    -unity-font-style: bold;
-    color: rgb(255, 70, 70);
-    -unity-text-outline-width: 5px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
-    -unity-text-align: middle-center;
-}
-
 .char-slot-atk-overlay {
     position: absolute;
     left: 0;
