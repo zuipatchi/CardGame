@@ -485,9 +485,9 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
-        // DamageEnemy 効果の対象を相手クライアントへ伝える。対象は敵フィールド上のインデックスで送る
-        // （同名カードが複数いても曖昧にならない）。targetIndex < 0 で対象なし。
-        public void SendDamageTarget(int targetIndex)
+        // DamageEnemy 効果の対象を相手クライアントへ伝える。対象は敵フィールド上のインデックスの配列で送る
+        // （同名カードが複数いても曖昧にならない）。複数体ダメージにも対応。
+        public void SendDamageTargets(int[] indices)
         {
             CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
@@ -496,8 +496,7 @@ namespace Main.Network
             }
             DamageTargetPayload payload = new DamageTargetPayload
             {
-                hasTarget = targetIndex >= 0,
-                targetIndex = targetIndex
+                indices = indices ?? Array.Empty<int>()
             };
             string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
@@ -507,18 +506,18 @@ namespace Main.Network
             }
         }
 
-        // 対象インデックスを受信する。対象なしの場合は -1 を返す。
-        public async UniTask<int> WaitForOpponentDamageTargetAsync(CancellationToken ct)
+        // 対象インデックスの配列を受信する。対象なしの場合は空配列を返す。
+        public async UniTask<int[]> WaitForOpponentDamageTargetsAsync(CancellationToken ct)
         {
             CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<int> tcs = new UniTaskCompletionSource<int>();
+            UniTaskCompletionSource<int[]> tcs = new UniTaskCompletionSource<int[]>();
 
             void OnDamageTarget(ulong senderId, FastBufferReader reader)
             {
                 messaging.UnregisterNamedMessageHandler(k_DamageTarget);
                 reader.ReadValueSafe(out string json);
                 DamageTargetPayload payload = JsonUtility.FromJson<DamageTargetPayload>(json);
-                tcs.TrySetResult(payload.hasTarget ? payload.targetIndex : -1);
+                tcs.TrySetResult(payload.indices ?? Array.Empty<int>());
             }
 
             messaging.RegisterNamedMessageHandler(k_DamageTarget, OnDamageTarget);
@@ -671,8 +670,7 @@ namespace Main.Network
         [Serializable]
         private sealed class DamageTargetPayload
         {
-            public bool hasTarget;
-            public int targetIndex;
+            public int[] indices;
         }
 
         [Serializable]

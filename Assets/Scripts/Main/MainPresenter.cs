@@ -115,7 +115,9 @@ namespace Main
         private int _evolveMinCost;
 
         private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
-        private UniTaskCompletionSource<CardView> _enemyCharSelectionTcs;
+        private UniTaskCompletionSource<List<CardView>> _enemyCharSelectionTcs;
+        private List<CardView> _enemyCharSelected;
+        private int _enemyCharSelectTarget;
         private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
@@ -350,10 +352,7 @@ namespace Main
                 {
                     if (_enemyCharSelectionTcs != null)
                     {
-                        if (!card.IsFaceDown && card.Data is CharacterCardData)
-                        {
-                            _enemyCharSelectionTcs.TrySetResult(card);
-                        }
+                        HandleEnemyCharSelectionClick(card);
                         return;
                     }
                     if (!card.IsFaceDown)

@@ -1475,3 +1475,12 @@
     border-top-color: rgb(255, 238, 150);
     border-bottom-color: rgb(255, 238, 150);
 }
+
+/* 複数対象ダメージで「選択済み」のキャラ（赤枠でダメージ対象を示す） */
+.selected-char .game-card,
+.selected-char .game-card:hover {
+    border-left-color: rgb(255, 80, 80);
+    border-right-color: rgb(255, 80, 80);
+    border-top-color: rgb(255, 80, 80);
+    border-bottom-color: rgb(255, 80, 80);
+}
