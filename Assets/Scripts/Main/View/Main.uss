@@ -1449,3 +1449,29 @@
     -unity-background-scale-mode: scale-to-fit;
     opacity: 0.8;
 }
+
+/* 効果の対象として選択可能なキャラのハイライト（DamageEnemy / Switch / Evolve など） */
+.selectable-char {
+    scale: 1.06 1.06;
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.selectable-char .game-card {
+    border-left-color: rgb(255, 216, 80);
+    border-right-color: rgb(255, 216, 80);
+    border-top-color: rgb(255, 216, 80);
+    border-bottom-color: rgb(255, 216, 80);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.selectable-char .game-card:hover {
+    border-left-color: rgb(255, 238, 150);
+    border-right-color: rgb(255, 238, 150);
+    border-top-color: rgb(255, 238, 150);
+    border-bottom-color: rgb(255, 238, 150);
+}

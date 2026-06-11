@@ -19,5 +19,8 @@ namespace Main.Card
         DamageAllEnemies,
         // 発動した側の勝利点（緑属性の勝利条件）に EventValue / EffectValue 分を加算する。
         GainVictoryPoints,
+        // 発動側から見た敵フィールドのキャラ1体に EventValue / EffectValue 分のダメージを与え、
+        // HP が 0 以下になったキャラを破壊する。対象はプレイヤーが選択（敵が1体なら自動・0体なら空振り）。
+        DamageEnemy,
     }
 }

@@ -136,6 +136,9 @@ namespace Main
                 case CardEventType.DamageAllEnemies:
                     await ApplyDamageAllEnemiesAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.DamageEnemy:
+                    await ApplyDamageEnemyAsync(charData.EffectValue, isLocal, ct);
+                    break;
                 case CardEventType.GainVictoryPoints:
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
@@ -203,6 +206,9 @@ namespace Main
                 case CardEventType.DamageAllEnemies:
                     await ApplyDamageAllEnemiesAsync(data.EventValue, isLocal, ct);
                     break;
+                case CardEventType.DamageEnemy:
+                    await ApplyDamageEnemyAsync(data.EventValue, isLocal, ct);
+                    break;
                 case CardEventType.GainVictoryPoints:
                     await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
                     break;
@@ -244,6 +250,111 @@ namespace Main
                 }
             }
             await UniTask.WhenAll(destroyTasks);
+        }
+
+        // 発動側から見た敵キャラ1体を対象に選び、ダメージを与えて HP 0 以下なら破壊する
+        private async UniTask ApplyDamageEnemyAsync(int damage, bool isLocal, CancellationToken ct)
+        {
+            if (damage <= 0)
+            {
+                return;
+            }
+
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+
+            // 敵キャラがいなければ空振り。両クライアントで盤面は同期されており対称に判定されるため追加同期は不要
+            if (targetField.Characters.Count == 0)
+            {
+                return;
+            }
+
+            CardView target = await ResolveDamageEnemyTargetAsync(targetField, isLocal, ct);
+            if (target == null || !targetField.Contains(target))
+            {
+                return;
+            }
+
+            if (_hitEffectPrefab != null)
+            {
+                await PlayParticleAtCardAsync(target, _hitEffectPrefab, ct);
+            }
+            await ApplyDamageToCharAsync(target, damage, ct);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+
+            if (target.CurrentHp <= 0 && targetField.Contains(target))
+            {
+                await DestroyCharToGraveyardAsync(target, targetField, targetGraveyard, ct);
+            }
+        }
+
+        // 対象決定：ローカルはプレイヤー選択（複数時）、オンライン相手はインデックス受信、CPU は脅威度で選ぶ。
+        // 候補が1体のときは両クライアントとも自動で先頭を対象にし、追加同期を行わない（インデックスが一意のため）。
+        private async UniTask<CardView> ResolveDamageEnemyTargetAsync(FieldView targetField, bool isLocal, CancellationToken ct)
+        {
+            List<CardView> chars = new List<CardView>(targetField.Characters);
+            int count = chars.Count;
+
+            if (isLocal)
+            {
+                CardView target = count == 1
+                    ? chars[0]
+                    : await WaitForPlayerEnemyCharSelectionAsync(ct);
+                if (_isOnline && count > 1)
+                {
+                    _networkGameService.SendDamageTarget(chars.IndexOf(target));
+                }
+                return target;
+            }
+
+            if (_isOnline)
+            {
+                if (count == 1)
+                {
+                    return chars[0];
+                }
+                int index = await _networkGameService.WaitForOpponentDamageTargetAsync(ct);
+                return index >= 0 && index < count ? chars[index] : null;
+            }
+
+            // CPU：最も攻撃力の高い敵キャラを狙う（同値は先頭）
+            int cpuIndex = 0;
+            int bestAtk = int.MinValue;
+            for (int i = 0; i < count; i++)
+            {
+                int atk = chars[i].Data.Attack;
+                if (atk > bestAtk)
+                {
+                    bestAtk = atk;
+                    cpuIndex = i;
+                }
+            }
+            return chars[cpuIndex];
+        }
+
+        // 敵フィールドのキャラをハイライトして、プレイヤーのクリックによる対象選択を待つ
+        private async UniTask<CardView> WaitForPlayerEnemyCharSelectionAsync(CancellationToken ct)
+        {
+            _enemyCharSelectionTcs = new UniTaskCompletionSource<CardView>();
+
+            foreach (CardView c in _opponentFieldView.Characters)
+            {
+                c.AddToClassList("selectable-char");
+            }
+            ShowToast("ダメージを与える相手キャラを選択");
+
+            try
+            {
+                return await _enemyCharSelectionTcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _enemyCharSelectionTcs = null;
+                foreach (CardView c in _opponentFieldView.Characters)
+                {
+                    c.RemoveFromClassList("selectable-char");
+                }
+            }
         }
 
         private async UniTask ApplyDamageToCharAsync(CardView target, int damage, CancellationToken ct)

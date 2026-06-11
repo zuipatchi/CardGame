@@ -24,6 +24,7 @@ namespace Main.Network
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
+        private const string k_DamageTarget = "NGS_DamageTarget";
         private const string k_MainAction = "NGS_MainAction";
 
         private readonly GameSessionModel _gameSessionModel;
@@ -484,6 +485,46 @@ namespace Main.Network
             return await tcs.Task.AttachExternalCancellation(ct);
         }
 
+        // DamageEnemy 効果の対象を相手クライアントへ伝える。対象は敵フィールド上のインデックスで送る
+        // （同名カードが複数いても曖昧にならない）。targetIndex < 0 で対象なし。
+        public void SendDamageTarget(int targetIndex)
+        {
+            CustomMessagingManager messaging = GetMessagingManager();
+            if (messaging == null)
+            {
+                return;
+            }
+            DamageTargetPayload payload = new DamageTargetPayload
+            {
+                hasTarget = targetIndex >= 0,
+                targetIndex = targetIndex
+            };
+            string json = JsonUtility.ToJson(payload);
+            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
+            {
+                writer.WriteValueSafe(json);
+                messaging.SendNamedMessage(k_DamageTarget, _opponentClientId, writer);
+            }
+        }
+
+        // 対象インデックスを受信する。対象なしの場合は -1 を返す。
+        public async UniTask<int> WaitForOpponentDamageTargetAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource<int> tcs = new UniTaskCompletionSource<int>();
+
+            void OnDamageTarget(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_DamageTarget);
+                reader.ReadValueSafe(out string json);
+                DamageTargetPayload payload = JsonUtility.FromJson<DamageTargetPayload>(json);
+                tcs.TrySetResult(payload.hasTarget ? payload.targetIndex : -1);
+            }
+
+            messaging.RegisterNamedMessageHandler(k_DamageTarget, OnDamageTarget);
+            return await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void SendRecoverDeckOrder(string[] deckIds)
         {
             SendDeckOrder(k_RecoverDeck, deckIds);
@@ -578,6 +619,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_RecoverDeck);
             m.UnregisterNamedMessageHandler(k_Switch);
             m.UnregisterNamedMessageHandler(k_Evolve);
+            m.UnregisterNamedMessageHandler(k_DamageTarget);
         }
 
         [Serializable]
@@ -624,6 +666,13 @@ namespace Main.Network
         {
             public bool passed;
             public string cardId;
+        }
+
+        [Serializable]
+        private sealed class DamageTargetPayload
+        {
+            public bool hasTarget;
+            public int targetIndex;
         }
 
         [Serializable]

@@ -115,6 +115,7 @@ namespace Main
         private int _evolveMinCost;
 
         private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
+        private UniTaskCompletionSource<CardView> _enemyCharSelectionTcs;
         private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
@@ -347,6 +348,14 @@ namespace Main
                 };
                 _opponentFieldView.OnCardClicked = card =>
                 {
+                    if (_enemyCharSelectionTcs != null)
+                    {
+                        if (!card.IsFaceDown && card.Data is CharacterCardData)
+                        {
+                            _enemyCharSelectionTcs.TrySetResult(card);
+                        }
+                        return;
+                    }
                     if (!card.IsFaceDown)
                     {
                         _cardDetailModal.Show(card.Data);
