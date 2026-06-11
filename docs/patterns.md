@@ -102,6 +102,10 @@ public enum EventType
 
 `MainPresenter.cs` に `private readonly StagedInput _xxxInput = new StagedInput();` と必要なら状態変数（例: `private int _evolveMinCost;`）を追加し、`MainPresenter.Input.cs` の `HandlePlayerCardDrop` / `TryTakeStagedInput` / `OnPassClicked` / `OnBackClicked` / `CanPlayerDragCard` / `IsCardPlayable` の各メソッドに `_xxxInput._tcs != null` のチェックを追加する。`_switchInput` / `_evolveInput` の実装が参考例。`WaitForPlayerXxxInputAsync` でボタン表示・TCS 完了待ちを行い、`ApplyXxxEffectAsync` から `await WaitForPlayerXxxInputAsync(ct)` で結果を受け取る。ドロップ時にすでに `PlaceCard` が呼ばれるため、TCS 完了後に再度 `PlaceCard` しないこと。
 
+**フィールドのキャラをクリックで対象選択する効果（Switch / Evolve の自軍選択 / DamageEnemy の敵選択）の場合**
+
+`MainPresenter.cs` に `private UniTaskCompletionSource<CardView> _xxxSelectionTcs;` を追加し、対象フィールドの `OnCardClicked`（`_playerFieldView` = 自軍 / `_opponentFieldView` = 敵）の先頭で `_xxxSelectionTcs != null` なら `TrySetResult(card)` して `return` するように分岐する。待機ヘルパーでは対象キャラに `selectable-char` クラスを付与（金枠＋拡大ハイライト。スタイルは [Main.uss](../Assets/Scripts/Main/View/Main.uss) の `.selectable-char`）して `ShowToast(...)` で案内し、`finally` でクラスを除去する。候補が1体なら選択不要で自動確定。オンライン対戦では選択結果を**フィールドのインデックス**で相手へ送る（`NetworkGameService` に `SendXxx` / `WaitForOpponentXxxAsync` と専用メッセージキー・ペイロードを追加。同名カードが複数いても曖昧にならない）。候補が1体のときは両クライアントとも自動で先頭を選ぶため送受信を行わない。`ResolveDamageEnemyTargetAsync` が参考例。
+
 ---
 
 ## 2-B. キャラカードに登場時効果を追加する
@@ -114,7 +118,7 @@ public enum EventType
 
 **② 効果種別の解決処理を追加する**
 
-[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ResolveCharacterTriggeredEffectAsync`（OnEnter/OnAttack 共通）の `switch` に `case CardEventType.Xxx:` を追加する。既存のイベント効果解決ヘルパー（`PlayDrawEffectAsync` / `ApplyDrawEffectAsync` / `PlayBanishCharEffectAsync` / `ApplyDamageAllEnemiesAsync` / `AddVictoryPoints` 等）を流用できる。現状は `Draw` / `BanishChar` / `DamageAllEnemies` / `GainVictoryPoints` を実装済み。
+[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ResolveCharacterTriggeredEffectAsync`（OnEnter/OnAttack 共通）の `switch` に `case CardEventType.Xxx:` を追加する。既存のイベント効果解決ヘルパー（`PlayDrawEffectAsync` / `ApplyDrawEffectAsync` / `PlayBanishCharEffectAsync` / `ApplyDamageAllEnemiesAsync` / `AddVictoryPoints` 等）を流用できる。現状は `Draw` / `BanishChar` / `DamageAllEnemies` / `DamageEnemy` / `GainVictoryPoints` を実装済み。
 
 **発動箇所**: 通常配置パス（ローカル `ExecuteLocalMainResolveAsync` の `PlaceChar` ／ 相手 `ExecuteOpponentCardPlayAsync` のキャラ配置後）で `ResolveCharacterEnterEffectAsync` を呼んでいる。CPU・オンライン相手も同経路でカバーされ、効果はカードデータから導出されるため追加のネットワーク同期は不要。Switch / Evolve での配置は対象外。
 

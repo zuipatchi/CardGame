@@ -21,6 +21,7 @@
 | Evolve | 自分のフィールドのキャラを1体選んで（複数いる場合はクリックで選択）墓地に送り、手札から犠牲キャラより高コストのキャラカードを1枚コストなしで配置する。フィールドにキャラがいないまたは手札に適格カードがない場合は何もしない。配置時にエフェクト再生 | 使用しない（0 固定） |
 | CostBoost | 通常プレイ時は**無効果**。手札からコストとして支払うときに、このカードを EventValue 分のコストとして数える（コスト倍化）。キャラに付ける場合は `CharacterEffectTrigger.OnUsedAsCost` と併用、イベントは `EventType=CostBoost` 単体で判定 | コスト換算値（例: 2） |
 | DamageAllEnemies | 発動側から見た敵フィールドのキャラ全員に EventValue 分のダメージを同時に与え、HP が 0 以下になったキャラを破壊する。敵フィールド中央に AoE パーティクル演出を再生（敵キャラが0体でも演出は再生） | ダメージ量 |
+| DamageEnemy | 発動側から見た敵キャラ**1体**に EventValue 分のダメージを与え、HP が 0 以下なら破壊する。対象はプレイヤーがクリックで選択（敵が1体なら自動・0体なら空振り）。選択中は敵キャラが金枠ハイライト（`selectable-char`）＋トースト表示。CPU は最高ATKの敵を狙う。オンラインは対象をフィールドのインデックスで同期（`NGS_DamageTarget`） | ダメージ量 |
 | GainVictoryPoints | 発動した側の勝利点（緑属性の勝利条件）に EventValue 分を加算する。20到達でそのプレイヤーが勝利。発動カードの上に MedalIcon フロート → 勝利点カウンターで加点演出 | 加算する勝利点 |
 
 > `AtkBoost` / `DefBoost` / `Negate` は enum に定義のみで未実装。
@@ -72,7 +73,8 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える（コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / GainVictoryPoints**: イベント・キャラ（OnEnter / OnAttack）両方で使用可能。
+- **DamageAllEnemies / DamageEnemy / GainVictoryPoints**: イベント・キャラ（OnEnter / OnAttack）両方で使用可能。
+- **DamageEnemy**: 単体対象。プレイヤーが対象を選ぶ（敵キャラを `selectable-char` でハイライトしクリック選択）。敵が1体なら自動・0体なら空振り。オンラインでは対象をフィールドのインデックスで相手へ送るため、同名カードが複数いても曖昧にならない。
 - **GainVictoryPoints**: 加点カードは**緑属性**で作る（緑カードをプレイした側に勝利点表示が出現するため）。
 - 勝敗に関わる属性（赤=ハート / 青=デッキ0 / 緑=勝利点20）の挙動は [rules.md](rules.md)「勝敗条件」を参照。
 - オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
