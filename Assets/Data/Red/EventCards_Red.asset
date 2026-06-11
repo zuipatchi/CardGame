@@ -19,7 +19,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: ff06cbfa28d1cc64c82c11c4386fc2f1, type: 3}
     _eventType: 13
-    _eventValue: 5
+    _eventValue: 1001
     _eventValue2: 2
     _description: "\u30B4\u30D6\u30EA\u30F3\u30AE\u30E3\u30F3\u30B0\u30922\u4F53\u5834\u306B\u51FA\u3059"
     _triggerOnGrave: 0
