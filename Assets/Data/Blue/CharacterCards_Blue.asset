@@ -25,6 +25,7 @@ MonoBehaviour:
     _effectType: 3
     _effectValue: 1
     _effectValue2: 0
+    _guardian: 0
     _description: "\u5834\u306B\u51FA\u305F\u66421\u679A\u30C9\u30ED\u30FC"
   - _id: C2002
     _cardName: "\u52C7\u8005\u306E\u5144"
@@ -37,4 +38,5 @@ MonoBehaviour:
     _effectType: 3
     _effectValue: 1
     _effectValue2: 0
+    _guardian: 0
     _description: "\u653B\u6483\u3057\u305F\u3068\u304D1\u679A\u30C9\u30ED\u30FC"
