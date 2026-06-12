@@ -63,6 +63,7 @@
 | Effect Value | 効果の数値（値1） |
 | Effect Value 2 | 2つ目の数値（SummonChar の体数など。使わない効果は 0） |
 | Guardian | **守護**。ON にすると、このキャラが場にいる間は相手はこのキャラ（守護持ち）にしか攻撃できない（守護以外のキャラ・ハートへの攻撃は不可）。`EffectType` とは独立したフラグで、攻撃のみを制限する。カードと詳細モーダルに ShieldIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
+| Haste | **速攻**。ON にすると、このキャラは召喚酔いせず、場に出したターンから攻撃できる（通常配置・召喚・Switch / Evolve のいずれの配置でも即攻撃可。1ターン1回の攻撃制限は維持）。`EffectType` とは独立したフラグ。カードと詳細モーダルに SpeedIcon を表示（詳細は [rules.md](rules.md)「攻撃回数と召喚酔い」） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 
 #### EffectTrigger（[CharacterEffectTrigger.cs](../Assets/Scripts/Main/Card/CharacterEffectTrigger.cs)）
