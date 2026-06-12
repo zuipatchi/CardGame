@@ -25,7 +25,7 @@ MonoBehaviour:
     _effectType: 9
     _effectValue: 2
     _effectValue2: 0
-    _guardian: 1
+    _guardian: 0
     _haste: 0
     _description: "\u624B\u672D\u306B\u3042\u308B\u3068\u304D\u3001\u7DD1\u30B3\u30B9\u30C82\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C3002
