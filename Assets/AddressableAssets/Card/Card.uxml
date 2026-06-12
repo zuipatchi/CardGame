@@ -20,6 +20,7 @@
                 </ui:VisualElement>
                 <ui:VisualElement name="GuardianIcon" class="game-card__guardian-icon" />
                 <ui:VisualElement name="HasteIcon" class="game-card__haste-icon" />
+                <ui:VisualElement name="FlyingIcon" class="game-card__flying-icon" />
 
             </ui:VisualElement>
         </ui:VisualElement>

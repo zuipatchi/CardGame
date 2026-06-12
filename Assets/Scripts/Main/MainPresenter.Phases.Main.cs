@@ -182,6 +182,40 @@ namespace Main
             return false;
         }
 
+        // ─── 飛行 ─────────────────────────────────────────────────────────
+
+        // 表向きの飛行持ちキャラかどうか：守護を無視して攻撃でき、飛行キャラからしか攻撃されない
+        private static bool IsFlying(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Flying;
+        }
+
+        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護を考慮）。
+        // ・飛行を持つ target は、飛行を持つ attacker からしか攻撃されない
+        // ・守護がいる場合は守護持ちにしか攻撃できないが、飛行を持つ attacker は守護を無視できる
+        private bool CanAttackChar(CardView attacker, CardView target, FieldView defenderField)
+        {
+            if (target == null || target.IsFaceDown || target.Data is not CharacterCardData)
+            {
+                return false;
+            }
+            if (IsFlying(target) && !IsFlying(attacker))
+            {
+                return false;
+            }
+            if (!IsFlying(attacker) && HasGuardian(defenderField) && !IsGuardian(target))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        // 攻撃者 attacker が防御側のハートを攻撃できるか。守護がいるとハートは狙えないが、飛行を持つ attacker は守護を無視できる
+        private bool CanAttackHeart(CardView attacker, FieldView defenderField)
+        {
+            return IsFlying(attacker) || !HasGuardian(defenderField);
+        }
+
         // ─── アクション実行（ローカル） ──────────────────────────────────
 
         private async UniTask<string[]> ExecuteLocalMainCostAsync(MainPhaseAction action, CancellationToken ct)
@@ -514,44 +548,62 @@ namespace Main
             // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
             List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
 
-            // 相手（プレイヤー）に守護がいる場合は守護持ちキャラにしか攻撃できない（ハート攻撃も不可）
-            bool defenderHasGuardian = HasGuardian(_playerFieldView);
-
-            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）。守護がいる間は不可
-            if (!defenderHasGuardian && _playerLifeHearts.CanBeAttacked && availableAttackers.Count > 0)
+            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）。
+            // 守護がいるとハートは狙えないが、飛行を持つ攻撃者は守護を無視してハートを攻撃できる
+            if (_playerLifeHearts.CanBeAttacked)
             {
-                int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(availableAttackers.Select(c => c.Data).ToList());
-                if (heartAttackerIdx >= 0)
+                List<CardView> heartAttackers = availableAttackers
+                    .Where(a => CanAttackHeart(a, _playerFieldView)).ToList();
+                if (heartAttackers.Count > 0)
                 {
-                    return new MainPhaseAction
+                    int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(heartAttackers.Select(c => c.Data).ToList());
+                    if (heartAttackerIdx >= 0)
                     {
-                        _actionType = MainPhaseActionType.Attack,
-                        _attacker = availableAttackers[heartAttackerIdx],
-                        _targetsHeart = true
-                    };
+                        return new MainPhaseAction
+                        {
+                            _actionType = MainPhaseActionType.Attack,
+                            _attacker = heartAttackers[heartAttackerIdx],
+                            _targetsHeart = true
+                        };
+                    }
                 }
             }
 
-            // キャラがいれば攻撃。守護がいる場合は攻撃対象を守護持ちキャラに限定する
-            if (availableAttackers.Count > 0)
+            // キャラ攻撃：飛行・守護を考慮し、合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATKを選ぶ
+            CardView battleAttacker = null;
+            CardView battleTarget = null;
+            foreach (CardView attacker in availableAttackers)
             {
-                List<CardView> targets = defenderHasGuardian
-                    ? playerChars.Where(IsGuardian).ToList()
-                    : playerChars.ToList();
-                (int atkIdx, int tgtIdx) = CpuAgent.ChooseBattleAttack(
-                    availableAttackers.Select(c => c.Data).ToList(),
-                    targets.Select(c => c.Data).ToList());
-                if (atkIdx >= 0)
+                CardView lowestTarget = null;
+                foreach (CardView candidate in playerChars)
                 {
-                    CardView attacker = availableAttackers[atkIdx];
-                    CardView target = tgtIdx >= 0 && tgtIdx < targets.Count ? targets[tgtIdx] : null;
-                    return new MainPhaseAction
+                    if (!CanAttackChar(attacker, candidate, _playerFieldView))
                     {
-                        _actionType = MainPhaseActionType.Attack,
-                        _attacker = attacker,
-                        _target = target
-                    };
+                        continue;
+                    }
+                    if (lowestTarget == null || candidate.Data.Attack < lowestTarget.Data.Attack)
+                    {
+                        lowestTarget = candidate;
+                    }
                 }
+                if (lowestTarget == null)
+                {
+                    continue;
+                }
+                if (battleAttacker == null || attacker.Data.Attack > battleAttacker.Data.Attack)
+                {
+                    battleAttacker = attacker;
+                    battleTarget = lowestTarget;
+                }
+            }
+            if (battleAttacker != null)
+            {
+                return new MainPhaseAction
+                {
+                    _actionType = MainPhaseActionType.Attack,
+                    _attacker = battleAttacker,
+                    _target = battleTarget
+                };
             }
 
             IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
@@ -611,12 +663,17 @@ namespace Main
                     && CanCharAttack(capturedChar, _playerFieldView);
                 arrowManip.OnAttackTarget = (worldPos) =>
                 {
-                    // 相手フィールドに守護がいる場合は守護持ちキャラにしか攻撃できない
-                    bool defenderHasGuardian = HasGuardian(_opponentFieldView);
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
-                        if (defenderHasGuardian && !IsGuardian(targetChar))
+                        // 飛行を持つキャラは飛行を持つキャラからしか攻撃されない
+                        if (IsFlying(targetChar) && !IsFlying(capturedChar))
+                        {
+                            ShowToast("飛行を持つキャラには飛行でしか攻撃できません");
+                            return false;
+                        }
+                        // 相手フィールドに守護がいる場合は守護持ちキャラにしか攻撃できない（飛行の攻撃者は無視）
+                        if (!CanAttackChar(capturedChar, targetChar, _opponentFieldView))
                         {
                             ShowToast("守護を持つキャラを攻撃してください");
                             return false;
@@ -631,7 +688,7 @@ namespace Main
                     }
                     if (_opponentLifeHearts.ContainsWorldPoint(worldPos))
                     {
-                        if (defenderHasGuardian)
+                        if (!CanAttackHeart(capturedChar, _opponentFieldView))
                         {
                             ShowToast("守護を持つキャラを攻撃してください");
                             return false;
@@ -651,8 +708,9 @@ namespace Main
             }
 
             // 攻撃できる自キャラが1体以上いる場合のみ、攻撃可能な相手キャラ・ハートをハイライト
-            List<CardView> highlightedTargets = manipulators.Count > 0
-                ? HighlightAttackTargets()
+            List<CardView> attackers = manipulators.Select(m => m.card).ToList();
+            List<CardView> highlightedTargets = attackers.Count > 0
+                ? HighlightAttackTargets(attackers)
                 : new List<CardView>();
 
             ShowActionButtons();
@@ -683,25 +741,41 @@ namespace Main
         }
 
         // 攻撃可能な相手キャラ・ハートをハイライトし、ハイライトした相手キャラのリストを返す（クリーンアップ用）。
-        // 相手フィールドに守護がいる場合は守護持ちキャラのみが対象（ハートは攻撃不可）。既存の OnAttackTarget 判定と一致させる。
-        private List<CardView> HighlightAttackTargets()
+        // 「いずれかの攻撃可能な自キャラ（attackers）が攻撃できる対象」をハイライトする（守護・飛行を考慮）。
+        private List<CardView> HighlightAttackTargets(IReadOnlyList<CardView> attackers)
         {
             List<CardView> highlighted = new List<CardView>();
-            bool defenderHasGuardian = HasGuardian(_opponentFieldView);
             foreach (CardView enemyChar in _opponentFieldView.Characters)
             {
                 if (enemyChar.IsFaceDown || enemyChar.Data is not CharacterCardData)
                 {
                     continue;
                 }
-                if (defenderHasGuardian && !IsGuardian(enemyChar))
+                bool anyCanAttack = false;
+                foreach (CardView attacker in attackers)
                 {
-                    continue;
+                    if (CanAttackChar(attacker, enemyChar, _opponentFieldView))
+                    {
+                        anyCanAttack = true;
+                        break;
+                    }
                 }
-                enemyChar.AddToClassList("attack-target-char");
-                highlighted.Add(enemyChar);
+                if (anyCanAttack)
+                {
+                    enemyChar.AddToClassList("attack-target-char");
+                    highlighted.Add(enemyChar);
+                }
             }
-            if (!defenderHasGuardian && _opponentLifeHearts.CanBeAttacked)
+            bool anyCanHitHeart = false;
+            foreach (CardView attacker in attackers)
+            {
+                if (CanAttackHeart(attacker, _opponentFieldView))
+                {
+                    anyCanHitHeart = true;
+                    break;
+                }
+            }
+            if (anyCanHitHeart && _opponentLifeHearts.CanBeAttacked)
             {
                 _opponentLifeHearts.SetAttackTargetHighlight(true);
             }

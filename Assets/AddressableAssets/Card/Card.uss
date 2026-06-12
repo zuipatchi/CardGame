@@ -249,6 +249,16 @@
     display: none;
 }
 
+/* 飛行アイコン（速攻アイコンの下に表示。飛行持ちキャラのみ CardView で display を切替） */
+.game-card__flying-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/FlyIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 .game-card__hp-icon {
     position: absolute;
     left: 0;

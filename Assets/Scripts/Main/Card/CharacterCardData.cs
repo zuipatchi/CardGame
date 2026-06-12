@@ -18,12 +18,14 @@ namespace Main.Card
         [SerializeField] private bool _guardian;
         // 速攻：召喚酔いせず、場に出したターンから攻撃できる
         [SerializeField] private bool _haste;
+        // 飛行：守護を無視して攻撃対象を選べ、飛行を持つキャラからしか攻撃されない
+        [SerializeField] private bool _flying;
         [SerializeField] private string _description;
 
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -35,6 +37,7 @@ namespace Main.Card
             _effectValue2 = effectValue2;
             _guardian = guardian;
             _haste = haste;
+            _flying = flying;
             _description = description;
         }
 
@@ -50,6 +53,8 @@ namespace Main.Card
         public bool Guardian => _guardian;
         // 速攻：召喚酔いせず、出したターンから攻撃できる
         public bool Haste => _haste;
+        // 飛行：守護を無視して攻撃対象を選べ、飛行を持つキャラからしか攻撃されない
+        public bool Flying => _flying;
         public string Description => _description;
 
         // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性（または自分が白属性）のとき EffectValue 分（最低1）として数える。

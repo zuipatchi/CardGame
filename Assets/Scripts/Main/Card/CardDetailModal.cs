@@ -78,6 +78,10 @@ namespace Main.Card
                 {
                     AddIconStatRow(statsGrid, "card-detail-stat-icon--haste", string.Empty, "速攻");
                 }
+                if (charData.Flying)
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--flying", string.Empty, "飛行");
+                }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
                     Label descLabel = new Label(charData.Description);

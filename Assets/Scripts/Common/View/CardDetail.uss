@@ -210,6 +210,12 @@
     height: 53px;
 }
 
+.card-detail-stat-icon--flying {
+    background-image: url("../../../AddressableAssets/Icon/FlyIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--spd {
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }

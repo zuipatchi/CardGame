@@ -27,6 +27,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
+    _flying: 0
     _description: "\u706B\u306E\u7C89\u304C\u3071\u3061\u3071\u3061\u5F3E\u3051\u3066\u308B"
   - _id: C1002
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30AE\u30E3\u30F3\u30B0"
@@ -41,6 +42,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 1
+    _flying: 0
     _description: 
   - _id: C1003
     _cardName: "\u30C9\u30E9\u30B4\u30F3\u306E\u96DB"
@@ -55,6 +57,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
+    _flying: 1
     _description: 
   - _id: C1004
     _cardName: "\u708E\u306E\u3071\u3063\u3061"
@@ -69,6 +72,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
+    _flying: 0
     _description: "\u624B\u672D\u306B\u3042\u308B\u3068\u304D\u3001\u8D64\u30B3\u30B9\u30C82\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C1005
     _cardName: "\u3072\u306E\u3053\u306E\u5996\u7CBE"
@@ -83,6 +87,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
+    _flying: 0
     _description: 
   - _id: C1006
     _cardName: "\u708E\u9B5A"
@@ -97,6 +102,7 @@ MonoBehaviour:
     _effectValue2: 2
     _guardian: 0
     _haste: 0
+    _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u30AD\u30E3\u30E91\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
   - _id: C1007
     _cardName: "\u6012\u3063\u305F\u30C9\u30E9\u30B4\u30F3"
@@ -111,6 +117,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
+    _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u5168\u3066\u306E\u30AD\u30E3\u30E9\u306B2\u30C0\u30E1\u30FC\u30B8"
   - _id: C1008
     _cardName: "\u30B5\u30A4\u30DC\u30FC\u30B0 DOM"
@@ -125,4 +132,5 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 1
     _haste: 1
+    _flying: 0
     _description: 

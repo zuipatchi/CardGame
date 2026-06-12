@@ -21,6 +21,7 @@ namespace Main.Card
         private readonly Label _hpLabel;
         private readonly VisualElement _guardianIcon;
         private readonly VisualElement _hasteIcon;
+        private readonly VisualElement _flyingIcon;
         private int _currentHp;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
@@ -46,6 +47,7 @@ namespace Main.Card
             _hpLabel = this.Q<Label>("HpLabel");
             _guardianIcon = this.Q<VisualElement>("GuardianIcon");
             _hasteIcon = this.Q<VisualElement>("HasteIcon");
+            _flyingIcon = this.Q<VisualElement>("FlyingIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -240,6 +242,8 @@ namespace Main.Card
             _guardianIcon.style.display = data is CharacterCardData characterData && characterData.Guardian
                 ? DisplayStyle.Flex : DisplayStyle.None;
             _hasteIcon.style.display = data is CharacterCardData hasteData && hasteData.Haste
+                ? DisplayStyle.Flex : DisplayStyle.None;
+            _flyingIcon.style.display = data is CharacterCardData flyingData && flyingData.Flying
                 ? DisplayStyle.Flex : DisplayStyle.None;
 
             if (data.Image != null)
