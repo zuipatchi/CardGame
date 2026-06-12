@@ -362,6 +362,8 @@ namespace Main
                 Rect destroyedFromRect = target.worldBound;
                 targetField.RemoveCard(target);
                 await FlyToGraveyardAsync(target, destroyedFromRect, targetGraveyard, ct);
+                // 撃破されたキャラの OnDestroy を発動（攻撃対象の所有者は攻撃側の相手 = !isLocal）
+                await FireOnDestroyEffectAsync(target, !isLocal, ct);
             }
         }
 

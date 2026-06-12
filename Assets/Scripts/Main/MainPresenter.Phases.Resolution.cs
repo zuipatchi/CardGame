@@ -131,6 +131,8 @@ namespace Main
                     targetField.RemoveCard(banishTarget);
                     await FlyCardToDestAsync(banishTarget, fromRect, targetGraveyard, ct);
                     targetGraveyard.AddCard(banishTarget);
+                    // 除去されたキャラの OnDestroy を発動（所有者は発動側の相手 = !isLocal）
+                    await FireOnDestroyEffectAsync(banishTarget, !isLocal, ct);
                     break;
                 }
                 case CardEventType.DamageAllEnemies:
@@ -173,6 +175,8 @@ namespace Main
                     targetField.RemoveCard(charCard);
                     await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
                     targetGraveyard.AddCard(charCard);
+                    // 除去されたキャラの OnDestroy を発動（所有者は発動側の相手 = !isLocal）
+                    await FireOnDestroyEffectAsync(charCard, !isLocal, ct);
                     break;
                 }
                 case CardEventType.Recover:
@@ -270,14 +274,22 @@ namespace Main
 
             // HP 0 以下になったキャラをまとめて破壊
             List<UniTask> destroyTasks = new List<UniTask>();
+            List<CardView> destroyed = new List<CardView>();
             foreach (CardView target in targets)
             {
                 if (target.CurrentHp <= 0 && targetField.Contains(target))
                 {
+                    destroyed.Add(target);
                     destroyTasks.Add(DestroyCharToGraveyardAsync(target, targetField, targetGraveyard, ct));
                 }
             }
             await UniTask.WhenAll(destroyTasks);
+
+            // 破壊された各キャラの OnDestroy を順番に発動（破壊されたキャラの所有者は発動側の相手 = !isLocal）
+            foreach (CardView destroyedChar in destroyed)
+            {
+                await FireOnDestroyEffectAsync(destroyedChar, !isLocal, ct);
+            }
         }
 
         // 発動側から見た敵キャラを count 体（値1。未設定=0 は1体）対象に選び、それぞれに damage（値2）を与えて
@@ -317,14 +329,22 @@ namespace Main
 
             // HP 0 以下になった対象をまとめて破壊
             List<UniTask> destroyTasks = new List<UniTask>();
+            List<CardView> destroyed = new List<CardView>();
             foreach (CardView target in targets)
             {
                 if (target.CurrentHp <= 0 && targetField.Contains(target))
                 {
+                    destroyed.Add(target);
                     destroyTasks.Add(DestroyCharToGraveyardAsync(target, targetField, targetGraveyard, ct));
                 }
             }
             await UniTask.WhenAll(destroyTasks);
+
+            // 破壊された各キャラの OnDestroy を順番に発動（破壊されたキャラの所有者は発動側の相手 = !isLocal）
+            foreach (CardView destroyedChar in destroyed)
+            {
+                await FireOnDestroyEffectAsync(destroyedChar, !isLocal, ct);
+            }
         }
 
         private async UniTask HitCharWithParticleAsync(CardView target, int damage, CancellationToken ct)
@@ -496,6 +516,13 @@ namespace Main
             Rect fromRect = target.worldBound;
             field.RemoveCard(target);
             await FlyToGraveyardAsync(target, fromRect, graveyard, ct);
+        }
+
+        // 破壊されたキャラの OnDestroy 効果を発動する。ownerIsLocal = 破壊されたキャラの所有者が自分側か。
+        // 効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも両クライアントで対称に発動する（追加同期不要）。
+        private UniTask FireOnDestroyEffectAsync(CardView destroyedCard, bool ownerIsLocal, CancellationToken ct)
+        {
+            return ResolveCharacterTriggeredEffectAsync(destroyedCard, CharacterEffectTrigger.OnDestroy, ownerIsLocal, ct);
         }
 
         private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
