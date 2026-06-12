@@ -142,6 +142,9 @@ namespace Main
                     // 値1=対象数、値2=ダメージ
                     await ApplyDamageEnemyAsync(charData.EffectValue2, charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.Bounce:
+                    await ApplyBounceAsync(charData.EffectValue, isLocal, ct);
+                    break;
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
                     break;
@@ -220,6 +223,9 @@ namespace Main
                 case CardEventType.DamageEnemy:
                     // 値1=対象数、値2=ダメージ
                     await ApplyDamageEnemyAsync(data.EventValue2, data.EventValue, isLocal, ct);
+                    break;
+                case CardEventType.Bounce:
+                    await ApplyBounceAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
@@ -312,7 +318,7 @@ namespace Main
             }
 
             int targetCount = Mathf.Min(count <= 0 ? 1 : count, enemyCount);
-            List<CardView> targets = await ResolveDamageEnemyTargetsAsync(targetField, targetCount, enemyCount, isLocal, ct);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "ダメージを与える相手キャラを選択", ct);
             if (targets.Count == 0)
             {
                 return;
@@ -358,7 +364,8 @@ namespace Main
 
         // 対象決定：対象数が敵の数以上なら全員。そうでなければ、ローカルはプレイヤーが選択し、
         // オンライン相手はインデックス配列を受信、CPU は攻撃力上位を選ぶ。
-        private async UniTask<List<CardView>> ResolveDamageEnemyTargetsAsync(FieldView targetField, int targetCount, int enemyCount, bool isLocal, CancellationToken ct)
+        // prompt = プレイヤー選択時のトースト文言（DamageEnemy / Bounce で共用）。
+        private async UniTask<List<CardView>> ResolveEnemyCharTargetsAsync(FieldView targetField, int targetCount, int enemyCount, bool isLocal, string prompt, CancellationToken ct)
         {
             List<CardView> chars = new List<CardView>(targetField.Characters);
 
@@ -370,7 +377,7 @@ namespace Main
 
             if (isLocal)
             {
-                List<CardView> selected = await WaitForPlayerEnemyCharsSelectionAsync(targetCount, ct);
+                List<CardView> selected = await WaitForPlayerEnemyCharsSelectionAsync(targetCount, prompt, ct);
                 if (_isOnline)
                 {
                     int[] indices = new int[selected.Count];
@@ -402,17 +409,18 @@ namespace Main
         }
 
         // 敵フィールドのキャラをハイライトし、プレイヤーが targetCount 体をクリックで選ぶのを待つ
-        private async UniTask<List<CardView>> WaitForPlayerEnemyCharsSelectionAsync(int targetCount, CancellationToken ct)
+        private async UniTask<List<CardView>> WaitForPlayerEnemyCharsSelectionAsync(int targetCount, string prompt, CancellationToken ct)
         {
             _enemyCharSelected = new List<CardView>();
             _enemyCharSelectTarget = targetCount;
+            _enemyCharSelectPrompt = prompt;
             _enemyCharSelectionTcs = new UniTaskCompletionSource<List<CardView>>();
 
             foreach (CardView c in _opponentFieldView.Characters)
             {
                 c.AddToClassList("selectable-char");
             }
-            ShowToast($"ダメージを与える相手キャラを選択（あと{targetCount}体）");
+            ShowToast($"{prompt}（あと{targetCount}体）");
 
             try
             {
@@ -423,6 +431,7 @@ namespace Main
                 _enemyCharSelectionTcs = null;
                 _enemyCharSelectTarget = 0;
                 _enemyCharSelected = null;
+                _enemyCharSelectPrompt = null;
                 foreach (CardView c in _opponentFieldView.Characters)
                 {
                     c.RemoveFromClassList("selectable-char");
@@ -453,11 +462,49 @@ namespace Main
             int remaining = _enemyCharSelectTarget - _enemyCharSelected.Count;
             if (remaining > 0)
             {
-                ShowToast($"ダメージを与える相手キャラを選択（あと{remaining}体）");
+                ShowToast($"{_enemyCharSelectPrompt}（あと{remaining}体）");
             }
             else
             {
                 _enemyCharSelectionTcs.TrySetResult(new List<CardView>(_enemyCharSelected));
+            }
+        }
+
+        // バウンス：発動側から見た敵フィールドのキャラを count 体（値1。未設定=0 は1体）選び、
+        // 所有者（相手）の手札へ戻す。対象数が敵の数以上なら全員・0体なら空振り。
+        // 対象選択は DamageEnemy と同じ仕組み（プレイヤー選択／CPU 自動／オンライン同期）を共用する。
+        private async UniTask ApplyBounceAsync(int count, bool isLocal, CancellationToken ct)
+        {
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            HandView targetHand = isLocal ? _opponentHandView : _handView;
+
+            int enemyCount = targetField.Characters.Count;
+            if (enemyCount == 0)
+            {
+                return;
+            }
+
+            int targetCount = Mathf.Min(count <= 0 ? 1 : count, enemyCount);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "手札に戻す相手キャラを選択", ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            // 各対象を所有者の手札へ戻す。相手の手札（裏向き表示）に戻すときは裏返してから加える
+            foreach (CardView target in targets)
+            {
+                if (!targetField.Contains(target))
+                {
+                    continue;
+                }
+                Rect fromRect = target.worldBound;
+                targetField.RemoveCard(target);
+                if (targetHand == _opponentHandView && !target.IsFaceDown)
+                {
+                    await target.FlipAsync(ct);
+                }
+                await targetHand.AddCardBackAsync(target, fromRect, ct);
             }
         }
 

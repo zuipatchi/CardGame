@@ -29,5 +29,8 @@ namespace Main.Card
         SummonChar,
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree,
+        // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
+        // 所有者（相手）の手札へ戻す。対象はプレイヤーが選択（対象数が敵の数以上なら全員・0体なら空振り）。
+        Bounce,
     }
 }

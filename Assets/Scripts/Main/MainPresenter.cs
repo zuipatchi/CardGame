@@ -116,6 +116,8 @@ namespace Main
         private UniTaskCompletionSource<List<CardView>> _enemyCharSelectionTcs;
         private List<CardView> _enemyCharSelected;
         private int _enemyCharSelectTarget;
+        // 敵キャラ選択中のトースト文言（DamageEnemy / Bounce などで共用）
+        private string _enemyCharSelectPrompt;
         private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
