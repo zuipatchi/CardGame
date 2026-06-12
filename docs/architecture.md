@@ -324,7 +324,7 @@ CardData              抽象基底クラス。id / name / cost / Attack / Hp / A
 CardAttribute     enum（CardAttribute.cs）。Red / Blue / Green / Yellow / Black / Purple / White
 
 CharacterEffectTrigger  enum（CharacterEffectTrigger.cs）。キャラの効果発動タイミング。
-                  None / OnEnter（登場時。Draw・BanishChar を実装済み）/ OnAttack（攻撃時。Draw・BanishChar を実装済み）/ OnDestroy（enum に定義のみ。将来拡張用）
+                  None / OnEnter（登場時）/ OnAttack（攻撃時）/ OnDestroy（破壊時。戦闘・DamageEnemy/DamageAllEnemies での撃破・BanishChar での除去で発動）
 
 EventType         enum（EffectType.cs）。
                   None / AtkBoost / DefBoost（enum に定義のみ。現在は未使用）

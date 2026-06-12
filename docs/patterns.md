@@ -126,7 +126,7 @@ public enum EventType
 
 **発動箇所**: 通常配置パス（ローカル `ExecuteLocalMainResolveAsync` の `PlaceChar` ／ 相手 `ExecuteOpponentCardPlayAsync` のキャラ配置後）で `ResolveCharacterEnterEffectAsync` を呼んでいる。CPU・オンライン相手も同経路でカバーされ、効果はカードデータから導出されるため追加のネットワーク同期は不要。Switch / Evolve での配置は対象外。
 
-**将来拡張**: `OnAttack`（攻撃時）/ `OnDestroy`（破壊時）は enum に定義済み。実装する際は攻撃確定処理 / キャラ破壊処理にそれぞれ同様の解決呼び出しを追加する。
+**他のトリガー**: `OnAttack`（攻撃時）・`OnDestroy`（破壊時）も `ResolveCharacterTriggeredEffectAsync` を共用する。`OnDestroy` は戦闘での撃破（`ExecuteAttackAsync`）・`DamageEnemy` / `DamageAllEnemies` での撃破・`BanishChar` での除去の各破壊経路から `FireOnDestroyEffectAsync(destroyedCard, ownerIsLocal, ct)` を呼んで発動する（破壊が墓地への移動まで完了した後に解決。同時破壊は1体ずつ順番に発動）。破壊されたキャラの所有者は発動側の相手なので `ownerIsLocal = !isLocal` を渡す。新しい破壊経路を追加したときは同じ呼び出しを差し込む。
 
 ---
 
