@@ -14,13 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CpuDeckSO
   CardIds:
   - C1001
-  - C1002
   - C1001
-  - C1003
-  - C1003
-  - C1004
-  - C1004
   - C1002
+  - C1002
+  - C1003
+  - C1003
+  - C1004
+  - C1004
+  - C1005
+  - C1005
+  - C3001
+  - C3001
+  - C3002
+  - C3002
+  - C3003
+  - C3003
   - C7001
   - C7001
   - C7002
@@ -33,13 +41,5 @@ MonoBehaviour:
   - E1001
   - E1002
   - E1002
-  - C3002
-  - C3001
-  - C3003
-  - C3002
-  - C3001
-  - C3003
   - E3001
   - E3001
-  - C3002
-  - C3002
