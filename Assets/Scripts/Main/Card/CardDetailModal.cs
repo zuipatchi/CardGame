@@ -70,6 +70,10 @@ namespace Main.Card
             {
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力");
                 AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
+                if (charData.Guardian)
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--guardian", string.Empty, "守護");
+                }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
                     Label descLabel = new Label(charData.Description);

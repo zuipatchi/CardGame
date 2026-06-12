@@ -25,6 +25,7 @@ MonoBehaviour:
     _effectType: 11
     _effectValue: 1
     _effectValue2: 0
+    _guardian: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C3002
     _cardName: "\u6BD2\u866B"
@@ -37,6 +38,7 @@ MonoBehaviour:
     _effectType: 11
     _effectValue: 1
     _effectValue2: 0
+    _guardian: 1
     _description: "\u7834\u58CA\u3055\u308C\u305F\u3068\u304D\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C3003
     _cardName: "\u5927\u86C7\u30E2\u30CA\u30FC\u30AF"
@@ -49,4 +51,5 @@ MonoBehaviour:
     _effectType: 11
     _effectValue: 1
     _effectValue2: 0
+    _guardian: 1
     _description: "\u653B\u6483\u3057\u305F\u6642\u52DD\u5229\u70B9\u30921\u5F97\u308B"

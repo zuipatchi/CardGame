@@ -151,6 +151,27 @@ namespace Main
             return seasoned.Contains(card);
         }
 
+        // ─── 守護（タウント）─────────────────────────────────────────────────
+
+        // 表向きの守護持ちキャラかどうか
+        private static bool IsGuardian(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Guardian;
+        }
+
+        // フィールドに守護持ちキャラがいるか。いる場合、相手の攻撃はその守護キャラに限定される
+        private static bool HasGuardian(FieldView field)
+        {
+            foreach (CardView card in field.Characters)
+            {
+                if (IsGuardian(card))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // ─── アクション実行（ローカル） ──────────────────────────────────
 
         private async UniTask<string[]> ExecuteLocalMainCostAsync(MainPhaseAction action, CancellationToken ct)
@@ -481,8 +502,11 @@ namespace Main
             // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
             List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
 
-            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）
-            if (_playerLifeHearts.CanBeAttacked && availableAttackers.Count > 0)
+            // 相手（プレイヤー）に守護がいる場合は守護持ちキャラにしか攻撃できない（ハート攻撃も不可）
+            bool defenderHasGuardian = HasGuardian(_playerFieldView);
+
+            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）。守護がいる間は不可
+            if (!defenderHasGuardian && _playerLifeHearts.CanBeAttacked && availableAttackers.Count > 0)
             {
                 int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(availableAttackers.Select(c => c.Data).ToList());
                 if (heartAttackerIdx >= 0)
@@ -496,16 +520,19 @@ namespace Main
                 }
             }
 
-            // キャラがいれば攻撃
+            // キャラがいれば攻撃。守護がいる場合は攻撃対象を守護持ちキャラに限定する
             if (availableAttackers.Count > 0)
             {
+                List<CardView> targets = defenderHasGuardian
+                    ? playerChars.Where(IsGuardian).ToList()
+                    : playerChars.ToList();
                 (int atkIdx, int tgtIdx) = CpuAgent.ChooseBattleAttack(
                     availableAttackers.Select(c => c.Data).ToList(),
-                    playerChars.Select(c => c.Data).ToList());
+                    targets.Select(c => c.Data).ToList());
                 if (atkIdx >= 0)
                 {
                     CardView attacker = availableAttackers[atkIdx];
-                    CardView target = tgtIdx >= 0 && tgtIdx < playerChars.Count ? playerChars[tgtIdx] : null;
+                    CardView target = tgtIdx >= 0 && tgtIdx < targets.Count ? targets[tgtIdx] : null;
                     return new MainPhaseAction
                     {
                         _actionType = MainPhaseActionType.Attack,
@@ -572,9 +599,16 @@ namespace Main
                     && CanCharAttack(capturedChar, _playerFieldView);
                 arrowManip.OnAttackTarget = (worldPos) =>
                 {
+                    // 相手フィールドに守護がいる場合は守護持ちキャラにしか攻撃できない
+                    bool defenderHasGuardian = HasGuardian(_opponentFieldView);
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
+                        if (defenderHasGuardian && !IsGuardian(targetChar))
+                        {
+                            ShowToast("守護を持つキャラを攻撃してください");
+                            return false;
+                        }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
                         {
                             _actionType = MainPhaseActionType.Attack,
@@ -585,6 +619,11 @@ namespace Main
                     }
                     if (_opponentLifeHearts.ContainsWorldPoint(worldPos))
                     {
+                        if (defenderHasGuardian)
+                        {
+                            ShowToast("守護を持つキャラを攻撃してください");
+                            return false;
+                        }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
                         {
                             _actionType = MainPhaseActionType.Attack,

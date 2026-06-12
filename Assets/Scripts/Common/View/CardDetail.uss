@@ -198,6 +198,12 @@
     background-image: url("../../../AddressableAssets/Icon/HeartIcon.png");
 }
 
+.card-detail-stat-icon--guardian {
+    background-image: url("../../../AddressableAssets/Icon/ShieldIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--spd {
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }

@@ -19,6 +19,7 @@ namespace Main.Card
         private readonly VisualElement _hpArea;
         private readonly Label _atkLabel;
         private readonly Label _hpLabel;
+        private readonly VisualElement _guardianIcon;
         private int _currentHp;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
@@ -42,6 +43,7 @@ namespace Main.Card
             _hpArea = this.Q<VisualElement>(className: "game-card__hp-area");
             _atkLabel = this.Q<Label>("AtkLabel");
             _hpLabel = this.Q<Label>("HpLabel");
+            _guardianIcon = this.Q<VisualElement>("GuardianIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -232,6 +234,8 @@ namespace Main.Card
             _atkArea.style.display = data is EventCardData
                 ? DisplayStyle.None : DisplayStyle.Flex;
             _hpArea.style.display = data is CharacterCardData
+                ? DisplayStyle.Flex : DisplayStyle.None;
+            _guardianIcon.style.display = data is CharacterCardData characterData && characterData.Guardian
                 ? DisplayStyle.Flex : DisplayStyle.None;
 
             if (data.Image != null)

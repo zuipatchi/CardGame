@@ -14,12 +14,14 @@ namespace Main.Card
         [SerializeField] private EventType _effectType;
         [SerializeField] private int _effectValue;
         [SerializeField] private int _effectValue2;
+        // 守護：このキャラが場にいる間、相手はこのキャラ（守護持ち）にしか攻撃できない
+        [SerializeField] private bool _guardian;
         [SerializeField] private string _description;
 
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -29,6 +31,7 @@ namespace Main.Card
             _effectType = effectType;
             _effectValue = effectValue;
             _effectValue2 = effectValue2;
+            _guardian = guardian;
             _description = description;
         }
 
@@ -40,6 +43,8 @@ namespace Main.Card
         public int EffectValue => _effectValue;
         // 効果ごとの2つ目の数値（例: SummonChar の召喚体数）。未使用の効果では 0
         public int EffectValue2 => _effectValue2;
+        // 守護：場にいる間、相手の攻撃をこのキャラに強制する
+        public bool Guardian => _guardian;
         public string Description => _description;
 
         // OnUsedAsCost + CostBoost のキャラは、コスト支払い時に EffectValue 分（最低1）として数える
