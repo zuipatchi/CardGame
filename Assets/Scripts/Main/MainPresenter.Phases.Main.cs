@@ -640,6 +640,11 @@ namespace Main
                 manipulators.Add((charCard, arrowManip));
             }
 
+            // 攻撃できる自キャラが1体以上いる場合のみ、攻撃可能な相手キャラ・ハートをハイライト
+            List<CardView> highlightedTargets = manipulators.Count > 0
+                ? HighlightAttackTargets()
+                : new List<CardView>();
+
             ShowActionButtons();
             UpdateStagedButtons(false);
 
@@ -659,7 +664,38 @@ namespace Main
                     card.RemoveManipulator(manip);
                     card.RemoveFromClassList("attackable-char");
                 }
+                foreach (CardView target in highlightedTargets)
+                {
+                    target.RemoveFromClassList("attack-target-char");
+                }
+                _opponentLifeHearts.SetAttackTargetHighlight(false);
             }
+        }
+
+        // 攻撃可能な相手キャラ・ハートをハイライトし、ハイライトした相手キャラのリストを返す（クリーンアップ用）。
+        // 相手フィールドに守護がいる場合は守護持ちキャラのみが対象（ハートは攻撃不可）。既存の OnAttackTarget 判定と一致させる。
+        private List<CardView> HighlightAttackTargets()
+        {
+            List<CardView> highlighted = new List<CardView>();
+            bool defenderHasGuardian = HasGuardian(_opponentFieldView);
+            foreach (CardView enemyChar in _opponentFieldView.Characters)
+            {
+                if (enemyChar.IsFaceDown || enemyChar.Data is not CharacterCardData)
+                {
+                    continue;
+                }
+                if (defenderHasGuardian && !IsGuardian(enemyChar))
+                {
+                    continue;
+                }
+                enemyChar.AddToClassList("attack-target-char");
+                highlighted.Add(enemyChar);
+            }
+            if (!defenderHasGuardian && _opponentLifeHearts.CanBeAttacked)
+            {
+                _opponentLifeHearts.SetAttackTargetHighlight(true);
+            }
+            return highlighted;
         }
 
         // ─── ネットワークアクション変換 ─────────────────────────────────────

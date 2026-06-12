@@ -55,6 +55,22 @@ namespace Main.Card
             return CanBeAttacked && worldBound.Contains(worldPos);
         }
 
+        // 攻撃対象としてのハイライト（自分のターンに攻撃可能なとき各ハートを強調）
+        public void SetAttackTargetHighlight(bool highlight)
+        {
+            foreach (VisualElement heart in _hearts)
+            {
+                if (highlight)
+                {
+                    heart.AddToClassList("life-heart--attack-target");
+                }
+                else
+                {
+                    heart.RemoveFromClassList("life-heart--attack-target");
+                }
+            }
+        }
+
         // 次に攻撃を受けるハート
         public VisualElement PeekNextHeart()
         {

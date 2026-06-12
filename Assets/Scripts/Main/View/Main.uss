@@ -339,6 +339,32 @@
     border-bottom-color: rgb(180, 245, 255);
 }
 
+/* 自分のターンに攻撃できる相手キャラのハイライト（攻撃側のシアンと区別する赤〜オレンジ系の枠） */
+.attack-target-char {
+    scale: 1.04 1.04;
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.attack-target-char .game-card {
+    border-left-color: rgb(255, 120, 70);
+    border-right-color: rgb(255, 120, 70);
+    border-top-color: rgb(255, 120, 70);
+    border-bottom-color: rgb(255, 120, 70);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.attack-target-char .game-card:hover {
+    border-left-color: rgb(255, 170, 120);
+    border-right-color: rgb(255, 170, 120);
+    border-top-color: rgb(255, 170, 120);
+    border-bottom-color: rgb(255, 170, 120);
+}
+
 .turn-announcement-overlay {
     position: absolute;
     left: 0;
@@ -1335,6 +1361,15 @@
     margin-right: 4px;
     background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
     -unity-background-scale-mode: scale-to-fit;
+}
+
+/* 自分のターンに攻撃できる相手ハートのハイライト（赤〜オレンジ系で強調・少し拡大） */
+.life-heart--attack-target {
+    scale: 1.15 1.15;
+    -unity-background-image-tint-color: rgb(255, 150, 100);
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
 }
 
 /* ─── 勝利点（緑属性の勝利条件）───────────────────────────────── */
