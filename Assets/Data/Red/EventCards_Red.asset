@@ -21,7 +21,7 @@ MonoBehaviour:
     _eventType: 13
     _eventValue: 1001
     _eventValue2: 2
-    _description: "1/2\u306E\u30B4\u30D6\u30EA\u30F3\u30922\u4F53\u5834\u306B\u51FA\u3059"
+    _description: "1/2\u306E\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B542\u4F53\u3092\u5834\u306B\u51FA\u3059"
     _triggerOnGrave: 0
     _attribute: 0
   - _id: E1002
