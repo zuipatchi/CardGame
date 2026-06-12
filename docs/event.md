@@ -62,6 +62,7 @@
 | Effect Type | 効果種別（イベントと共通の `EventType`） |
 | Effect Value | 効果の数値（値1） |
 | Effect Value 2 | 2つ目の数値（SummonChar の体数など。使わない効果は 0） |
+| Guardian | **守護**。ON にすると、このキャラが場にいる間は相手はこのキャラ（守護持ち）にしか攻撃できない（守護以外のキャラ・ハートへの攻撃は不可）。`EffectType` とは独立したフラグで、攻撃のみを制限する。カードと詳細モーダルに ShieldIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 
 #### EffectTrigger（[CharacterEffectTrigger.cs](../Assets/Scripts/Main/Card/CharacterEffectTrigger.cs)）
