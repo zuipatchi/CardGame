@@ -204,6 +204,12 @@
     height: 53px;
 }
 
+.card-detail-stat-icon--haste {
+    background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--spd {
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }

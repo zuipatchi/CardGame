@@ -239,6 +239,16 @@
     display: none;
 }
 
+/* 速攻アイコン（守護アイコンの下に表示。速攻持ちキャラのみ CardView で display を切替） */
+.game-card__haste-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/SpeedIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 .game-card__hp-icon {
     position: absolute;
     left: 0;

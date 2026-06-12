@@ -74,6 +74,10 @@ namespace Main.Card
                 {
                     AddIconStatRow(statsGrid, "card-detail-stat-icon--guardian", string.Empty, "守護");
                 }
+                if (charData.Haste)
+                {
+                    AddIconStatRow(statsGrid, "card-detail-stat-icon--haste", string.Empty, "速攻");
+                }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
                     Label descLabel = new Label(charData.Description);

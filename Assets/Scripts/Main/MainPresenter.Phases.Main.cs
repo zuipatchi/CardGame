@@ -140,15 +140,25 @@ namespace Main
             }
         }
 
-        // キャラが攻撃可能か：このターン未攻撃 かつ 召喚酔いしていない
+        // キャラが攻撃可能か：このターン未攻撃 かつ（召喚酔いしていない または 速攻持ち）
         private bool CanCharAttack(CardView card, FieldView ownerField)
         {
             if (_attackedThisTurn.Contains(card))
             {
                 return false;
             }
+            if (IsHaste(card))
+            {
+                return true;
+            }
             HashSet<CardView> seasoned = ownerField == _playerFieldView ? _playerSeasonedChars : _opponentSeasonedChars;
             return seasoned.Contains(card);
+        }
+
+        // 速攻持ちの表向きキャラかどうか：召喚酔いせず出したターンから攻撃できる
+        private static bool IsHaste(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Haste;
         }
 
         // ─── 守護（タウント）─────────────────────────────────────────────────

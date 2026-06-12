@@ -19,6 +19,7 @@
                     <ui:Label name="HpLabel" class="game-card__hp" />
                 </ui:VisualElement>
                 <ui:VisualElement name="GuardianIcon" class="game-card__guardian-icon" />
+                <ui:VisualElement name="HasteIcon" class="game-card__haste-icon" />
 
             </ui:VisualElement>
         </ui:VisualElement>
