@@ -63,17 +63,17 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u8001\u4EBA"
     _cost: 2
     _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
-    _attack: 1
-    _hp: 2
+    _attack: 3
+    _hp: 6
     _attribute: 6
-    _effectTrigger: 4
-    _effectType: 9
-    _effectValue: 2
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
     _effectValue2: 0
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3059\u308B\u969B\u306B2\u30B3\u30B9\u30C8\u306B\u306A\u308B"
+    _description: "\u3053\u306E\u4E16\u306B\u672A\u7DF4\u306A\u3057\u3071\u3061\u3058\u3083"
   - _id: C7005
     _cardName: "\u3071\u3063\u3061\u5929\u4F7F"
     _cost: 2
