@@ -122,7 +122,7 @@ public enum EventType
 
 **② 効果種別の解決処理を追加する**
 
-[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ResolveCharacterTriggeredEffectAsync`（OnEnter/OnAttack 共通）の `switch` に `case CardEventType.Xxx:` を追加する。既存のイベント効果解決ヘルパー（`PlayDrawEffectAsync` / `ApplyDrawEffectAsync` / `PlayBanishCharEffectAsync` / `ApplyDamageAllEnemiesAsync` / `AddVictoryPoints` 等）を流用できる。現状は `Draw` / `BanishChar` / `DamageAllEnemies` / `DamageEnemy` / `SummonChar` / `GainVictoryPoints` を実装済み。2つの数値が必要な効果（SummonChar の「ID」と「体数」など）は `EventValue2` / `EffectValue2` を使う（未使用の効果は 0）。
+[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs) の `ResolveCharacterTriggeredEffectAsync`（OnEnter/OnAttack 共通）の `switch` に `case CardEventType.Xxx:` を追加する。既存のイベント効果解決ヘルパー（`PlayDrawEffectAsync` / `ApplyDrawEffectAsync` / `PlayBanishCharEffectAsync` / `ApplyDamageAllEnemiesAsync` / `AddVictoryPoints` 等）を流用できる。現状は `Draw` / `BanishChar` / `DamageAllEnemies` / `DamageEnemy` / `SummonChar` / `GainVictoryPoints` / `NextCardCostFree` を実装済み。2つの数値が必要な効果（SummonChar の「ID」と「体数」など）は `EventValue2` / `EffectValue2` を使う（未使用の効果は 0）。コスト支払いに作用する効果（`NextCardCostFree`）はプレイヤーごとの永続フラグを持ち、`PayHandCostAsync` 側でコスト0化・消費する（[event.md](event.md)「効果ごとの注意点」参照）。
 
 **発動箇所**: 通常配置パス（ローカル `ExecuteLocalMainResolveAsync` の `PlaceChar` ／ 相手 `ExecuteOpponentCardPlayAsync` のキャラ配置後）で `ResolveCharacterEnterEffectAsync` を呼んでいる。CPU・オンライン相手も同経路でカバーされ、効果はカードデータから導出されるため追加のネットワーク同期は不要。Switch / Evolve での配置は対象外。
 
