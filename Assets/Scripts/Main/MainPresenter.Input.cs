@@ -67,7 +67,7 @@ namespace Main
                     return false;
                 }
 
-                if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card))
+                if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card, card.Data.Attribute))
                 {
                     ShowToast("コストが払えません");
                     return false;
@@ -103,7 +103,7 @@ namespace Main
                         return false;
                     }
                     int effectiveCost = EffectivePlayerCost(card);
-                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card))
+                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card, card.Data.Attribute))
                     {
                         ShowToast("コストが払えません");
                         return false;
@@ -126,7 +126,7 @@ namespace Main
                 if (card.Data is EventCardData)
                 {
                     int effectiveCost = EffectivePlayerCost(card);
-                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card))
+                    if (effectiveCost > 0 && effectiveCost > CostCapacityExcluding(card, card.Data.Attribute))
                     {
                         ShowToast("コストが払えません");
                         return false;

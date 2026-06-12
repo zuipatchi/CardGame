@@ -52,9 +52,11 @@ namespace Main.Card
         public bool Haste => _haste;
         public string Description => _description;
 
-        // OnUsedAsCost + CostBoost のキャラは、コスト支払い時に EffectValue 分（最低1）として数える
-        public override int CostPaymentValue =>
+        // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性（または自分が白属性）のとき EffectValue 分（最低1）として数える。
+        // それ以外の属性のコストに使うときは通常どおり1。
+        public override int CostPaymentValue(CardAttribute payingForAttribute) =>
             _effectTrigger == CharacterEffectTrigger.OnUsedAsCost && _effectType == EventType.CostBoost
+                && (_attribute == CardAttribute.White || _attribute == payingForAttribute)
                 ? Mathf.Max(1, _effectValue)
                 : 1;
 

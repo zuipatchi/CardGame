@@ -18,8 +18,9 @@ namespace Main.Card
         public virtual CardAttribute Attribute => CardAttribute.White;
 
         // 手札からコストとして支払うときに、このカードが何コスト分として数えられるか（通常は1）。
-        // EventType.CostBoost を持つカードは設定されたコスト値を返す。
-        public virtual int CostPaymentValue => 1;
+        // payingForAttribute = 支払い対象（プレイするカード）の属性。
+        // EventType.CostBoost を持つカードは、自分の属性が支払い対象属性と一致する（または自分が白属性）ときのみ設定値を返す。
+        public virtual int CostPaymentValue(CardAttribute payingForAttribute) => 1;
 
         protected CardData() { }
 

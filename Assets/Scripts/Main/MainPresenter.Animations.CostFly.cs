@@ -147,7 +147,7 @@ namespace Main
                     {
                         chosen.Add(c);
                         used.Add(c);
-                        paid += c.Data.CostPaymentValue;
+                        paid += c.Data.CostPaymentValue(neededAttr);
                         break;
                     }
                 }
@@ -165,7 +165,7 @@ namespace Main
                 }
                 chosen.Add(c);
                 used.Add(c);
-                paid += c.Data.CostPaymentValue;
+                paid += c.Data.CostPaymentValue(neededAttr);
             }
 
             return chosen;

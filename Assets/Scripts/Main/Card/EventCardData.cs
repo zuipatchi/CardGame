@@ -22,9 +22,13 @@ namespace Main.Card
         public bool TriggerOnGrave => _triggerOnGrave;
         public override CardAttribute Attribute => _attribute;
 
-        // CostBoost のイベントは、コスト支払い時に EventValue 分（最低1）として数える
-        public override int CostPaymentValue =>
-            _eventType == EventType.CostBoost ? Mathf.Max(1, _eventValue) : 1;
+        // CostBoost のイベントは、支払い対象が自属性（または自分が白属性）のとき EventValue 分（最低1）として数える。
+        // それ以外の属性のコストに使うときは通常どおり1。
+        public override int CostPaymentValue(CardAttribute payingForAttribute) =>
+            _eventType == EventType.CostBoost
+                && (_attribute == CardAttribute.White || _attribute == payingForAttribute)
+                ? Mathf.Max(1, _eventValue)
+                : 1;
 
 #if UNITY_EDITOR
         // 属性別 SO が所属カードの属性を一括設定するためのエディタ専用 setter

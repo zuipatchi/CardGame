@@ -20,27 +20,28 @@ namespace Main
             return _playerNextCardFree ? 0 : card.Data.Cost;
         }
 
-        // 手札の指定カードを除いた、コストとして支払える総コスト値（各カードの CostPaymentValue 合計）
-        private int CostCapacityExcluding(CardView excluded)
+        // 手札の指定カードを除いた、コストとして支払える総コスト値（各カードの CostPaymentValue 合計）。
+        // payingForAttribute = プレイするカードの属性（CostBoost の属性連動判定に使う）
+        private int CostCapacityExcluding(CardView excluded, CardAttribute payingForAttribute)
         {
             int sum = 0;
             foreach (CardView c in _handView.Cards)
             {
                 if (c != excluded)
                 {
-                    sum += c.Data.CostPaymentValue;
+                    sum += c.Data.CostPaymentValue(payingForAttribute);
                 }
             }
             return sum;
         }
 
-        // 現在選択中のコストカードの総コスト値
+        // 現在選択中のコストカードの総コスト値（プレイするカードの属性で CostBoost を評価）
         private int SelectedCostValue()
         {
             int sum = 0;
             foreach (CardView c in _selectedCostCards)
             {
-                sum += c.Data.CostPaymentValue;
+                sum += c.Data.CostPaymentValue(_playedCardAttribute);
             }
             return sum;
         }
@@ -52,7 +53,7 @@ namespace Main
             // BeginStagedCostSelection がドロップ時に先行して呼ばれた場合は TCS が既に存在する
             if (_costSelectionTcs == null)
             {
-                int required = Mathf.Min(cost, CostCapacityExcluding(null));
+                int required = Mathf.Min(cost, CostCapacityExcluding(null, playedAttribute));
                 if (required == 0)
                 {
                     return new List<CardView>();
@@ -156,7 +157,7 @@ namespace Main
         private void BeginStagedCostSelection(CardView staged)
         {
             int cost = staged.Data.Cost;
-            int required = Mathf.Min(cost, CostCapacityExcluding(staged));
+            int required = Mathf.Min(cost, CostCapacityExcluding(staged, staged.Data.Attribute));
             _requiredCost = required;
             _playedCardAttribute = staged.Data.Attribute;
             _costSelectionTcs = new UniTaskCompletionSource();
