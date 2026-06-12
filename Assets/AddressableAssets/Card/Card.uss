@@ -34,6 +34,17 @@
     align-items: flex-start;
 }
 
+/* アイコン群（コスト・攻撃・体力＋守護/速攻/飛行）。縦に並べ、4つを超えたら右隣の列へ折り返す。
+   max-height はアイコン4つ分（約40px×4=160px に余裕を持たせて170px）。表示中（display 切替後）の
+   アイコンのみが flex に数えられるため、表示数に応じて自動で2列目へ送られる。 */
+.game-card__icons {
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    max-height: 170px;
+}
+
 .game-card__cost-area {
     position: relative;
     width: 36px;
