@@ -333,6 +333,10 @@ EventType         enum（EffectType.cs）。
                   Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
                   Switch（自分のキャラを手札に戻して別キャラを配置）
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
+                  CostBoost（コスト支払い時に倍化・属性連動）/ DamageAllEnemies（敵全体にダメージ）
+                  DamageEnemy（敵を値1体選び値2ダメージ）/ SummonChar（指定キャラを召喚）
+                  GainVictoryPoints（勝利点を加算）/ NextCardCostFree（次の1枚を無料）
+                  Bounce（敵を値1体選び所有者の手札へ戻す。DamageEnemy と対象選択を共用）
 
 CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（属性ごとに分割。Assets/Data/{属性}/ に配置）
                   SO ごとに Attribute を持ち、所属カードの属性を一括設定する（カードの Attribute はインスペクタで読み取り専用＝ReadOnly 属性）
