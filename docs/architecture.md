@@ -528,12 +528,14 @@ finally: "selectable-char" クラスをクリア
 メインフェーズで `CpuChooseMainAction()` が行動を選択する。
 
 ```
-CpuAgent.ChooseBattleAttack(ownChars, opponentChars)   攻撃対象を選択（最高ATKキャラで最低ATK相手キャラを攻撃）(attackerIdx, targetIdx) を返す
+CpuAgent.ChooseHeartAttacker(ownChars)                 ハートを攻撃するキャラのインデックスを返す（最高ATK。いなければ -1）
 CpuAgent.ChooseCharacterSetCardIndex(hand)              配置するキャラカードのインデックスを返す（なければ -1）
 CpuAgent.ChooseEventCardIndex(hand)                     使うイベントカードのインデックスを返す（なければ -1）
 ```
 
-優先順位: 攻撃（フィールドにキャラがいれば） → キャラ配置 → イベント使用 → パス
+キャラ攻撃の対象選択は守護・飛行を考慮するため `MainPresenter.CpuChooseMainAction()` 側で `CanAttackChar` / `CanAttackHeart` を使って解決する（合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATK）。
+
+優先順位: ハート攻撃 → キャラ攻撃（合法な対象があれば） → キャラ配置 → イベント使用 → パス
 
 ### ゲームロジック（GameModel）
 
