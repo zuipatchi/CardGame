@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: CardDatabase
   m_EditorClassIdentifier: Main::Main.Card.CardDatabase
   _characterCardSets:
+  - {fileID: 11400000, guid: cbb68ed72fb82f44a8c33bf9edc8c336, type: 2}
   - {fileID: 11400000, guid: 9fd36af62b608344d9d820ecddc0f207, type: 2}
   - {fileID: 11400000, guid: d848dd277fcc1624590f89422f332e05, type: 2}
-  - {fileID: 11400000, guid: cbb68ed72fb82f44a8c33bf9edc8c336, type: 2}
   - {fileID: 11400000, guid: d3a92e975924f7540b1a9804ee497136, type: 2}
   _eventCardSets:
+  - {fileID: 11400000, guid: da4148aefccb9cc4792df2ae7e274651, type: 2}
   - {fileID: 11400000, guid: d22dd94a48f673a48ad7c495763df7d4, type: 2}
   - {fileID: 11400000, guid: e9fa43d536a87164cba36c4e0592b867, type: 2}
   - {fileID: 11400000, guid: 3fdeb664ffe7f5e418c17b419d83fa6f, type: 2}
-  - {fileID: 11400000, guid: da4148aefccb9cc4792df2ae7e274651, type: 2}
