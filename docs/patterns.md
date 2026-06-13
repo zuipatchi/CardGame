@@ -140,7 +140,7 @@ public enum EventType
 
 実装は「カードが何コスト分として数えられるか」を表す `CardData.CostPaymentValue(CardAttribute payingForAttribute)`（virtual、通常 1）で表現する。引数 `payingForAttribute` は**プレイするカードの属性**で、属性連動の受動効果（CostBoost）に使う。
 
-- **判定箇所**: [CardData.cs](../Assets/Scripts/Main/Card/CardData.cs) の `public virtual int CostPaymentValue(CardAttribute payingForAttribute) => 1;` を、[CharacterCardData.cs](../Assets/Scripts/Main/Card/CharacterCardData.cs) / [EventCardData.cs](../Assets/Scripts/Main/Card/EventCardData.cs) で `override` してカードの種別/値から導出する（CostBoost なら、自属性が `payingForAttribute` と一致または自属性が White のとき `Max(1, 値)`、それ以外は 1）。
+- **判定箇所**: [CardData.cs](../Assets/Scripts/Main/Card/CardData.cs) の `public virtual int CostPaymentValue(CardAttribute payingForAttribute) => 1;` を、[CharacterCardData.cs](../Assets/Scripts/Main/Card/CharacterCardData.cs) / [EventCardData.cs](../Assets/Scripts/Main/Card/EventCardData.cs) で `override` してカードの種別/値から導出する（CostBoost なら、自属性が `payingForAttribute` と一致するとき `Max(1, 値)`、それ以外は 1。白も一般属性扱いで、白 CostBoost は白のコストのみ倍化）。
 - **コスト計算**: [MainPresenter.Input.CostSelection.cs](../Assets/Scripts/Main/MainPresenter.Input.CostSelection.cs) の `CostCapacityExcluding(excluded, payingForAttribute)` / `SelectedCostValue`（`_playedCardAttribute` を使用）が `CostPaymentValue` を合算する。コスト判定は「枚数」ではなく「合計コスト値」で行うため、新しい受動効果を足すときもこの2メソッドが算出経路になる。配置可否判定（[MainPresenter.Input.cs](../Assets/Scripts/Main/MainPresenter.Input.cs)）もプレイするカードの属性を渡す。
 - **CPU**: [MainPresenter.Animations.CostFly.cs](../Assets/Scripts/Main/MainPresenter.Animations.CostFly.cs) の `ChooseCpuCostCards` がプレイするカードの属性で合計コスト値ベースに自動選択する。
 - **オンライン**: 払ったカードIDの送受信のみで整合（支払い側がローカルで確定し、受信側は再計算しない）。追加同期は不要。

@@ -217,14 +217,16 @@ namespace Main
 
         private bool IsCostAttributeSatisfied()
         {
-            if (_requiredCost == 0 || _playedCardAttribute == CardAttribute.White)
+            if (_requiredCost == 0)
             {
                 return true;
             }
 
+            // 白も一般属性として扱う：プレイするカードと同じ属性のコストカードが最低1枚必要。
+            // 白カードは他属性の要件を満たさない（数合わせとしては選べる）。
             foreach (CardView c in _selectedCostCards)
             {
-                if (c.Data.Attribute == _playedCardAttribute || c.Data.Attribute == CardAttribute.White)
+                if (c.Data.Attribute == _playedCardAttribute)
                 {
                     return true;
                 }

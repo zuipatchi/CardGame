@@ -129,8 +129,9 @@ namespace Main
             return (faceUpCard, from, () => hand.RemoveCard(handCard));
         }
 
-        // CPU のコストカード選択：属性制約用に同属性 or White を1枚確保し、
+        // CPU のコストカード選択：属性制約用に同属性カードを1枚確保し、
         // 残りはコスト値（CostPaymentValue）の合計が cost に達するまで手札先頭から選ぶ。
+        // 白も一般属性として扱う（白カードは他属性の要件を満たさない）ため、白プレイ時も白を1枚確保する。
         private static List<CardView> ChooseCpuCostCards(CardData played, IReadOnlyList<CardView> handCards)
         {
             int cost = played.Cost;
@@ -139,17 +140,14 @@ namespace Main
             HashSet<CardView> used = new HashSet<CardView>();
             int paid = 0;
 
-            if (neededAttr != CardAttribute.White)
+            foreach (CardView c in handCards)
             {
-                foreach (CardView c in handCards)
+                if (c.Data.Attribute == neededAttr)
                 {
-                    if (c.Data.Attribute == neededAttr || c.Data.Attribute == CardAttribute.White)
-                    {
-                        chosen.Add(c);
-                        used.Add(c);
-                        paid += c.Data.CostPaymentValue(neededAttr);
-                        break;
-                    }
+                    chosen.Add(c);
+                    used.Add(c);
+                    paid += c.Data.CostPaymentValue(neededAttr);
+                    break;
                 }
             }
 

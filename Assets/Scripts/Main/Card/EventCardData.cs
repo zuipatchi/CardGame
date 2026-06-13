@@ -26,11 +26,10 @@ namespace Main.Card
         public EventCardTrigger EventTrigger => _eventTrigger;
         public override CardAttribute Attribute => _attribute;
 
-        // CostBoost のイベントは、支払い対象が自属性（または自分が白属性）のとき EventValue 分（最低1）として数える。
-        // それ以外の属性のコストに使うときは通常どおり1。
+        // CostBoost のイベントは、支払い対象が自属性のとき EventValue 分（最低1）として数える。
+        // それ以外の属性のコストに使うときは通常どおり1（白も一般属性として扱い、白CostBoostは白のコストのみ倍化）。
         public override int CostPaymentValue(CardAttribute payingForAttribute) =>
-            _eventType == EventType.CostBoost
-                && (_attribute == CardAttribute.White || _attribute == payingForAttribute)
+            _eventType == EventType.CostBoost && _attribute == payingForAttribute
                 ? Mathf.Max(1, _eventValue)
                 : 1;
 

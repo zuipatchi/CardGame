@@ -57,11 +57,11 @@ namespace Main.Card
         public bool Flying => _flying;
         public string Description => _description;
 
-        // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性（または自分が白属性）のとき EffectValue 分（最低1）として数える。
-        // それ以外の属性のコストに使うときは通常どおり1。
+        // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性のとき EffectValue 分（最低1）として数える。
+        // それ以外の属性のコストに使うときは通常どおり1（白も一般属性として扱い、白CostBoostは白のコストのみ倍化）。
         public override int CostPaymentValue(CardAttribute payingForAttribute) =>
             _effectTrigger == CharacterEffectTrigger.OnUsedAsCost && _effectType == EventType.CostBoost
-                && (_attribute == CardAttribute.White || _attribute == payingForAttribute)
+                && _attribute == payingForAttribute
                 ? Mathf.Max(1, _effectValue)
                 : 1;
 
