@@ -132,6 +132,10 @@ namespace Main
         private bool _playerNextCardFree;
         private bool _opponentNextCardFree;
 
+        // ExtraTurn 効果: アクティブプレイヤーがこのターン中に発動すると true。
+        // ターン終了時に消費し、相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
+        private bool _extraTurnPending;
+
         // EventCardTrigger.OnTurnStart の永続イベント登録簿。プレイ（PlayEvent）された OnTurnStart イベントのみを
         // 登録し、自分のターン開始時に毎ターン発動する。コストとして捨てたカードは含めない（墓地を走査しない理由）
         private readonly List<EventCardData> _playerTurnStartEvents = new List<EventCardData>();

@@ -18,5 +18,13 @@ namespace Main.Game
             IsLocalTurn = !IsLocalTurn;
             TurnNumber++;
         }
+
+        // ExtraTurn 効果：相手にターンを渡さず、同じプレイヤーがもう一度ターンを行う。
+        // EndTurn と違い IsLocalTurn を反転しない（TurnNumber は加算するため先攻初手のドローなし補正には該当しない）。
+        public void RepeatTurn()
+        {
+            Phase = TurnPhase.Draw;
+            TurnNumber++;
+        }
     }
 }

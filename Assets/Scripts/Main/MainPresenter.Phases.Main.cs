@@ -53,9 +53,13 @@ namespace Main
                     // ターン終了。オンラインは Pass を終了の合図として相手へ送る
                     if (_isOnline)
                     {
-                        // 相手ターンのドロー通知をロストしないよう送信前に登録
-                        _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-                        _hasPreDrawTask = true;
+                        // 相手ターンのドロー通知をロストしないよう送信前に登録。
+                        // ただし ExtraTurn 発動時は次も自分のターンが続き相手のドローを待たないため登録しない。
+                        if (!_extraTurnPending)
+                        {
+                            _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                            _hasPreDrawTask = true;
+                        }
                         _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
                     }
                     break;

@@ -50,7 +50,16 @@ namespace Main
                 return;
             }
 
-            _gameModel.EndTurn();
+            // ExtraTurn 効果が発動していれば相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
+            if (_extraTurnPending)
+            {
+                _extraTurnPending = false;
+                _gameModel.RepeatTurn();
+            }
+            else
+            {
+                _gameModel.EndTurn();
+            }
         }
 
         // ゲーム開始時に先攻後攻を決定する。

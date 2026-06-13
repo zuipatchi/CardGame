@@ -1033,6 +1033,18 @@
     height: 60px;
 }
 
+/* ─── ExtraTurn フローティングラベル（もう一度！） ───────────────────────────── */
+.extra-turn-label {
+    font-size: 40px;
+    -unity-font-style: bold;
+    color: rgb(255, 235, 130);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 240px;
+    height: 60px;
+}
+
 /* ─── BanishChar フローティングラベル ───────────────────────────────────────── */
 .banish-char-label {
     font-size: 36px;

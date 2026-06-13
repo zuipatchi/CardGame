@@ -209,6 +209,9 @@ namespace Main
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
                     break;
+                case CardEventType.ExtraTurn:
+                    await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
+                    break;
             }
         }
 
@@ -290,7 +293,25 @@ namespace Main
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
                     break;
+                case CardEventType.ExtraTurn:
+                    await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
+                    break;
             }
+        }
+
+        // ExtraTurn 効果：アクティブプレイヤーが発動したときのみ、相手にターンを渡さず
+        // もう一度自分のターンを行う。ターン終了時に消費する（RunTurnAsync）。
+        // isLocal は効果の発動側。アクティブプレイヤー（_gameModel.IsLocalTurn）と一致するときだけ有効化し、
+        // 相手ターン中の OnDestroy 等（発動側 != アクティブ）では発動しない。
+        // 1ターン中に複数回発動しても追加ターンは1回（フラグは bool）。
+        private async UniTask ApplyExtraTurnAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (isLocal != _gameModel.IsLocalTurn)
+            {
+                return;
+            }
+            _extraTurnPending = true;
+            await PlayFloatingLabelAsync("もう一度！", "extra-turn-label", sourceCard, ct);
         }
 
         // 次にプレイするカード1枚のコストを0にする（使うまで持続）。発動側のフラグを立て、発動カード上に告知を出す
