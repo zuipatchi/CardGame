@@ -21,54 +21,17 @@ namespace Main
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
 
-            if (card.Data is EventCardData eventData)
+            // OnTurnStart の永続イベントはプレイ時に即時解決せず、登録簿に加えて毎ターン開始時に発動し続ける。
+            // （コストとして捨てたカードは ResolveSingleCardAsync を通らないため登録されない＝墓地を走査しない理由）
+            // コスト演出は支払い時に再生済みのため、ここでは登録のみ行い下の墓地移動処理へ合流する。
+            if (card.Data is EventCardData turnStartEvent && turnStartEvent.EventTrigger == EventCardTrigger.OnTurnStart)
             {
-                if (eventData.EventType == CardEventType.Draw)
-                {
-                    await PlayDrawEffectAsync(card, eventData.EventValue, ct);
-                }
-                else if (eventData.EventType == CardEventType.BanishChar)
-                {
-                    FieldView banishField = isLocal ? _opponentFieldView : _playerFieldView;
-                    CardView banishTarget = banishField.Characters.Count > 0
-                        ? banishField.Characters[0]
-                        : null;
-                    if (banishTarget != null)
-                    {
-                        await PlayBanishCharEffectAsync(banishTarget, ct);
-                    }
-                }
-                else if (eventData.EventType == CardEventType.Recover)
-                {
-                    await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
-                }
-                else if (eventData.EventType == CardEventType.Switch)
-                {
-                    FieldView switchField = isLocal ? _playerFieldView : _opponentFieldView;
-                    CardView switchChar = switchField.Characters.Count > 0
-                        ? switchField.Characters[0]
-                        : null;
-                    if (switchChar != null)
-                    {
-                        await PlaySwitchEffectAsync(card, switchChar, ct);
-                    }
-                }
-                else if (eventData.EventType == CardEventType.Evolve)
-                {
-                    FieldView evolveField = isLocal ? _playerFieldView : _opponentFieldView;
-                    CardView evolveChar = evolveField.Characters.Count > 0
-                        ? evolveField.Characters[0]
-                        : null;
-                    if (evolveChar != null)
-                    {
-                        await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
-                    }
-                }
-                else if (eventData.EventType == CardEventType.GainVictoryPoints)
-                {
-                    await PlayFloatingMedalAsync(card, ct);
-                }
-                await ApplyEventEffectAsync(eventData, isLocal, card, ct);
+                List<EventCardData> registry = isLocal ? _playerTurnStartEvents : _opponentTurnStartEvents;
+                registry.Add(turnStartEvent);
+            }
+            else if (card.Data is EventCardData eventData)
+            {
+                await ResolveEventCardEffectAsync(eventData, card, isLocal, ct);
             }
 
             if (_isGameOver)
@@ -81,6 +44,97 @@ namespace Main
             GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
             graveyard.AddCard(card);
 
+        }
+
+        // イベント効果の解決（種別ごとの事前演出 ＋ ApplyEventEffectAsync の適用）。
+        // OnPlay のプレイ時と、OnTurnStart 永続イベントの毎ターン発動の両方から呼ぶ。
+        // card は演出のアンカー（プレイ時はプレイしたカード、OnTurnStart は墓地からせり出した一時カード）。
+        private async UniTask ResolveEventCardEffectAsync(EventCardData eventData, CardView card, bool isLocal, CancellationToken ct)
+        {
+            if (eventData.EventType == CardEventType.Draw)
+            {
+                await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+            }
+            else if (eventData.EventType == CardEventType.BanishChar)
+            {
+                FieldView banishField = isLocal ? _opponentFieldView : _playerFieldView;
+                CardView banishTarget = banishField.Characters.Count > 0
+                    ? banishField.Characters[0]
+                    : null;
+                if (banishTarget != null)
+                {
+                    await PlayBanishCharEffectAsync(banishTarget, ct);
+                }
+            }
+            else if (eventData.EventType == CardEventType.Recover)
+            {
+                await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
+            }
+            else if (eventData.EventType == CardEventType.Switch)
+            {
+                FieldView switchField = isLocal ? _playerFieldView : _opponentFieldView;
+                CardView switchChar = switchField.Characters.Count > 0
+                    ? switchField.Characters[0]
+                    : null;
+                if (switchChar != null)
+                {
+                    await PlaySwitchEffectAsync(card, switchChar, ct);
+                }
+            }
+            else if (eventData.EventType == CardEventType.Evolve)
+            {
+                FieldView evolveField = isLocal ? _playerFieldView : _opponentFieldView;
+                CardView evolveChar = evolveField.Characters.Count > 0
+                    ? evolveField.Characters[0]
+                    : null;
+                if (evolveChar != null)
+                {
+                    await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
+                }
+            }
+            else if (eventData.EventType == CardEventType.GainVictoryPoints)
+            {
+                await PlayFloatingMedalAsync(card, ct);
+            }
+            await ApplyEventEffectAsync(eventData, isLocal, card, ct);
+        }
+
+        // ─── ターン開始時効果 ────────────────────────────────────────────────
+        // 自分のターン開始時（ドロー前）に、アクティブプレイヤーの場のキャラ（CharacterEffectTrigger.OnTurnStart）と
+        // プレイ済みの永続イベント（EventCardTrigger.OnTurnStart の登録簿）の効果を順に発動する。
+        // isLocal = アクティブプレイヤーが自分側か（_gameModel.IsLocalTurn）。
+        // 効果はカードデータと同期済みの盤面・登録簿から決定的に解決されるため、オンラインでも対称に発動する（追加同期不要）。
+        private async UniTask ResolveTurnStartEffectsAsync(bool isLocal, CancellationToken ct)
+        {
+            // 1. 場のキャラの OnTurnStart（ターン開始時点のスナップショットを並び順に1体ずつ発動）
+            FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+            List<CardView> characters = new List<CardView>(field.Characters);
+            foreach (CardView character in characters)
+            {
+                if (_isGameOver)
+                {
+                    return;
+                }
+                // 先行する効果で破壊・除去されていたらスキップ
+                if (!field.Contains(character))
+                {
+                    continue;
+                }
+                await ResolveCharacterTriggeredEffectAsync(character, CharacterEffectTrigger.OnTurnStart, isLocal, ct);
+            }
+
+            // 2. プレイ済みの永続イベント OnTurnStart（墓地から一時カードをせり出させて発動し、墓地へ戻す）。
+            //    登録簿はプレイ（PlayEvent）された OnTurnStart イベントのみを保持する（コストで捨てたカードは含まれない）
+            List<EventCardData> registry = isLocal ? _playerTurnStartEvents : _opponentTurnStartEvents;
+            List<EventCardData> turnStartEvents = new List<EventCardData>(registry);
+            foreach (EventCardData eventData in turnStartEvents)
+            {
+                if (_isGameOver)
+                {
+                    return;
+                }
+                await PlayGraveyardEventEffectAsync(eventData, isLocal, ct);
+            }
         }
 
         // ─── キャラ登場時効果 ────────────────────────────────────────────────

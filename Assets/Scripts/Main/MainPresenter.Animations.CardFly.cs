@@ -106,6 +106,69 @@ namespace Main
             card.pickingMode = PickingMode.Position;
         }
 
+        // ─── 墓地の永続イベント（OnTurnStart）発動演出 ─────────────────────────
+        // 墓地のイベントカードデータから一時カードを生成し、墓地 → フィールド中央へせり出させて
+        // 効果を発動し、墓地へ戻す。墓地のデータ自体は減らさない（毎ターン発動し続ける）。
+        private async UniTask PlayGraveyardEventEffectAsync(EventCardData data, bool isLocal, CancellationToken ct)
+        {
+            GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+
+            Rect graveRect = graveyard.worldBound;
+            Rect fieldRect = field.worldBound;
+
+            float graveLeft = graveRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float graveTop = graveRect.center.y - CardScaleConstants.CardHeight / 2f;
+            float displayLeft = fieldRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float displayTop = fieldRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            CardView temp = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
+            temp.style.position = Position.Absolute;
+            temp.style.left = graveLeft;
+            temp.style.top = graveTop;
+            temp.style.scale = new Scale(Vector3.zero);
+            temp.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(temp);
+
+            // 墓地 → フィールド中央へせり出す
+            await TweenCardAbsoluteAsync(temp, displayLeft, displayTop, 1f, 0.3f, Ease.OutBack, ct);
+
+            // 効果発動（temp.worldBound が有効な状態で、種別ごとの演出込みで解決）
+            await ResolveEventCardEffectAsync(data, temp, isLocal, ct);
+
+            // フィールド → 墓地へ戻る（データは墓地に残ったまま）
+            if (temp.parent == _dragLayer)
+            {
+                await TweenCardAbsoluteAsync(temp, graveLeft, graveTop, 0f, 0.25f, Ease.InQuad, ct);
+                if (temp.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(temp);
+                }
+            }
+        }
+
+        // _dragLayer 上の絶対配置カードの left / top / scale を同時にトゥイーンする（カードは layer に残す）
+        private async UniTask TweenCardAbsoluteAsync(CardView card, float targetLeft, float targetTop, float targetScale, float duration, Ease ease, CancellationToken ct)
+        {
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, duration).SetEase(ease))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, duration).SetEase(ease))
+                .Join(DOTween.To(
+                    () => card.style.scale.value.value.x,
+                    s => card.style.scale = new Scale(new Vector3(s, s, 1f)),
+                    targetScale, duration).SetEase(ease))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+        }
+
         // ─── Recover 飛翔アニメーション（墓地 → デッキへ同時飛翔）─────────────
 
         private async UniTask PlayRecoverFlyAsync(

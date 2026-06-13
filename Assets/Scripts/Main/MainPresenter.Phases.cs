@@ -30,6 +30,13 @@ namespace Main
         {
             await PlayTurnStartAnnouncementAsync(_gameModel.IsLocalTurn, ct);
 
+            // ターン開始時効果（ドロー前）：場のキャラ（OnTurnStart）と墓地の永続イベント（OnTurnStart）を発動
+            await ResolveTurnStartEffectsAsync(_gameModel.IsLocalTurn, ct);
+            if (_isGameOver)
+            {
+                return;
+            }
+
             await RunDrawPhaseAsync(ct);
             if (_isGameOver)
             {

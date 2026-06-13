@@ -48,8 +48,16 @@
 | Event Value 2 | 2つ目の数値（SummonChar の体数など。使わない効果は 0） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Trigger On Grave | ON にすると、このカードが墓地に送られたときにコストを支払わずに効果が発動する |
+| Event Trigger | 発動タイミング（下表）。既定は `OnPlay` |
 
 - ID は属性ごとに自動採番される：`E{(属性番号)×1000 + 連番}`（赤=`E1001`/青=`E2001`/…。`CardIdAutoAssigner`）
+
+#### EventTrigger（[EventCardTrigger.cs](../Assets/Scripts/Main/Card/EventCardTrigger.cs)）
+
+| Trigger | 発動タイミング |
+|---|---|
+| OnPlay | カードを使ったとき（プレイ時に即時解決して墓地へ送る。従来の挙動・既定） |
+| OnTurnStart | 自分のターン開始時。**プレイ時は即時解決せずコストだけ払って墓地へ送り、永続イベントとして登録する**。以降、自分のターン開始時（ドロー前）に毎ターン発動し続ける（墓地から一時カードがフィールドへせり出し、効果を解決して墓地へ戻る）。除去手段はない。**登録されるのはプレイしたカードのみで、コストとして捨てた同名カードは発動しない**（登録簿で管理し墓地は走査しないため）。発動順はキャラの `OnTurnStart` の後 |
 
 ### キャラカード
 
@@ -77,6 +85,7 @@
 | OnAttack | 攻撃宣言時（キャラ攻撃・ハート攻撃の両方に対応） |
 | OnUsedAsCost | 手札からコストとして支払うとき（`EffectType=CostBoost` と併用してコスト倍化に使う） |
 | OnDestroy | 破壊時。戦闘での撃破・`DamageEnemy` / `DamageAllEnemies` での撃破・`BanishChar` での除去で発動する（HP が 0 になって、または除去されて場から墓地へ送られた瞬間）。Evolve の生贄・Switch で手札に戻すのは対象外。破壊されたキャラを source として効果を解決する |
+| OnTurnStart | 自分のターン開始時（ターン開始演出の直後・ドローフェーズの前）。このキャラが場にいる限り毎ターン1回発動する。場を離れると発動しない（出したターンは既に開始時を過ぎているため次の自分ターンから発動） |
 
 - ID は属性ごとに自動採番される：`C{(属性番号)×1000 + 連番}`（赤=`C1001`/青=`C2001`/…。`CardIdAutoAssigner`）
 
@@ -85,7 +94,8 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致する（または CostBoost カードが白属性）ときだけ EventValue 分になり、それ以外の属性のコストには1として数える（コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints / NextCardCostFree / Bounce**: イベント・キャラ（OnEnter / OnAttack / OnDestroy）両方で使用可能。
+- **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints / NextCardCostFree / Bounce**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart）両方で使用可能。
+- **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。
 - **OnDestroy**: 破壊されたキャラの効果は、破壊が完了して墓地へ送られた後に発動する。複数体が同時に破壊された場合は破壊演出を同時再生したうえで OnDestroy を1体ずつ順番に解決する（対象選択 UI の競合を防ぐ）。効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも両クライアントで対称に発動する（追加同期不要）。OnDestroy 効果がさらに別キャラを破壊した場合は連鎖して発動する（盤面が有限のため停止する）。
 - **DamageEnemy**: **値1=対象数、値2=ダメージ**（値2が0だとダメージ0で無効果になる点に注意）。プレイヤーが敵キャラを値1体クリックで選ぶ（`selectable-char` でハイライト、選択済みは `selected-char` で赤枠）。対象数が敵の数以上なら全員が対象・0体なら空振り。選んだ全対象に同時ダメージ。オンラインでは対象をフィールドのインデックス配列で相手へ送るため、同名カードが複数いても曖昧にならない。

@@ -6,6 +6,8 @@ namespace Main.Card
     [Serializable]
     public sealed class EventCardData : CardData
     {
+        // 発動タイミング。OnPlay（既定）はプレイ時に即時解決。OnTurnStart は墓地から毎ターン開始時に発動し続ける
+        [SerializeField] private EventCardTrigger _eventTrigger;
         [SerializeField] private EventType _eventType;
         [SerializeField] private int _eventValue;
         [SerializeField] private int _eventValue2;
@@ -20,6 +22,8 @@ namespace Main.Card
         public int EventValue2 => _eventValue2;
         public string Description => _description;
         public bool TriggerOnGrave => _triggerOnGrave;
+        // 発動タイミング（OnPlay：プレイ時即時 / OnTurnStart：墓地から毎ターン開始時）
+        public EventCardTrigger EventTrigger => _eventTrigger;
         public override CardAttribute Attribute => _attribute;
 
         // CostBoost のイベントは、支払い対象が自属性（または自分が白属性）のとき EventValue 分（最低1）として数える。
