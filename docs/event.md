@@ -28,6 +28,7 @@
 | GainVictoryPoints | 発動した側の勝利点（緑属性の勝利条件）に EventValue 分を加算する。20到達でそのプレイヤーが勝利。発動カードの上に MedalIcon フロート → 勝利点カウンターで加点演出 | 加算する勝利点 |
 | NextCardCostFree | 発動した側が**次にプレイするカード1枚のコストを0にする**（使うまで持続。ターンをまたいでも次の1枚に適用）。発動カード上に「コスト0」フロート表示。コスト0のカードに使うと無駄に消費される点に注意 | 使用しない（0 固定） |
 | Bounce | 発動側から見た敵キャラを**値（値1）体**選び、**所有者（相手）の手札へ戻す**。対象はプレイヤーがクリックで選択（DamageEnemy と同じ `selectable-char` / `selected-char` ハイライト・残り体数トースト）。対象数が敵の数以上なら全員が対象（選択不要）・0体なら空振り。CPU は攻撃力上位を狙う。オンラインは対象をフィールドのインデックス配列で同期（`NGS_DamageTarget`）。戻ったキャラは相手の手札から再びプレイできる | 値1=戻す体数 |
+| ExtraTurn | 発動した（アクティブな）プレイヤーが、相手にターンを渡さず**もう一度自分のターン**（ターン開始時効果→ドロー→メインフェーズ）を行う。発動時にカード上へ「もう一度！」フロート表示。**アクティブプレイヤーが発動したときのみ有効**（相手ターン中の OnDestroy 等では発動しない）。1ターン中に複数回発動しても追加ターンは1回（フラグ管理）。各ターンで発動すれば連続して継続する | 使用しない（0 固定） |
 
 > `AtkBoost` / `DefBoost` / `Negate` は enum に定義のみで未実装。
 
@@ -94,7 +95,7 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints / NextCardCostFree / Bounce**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart）両方で使用可能。
+- **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints / NextCardCostFree / Bounce / ExtraTurn**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart）両方で使用可能。
 - **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。
 - **OnDestroy**: 破壊されたキャラの効果は、破壊が完了して墓地へ送られた後に発動する。複数体が同時に破壊された場合は破壊演出を同時再生したうえで OnDestroy を1体ずつ順番に解決する（対象選択 UI の競合を防ぐ）。効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも両クライアントで対称に発動する（追加同期不要）。OnDestroy 効果がさらに別キャラを破壊した場合は連鎖して発動する（盤面が有限のため停止する）。
@@ -102,6 +103,7 @@
 - **SummonChar**: 値1=召喚キャラIDの数字部分（例 1001→"C1001"。ID採番は属性別、下記「設定方法」参照）、値2=体数（0は1体）。手札・デッキを消費せず自フィールドに新規生成し、召喚キャラの OnEnter も発動する。フィールドは9体上限（`FieldView.MaxCharacters`）で、満杯になると召喚は打ち切られ OnEnter 連鎖も自然停止する（自己召喚カードでも無限ループにならない）。オンラインは召喚IDがカードデータで確定するため追加同期不要（決定的）。
 - **GainVictoryPoints**: 加点カードは**緑属性**で作る（緑カードをプレイした側に勝利点表示が出現するため）。
 - **NextCardCostFree**: 発動側の「次の1枚無料」フラグ（`_playerNextCardFree` / `_opponentNextCardFree`）を立て、次の `PayHandCostAsync` でコスト0扱いにしてフラグ消費する（使うまで持続）。フラグは次の支払いで消費されるため Switch/Evolve の内部配置には波及しない（イベント本体プレイ時に消費済み）。オンラインは無料カードを「空の `costCardIds`」として送り相手が無料再生するため追加同期不要。EventValue は不使用（0）。
+- **ExtraTurn**: 発動時に `_extraTurnPending` フラグを立て（`ApplyExtraTurnAsync`）、ターン終了時（`RunTurnAsync` 末尾）に `GameModel.RepeatTurn()` で `IsLocalTurn` を反転せず `TurnNumber` だけ加算して同じプレイヤーがもう一度ターンを行う。発動側がアクティブプレイヤー（`_gameModel.IsLocalTurn` と一致）のときのみ有効化する。オンラインは効果がカードデータ＋同期済み盤面から両クライアントで決定的に解決されるため追加のネットワークメッセージ不要だが、Pass 時の相手ドロー待ち（`_preDrawReceiveTask`）登録は ExtraTurn 保留中はスキップする（次も自分のターンが続くため）。EventValue は不使用（0）。
 - 勝敗に関わる属性（赤=ハート / 青=デッキ0 / 緑=勝利点20）の挙動は [rules.md](rules.md)「勝敗条件」を参照。
 - オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
 
