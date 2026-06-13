@@ -5,7 +5,7 @@ namespace Main.Game
     // ハート勝利条件のルール判定（純ロジック）
     public static class HeartRule
     {
-        public const int InitialHeartCount = 3;
+        public const int InitialHeartCount = 5;
 
         // 赤属性カードをプレイ（キャラ配置 or イベント使用）するとハートが出現する
         public static bool ActivatesHearts(CardData playedCard)

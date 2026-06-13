@@ -347,7 +347,7 @@ CardDatabase      ScriptableObject。属性別 SO の配列 _characterCardSets /
 CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
 
 TurnPhase         enum。Draw / Main
-HeartRule         static クラス。ハート勝利条件の純ロジック（赤属性プレイで出現判定・ATK 1 以上で破壊可・初期数 3）
+HeartRule         static クラス。ハート勝利条件の純ロジック（赤属性プレイで出現判定・ATK 1 以上で破壊可・初期数 5）
 ```
 
 ### ビューコンポーネント
@@ -404,7 +404,7 @@ GraveyardView        VisualElement サブクラス。80×80px のアイコンボ
                      AddCard(CardView) でカードを階層から切り離し、CardData を内部リストで管理
                      モーダルは mainRoot に追加してオーバーレイ表示。背景クリックで閉じる
                      茶色系の枠線（rgba(160,100,50)）と暗いベージュ背景
-LifeHeartsView       VisualElement サブクラス。ハート勝利条件のライフ表示（HeartIcon.png ×3）
+LifeHeartsView       VisualElement サブクラス。ハート勝利条件のライフ表示（HeartIcon.png ×5）
                      相手用は OpponentFieldArea 右上・自分用は PlayerFieldArea 左下に絶対配置
                      Activate() で表示（一度有効化したら永続）。ContainsPoint(Vector2) で攻撃矢印のヒット判定
                      PeekNextHeart() / RemoveHeart() は相手側=左端・自分側=右端を対象にする

@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Main.Card
 {
-    // ハート勝利条件のライフ表示（ハート3個）。
+    // ハート勝利条件のライフ表示（ハート5個）。
     // 赤属性カードのプレイで Activate され、以後永続表示。攻撃を受けるたびに1個ずつ削除される。
     public sealed class LifeHeartsView : VisualElement
     {
