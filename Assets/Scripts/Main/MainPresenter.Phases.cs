@@ -53,7 +53,8 @@ namespace Main
             _gameModel.EndTurn();
         }
 
-        // ゲーム開始時に先攻後攻を決定し、後攻プレイヤーに補正ドローを与える
+        // ゲーム開始時に先攻後攻を決定する。
+        // （先攻の初手はドローなしで先攻有利を補正するため、後攻への補正ドローは行わない）
         private async UniTask InitializeFirstTurnAsync(CancellationToken ct)
         {
             bool isLocalFirst = _isOnline ? _onlineIsLocalFirst : UnityEngine.Random.value > 0.5f;
@@ -64,28 +65,6 @@ namespace Main
             await PlayCoinTossAsync(isLocalFirst, resultText, resultClass, ct);
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
-
-            // 後攻プレイヤーが1枚余分にドロー
-            if (!isLocalFirst)
-            {
-                CardData drawn = _playerDeckView.DrawTop();
-                if (drawn != null)
-                {
-                    _playerDeckView.RefreshCount();
-                    Rect deckRect = _playerDeckView.worldBound;
-                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
-                }
-            }
-            else
-            {
-                CardData drawn = _opponentDeckView.DrawTop();
-                if (drawn != null)
-                {
-                    _opponentDeckView.RefreshCount();
-                    Rect deckRect = _opponentDeckView.worldBound;
-                    await PlayCpuDrawAsync(drawn, deckRect, ct);
-                }
-            }
         }
 
         // winAttribute: 色による勝利条件で決着した場合の勝因属性（赤=ハート / 青=デッキ0）。

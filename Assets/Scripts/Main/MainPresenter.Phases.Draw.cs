@@ -8,21 +8,31 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        // ─── ドローフェーズ（アクティブプレイヤーのみ1枚ドロー）──────────────────
+        // ─── ドローフェーズ（アクティブプレイヤーのみドロー）──────────────────
+
+        // 1ドローフェーズで引く枚数。ただし先攻の初手（ターン1）はドローなし。
+        private const int DrawPhaseCardCount = 3;
 
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             bool isLocalTurn = _gameModel.IsLocalTurn;
 
+            // ターン1は必ず先攻の初手。先攻の初手のみドローなし。
+            int drawCount = _gameModel.TurnNumber == 1 ? 0 : DrawPhaseCardCount;
+
             if (isLocalTurn)
             {
-                CardData drawn = _playerDeckView.DrawTop();
-                _playerDeckView.RefreshCount();
-                if (drawn != null)
+                for (int i = 0; i < drawCount; i++)
                 {
-                    Rect deckRect = _playerDeckView.worldBound;
-                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                    CardData drawn = _playerDeckView.DrawTop();
+                    _playerDeckView.RefreshCount();
+                    if (drawn != null)
+                    {
+                        Rect deckRect = _playerDeckView.worldBound;
+                        await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                    }
                 }
+                // ドロー0枚でも同期のため通知は送る（両者の lockstep を崩さない）。
                 if (_isOnline)
                 {
                     _networkGameService.SendDrawNotification();
@@ -59,12 +69,15 @@ namespace Main
 
                 await drawReceiveTask.AttachExternalCancellation(ct);
 
-                CardData drawn = _opponentDeckView.DrawTop();
-                _opponentDeckView.RefreshCount();
-                if (drawn != null)
+                for (int i = 0; i < drawCount; i++)
                 {
-                    Rect deckRect = _opponentDeckView.worldBound;
-                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    CardData drawn = _opponentDeckView.DrawTop();
+                    _opponentDeckView.RefreshCount();
+                    if (drawn != null)
+                    {
+                        Rect deckRect = _opponentDeckView.worldBound;
+                        await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    }
                 }
                 if (CheckBlueWin(isLocalDeck: false))
                 {
