@@ -318,7 +318,7 @@ namespace Main
             }
 
             int targetCount = Mathf.Min(count <= 0 ? 1 : count, enemyCount);
-            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "ダメージを与える相手キャラを選択", ct);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "相手キャラを選択", ct);
             if (targets.Count == 0)
             {
                 return;

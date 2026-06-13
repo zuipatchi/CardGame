@@ -75,21 +75,6 @@ MonoBehaviour:
     _flying: 0
     _description: "\u8D64\u30B3\u30B9\u30C82\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C1005
-    _cardName: "\u3072\u306E\u3053\u306E\u5996\u7CBE"
-    _cost: 2
-    _image: {fileID: 21300000, guid: 16e198de48695204e8e8cf17814eada1, type: 3}
-    _attack: 3
-    _hp: 6
-    _attribute: 0
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _description: 
-  - _id: C1006
     _cardName: "\u708E\u9B5A"
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
@@ -104,7 +89,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u30AD\u30E3\u30E91\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
-  - _id: C1007
+  - _id: C1006
     _cardName: "\u30AD\u30EC\u305F\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
@@ -119,7 +104,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u5168\u3066\u306E\u30AD\u30E3\u30E9\u306B2\u30C0\u30E1\u30FC\u30B8"
-  - _id: C1008
+  - _id: C1007
     _cardName: "\u30B3\u30BA\u30DF\u30C3\u30AF DOM"
     _cost: 4
     _image: {fileID: 21300000, guid: 9504da2ecccf4b942adc689996cdea8f, type: 3}

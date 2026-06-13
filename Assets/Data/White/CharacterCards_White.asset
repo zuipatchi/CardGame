@@ -15,6 +15,21 @@ MonoBehaviour:
   _attribute: 6
   _cards:
   - _id: C7001
+    _cardName: "\u7D14\u767D\u306E\u3071\u3063\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 4c36eba88c562c14eb5fef4baa417499, type: 3}
+    _attack: 2
+    _hp: 3
+    _attribute: 6
+    _effectTrigger: 4
+    _effectType: 9
+    _effectValue: 2
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _description: "\u767D\u30B3\u30B9\u30C8\uFF12\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
+  - _id: C7002
     _cardName: "\u3071\u3063\u3061\u5C11\u5E74"
     _cost: 0
     _image: {fileID: 21300000, guid: 4b89463c6d0140042b3e3f223cf4c131, type: 3}
@@ -29,7 +44,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u81EA\u5206\u4EE5\u5916\u306E\u300C\u3071\u3063\u3061\u300D\u3068\u540D\u306E\u4ED8\u304F\u306E\u30AD\u30E3\u30E9\u306EHP\u3092+2\u3059\u308B\u3002\u3071\u3063\u3061\u9752\u5E74\u306B\u6210\u9577\u3067\u304D\u308B"
-  - _id: C7002
+  - _id: C7003
     _cardName: "\u3071\u3063\u3061\u9752\u5E74"
     _cost: 1
     _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
@@ -44,7 +59,7 @@ MonoBehaviour:
     _haste: 1
     _flying: 0
     _description: "\u3071\u3063\u3061\u4E2D\u5E74\u306B\u6210\u9577\u3067\u304D\u308B"
-  - _id: C7003
+  - _id: C7004
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: 2e09ecb7c8227e841b69acfc10aff300, type: 3}
@@ -59,7 +74,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u81EA\u5206\u4EE5\u5916\u306E\u300C\u3071\u3063\u3061\u300D\u3068\u540D\u306E\u4ED8\u304F\u30AD\u30E3\u30E9\u306E\u653B\u6483\u529B\u3092+1\u3059\u308B"
-  - _id: C7004
+  - _id: C7005
     _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
     _cost: 2
     _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
@@ -74,7 +89,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u3071\u3063\u3061\u8001\u4EBA\u306B\u6210\u9577\u3067\u304D\u308B"
-  - _id: C7005
+  - _id: C7006
     _cardName: "\u3071\u3063\u3061\u5929\u4F7F"
     _cost: 2
     _image: {fileID: 21300000, guid: faaacb36ca4712d48b48febfc6f4fd8a, type: 3}
@@ -89,7 +104,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 1
     _description: 
-  - _id: C7006
+  - _id: C7007
     _cardName: "\u3071\u3063\u3061\u8001\u4EBA"
     _cost: 3
     _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
@@ -104,7 +119,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u3053\u306E\u5E74\u306B\u306A\u3063\u3066\u3084\u3063\u3068\u4E0D\u8001\u4E0D\u6B7B\u3092\u624B\u306B\u5165\u308C\u305F\u3071\u3061"
-  - _id: C7007
+  - _id: C7008
     _cardName: "\u9B54\u6CD5\u5C11\u5973\u3071\u3063\u3061"
     _cost: 3
     _image: {fileID: 21300000, guid: 3cc940967e3968e428bac038268d241e, type: 3}

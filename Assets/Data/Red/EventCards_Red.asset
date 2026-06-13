@@ -15,6 +15,16 @@ MonoBehaviour:
   _attribute: 0
   _cards:
   - _id: E1001
+    _cardName: "\u3071\u3061\u3071\u3061\u5F3E\u3051\u308B\u3072\u306E\u3053"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 16e198de48695204e8e8cf17814eada1, type: 3}
+    _eventType: 12
+    _eventValue: 1
+    _eventValue2: 2
+    _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E91\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
+    _triggerOnGrave: 0
+    _attribute: 0
+  - _id: E1002
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u306E\u8972\u6483"
     _cost: 1
     _image: {fileID: 21300000, guid: ff06cbfa28d1cc64c82c11c4386fc2f1, type: 3}
@@ -24,7 +34,7 @@ MonoBehaviour:
     _description: "1/2\u306E\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B542\u4F53\u3092\u5834\u306B\u51FA\u3059"
     _triggerOnGrave: 0
     _attribute: 0
-  - _id: E1002
+  - _id: E1003
     _cardName: "\u706B\u708E\u653E\u5C04"
     _cost: 1
     _image: {fileID: 21300000, guid: b0d6276a3bce3a34b977f412778860df, type: 3}
