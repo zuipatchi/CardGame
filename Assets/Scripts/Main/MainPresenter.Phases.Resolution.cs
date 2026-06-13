@@ -199,6 +199,9 @@ namespace Main
                 case CardEventType.Bounce:
                     await ApplyBounceAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.BounceAll:
+                    await ApplyBounceAllAsync(isLocal, ct);
+                    break;
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
                     break;
@@ -283,6 +286,9 @@ namespace Main
                     break;
                 case CardEventType.Bounce:
                     await ApplyBounceAsync(data.EventValue, isLocal, ct);
+                    break;
+                case CardEventType.BounceAll:
+                    await ApplyBounceAllAsync(isLocal, ct);
                     break;
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
@@ -581,6 +587,15 @@ namespace Main
                 }
                 await targetHand.AddCardBackAsync(target, fromRect, ct);
             }
+        }
+
+        // バウンス（全体）：発動側から見た敵フィールドのキャラ全員を所有者（相手）の手札へ戻す。
+        // ApplyBounceAsync は対象数が敵の数以上のとき選択 UI なしで全員を対象にするため、
+        // 敵の全数を渡して全体バウンスを実現する（敵キャラ0体なら ApplyBounceAsync 側で空振り）。
+        private async UniTask ApplyBounceAllAsync(bool isLocal, CancellationToken ct)
+        {
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            await ApplyBounceAsync(targetField.Characters.Count, isLocal, ct);
         }
 
         // 発動側の自フィールドに、charNumber が示すキャラ（"C###"）を count 体新規生成して配置する。
