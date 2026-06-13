@@ -858,3 +858,22 @@
 .deckbuilder-filter-attr-icon--white {
     background-image: url("../../../AddressableAssets/Icon/FlowerIcon.png");
 }
+
+.deckbuilder-toast {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    -unity-text-align: middle-center;
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(255, 230, 230);
+    background-color: rgba(60, 10, 10, 0.92);
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-color: rgba(255, 80, 80, 0.5);
+    border-bottom-color: rgba(255, 80, 80, 0.5);
+    padding-top: 16px;
+    padding-bottom: 16px;
+    display: none;
+}

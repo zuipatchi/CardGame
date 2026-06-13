@@ -16,6 +16,7 @@ namespace Common.Injector
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<DeckModel>(Lifetime.Singleton).AsSelf();
+            builder.Register<DeckRuleModel>(Lifetime.Singleton).AsSelf();
             builder.Register<DeckRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<UsernameRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();

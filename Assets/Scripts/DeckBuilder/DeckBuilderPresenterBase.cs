@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Common.Deck;
 using Common.SceneManagement;
 using Cysharp.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace DeckBuilder
         protected CardDatabase _cardDatabase;
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
+        protected DeckRuleModel _deckRuleModel;
 
         private sealed class CardListItem
         {
@@ -48,6 +50,8 @@ namespace DeckBuilder
         private Label _deckCountLabel;
         private Button _clearDeckButton;
         private Label _costOverLabel;
+        private Label _toastLabel;
+        private CancellationTokenSource _toastCts;
         private VisualElement _cardListDragLayer;
         private CardDetailModal _cardDetailModal;
         private DeckAnalysisModal _deckAnalysisModal;
@@ -156,6 +160,12 @@ namespace DeckBuilder
                 _characterCardSection = AddCardSection("キャラ", allCards.OfType<CharacterCardData>(), "deckbuilder-section-header--character", _characterCardItems);
                 _eventCardSection = AddCardSection("イベント", allCards.OfType<EventCardData>(), "deckbuilder-section-header--event", _eventCardItems);
 
+                _toastLabel = new Label();
+                _toastLabel.AddToClassList("deckbuilder-toast");
+                _toastLabel.pickingMode = PickingMode.Ignore;
+                _toastLabel.style.display = DisplayStyle.None;
+                _deckBuilderRoot.Add(_toastLabel);
+
                 // 全ボタン ON の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
                 RefreshFilter();
                 _deckBuilderRoot.Add(_cardListDragLayer);
@@ -202,19 +212,12 @@ namespace DeckBuilder
                 {
                     if (_deckListScrollView.worldBound.Contains(worldPos))
                     {
-                        _deckModel.Add(captured.Id, captured.Cost);
-                        RefreshDeckPanel();
-                        SaveDeck();
+                        TryAddCard(captured.Id, captured.Cost);
                     }
                     return false;
                 };
                 manipulator.OnClick = () => _cardDetailModal.Show(captured);
-                manipulator.OnRightClick = () =>
-                {
-                    _deckModel.Add(captured.Id, captured.Cost);
-                    RefreshDeckPanel();
-                    SaveDeck();
-                };
+                manipulator.OnRightClick = () => TryAddCard(captured.Id, captured.Cost);
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
                 itemsOut.Add(new CardListItem(cardView, cardData.Attribute));
@@ -347,6 +350,43 @@ namespace DeckBuilder
             return typeMatch && attributeMatch;
         }
 
+        // 同一カード（ID 基準）の枚数制限を考慮して追加する。追加できたら true。
+        private bool TryAddCard(string id, int cost)
+        {
+            if (_deckRuleModel != null && _deckRuleModel.LimitSameCards
+                && _deckModel.CountOf(id) >= DeckRuleModel.MaxCopiesPerId)
+            {
+                ShowToastAsync($"同名カードは{DeckRuleModel.MaxCopiesPerId}枚までです").Forget();
+                return false;
+            }
+            _deckModel.Add(id, cost);
+            RefreshDeckPanel();
+            SaveDeck();
+            return true;
+        }
+
+        private async UniTaskVoid ShowToastAsync(string message)
+        {
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+            _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+            CancellationToken token = _toastCts.Token;
+            _toastLabel.text = message;
+            _toastLabel.style.display = DisplayStyle.Flex;
+            try
+            {
+                await UniTask.Delay(1500, cancellationToken: token);
+                _toastLabel.style.display = DisplayStyle.None;
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        private void OnDestroy()
+        {
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+        }
+
         private void OnRemoveClicked(string id)
         {
             _deckModel.Remove(id);
@@ -474,12 +514,7 @@ namespace DeckBuilder
                 addButton.text = "＋";
                 addButton.AddToClassList("deckbuilder-deck-row-add");
                 int capturedCost = cardData.Cost;
-                addButton.clicked += () =>
-                {
-                    _deckModel.Add(capturedId, capturedCost);
-                    RefreshDeckPanel();
-                    SaveDeck();
-                };
+                addButton.clicked += () => TryAddCard(capturedId, capturedCost);
 
                 row.Add(handle);
                 row.Add(thumbnail);

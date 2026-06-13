@@ -23,6 +23,7 @@ namespace Home
         private SoundPlayer _soundPlayer;
         private SoundStore _soundStore;
         private DeckModel _deckModel;
+        private DeckRuleModel _deckRuleModel;
         private DeckRepository _deckRepository;
         private GameSessionModel _gameSessionModel;
         private UIDocument _uiDocument;
@@ -33,14 +34,20 @@ namespace Home
         private Label _usernameLabel;
         private VisualElement _darkOverlay;
         private CancellationTokenSource _toastCts;
+#if UNITY_EDITOR
+        // Editor 再生時のみ表示するデバッグ用トグル（同名カード3枚制限の ON/OFF）。
+        // ビルドには存在しないため、ビルドでは制限は常に有効。
+        private Toggle _sameCardLimitToggle;
+#endif
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, UsernameRepository usernameRepository)
+        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRuleModel deckRuleModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, UsernameRepository usernameRepository)
         {
             _sceneTransitioner = sceneTransitioner;
             _soundPlayer = soundPlayer;
             _soundStore = soundStore;
             _deckModel = deckModel;
+            _deckRuleModel = deckRuleModel;
             _deckRepository = deckRepository;
             _gameSessionModel = gameSessionModel;
             _deckModel.Clear();
@@ -61,6 +68,15 @@ namespace Home
                     speech.IsRainy = true;
                 }
             }
+#if UNITY_EDITOR
+            // 注入順は OnEnable → Start → Construct のため、_deckRuleModel と
+            // rootVisualElement の両方が揃う Construct の最後でトグルを生成する。
+            _sameCardLimitToggle = new Toggle("同名3枚制限");
+            _sameCardLimitToggle.AddToClassList("home-debug-toggle");
+            _sameCardLimitToggle.value = _deckRuleModel.LimitSameCards;
+            _sameCardLimitToggle.RegisterValueChangedCallback(OnSameCardLimitToggled);
+            _uiDocument.rootVisualElement.Add(_sameCardLimitToggle);
+#endif
         }
 
         private void Awake()
@@ -138,7 +154,22 @@ namespace Home
         private void OnDestroy()
         {
             _toastCts?.Dispose();
+#if UNITY_EDITOR
+            if (_sameCardLimitToggle != null)
+            {
+                _sameCardLimitToggle.UnregisterValueChangedCallback(OnSameCardLimitToggled);
+                _sameCardLimitToggle.RemoveFromHierarchy();
+                _sameCardLimitToggle = null;
+            }
+#endif
         }
+
+#if UNITY_EDITOR
+        private void OnSameCardLimitToggled(ChangeEvent<bool> evt)
+        {
+            _deckRuleModel.LimitSameCards = evt.newValue;
+        }
+#endif
 
         private void PlayEnterSE()
         {

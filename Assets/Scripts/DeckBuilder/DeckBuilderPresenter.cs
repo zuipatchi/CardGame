@@ -15,12 +15,14 @@ namespace DeckBuilder
             CardStore cardStore,
             CardDatabase cardDatabase,
             DeckModel deckModel,
+            DeckRuleModel deckRuleModel,
             DeckRepository deckRepository,
             SceneTransitioner sceneTransitioner)
         {
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
+            _deckRuleModel = deckRuleModel;
             _deckRepository = deckRepository;
             _sceneTransitioner = sceneTransitioner;
         }

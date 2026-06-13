@@ -40,6 +40,19 @@ namespace Common.Deck
             }
         }
 
+        public int CountOf(string id)
+        {
+            int count = 0;
+            foreach ((string entryId, int _) in _entries)
+            {
+                if (entryId == id)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         public void Add(string id, int cost)
         {
             _entries.Add((id, cost));
