@@ -168,6 +168,7 @@ namespace Home
         private void OnSameCardLimitToggled(ChangeEvent<bool> evt)
         {
             _deckRuleModel.LimitSameCards = evt.newValue;
+            _deckRuleModel.SaveLimitSameCards();
         }
 #endif
 
