@@ -33,6 +33,8 @@
 | BounceAll | 発動側から見た敵フィールドのキャラ**全員**を**所有者（相手）の手札へ戻す**（Bounce の全員対象版）。対象選択は不要（全員確定なのでオンラインも追加同期なし）。敵キャラ0体なら空振り。Bounce と同じく相手の手札へ戻すキャラは裏向き・自分の手札へ戻るキャラは表向き | 使用しない（0 固定） |
 | ExtraTurn | 発動した（アクティブな）プレイヤーが、相手にターンを渡さず**もう一度自分のターン**（ターン開始時効果→ドロー→メインフェーズ）を行う。発動時にカード上へ「もう一度！」フロート表示。**アクティブプレイヤーが発動したときのみ有効**（相手ターン中の OnDestroy 等では発動しない）。1ターン中に複数回発動しても追加ターンは1回（フラグ管理）。各ターンで発動すれば連続して継続する | 使用しない（0 固定） |
 | HealAllAllies | 発動側の**自フィールドのキャラ全員**の HP を EventValue 分回復する（最大HP=元のHPでクランプ）。**EventValue=0 のときは最大HPまで全回復**。自キャラが0体なら空振り。各キャラの HP ラベルが緑にパルスする演出 | 回復量（0=全回復） |
+| DrawSkipNext | 発動プレイヤーが指定枚数ドローし（Draw と同じ。デッキ0枚で中断）、その代わり**そのプレイヤーの次のドローフェーズを1回スキップ**する（ドロー0枚にして消費。スキップ時は「ドロースキップ」トースト表示）。スキップ予約はターンをまたいで次に来る自分のドローフェーズで消費される（ExtraTurn 中でも「次に来るドロー」を飛ばす） | ドロー枚数 |
+| DrawNextTurnStart | 発動時には引かず（「次ターン DRAW X」フロート表示のみ）、**そのプレイヤーの次のターン開始時のドローフェーズで通常ドローに上乗せして指定枚数を追加ドロー**する。複数回発動すると枚数は累積する。デッキが尽きた時点で中断 | ドロー枚数 |
 
 > 「勝利点を固定値で得るだけ」のカードは `EventType=None` ＋ 勝利点付帯値（`VictoryPointBonus`）で作る（旧 `GainVictoryPoints` は撤去・付帯値へ統合。enum の整数 11 は欠番）。
 > `AtkBoost` / `DefBoost` / `Negate` は enum に定義のみで未実装。
@@ -106,7 +108,7 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / SummonChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageAllEnemies / DamageEnemy / SummonChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
 - **OnAttacked / OnKill（キャラ専用の戦闘トリガー）**: いずれも `ExecuteAttackAsync`（キャラ vs キャラ戦闘）からのみ発動する。`OnAttacked` は被攻撃側が攻撃の対象になった直後（破壊判定の前）に解決され、source は攻撃された本人・所有者は攻撃側の相手。**攻撃側 ATK 0 の盾ブロック（ダメージ0）でも発動する**。`OnKill` は攻撃側が対象を撃破し、対象の OnDestroy 解決後に攻撃側が場に残っていれば解決され、source は攻撃した本人・所有者は攻撃側（ダメージ0では撃破が起きないため発動しない）。どちらも戦闘から決定的に解決されるためオンライン・CPU でも追加同期なしで対称発動する（`DamageEnemy` 等の効果ダメージ・ハート攻撃では発動しない）。
 - **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。
@@ -121,6 +123,8 @@
 - **HealAllAllies**: 発動側の自フィールド全キャラの HP を `EventValue` / `EffectValue` 分回復する（最大HP=元のHPでクランプ。`CardView.HealAsync`）。**値0は全回復**。自キャラが0体なら空振り。盤面は同期済みで決定的に解決される（追加同期不要）。勝利点付帯値と併用すれば「全回復しつつ勝利点を得る」カードになる（例: E3004 不死鳥の恵み）。
 - **NextCardCostFree**: 発動側の「次の1枚無料」フラグ（`_playerNextCardFree` / `_opponentNextCardFree`）を立て、次の `PayHandCostAsync` でコスト0扱いにしてフラグ消費する（使うまで持続）。フラグは次の支払いで消費されるため Switch/Evolve の内部配置には波及しない（イベント本体プレイ時に消費済み）。オンラインは無料カードを「空の `costCardIds`」として送り相手が無料再生するため追加同期不要。EventValue は不使用（0）。
 - **ExtraTurn**: 発動時に `_extraTurnPending` フラグを立て（`ApplyExtraTurnAsync`）、ターン終了時（`RunTurnAsync` 末尾）に `GameModel.RepeatTurn()` で `IsLocalTurn` を反転せず `TurnNumber` だけ加算して同じプレイヤーがもう一度ターンを行う。発動側がアクティブプレイヤー（`_gameModel.IsLocalTurn` と一致）のときのみ有効化する。オンラインは効果がカードデータ＋同期済み盤面から両クライアントで決定的に解決されるため追加のネットワークメッセージ不要だが、Pass 時の相手ドロー待ち（`_preDrawReceiveTask`）登録は ExtraTurn 保留中はスキップする（次も自分のターンが続くため）。EventValue は不使用（0）。
+- **DrawSkipNext**: Draw と同じく `ApplyDrawEffectAsync` で即時ドローしたうえで、発動側のスキップフラグ（`_playerSkipNextDraw` / `_opponentSkipNextDraw`）を立てる（`SetSkipNextDraw`）。フラグは次に来るそのプレイヤーの `RunDrawPhaseAsync` で `drawCount=0` にして消費する。各クライアントは自分側（アクティブ側）のフラグを見るため drawCount は対称に 0 になり、ドロー0枚でも `SendDrawNotification` を送る既存仕様で lockstep が保たれる（追加同期不要）。EventValue / EffectValue = ドロー枚数（値2は不使用）。
+- **DrawNextTurnStart**: 発動時はドローせず、発動側の予約カウント（`_playerPendingNextDraw` / `_opponentPendingNextDraw`）に EventValue を加算する（`AddPendingNextDraw`・累積）。予約は次に来るそのプレイヤーの `RunDrawPhaseAsync` で `drawCount` に上乗せして消費する。各クライアントは自分側（アクティブ側）の予約を見るため drawCount は対称に決まり、追加ドローも既存の `SendDrawNotification` lockstep でそのまま同期される（追加同期不要）。EventValue / EffectValue = ドロー枚数（値2は不使用）。`DrawSkipNext` と同居した場合はスキップで base を 0 にした後に予約分を上乗せして引く。
 - 勝敗に関わる属性（赤=ハート / 青=デッキ0 / 緑=勝利点20）の挙動は [rules.md](rules.md)「勝敗条件」を参照。
 - オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
 
