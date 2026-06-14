@@ -63,16 +63,18 @@ namespace DeckBuilder
         private VisualElement _reorderGhost;
         private VisualElement _reorderIndicator;
         private int _reorderInsertIndex;
-        // フィルタは各ボタンの ON/OFF。ON のカテゴリのカードのみ表示する（種別×属性の AND）。
-        // シーン遷移ごとに presenter が生成され、すべて ON（全表示）で始まる。
-        private bool _showCharacterCards = true;
-        private bool _showEventCards = true;
+        // フィルタは各ボタンの ON/OFF。各ディメンション（種別・属性）について
+        // 「ひとつも ON でない（＝空）ならフィルタなしで全表示、ON があればその集合のみ表示」とする。
+        // よって種別両方 ON と両方 OFF はどちらも全表示、属性全 ON と全 OFF もどちらも全表示になる。
+        // シーン遷移ごとに presenter が生成され、すべて OFF（全表示）で始まる。
+        private bool _showCharacterCards = false;
+        private bool _showEventCards = false;
         private VisualElement _characterCardSection;
         private VisualElement _eventCardSection;
         private Button _filterCharacterButton;
         private Button _filterEventButton;
-        // ON になっている属性の集合。初期状態は全属性 ON。
-        private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>(FilterAttributes);
+        // ON になっている属性の集合。初期状態は空（全表示）。
+        private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
         private readonly Dictionary<CardAttribute, Button> _attributeFilterButtons = new Dictionary<CardAttribute, Button>();
         private readonly List<CardListItem> _characterCardItems = new List<CardListItem>();
         private readonly List<CardListItem> _eventCardItems = new List<CardListItem>();
@@ -166,7 +168,7 @@ namespace DeckBuilder
                 _toastLabel.style.display = DisplayStyle.None;
                 _deckBuilderRoot.Add(_toastLabel);
 
-                // 全ボタン ON の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
+                // 全ボタン OFF の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
                 RefreshFilter();
                 _deckBuilderRoot.Add(_cardListDragLayer);
             }
@@ -295,14 +297,14 @@ namespace DeckBuilder
             int characterVisible = ApplyAttributeFilterToItems(_characterCardItems);
             int eventVisible = ApplyAttributeFilterToItems(_eventCardItems);
 
-            // 種別が ON かつ表示中カードがあるセクションのみ表示する
+            // 種別フィルタにマッチし、かつ表示中カードがあるセクションのみ表示する
             if (_characterCardSection != null)
             {
-                _characterCardSection.style.display = _showCharacterCards && characterVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _characterCardSection.style.display = TypeMatches(isCharacter: true) && characterVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
             if (_eventCardSection != null)
             {
-                _eventCardSection.style.display = _showEventCards && eventVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                _eventCardSection.style.display = TypeMatches(isCharacter: false) && eventVisible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
             // ボタンの ON/OFF ハイライト
@@ -321,7 +323,7 @@ namespace DeckBuilder
             int visible = 0;
             foreach (CardListItem item in items)
             {
-                bool match = _attributeFilter.Contains(item.Attribute);
+                bool match = AttributeMatches(item.Attribute);
                 item.Element.style.display = match ? DisplayStyle.Flex : DisplayStyle.None;
                 if (match)
                 {
@@ -329,6 +331,27 @@ namespace DeckBuilder
                 }
             }
             return visible;
+        }
+
+        // 種別フィルタ判定。キャラ・イベントどちらも OFF なら種別での絞り込みをせず全マッチ。
+        // いずれかが ON のときは、その種別が ON の場合のみマッチ。
+        private bool TypeMatches(bool isCharacter)
+        {
+            if (!_showCharacterCards && !_showEventCards)
+            {
+                return true;
+            }
+            return isCharacter ? _showCharacterCards : _showEventCards;
+        }
+
+        // 属性フィルタ判定。ON の属性が無い（空集合）なら属性での絞り込みをせず全マッチ。
+        private bool AttributeMatches(CardAttribute attribute)
+        {
+            if (_attributeFilter.Count == 0)
+            {
+                return true;
+            }
+            return _attributeFilter.Contains(attribute);
         }
 
         private static void SetButtonActive(Button btn, bool active, string activeClass)
@@ -345,8 +368,8 @@ namespace DeckBuilder
 
         private bool ShouldShowCardInDeck(CardData cardData)
         {
-            bool typeMatch = cardData is CharacterCardData ? _showCharacterCards : _showEventCards;
-            bool attributeMatch = _attributeFilter.Contains(cardData.Attribute);
+            bool typeMatch = TypeMatches(cardData is CharacterCardData);
+            bool attributeMatch = AttributeMatches(cardData.Attribute);
             return typeMatch && attributeMatch;
         }
 
