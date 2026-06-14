@@ -18,6 +18,8 @@ MonoBehaviour:
     _cardName: "\u4EBA\u61D0\u3063\u3053\u3044\u30B9\u30E9\u30A4\u30E0"
     _cost: 0
     _image: {fileID: 21300000, guid: 36c033ee0736ea046a05d335eb7acff3, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 0
     _attack: 0
     _hp: 1
     _attribute: 1
@@ -33,6 +35,8 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u5F1F"
     _cost: 1
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 0
     _attack: 2
     _hp: 3
     _attribute: 1
@@ -48,6 +52,8 @@ MonoBehaviour:
     _cardName: "\u6FC0\u6D41\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: b23c64f36839a6f40a22f2554d895e8d, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 0
     _attack: 2
     _hp: 3
     _attribute: 1
@@ -63,6 +69,8 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u5144"
     _cost: 2
     _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 0
     _attack: 2
     _hp: 6
     _attribute: 1
@@ -78,6 +86,8 @@ MonoBehaviour:
     _cardName: "\u75BE\u98A8\u306E\u6709\u99AC"
     _cost: 4
     _image: {fileID: 21300000, guid: 6e9a50159f325764bbe71faa4ff249dd, type: 3}
+    _flavorText: "\u3053\u306E\u898B\u305F\u76EE\u3067\u5B9F\u306F\u98DB\u3079\u306A\u3044"
+    _victoryPointBonus: 0
     _attack: 3
     _hp: 6
     _attribute: 1
