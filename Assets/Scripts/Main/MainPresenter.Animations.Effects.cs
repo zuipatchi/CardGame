@@ -51,6 +51,14 @@ namespace Main
             catch (OperationCanceledException) { }
 
             label.RemoveFromHierarchy();
+
+            // 演出終了後の共通の余韻ディレイ。パーティクルと並行（WhenAll）で使われる場合も
+            // 双方に同じ待ちが付くだけで、WhenAll は最大値を取るため二重にはならない。
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(EffectTrailingDelaySeconds), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
         }
 
         // ─── MedalIcon フローティング（GainVictoryPoints 発動カードの上に表示）──────
@@ -98,6 +106,13 @@ namespace Main
             catch (OperationCanceledException) { }
 
             container.RemoveFromHierarchy();
+
+            // 演出終了後の共通の余韻ディレイ（ラベルと同様）。
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(EffectTrailingDelaySeconds), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
         }
 
         // ─── シールドブロック演出（ダメージ 0 時にアイコン表示）──────────────────
@@ -385,10 +400,14 @@ namespace Main
                 float lifetime = main.startLifetime.mode == ParticleSystemCurveMode.Constant
                     ? main.startLifetime.constant
                     : main.startLifetime.constantMax;
-                float duration = main.duration + lifetime;
-                if (duration > 0f)
+                // 実際の再生時間（PlaybackTime）に合わせる。バースト放出だと duration（放出期間）と
+                // lifetime（粒子寿命）は加算ではなく「長い方」が見た目の長さになるため max を取る
+                // （+ にすると二重カウントで Prefab の PlaybackTime より長く待ってしまう）。
+                // simulationSpeed で再生が速く/遅くなる分は実時間に割って補正する。
+                float playbackTime = Mathf.Max(main.duration, lifetime) / Mathf.Max(0.0001f, main.simulationSpeed);
+                if (playbackTime > 0f)
                 {
-                    waitSeconds = duration;
+                    waitSeconds = playbackTime;
                 }
             }
 
@@ -405,6 +424,14 @@ namespace Main
             Destroy(mat);
             rt.Release();
             Destroy(rt);
+
+            // 演出（パーティクル）が消えてから次の処理へ移る前に共通の余韻ディレイを入れる。
+            // これによりカード効果全般で「演出終了 → 0.25秒 → 次の処理」のテンポを統一する。
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(EffectTrailingDelaySeconds), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
         }
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────

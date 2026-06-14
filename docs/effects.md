@@ -214,3 +214,52 @@ Vector3 worldPos = ray.origin + ray.direction * t;
 これでゲームビュー解像度・パネルスケール・カメラ位置を問わず正確なワールド座標が得られる。
 
 **注意:** `ray.direction.z` がほぼ 0 のとき（カメラが Z 軸と水平）は交差しないため、このプロジェクトのようにカメラが Z 方向を向いている前提で使用する。
+
+---
+
+## 7. パーティクルの再生時間（PlaybackTime）を縮める／伸ばす
+
+### 落とし穴：Duration（`lengthInSec`）だけ変えても見た目の長さは変わらない
+
+ParticleSystem の **Duration**（プレハブ YAML では `lengthInSec`）は「粒子を**放出する期間**」を決めるだけ。エフェクトの見た目の長さは各粒子の **寿命（`startLifetime`）** に強く依存する。寿命が Duration より長いと、Duration を縮めても放出済みの粒子が寿命まで残り、**体感の再生時間がほとんど変わらない**。
+
+> 例：CFXR Magic Poof は粒子寿命が最大 1.1 秒。Duration を 1.5→0.75 に縮めても見た目は約 1.1 秒残るため「変わってない」と感じる。
+
+### 推奨：`simulationSpeed` で全体を一律に圧縮する（見た目を保てる）
+
+見た目・軌跡を維持したまま再生時間だけ縮めたいときは、各 ParticleSystem の **`simulationSpeed`** を上げる。**値が大きいほど短く（速く）**なる。
+
+- 体感の終了時間 ≈ `(Duration + 最大 startLifetime) / simulationSpeed`
+- 目標時間に合わせるなら `simulationSpeed = (Duration + 最大 startLifetime) / 目標秒数`
+- マルチ ParticleSystem 構成（ルート＋子）の場合は**全システムに同じ値**を設定すると相対タイミングを保ったまま一律に圧縮できる
+
+プレハブ YAML を直接編集する場合（Asset Store アセットなど）は、全 ParticleSystem の `simulationSpeed:` を書き換える。**Unity 起動中の外部編集は自動反映されないことがある** → Unity をフォーカスするか、対象を右クリック →「Reimport」。
+
+### 別案：`startLifetime` を縮める
+
+軌跡を途中で消して短くしたい場合は寿命を直接縮める。ただし `simulationSpeed` と違い、粒子の移動速度は変わらないため**軌跡が切れたように見える**ことがある。
+
+### コード側の注意：待ち時間は「PlaybackTime（実再生長）」に合わせる
+
+[MainPresenter.Animations.Effects.cs](../Assets/Scripts/Main/MainPresenter.Animations.Effects.cs) の `PlayParticleAtUiPositionAsync` は、エフェクト終了を待つ秒数を Prefab の **実再生時間（PlaybackTime）** に合わせて算出する。ここでのポイントは2つ:
+
+1. **`duration` と `lifetime` は加算ではなく `max` を取る** — バースト放出（`rateOverTime: 0` ＋ `m_Bursts`、CFXR の Impact 系など）では粒子が t=0 に一斉放出されるため、見た目の長さは「放出期間（duration）」と「粒子寿命（lifetime）」の**長い方**で決まる。`+` にすると二重カウントになり、Prefab の PlaybackTime より長く待って**消えた後に空白**ができる（コードと Prefab のズレの原因）。
+2. **`simulationSpeed` で割って実時間に補正** — `simulationSpeed` を上げても等速時の長さを待たないように。
+
+```csharp
+// 実再生時間（PlaybackTime） = max(放出期間, 粒子寿命) / simulationSpeed
+float playbackTime = Mathf.Max(main.duration, lifetime) / Mathf.Max(0.0001f, main.simulationSpeed);
+waitSeconds = playbackTime;
+```
+
+この結果、演出ごとのコード待ち時間は **「PlaybackTime ＋ `EffectTrailingDelaySeconds`（0.25秒）」** に揃う（下記）。
+
+### 演出後の共通ディレイ（`EffectTrailingDelaySeconds`）
+
+カード効果のパーティクル演出は `PlayParticleAtUiPositionAsync` の**末尾で共通の余韻ディレイ `EffectTrailingDelaySeconds`（0.25秒）**を入れている。これにより「演出が消える → 0.25秒 → 次の処理（適用・カード移動など）」というテンポがカード効果全般で統一される。`PlayParticleAtCardAsync` 経由を含め、この関数を通る演出（バウンス・ドロー・リカバー・バニッシュ・ダメージ・進化・召喚など）はすべて自動でこのディレイがかかるため、各呼び出し側で個別に `UniTask.Delay` を挟む必要はない。
+
+同じ `EffectTrailingDelaySeconds` は、パーティクルを通らない**フローティングラベル（`PlayFloatingLabelAsync`）・メダル（`PlayFloatingMedalAsync`）**の末尾にも入れている。これで Evolve / ExtraTurn（「もう一度！」）/ コスト0 / Switch / GainVictoryPoints など、ラベル・メダルのみの演出も同じ 0.25 秒ディレイで揃う。
+
+- ラベル＋パーティクルを `WhenAll` で同時再生する演出（Draw / Recover / BanishChar）は、両方の末尾に同じディレイが付くが `WhenAll` が最大値を取るため**二重にはならず +0.25 秒のまま**
+- ディレイ秒数を変えるなら [MainPresenter.cs](../Assets/Scripts/Main/MainPresenter.cs) の `EffectTrailingDelaySeconds` を変更する（1か所でパーティクル・ラベル・メダル全演出に反映）
+- 攻撃ヒット・コスト支払いの演出も同じパーティクル関数を通るため、同様にディレイがかかる

@@ -197,7 +197,7 @@ namespace Main
                     await ApplyDamageEnemyAsync(charData.EffectValue2, charData.EffectValue, isLocal, ct);
                     break;
                 case CardEventType.Bounce:
-                    await ApplyBounceAsync(charData.EffectValue, isLocal, ct);
+                    await ApplyBounceAsync(charData.EffectValue, isLocal, _bounceEffectPrefab, false, ct);
                     break;
                 case CardEventType.BounceAll:
                     await ApplyBounceAllAsync(isLocal, ct);
@@ -285,7 +285,7 @@ namespace Main
                     await ApplyDamageEnemyAsync(data.EventValue2, data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.Bounce:
-                    await ApplyBounceAsync(data.EventValue, isLocal, ct);
+                    await ApplyBounceAsync(data.EventValue, isLocal, _bounceEffectPrefab, false, ct);
                     break;
                 case CardEventType.BounceAll:
                     await ApplyBounceAllAsync(isLocal, ct);
@@ -554,7 +554,7 @@ namespace Main
         // バウンス：発動側から見た敵フィールドのキャラを count 体（値1。未設定=0 は1体）選び、
         // 所有者（相手）の手札へ戻す。対象数が敵の数以上なら全員・0体なら空振り。
         // 対象選択は DamageEnemy と同じ仕組み（プレイヤー選択／CPU 自動／オンライン同期）を共用する。
-        private async UniTask ApplyBounceAsync(int count, bool isLocal, CancellationToken ct)
+        private async UniTask ApplyBounceAsync(int count, bool isLocal, GameObject effectPrefab, bool simultaneous, CancellationToken ct)
         {
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
             HandView targetHand = isLocal ? _opponentHandView : _handView;
@@ -572,30 +572,74 @@ namespace Main
                 return;
             }
 
-            // 各対象を所有者の手札へ戻す。相手の手札（裏向き表示）に戻すときは裏返してから加える
+            // 一括モード：全対象の現在位置を先に確定し、フィールドから一斉に外してから
+            // まとめて手札へ戻す（1枚ずつではなく同時に飛ぶ演出）。effectPrefab は再生しない。
+            if (simultaneous)
+            {
+                List<(CardView target, Rect fromRect)> moves = new List<(CardView, Rect)>();
+                foreach (CardView target in targets)
+                {
+                    if (targetField.Contains(target))
+                    {
+                        moves.Add((target, target.worldBound));
+                    }
+                }
+                List<UniTask> moveTasks = new List<UniTask>(moves.Count);
+                foreach ((CardView target, Rect fromRect) in moves)
+                {
+                    targetField.RemoveCard(target);
+                    moveTasks.Add(BounceCardToHandAsync(target, targetHand, fromRect, ct));
+                }
+                await UniTask.WhenAll(moveTasks);
+                return;
+            }
+
+            // 個別モード：各対象を順番に所有者の手札へ戻す（対象ごとに effectPrefab を再生）
             foreach (CardView target in targets)
             {
                 if (!targetField.Contains(target))
                 {
                     continue;
                 }
+                if (effectPrefab != null)
+                {
+                    // PlayParticleAtCardAsync が演出終了後の共通ディレイ（EffectTrailingDelaySeconds）まで待つ
+                    await PlayParticleAtCardAsync(target, effectPrefab, ct);
+                }
                 Rect fromRect = target.worldBound;
                 targetField.RemoveCard(target);
-                if (targetHand == _opponentHandView && !target.IsFaceDown)
-                {
-                    await target.FlipAsync(ct);
-                }
-                await targetHand.AddCardBackAsync(target, fromRect, ct);
+                await BounceCardToHandAsync(target, targetHand, fromRect, ct);
             }
         }
 
+        // 1体を所有者の手札へ戻す。相手の手札（裏向き表示）に戻すときは裏返してから加える。
+        private async UniTask BounceCardToHandAsync(CardView target, HandView targetHand, Rect fromRect, CancellationToken ct)
+        {
+            if (targetHand == _opponentHandView && !target.IsFaceDown)
+            {
+                await target.FlipAsync(ct);
+            }
+            await targetHand.AddCardBackAsync(target, fromRect, ct);
+        }
+
         // バウンス（全体）：発動側から見た敵フィールドのキャラ全員を所有者（相手）の手札へ戻す。
+        // 個別バウンス（ApplyBounceAsync）と異なり、対象ごとにエフェクトは再生せず、
+        // フィールド中央で全体用エフェクトを1度だけ再生してから一括バウンスする。
         // ApplyBounceAsync は対象数が敵の数以上のとき選択 UI なしで全員を対象にするため、
-        // 敵の全数を渡して全体バウンスを実現する（敵キャラ0体なら ApplyBounceAsync 側で空振り）。
+        // 敵の全数を渡して全体バウンスを実現する（per-target エフェクトは null で無効化）。
         private async UniTask ApplyBounceAllAsync(bool isLocal, CancellationToken ct)
         {
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
-            await ApplyBounceAsync(targetField.Characters.Count, isLocal, ct);
+            if (targetField.Characters.Count == 0)
+            {
+                return;
+            }
+            if (_bounceAllEffectPrefab != null)
+            {
+                // PlayParticleAtUiPositionAsync が演出終了後の共通ディレイ（EffectTrailingDelaySeconds）まで待つ
+                await PlayParticleAtUiPositionAsync(targetField, targetField.worldBound.center, _bounceAllEffectPrefab, ct, scale: 2f);
+            }
+            await ApplyBounceAsync(targetField.Characters.Count, isLocal, null, true, ct);
         }
 
         // 発動側の自フィールドに、charNumber が示すキャラ（"C###"）を count 体新規生成して配置する。

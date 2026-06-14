@@ -27,6 +27,9 @@ namespace Main
 
         private const float AnimationShortDelay = 0.25f;
 
+        // カード効果のパーティクル演出が終わってから、次の処理（適用・カード移動など）へ移るまでの共通の余韻ディレイ。
+        private const float EffectTrailingDelaySeconds = 0.25f;
+
         private const float AttackWindupDuration = 0.15f;
         private const float AttackWindupDistance = 50f;
         private const float AttackFlyDuration = 0.25f;
@@ -84,6 +87,8 @@ namespace Main
         [SerializeField] private GameObject _charDestroyEffectPrefab;
         [SerializeField] private GameObject _hitEffectPrefab;
         [SerializeField] private GameObject _evolveEffectPrefab;
+        [SerializeField] private GameObject _bounceEffectPrefab;
+        [SerializeField] private GameObject _bounceAllEffectPrefab;
         [SerializeField] private GameObject _areaDamageEffectPrefab;
         [SerializeField] private GameObject _rainDefeatEffectPrefab;
         [SerializeField] private Shader _fireworkAdditiveUIShader;
