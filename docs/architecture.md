@@ -317,7 +317,7 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ### カードシステム
 
 ```
-CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite)
+CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite) / FlavorText（世界観テキスト。効果に影響せず詳細モーダル最下部に表示）
   CharacterCardData   キャラカード。Attack / Hp / Attribute 値を保持。メインフェーズで表向きにフィールドへ配置
                       登場時効果として EffectTrigger / EffectType（EventType 流用）/ EffectValue / Description（説明テキスト）を保持
   EventCardData       イベントカード。EventType / EventValue / Attribute / Description を保持。メインフェーズで即時解決し墓地へ

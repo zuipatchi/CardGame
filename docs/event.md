@@ -7,7 +7,7 @@
 
 > 値が2つ必要な効果（例: SummonChar の「ID」と「体数」）のために、汎用の2つ目の数値 `EventValue2` / `EffectValue2` がある。使わない効果では 0。
 
-効果の説明文は `Description` に手書きし、カード詳細モーダルに表示される（自動生成はしない）。
+効果の説明文は `Description` に手書きし、カード詳細モーダルに表示される（自動生成はしない）。`Description` とは別に世界観テキスト用の `Flavor Text`（`FlavorText`）も全カード共通で設定でき、詳細モーダルの最下部に斜体で表示される（効果には影響しない）。
 
 ---
 
@@ -49,6 +49,7 @@
 | Event Value | 効果の数値（上表「値の意味」の値1） |
 | Event Value 2 | 2つ目の数値（SummonChar の体数など。使わない効果は 0） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
+| Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
 | Trigger On Grave | ON にすると、このカードが墓地に送られたときにコストを支払わずに効果が発動する |
 | Event Trigger | 発動タイミング（下表）。既定は `OnPlay` |
 
@@ -77,6 +78,7 @@
 | Haste | **速攻**。ON にすると、このキャラは召喚酔いせず、場に出したターンから攻撃できる（通常配置・召喚・Switch / Evolve のいずれの配置でも即攻撃可。1ターン1回の攻撃制限は維持）。`EffectType` とは独立したフラグ。カードと詳細モーダルに SpeedIcon を表示（詳細は [rules.md](rules.md)「攻撃回数と召喚酔い」） |
 | Flying | **飛行**。ON にすると、このキャラは守護を無視して攻撃対象（キャラ・ハート）を選べ、かつ飛行を持つキャラからしか攻撃されない（飛行なしキャラは飛行キャラを攻撃不可）。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに FlyIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
+| Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
 
 #### EffectTrigger（[CharacterEffectTrigger.cs](../Assets/Scripts/Main/Card/CharacterEffectTrigger.cs)）
 

@@ -124,7 +124,7 @@ public enum EventType
 
 **① カードデータに効果を設定する**
 
-対象キャラが属する属性別 `CharacterCardSO`（`Assets/Data/{属性}/CharacterCards_{属性}.asset`）のインスペクターで、`Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。
+対象キャラが属する属性別 `CharacterCardSO`（`Assets/Data/{属性}/CharacterCards_{属性}.asset`）のインスペクターで、`Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。任意で `Flavor Text`（世界観テキスト。効果には影響せず詳細モーダル最下部に表示）も設定できる。
 
 **② 効果種別の解決処理を追加する**
 
