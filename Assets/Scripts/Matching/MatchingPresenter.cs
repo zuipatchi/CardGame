@@ -221,6 +221,7 @@ namespace Matching
                     }
                     else
                     {
+                        await _gameSessionModel.LeaveCurrentSessionAsync();
                         _model.State.Value = MatchingState.TimedOut;
                     }
                 }
@@ -250,6 +251,7 @@ namespace Matching
                 }
                 else
                 {
+                    await _gameSessionModel.LeaveCurrentSessionAsync();
                     _model.State.Value = MatchingState.TimedOut;
                 }
             }
