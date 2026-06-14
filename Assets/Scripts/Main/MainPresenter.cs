@@ -150,6 +150,16 @@ namespace Main
         // ターン終了時に消費し、相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
         private bool _extraTurnPending;
 
+        // DrawSkipNext 効果: 発動側の次のドローフェーズを1回スキップする。
+        // 発動時に立て、そのプレイヤーの次の RunDrawPhaseAsync でドロー0枚にして消費する。
+        private bool _playerSkipNextDraw;
+        private bool _opponentSkipNextDraw;
+
+        // DrawNextTurnStart 効果: 発動側の次のターン開始時に追加でドローする予約枚数（累積）。
+        // 発動時に加算し、そのプレイヤーの次の RunDrawPhaseAsync で通常ドローに上乗せして消費する。
+        private int _playerPendingNextDraw;
+        private int _opponentPendingNextDraw;
+
         // EventCardTrigger.OnTurnStart の永続イベント登録簿。プレイ（PlayEvent）された OnTurnStart イベントのみを
         // 登録し、自分のターン開始時に毎ターン発動する。コストとして捨てたカードは含めない（墓地を走査しない理由）
         private readonly List<EventCardData> _playerTurnStartEvents = new List<EventCardData>();

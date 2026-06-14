@@ -92,7 +92,7 @@ MonoBehaviour:
     _hp: 6
     _attribute: 1
     _effectTrigger: 1
-    _effectType: 16
+    _effectType: 17
     _effectValue: 0
     _effectValue2: 0
     _guardian: 0

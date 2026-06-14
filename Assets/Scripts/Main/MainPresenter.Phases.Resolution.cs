@@ -51,7 +51,7 @@ namespace Main
         // card は演出のアンカー（プレイ時はプレイしたカード、OnTurnStart は墓地からせり出した一時カード）。
         private async UniTask ResolveEventCardEffectAsync(EventCardData eventData, CardView card, bool isLocal, CancellationToken ct)
         {
-            if (eventData.EventType == CardEventType.Draw)
+            if (eventData.EventType == CardEventType.Draw || eventData.EventType == CardEventType.DrawSkipNext)
             {
                 await PlayDrawEffectAsync(card, eventData.EventValue, ct);
             }
@@ -95,6 +95,10 @@ namespace Main
             else if (eventData.EventType == CardEventType.GainVPPerGreenGrave)
             {
                 await PlayFloatingMedalAsync(card, ct);
+            }
+            else if (eventData.EventType == CardEventType.DrawNextTurnStart)
+            {
+                await PlayFloatingLabelAsync($"次ターン DRAW {eventData.EventValue}", "draw-label", card, ct);
             }
             await ApplyEventEffectAsync(eventData, isLocal, card, ct);
 
@@ -185,6 +189,15 @@ namespace Main
                     await PlayDrawEffectAsync(sourceCard, charData.EffectValue, ct);
                     await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.DrawSkipNext:
+                    await PlayDrawEffectAsync(sourceCard, charData.EffectValue, ct);
+                    await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
+                    SetSkipNextDraw(isLocal);
+                    break;
+                case CardEventType.DrawNextTurnStart:
+                    await PlayFloatingLabelAsync($"次ターン DRAW {charData.EffectValue}", "draw-label", sourceCard, ct);
+                    AddPendingNextDraw(charData.EffectValue, isLocal);
+                    break;
                 case CardEventType.BanishChar:
                 {
                     FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
@@ -269,6 +282,13 @@ namespace Main
             {
                 case CardEventType.Draw:
                     await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
+                    break;
+                case CardEventType.DrawSkipNext:
+                    await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
+                    SetSkipNextDraw(isLocal);
+                    break;
+                case CardEventType.DrawNextTurnStart:
+                    AddPendingNextDraw(data.EventValue, isLocal);
                     break;
                 case CardEventType.BanishChar:
                 {
@@ -366,6 +386,40 @@ namespace Main
             }
             _extraTurnPending = true;
             await PlayFloatingLabelAsync("もう一度！", "extra-turn-label", sourceCard, ct);
+        }
+
+        // DrawSkipNext 効果：発動側の次のドローフェーズを1回スキップするフラグを立てる。
+        // フラグは次に来るそのプレイヤーの RunDrawPhaseAsync で消費される。
+        // 効果はカードデータから決定的に解決されるため、各クライアントが自分側のフラグを立てれば対称になる（追加同期不要）。
+        private void SetSkipNextDraw(bool isLocal)
+        {
+            if (isLocal)
+            {
+                _playerSkipNextDraw = true;
+            }
+            else
+            {
+                _opponentSkipNextDraw = true;
+            }
+        }
+
+        // DrawNextTurnStart 効果：発動側の次のターン開始時に追加でドローする予約枚数を加算する。
+        // 予約は次に来るそのプレイヤーの RunDrawPhaseAsync で通常ドローに上乗せして消費される（複数回発動で累積）。
+        // 効果はカードデータから決定的に解決されるため、各クライアントが自分側のカウントを加算すれば対称になる（追加同期不要）。
+        private void AddPendingNextDraw(int count, bool isLocal)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+            if (isLocal)
+            {
+                _playerPendingNextDraw += count;
+            }
+            else
+            {
+                _opponentPendingNextDraw += count;
+            }
         }
 
         // 次にプレイするカード1枚のコストを0にする（使うまで持続）。発動側のフラグを立て、発動カード上に告知を出す

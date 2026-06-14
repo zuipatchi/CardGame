@@ -20,6 +20,39 @@ namespace Main
             // ターン1は必ず先攻の初手。先攻の初手のみドローなし。
             int drawCount = _gameModel.TurnNumber == 1 ? 0 : DrawPhaseCardCount;
 
+            // DrawSkipNext 効果でアクティブプレイヤーの次ドローがスキップ予約されていれば、ドロー0枚にして消費する。
+            // 両クライアントとも自分側のフラグ（アクティブ側）を見るため、drawCount は対称に 0 になる。
+            bool skipDraw = isLocalTurn ? _playerSkipNextDraw : _opponentSkipNextDraw;
+            if (skipDraw)
+            {
+                drawCount = 0;
+                if (isLocalTurn)
+                {
+                    _playerSkipNextDraw = false;
+                }
+                else
+                {
+                    _opponentSkipNextDraw = false;
+                }
+                ShowToast("ドロースキップ");
+            }
+
+            // DrawNextTurnStart 効果でアクティブプレイヤーに予約ドローがあれば、通常ドローに上乗せして消費する。
+            // 両クライアントとも自分側（アクティブ側）の予約を見るため、drawCount は対称に決まる。
+            int pendingDraw = isLocalTurn ? _playerPendingNextDraw : _opponentPendingNextDraw;
+            if (pendingDraw > 0)
+            {
+                drawCount += pendingDraw;
+                if (isLocalTurn)
+                {
+                    _playerPendingNextDraw = 0;
+                }
+                else
+                {
+                    _opponentPendingNextDraw = 0;
+                }
+            }
+
             if (isLocalTurn)
             {
                 for (int i = 0; i < drawCount; i++)

@@ -46,5 +46,11 @@ namespace Main.Card
         // 発動側の自フィールドのキャラ全員の HP を EventValue / EffectValue 分回復する（最大HPでクランプ）。
         // EventValue / EffectValue = 0 のときは最大HPまで全回復する。自キャラがいなければ空振り。
         HealAllAllies = 19,
+        // 発動側が即座に EventValue / EffectValue 枚ドローし、そのプレイヤーの次のドローフェーズを1回スキップする。
+        // EventValue / EffectValue = ドロー枚数（EventValue2 / EffectValue2 は不使用）。
+        DrawSkipNext = 20,
+        // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
+        // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。
+        DrawNextTurnStart = 21,
     }
 }
