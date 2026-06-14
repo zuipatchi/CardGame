@@ -18,6 +18,8 @@ MonoBehaviour:
     _cardName: "\u5927\u6A39\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: cede9ecc373ca214c8c8e5eac9d19542, type: 3}
+    _flavorText: "\u6839\u3063\u3053\u304C\u751F\u3048\u3059\u304E\u3061\u3083\u3063\u305F\u3071\u3061"
+    _victoryPointBonus: 0
     _attack: 2
     _hp: 3
     _attribute: 2
@@ -33,12 +35,14 @@ MonoBehaviour:
     _cardName: "\u76D7\u4EBA\u30B4\u30D6\u30EA\u30F3"
     _cost: 1
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 1
     _attack: 2
     _hp: 3
     _attribute: 2
     _effectTrigger: 1
-    _effectType: 11
-    _effectValue: 1
+    _effectType: 0
+    _effectValue: 0
     _effectValue2: 0
     _guardian: 0
     _haste: 0
@@ -48,12 +52,14 @@ MonoBehaviour:
     _cardName: "\u6BD2\u866B"
     _cost: 1
     _image: {fileID: 21300000, guid: bcec6bde5394392488dac211d96b2002, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 2
     _attack: 1
     _hp: 5
     _attribute: 2
     _effectTrigger: 3
-    _effectType: 11
-    _effectValue: 2
+    _effectType: 0
+    _effectValue: 0
     _effectValue2: 0
     _guardian: 1
     _haste: 0
@@ -63,25 +69,29 @@ MonoBehaviour:
     _cardName: "\u5927\u86C7\u30E2\u30CA\u30FC\u30AF"
     _cost: 2
     _image: {fileID: 21300000, guid: 00a8461bae2d58f49bf58801ed1e8667, type: 3}
+    _flavorText: "\u30E2\u30CA\u30E2\u30CA\u30E2\u30FC\u30CA\u3001\u30E2\u30FC\u30CA\u30E2\u30FC\u30CA\u266A"
+    _victoryPointBonus: 1
     _attack: 2
     _hp: 6
     _attribute: 2
-    _effectTrigger: 2
-    _effectType: 11
-    _effectValue: 1
+    _effectTrigger: 6
+    _effectType: 0
+    _effectValue: 0
     _effectValue2: 0
     _guardian: 1
     _haste: 0
     _flying: 0
-    _description: "\u653B\u6483\u3057\u305F\u6642\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u653B\u6483\u3092\u53D7\u3051\u305F\u3068\u304D\u52DD\u5229\u70B9\u30921\u70B9\u5F97\u308B"
   - _id: C3005
     _cardName: "\u6012\u308A\u3050\u307E"
     _cost: 2
     _image: {fileID: 21300000, guid: 0d845998d691cf441a36b1eb4a497c31, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 2
     _attack: 3
     _hp: 4
     _attribute: 2
-    _effectTrigger: 2
+    _effectTrigger: 7
     _effectType: 0
     _effectValue: 0
     _effectValue2: 0

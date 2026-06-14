@@ -389,6 +389,11 @@ namespace Main
             {
                 await PlayShieldBlockEffectAsync(target, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+                // 攻撃力0の盾ブロックでも「攻撃を受けた」ので OnAttacked を発動する（ダメージ0・破壊判定なし）
+                if (targetField.Contains(target))
+                {
+                    await FireOnAttackedEffectAsync(target, !isLocal, ct);
+                }
                 return;
             }
 
@@ -400,6 +405,18 @@ namespace Main
                 }
                 await target.TakeDamageAsync(damage, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+
+                // 攻撃を受けたキャラの OnAttacked を発動（防御側の所有者は攻撃側の相手 = !isLocal）。
+                // OnAttacked で回復・反撃して生死が変わり得るため、破壊判定はこの後に再計算する。
+                if (targetField.Contains(target))
+                {
+                    await FireOnAttackedEffectAsync(target, !isLocal, ct);
+                }
+            }
+
+            if (_isGameOver)
+            {
+                return;
             }
 
             bool charWillBeDestroyed = target != null && target.CurrentHp <= 0;
@@ -412,6 +429,19 @@ namespace Main
                 await FlyToGraveyardAsync(target, destroyedFromRect, targetGraveyard, ct);
                 // 撃破されたキャラの OnDestroy を発動（攻撃対象の所有者は攻撃側の相手 = !isLocal）
                 await FireOnDestroyEffectAsync(target, !isLocal, ct);
+
+                if (_isGameOver)
+                {
+                    return;
+                }
+
+                // 攻撃で撃破した攻撃側キャラの OnKill を発動（攻撃側の所有者 = isLocal）。
+                // 反撃（OnAttacked / OnDestroy）等で攻撃側が場を離れている場合は発動しない。
+                FieldView attackerField = isLocal ? _playerFieldView : _opponentFieldView;
+                if (attackerField.Contains(attacker))
+                {
+                    await FireOnKillEffectAsync(attacker, isLocal, ct);
+                }
             }
         }
 
@@ -461,7 +491,7 @@ namespace Main
         }
 
         // 緑属性の勝利条件：プレイした側の勝利点に加算し、WinPoints 到達でそのプレイヤーの勝利。
-        // GainVictoryPoints 効果の解決時に呼ぶ。
+        // 勝利点付帯値（VictoryPointBonus）や GainVPPerGreenGrave の解決時に呼ぶ。
         // 勝利点表示のアクティブ化は緑カードのプレイ（OnCardPlayed）のみが行う。ここでは Activate しない。
         private async UniTask AddVictoryPoints(int amount, bool toLocal, CancellationToken ct)
         {

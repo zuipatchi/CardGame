@@ -61,7 +61,7 @@ namespace Main
             catch (OperationCanceledException) { }
         }
 
-        // ─── MedalIcon フローティング（GainVictoryPoints 発動カードの上に表示）──────
+        // ─── MedalIcon フローティング（勝利点を得るカードの上に表示）──────
         private async UniTask PlayFloatingMedalAsync(VisualElement anchor, CancellationToken ct)
         {
             const float IconSize = 140f;

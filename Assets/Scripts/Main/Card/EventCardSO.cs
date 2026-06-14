@@ -59,9 +59,18 @@ namespace Main.Card
             bool changed = false;
             foreach (EventCardData card in _cards)
             {
-                if (card != null && card.Attribute != _attribute)
+                if (card == null)
+                {
+                    continue;
+                }
+                if (card.Attribute != _attribute)
                 {
                     card.EditorSetAttribute(_attribute);
+                    changed = true;
+                }
+                // 緑以外のカードは勝利点付帯値を 0 に固定する
+                if (card.EditorClampVictoryPointBonusToAttribute())
+                {
                     changed = true;
                 }
             }

@@ -221,6 +221,40 @@ namespace Main.Card
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
         }
 
+        // HP を amount 回復する（最大HP = Data.Hp でクランプ）。amount <= 0 は全回復扱い。
+        // 回復量が 0（既に満タン等）なら演出せず即終了する。緑のパルス演出付き。
+        public async UniTask HealAsync(int amount, CancellationToken ct)
+        {
+            int maxHp = Data.Hp;
+            int healed = amount <= 0 ? maxHp : Mathf.Min(maxHp, _currentHp + amount);
+            if (healed <= _currentHp)
+            {
+                return;
+            }
+
+            _currentHp = healed;
+            _hpLabel.text = _currentHp.ToString();
+
+            float scaleVal = 1f;
+            float colorT = 0f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Color healColor = new Color(0.24f, 0.78f, 0.31f, 1f);
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.8f, 0.12f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.white, healColor, v)); }, 1f, 0.12f))
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; _hpArea.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.30f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; _hpLabel.style.color = new StyleColor(Color.Lerp(Color.white, healColor, v)); }, 0f, 0.40f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            _hpArea.style.scale = new Scale(Vector3.one);
+            _hpLabel.style.color = StyleKeyword.Null;
+        }
+
         public void ResetCurrentHp()
         {
             _currentHp = Data.Hp;

@@ -92,12 +92,19 @@ namespace Main
                     await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
                 }
             }
-            else if (eventData.EventType == CardEventType.GainVictoryPoints
-                || eventData.EventType == CardEventType.GainVPPerGreenGrave)
+            else if (eventData.EventType == CardEventType.GainVPPerGreenGrave)
             {
                 await PlayFloatingMedalAsync(card, ct);
             }
             await ApplyEventEffectAsync(eventData, isLocal, card, ct);
+
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            // 効果とは独立した勝利点付帯値（VictoryPointBonus）を加算する。
+            await ApplyVictoryPointBonusAsync(eventData.VictoryPointBonus, isLocal, card, ct);
         }
 
         // ─── ターン開始時効果 ────────────────────────────────────────────────
@@ -161,7 +168,13 @@ namespace Main
                 return;
             }
 
-            if (charData.EffectTrigger != trigger || charData.EffectType == CardEventType.None)
+            if (charData.EffectTrigger != trigger)
+            {
+                return;
+            }
+
+            // EffectType=None でも VictoryPointBonus があれば付帯値だけ発動する。
+            if (charData.EffectType == CardEventType.None && charData.VictoryPointBonus <= 0)
             {
                 return;
             }
@@ -206,13 +219,12 @@ namespace Main
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
                     break;
-                case CardEventType.GainVictoryPoints:
-                    await PlayFloatingMedalAsync(sourceCard, ct);
-                    await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
-                    break;
                 case CardEventType.GainVPPerGreenGrave:
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
+                    break;
+                case CardEventType.HealAllAllies:
+                    await ApplyHealAllAlliesAsync(charData.EffectValue, isLocal, ct);
                     break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
@@ -221,6 +233,26 @@ namespace Main
                     await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
                     break;
             }
+
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            // 効果とは独立した勝利点付帯値（VictoryPointBonus）を加算する。
+            await ApplyVictoryPointBonusAsync(charData.VictoryPointBonus, isLocal, sourceCard, ct);
+        }
+
+        // 勝利点付帯値（VictoryPointBonus）の共通適用：bonus > 0 なら MedalIcon 演出 ＋ 勝利点加算。
+        // キャラ・イベントの効果解決後に呼び、効果（EventType）とは独立して発動側へ加点する。
+        private async UniTask ApplyVictoryPointBonusAsync(int bonus, bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (bonus <= 0)
+            {
+                return;
+            }
+            await PlayFloatingMedalAsync(sourceCard, ct);
+            await AddVictoryPoints(bonus, toLocal: isLocal, ct);
         }
 
         // 発動した側の墓地にある緑属性カードの枚数を返す（GainVPPerGreenGrave の動的な加点値）。
@@ -306,11 +338,11 @@ namespace Main
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
                     break;
-                case CardEventType.GainVictoryPoints:
-                    await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
-                    break;
                 case CardEventType.GainVPPerGreenGrave:
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
+                    break;
+                case CardEventType.HealAllAllies:
+                    await ApplyHealAllAlliesAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
@@ -348,6 +380,27 @@ namespace Main
                 _opponentNextCardFree = true;
             }
             await PlayFloatingLabelAsync("コスト0", "cost-free-label", sourceCard, ct);
+        }
+
+        // 発動側の自フィールドのキャラ全員の HP を amount 回復する（最大HPでクランプ）。
+        // amount <= 0 は最大HPまで全回復。自キャラがいなければ空振り。
+        // 効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも対称に発動する（追加同期不要）。
+        private async UniTask ApplyHealAllAlliesAsync(int amount, bool isLocal, CancellationToken ct)
+        {
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
+            List<CardView> targets = new List<CardView>(ownField.Characters);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> healTasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                healTasks.Add(target.HealAsync(amount, ct));
+            }
+            await UniTask.WhenAll(healTasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
 
         // 発動側から見た敵フィールドのキャラ全員に同時にダメージを与え、HP 0 以下のキャラを破壊する
@@ -720,6 +773,20 @@ namespace Main
         private UniTask FireOnDestroyEffectAsync(CardView destroyedCard, bool ownerIsLocal, CancellationToken ct)
         {
             return ResolveCharacterTriggeredEffectAsync(destroyedCard, CharacterEffectTrigger.OnDestroy, ownerIsLocal, ct);
+        }
+
+        // 相手キャラの攻撃でダメージを受けたキャラの OnAttacked 効果を発動する。ownerIsLocal = 防御側（被攻撃キャラ）の所有者が自分側か。
+        // 戦闘（ExecuteAttackAsync）からのみ呼ぶ。効果はカードデータと同期済み盤面から決定的に解決される（追加同期不要）。
+        private UniTask FireOnAttackedEffectAsync(CardView defenderCard, bool ownerIsLocal, CancellationToken ct)
+        {
+            return ResolveCharacterTriggeredEffectAsync(defenderCard, CharacterEffectTrigger.OnAttacked, ownerIsLocal, ct);
+        }
+
+        // 攻撃で相手キャラを破壊したキャラの OnKill 効果を発動する。ownerIsLocal = 攻撃側キャラの所有者が自分側か。
+        // 戦闘（ExecuteAttackAsync）からのみ呼ぶ。効果はカードデータと同期済み盤面から決定的に解決される（追加同期不要）。
+        private UniTask FireOnKillEffectAsync(CardView attackerCard, bool ownerIsLocal, CancellationToken ct)
+        {
+            return ResolveCharacterTriggeredEffectAsync(attackerCard, CharacterEffectTrigger.OnKill, ownerIsLocal, ct);
         }
 
         private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
