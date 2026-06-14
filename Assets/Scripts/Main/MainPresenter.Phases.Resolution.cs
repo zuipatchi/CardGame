@@ -1046,7 +1046,8 @@ namespace Main
                 await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
 
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
-                int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHand.Select(c => c.Data).ToList());
+                List<CardData> cpuHandData = cpuHand.Select(c => c.Data).ToList();
+                int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHandData, i => CpuCanAffordCost(cpuHandData, i));
                 if (idx >= 0)
                 {
                     CardView newChar = cpuHand[idx];

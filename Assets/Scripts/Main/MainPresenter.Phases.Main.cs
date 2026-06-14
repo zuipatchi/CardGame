@@ -643,10 +643,11 @@ namespace Main
             IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
             List<CardData> handData = cpuHand.Select(c => c.Data).ToList();
 
-            // キャラカードを出す（フィールドが満杯のときは出さない）
+            // キャラカードを出す（フィールドが満杯のときは出さない）。
+            // コストを支払えないカードは選ばない（ローカルプレイヤーと同じく踏み倒し禁止）
             if (!_opponentFieldView.IsCharactersFull)
             {
-                int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData);
+                int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData, i => CpuCanAffordCost(handData, i));
                 if (charIdx >= 0)
                 {
                     return new MainPhaseAction
@@ -658,7 +659,7 @@ namespace Main
             }
 
             // イベントカードを使う
-            int eventIdx = CpuAgent.ChooseEventCardIndex(handData);
+            int eventIdx = CpuAgent.ChooseEventCardIndex(handData, i => CpuCanAffordCost(handData, i));
             if (eventIdx >= 0)
             {
                 return new MainPhaseAction
@@ -669,6 +670,29 @@ namespace Main
             }
 
             return new MainPhaseAction { _actionType = MainPhaseActionType.Pass };
+        }
+
+        // CPU が hand[playedIndex] のカードをプレイするコストを支払えるか。
+        // 0コスト or NextCardCostFree 武装時は常に支払い可能。
+        // それ以外は、自身を除いた手札の支払い可能量（各カードの CostPaymentValue 合計）がコスト以上なら支払い可能。
+        // ローカルプレイヤーの CostCapacityExcluding と同じ判定で、コストの踏み倒しを防ぐ。
+        private bool CpuCanAffordCost(IReadOnlyList<CardData> hand, int playedIndex)
+        {
+            CardData played = hand[playedIndex];
+            if (played.Cost <= 0 || _opponentNextCardFree)
+            {
+                return true;
+            }
+
+            int capacity = 0;
+            for (int i = 0; i < hand.Count; i++)
+            {
+                if (i != playedIndex)
+                {
+                    capacity += hand[i].CostPaymentValue(played.Attribute);
+                }
+            }
+            return capacity >= played.Cost;
         }
 
         // ─── プレイヤー入力待ち ────────────────────────────────────────────

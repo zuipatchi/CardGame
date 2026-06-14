@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Main.Card;
 
@@ -5,16 +6,18 @@ namespace Main.Game
 {
     public sealed class CpuAgent
     {
-        // メインフェーズ（キャラを出す）：キャラカードのインデックスを返す。なければ -1（パス）
-        public static int ChooseCharacterSetCardIndex(IReadOnlyList<CardData> hand)
+        // メインフェーズ（キャラを出す）：支払い可能なキャラカードのインデックスを返す。なければ -1（パス）。
+        // canAfford(i) は hand[i] のコストを支払えるかの判定（null なら常に支払い可能扱い）
+        public static int ChooseCharacterSetCardIndex(IReadOnlyList<CardData> hand, Func<int, bool> canAfford = null)
         {
-            return FindFirst<CharacterCardData>(hand);
+            return FindFirst<CharacterCardData>(hand, canAfford);
         }
 
-        // メインフェーズ（イベントを使う）：イベントカードのインデックスを返す。なければ -1（パス）
-        public static int ChooseEventCardIndex(IReadOnlyList<CardData> hand)
+        // メインフェーズ（イベントを使う）：支払い可能なイベントカードのインデックスを返す。なければ -1（パス）。
+        // canAfford(i) は hand[i] のコストを支払えるかの判定（null なら常に支払い可能扱い）
+        public static int ChooseEventCardIndex(IReadOnlyList<CardData> hand, Func<int, bool> canAfford = null)
         {
-            return FindFirst<EventCardData>(hand);
+            return FindFirst<EventCardData>(hand, canAfford);
         }
 
         // 進化効果：sacrificedCost より高コストのキャラカードの中で最高コストのインデックスを返す
@@ -49,11 +52,11 @@ namespace Main.Game
             return bestIdx;
         }
 
-        private static int FindFirst<T>(IReadOnlyList<CardData> hand) where T : CardData
+        private static int FindFirst<T>(IReadOnlyList<CardData> hand, Func<int, bool> canAfford) where T : CardData
         {
             for (int i = 0; i < hand.Count; i++)
             {
-                if (hand[i] is T)
+                if (hand[i] is T && (canAfford == null || canAfford(i)))
                 {
                     return i;
                 }

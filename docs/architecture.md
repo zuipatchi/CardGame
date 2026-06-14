@@ -538,9 +538,11 @@ finally: "selectable-char" クラスをクリア
 
 ```
 CpuAgent.ChooseHeartAttacker(ownChars)                 ハートを攻撃するキャラのインデックスを返す（最高ATK。いなければ -1）
-CpuAgent.ChooseCharacterSetCardIndex(hand)              配置するキャラカードのインデックスを返す（なければ -1）
-CpuAgent.ChooseEventCardIndex(hand)                     使うイベントカードのインデックスを返す（なければ -1）
+CpuAgent.ChooseCharacterSetCardIndex(hand, canAfford)   配置するキャラカードのインデックスを返す（なければ -1）
+CpuAgent.ChooseEventCardIndex(hand, canAfford)          使うイベントカードのインデックスを返す（なければ -1）
 ```
+
+`canAfford(i)` は `hand[i]` のコストを支払えるかの判定。`MainPresenter.CpuCanAffordCost()` を渡し、自身を除いた手札の支払い可能量（`CostPaymentValue` 合計）がコストに満たないカードは選ばない（ローカルプレイヤーと同じくコストの踏み倒しを禁止）。
 
 キャラ攻撃の対象選択は守護・飛行を考慮するため `MainPresenter.CpuChooseMainAction()` 側で `CanAttackChar` / `CanAttackHeart` を使って解決する（合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATK）。
 
