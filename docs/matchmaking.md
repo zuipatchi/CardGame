@@ -61,14 +61,14 @@ Title → Matching → Main
    → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2, started="0")
      → PlayerJoined イベント待機（30秒タイムアウト）
      → マッチ成立 → MarkRoomStartedAsync（started="1" に更新）→ Main シーンへ遷移
-     → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
+     → タイムアウト → セッション離脱（ルーム破棄）→「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2b. ルームを手動作成
    → CreateSessionAsync(MaxPlayers=2, started="0")
    → PlayerJoined イベント待機（120秒タイムアウト）
    → 待機中は「2分で自動解散します」を表示
    → マッチ成立 → MarkRoomStartedAsync（started="1" に更新）→ Main シーンへ遷移
-   → タイムアウト → 「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
+   → タイムアウト → セッション離脱（ルーム破棄）→「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
 
 2c. ルームに手動参加
    → JoinSessionByIdAsync(sessionId)
@@ -150,6 +150,8 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 - `CancelWaitAsync`: 待機キャンセル 失敗
 
 ### WaitingOverlay タイムアウト時
+
+待機タイムアウト時はまずホストがセッションを離脱（`LeaveCurrentSessionAsync`）してルームを破棄し、その後 `TimedOut` 状態へ遷移する。これによりサーバー上にルームが残らず、他プレイヤーの一覧にも表示されなくなる。
 
 `TimedOut` 状態時に待機オーバーレイ内で表示が切り替わる:
 - **メッセージ**: 「タイムアウトしました」
