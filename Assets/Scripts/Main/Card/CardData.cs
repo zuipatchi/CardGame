@@ -8,10 +8,13 @@ namespace Main.Card
         [SerializeField] protected string _cardName;
         [SerializeField] protected int _cost;
         [SerializeField] protected Sprite _image;
+        // フレーバーテキスト（世界観・雰囲気用。ゲーム効果には影響せず、カード詳細表示の最下部に表示される）
+        [SerializeField, TextArea] protected string _flavorText;
         public string Id => _id;
         public string CardName => _cardName;
         public int Cost => _cost;
         public Sprite Image => _image;
+        public string FlavorText => _flavorText;
 
         public virtual int Attack => 0;
         public virtual int Hp => 0;

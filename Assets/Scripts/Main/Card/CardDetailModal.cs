@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -61,26 +62,24 @@ namespace Main.Card
             divider.AddToClassList("card-detail-divider");
             stats.Add(divider);
 
-            VisualElement statsGrid = new VisualElement();
-            statsGrid.AddToClassList("card-detail-stats-grid");
-
-            AddIconStatRow(statsGrid, "card-detail-stat-icon--cost", data.Cost.ToString(), "コスト");
+            List<VisualElement> statBlocks = new List<VisualElement>();
+            statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--cost", data.Cost.ToString(), "コスト"));
 
             if (data is CharacterCardData charData)
             {
-                AddIconStatRow(statsGrid, "card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力");
-                AddIconStatRow(statsGrid, "card-detail-stat-icon--hp", charData.Hp.ToString(), "体力");
+                statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--atk", charData.Attack.ToString(), "攻撃力"));
+                statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--hp", charData.Hp.ToString(), "体力"));
                 if (charData.Guardian)
                 {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--guardian", string.Empty, "守護");
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--guardian", string.Empty, "守護"));
                 }
                 if (charData.Haste)
                 {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--haste", string.Empty, "速攻");
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--haste", string.Empty, "速攻"));
                 }
                 if (charData.Flying)
                 {
-                    AddIconStatRow(statsGrid, "card-detail-stat-icon--flying", string.Empty, "飛行");
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--flying", string.Empty, "飛行"));
                 }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
@@ -99,7 +98,29 @@ namespace Main.Card
                 }
             }
 
+            // 2列の明示的な行コンテナで組む（flex-wrap は折り返し時に高さを正しく報告せず、
+            // 下に置いたフレーバーテキストと重なるため使用しない）
+            VisualElement statsGrid = new VisualElement();
+            statsGrid.AddToClassList("card-detail-stats-grid");
+            for (int i = 0; i < statBlocks.Count; i += 2)
+            {
+                VisualElement gridRow = new VisualElement();
+                gridRow.AddToClassList("card-detail-stats-row");
+                gridRow.Add(statBlocks[i]);
+                if (i + 1 < statBlocks.Count)
+                {
+                    gridRow.Add(statBlocks[i + 1]);
+                }
+                statsGrid.Add(gridRow);
+            }
             stats.Add(statsGrid);
+
+            if (!string.IsNullOrEmpty(data.FlavorText))
+            {
+                Label flavorLabel = new Label(data.FlavorText);
+                flavorLabel.AddToClassList("card-detail-flavor");
+                stats.Add(flavorLabel);
+            }
 
             panel.Add(stats);
             _overlay.Add(panel);
@@ -155,7 +176,7 @@ namespace Main.Card
             };
         }
 
-        private static void AddIconStatRow(VisualElement container, string iconClass, string valueText, string labelText)
+        private static VisualElement CreateIconStatBlock(string iconClass, string valueText, string labelText)
         {
             VisualElement block = new VisualElement();
             block.AddToClassList("card-detail-stat-block");
@@ -177,7 +198,7 @@ namespace Main.Card
             row.Add(icon);
             row.Add(value);
             block.Add(row);
-            container.Add(block);
+            return block;
         }
 
     }

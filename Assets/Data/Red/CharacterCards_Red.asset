@@ -18,6 +18,7 @@ MonoBehaviour:
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54"
     _cost: 0
     _image: {fileID: 21300000, guid: a88d226b180bb03439df641071e0fb4b, type: 3}
+    _flavorText: "\u706B\u306E\u7C89\u304C\u3071\u3061\u3071\u3061\u5F3E\u3051\u3066\u308B"
     _attack: 1
     _hp: 2
     _attribute: 0
@@ -28,11 +29,12 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u706B\u306E\u7C89\u304C\u3071\u3061\u3071\u3061\u5F3E\u3051\u3066\u308B"
+    _description: 
   - _id: C1002
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30AE\u30E3\u30F3\u30B0"
     _cost: 1
     _image: {fileID: 21300000, guid: 8bb63c7698aa5c74da9c01dc6efc8db5, type: 3}
+    _flavorText: 
     _attack: 2
     _hp: 3
     _attribute: 0
@@ -48,6 +50,7 @@ MonoBehaviour:
     _cardName: "\u30C9\u30E9\u30B4\u30F3\u30D9\u30D3\u30FC"
     _cost: 1
     _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
+    _flavorText: 
     _attack: 1
     _hp: 2
     _attribute: 0
@@ -63,6 +66,7 @@ MonoBehaviour:
     _cardName: "\u696D\u706B\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: 9b06ed7237e254646b45ad469fc9e500, type: 3}
+    _flavorText: 
     _attack: 2
     _hp: 3
     _attribute: 0
@@ -78,6 +82,7 @@ MonoBehaviour:
     _cardName: "\u708E\u9B5A"
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
+    _flavorText: 
     _attack: 2
     _hp: 5
     _attribute: 0
@@ -93,6 +98,7 @@ MonoBehaviour:
     _cardName: "\u30AD\u30EC\u305F\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
+    _flavorText: 
     _attack: 3
     _hp: 5
     _attribute: 0
@@ -108,6 +114,7 @@ MonoBehaviour:
     _cardName: DOM
     _cost: 4
     _image: {fileID: 21300000, guid: 9504da2ecccf4b942adc689996cdea8f, type: 3}
+    _flavorText: "\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u3001\u30C9\u30A8\u30A7\u30A7\u30A7\u30A7\u30A7!"
     _attack: 3
     _hp: 7
     _attribute: 0
