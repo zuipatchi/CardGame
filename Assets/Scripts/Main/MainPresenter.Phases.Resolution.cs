@@ -716,6 +716,13 @@ namespace Main
                 return;
             }
 
+            // 受信側はアニメーション前にハンドラを事前登録してメッセージのロストを防ぐ
+            // （Switch / Recover と同じ対策。生贄アニメーション後に登録すると、相手の送信が
+            //   先に届いた場合に NGO が未登録メッセージを破棄して永久待機になる）
+            UniTask<string> evolveReceiveTask = (!isLocal && _isOnline)
+                ? _networkGameService.WaitForOpponentEvolveAsync(ct)
+                : default;
+
             CardView sacrificedCard;
             if (isLocal)
             {
@@ -757,7 +764,7 @@ namespace Main
             }
             else if (_isOnline)
             {
-                string cardId = await _networkGameService.WaitForOpponentEvolveAsync(ct);
+                string cardId = await evolveReceiveTask;
                 if (!string.IsNullOrEmpty(cardId) && _cardDatabase.TryGet(cardId, out CardData cardData))
                 {
                     IReadOnlyList<CardView> hand = _opponentHandView.Cards;

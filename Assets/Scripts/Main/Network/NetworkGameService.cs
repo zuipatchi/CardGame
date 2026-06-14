@@ -33,6 +33,12 @@ namespace Main.Network
         private readonly string _localUsername;
         private ulong _opponentClientId;
 
+        // DamageEnemy / Bounce の対象同期は、受信側がハンドラを登録する前に送信側が送ると
+        // NGO に未登録メッセージとして破棄され、受信側が永久待機してゲームが停止する。
+        // これを防ぐため k_DamageTarget はゲーム開始時に永続登録し、受信値をキューにバッファする。
+        private readonly Queue<int[]> _damageTargetQueue = new Queue<int[]>();
+        private UniTaskCompletionSource<int[]> _damageTargetWaiter;
+
         public enum MainActionType
         {
             Pass,
@@ -92,6 +98,10 @@ namespace Main.Network
             }
 
             CustomMessagingManager messaging = nm.CustomMessagingManager;
+
+            // 対象同期メッセージは取りこぼし防止のため、対戦開始時にハンドラを永続登録しておく
+            RegisterDamageTargetHandler(messaging);
+
             return isHost
                 ? await PrepareAsHostAsync(localDeckIds, messaging, ct)
                 : await PrepareAsClientAsync(localDeckIds, messaging, ct);
@@ -508,21 +518,47 @@ namespace Main.Network
         }
 
         // 対象インデックスの配列を受信する。対象なしの場合は空配列を返す。
+        // ハンドラは RegisterDamageTargetHandler で永続登録済みのため、待機開始前に届いた
+        // メッセージもキューにバッファされており取りこぼさない。
         public async UniTask<int[]> WaitForOpponentDamageTargetsAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<int[]> tcs = new UniTaskCompletionSource<int[]>();
+            if (_damageTargetQueue.Count > 0)
+            {
+                return _damageTargetQueue.Dequeue();
+            }
 
+            _damageTargetWaiter = new UniTaskCompletionSource<int[]>();
+            try
+            {
+                return await _damageTargetWaiter.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _damageTargetWaiter = null;
+            }
+        }
+
+        // k_DamageTarget の永続ハンドラ。待機中なら即解決し、そうでなければキューに積む。
+        private void RegisterDamageTargetHandler(CustomMessagingManager messaging)
+        {
             void OnDamageTarget(ulong senderId, FastBufferReader reader)
             {
-                messaging.UnregisterNamedMessageHandler(k_DamageTarget);
                 reader.ReadValueSafe(out string json);
                 DamageTargetPayload payload = JsonUtility.FromJson<DamageTargetPayload>(json);
-                tcs.TrySetResult(payload.indices ?? Array.Empty<int>());
+                int[] indices = payload.indices ?? Array.Empty<int>();
+
+                // 待機中なら即解決。短時間に複数届いても取りこぼさないよう、waiter を先に
+                // 取り出して null 化し、解決できなければキューへ積む。
+                UniTaskCompletionSource<int[]> waiter = _damageTargetWaiter;
+                _damageTargetWaiter = null;
+                if (waiter != null && waiter.TrySetResult(indices))
+                {
+                    return;
+                }
+                _damageTargetQueue.Enqueue(indices);
             }
 
             messaging.RegisterNamedMessageHandler(k_DamageTarget, OnDamageTarget);
-            return await tcs.Task.AttachExternalCancellation(ct);
         }
 
         public void SendRecoverDeckOrder(string[] deckIds)

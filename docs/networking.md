@@ -294,6 +294,62 @@ else
 
 ---
 
+### 11. 対象選択（DamageEnemy / Evolve）のメッセージがアニメーション後の遅延登録でロストする ★致命的
+
+**症状**: オンライン対戦でキャラ/イベントが **DamageEnemy 効果**（複数体のうち一部を対象に選ぶ場合）を使うとゲームが永久に止まる。Evolve 効果でも同条件で発生し得る。
+
+**原因**: セクション 7・9・10 と同じ「受信側がアニメーション後にハンドラを遅延登録する」クラスのバグ。送受信が**リクエスト/レスポンス型**（手番側が対象を選んで送信 → 相手が受信）で、受信側のハンドラ登録が送信側の送信より遅れると、NGO が未登録の名前付きメッセージを破棄して受信側が永久待機する。
+
+DamageEnemy が特に踏みやすい理由（他の効果より送受信の時間差が出やすい）:
+
+- 手番側はカードを**ドラッグで即配置**するため飛行アニメーションがない。一方、相手側は `ExecuteOpponentCardPlayAsync` で**カード飛行 + コスト支払いアニメーション**を再生してから対象同期ハンドラを登録する（=相手側の登録が遅れる）。
+- DamageEnemy の対象選択は**敵キャラを1クリックするだけ**で完了する＝人間操作の中で最速。0コストのカードならコスト選択の待ちもない。このため、手番側が素早くクリックすると相手側の登録前に送信が届いてしまう。
+
+Switch/Evolve は対象選択に「手札から置き換えカードを選ぶ」操作が挟まり、かつイベントカード飛行ぶんの猶予があるため発生しにくいが、**同じ構造の潜在バグ**である。
+
+**対処**: 2 種類の対策パターンがある。呼び出し箇所の数で使い分ける。
+
+1. **永続ハンドラ + キュー（DamageTarget で採用）**: `k_DamageTarget` は OnEnter / OnAttack / OnDestroy / イベント / Bounce と**多数の箇所**から呼ばれ、各所で事前登録するのは非現実的。そこで対戦開始時（`PrepareDecksAsync`）にハンドラを永続登録し、受信値をキューにバッファする。待機開始前に届いたメッセージもキューに積まれるため、タイミングに依存せず取りこぼさない。
+
+```csharp
+// NetworkGameService: 対戦開始時に1度だけ永続登録
+RegisterDamageTargetHandler(messaging);
+
+// ハンドラ：待機中なら即解決、そうでなければキューに積む
+void OnDamageTarget(ulong senderId, FastBufferReader reader)
+{
+    // ... indices を読む
+    UniTaskCompletionSource<int[]> waiter = _damageTargetWaiter;
+    _damageTargetWaiter = null;
+    if (waiter != null && waiter.TrySetResult(indices)) { return; }
+    _damageTargetQueue.Enqueue(indices);
+}
+
+// 待機側：キューにあれば即返す、なければ待つ
+public async UniTask<int[]> WaitForOpponentDamageTargetsAsync(CancellationToken ct)
+{
+    if (_damageTargetQueue.Count > 0) { return _damageTargetQueue.Dequeue(); }
+    _damageTargetWaiter = new UniTaskCompletionSource<int[]>();
+    try { return await _damageTargetWaiter.Task.AttachExternalCancellation(ct); }
+    finally { _damageTargetWaiter = null; }
+}
+```
+
+2. **アニメーション前の事前登録（Switch / Evolve / Recover で採用）**: 呼び出し箇所が1つなら、受信タスクを**アニメーション開始前**に生成してハンドラを先行登録し、後で `await` する（セクション 9・10 と同じイディオム）。
+
+```csharp
+// ApplyEvolveEffectAsync: 生贄アニメーションの前にハンドラを事前登録
+UniTask<string> evolveReceiveTask = (!isLocal && _isOnline)
+    ? _networkGameService.WaitForOpponentEvolveAsync(ct)
+    : default;
+// ... 生贄アニメーション ...
+string cardId = await evolveReceiveTask;  // 後で受信を待つ
+```
+
+**教訓**: 「受信側がアニメーションの後にハンドラを登録する」コードは、相手の送信タイミング次第で必ずメッセージロストの危険がある。新しいリクエスト/レスポンス型メッセージを追加するときは、**ハンドラ登録を受信側の最初のアニメーションより前**に置くか、**永続登録 + キュー**にすること。
+
+---
+
 ## メッセージ種別一覧
 
 | 定数 | 方向 | 内容 |
@@ -306,8 +362,9 @@ else
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
 | `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsHeart / costCardIds[]）。targetsHeart=true はハート攻撃（ハート勝利条件）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
-| `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
-| `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
+| `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信。**対戦開始時に永続登録 + キューでバッファ**（セクション 11） |
+| `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId）。アニメーション前に事前登録 |
+| `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId）。アニメーション前に事前登録 |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
 | `NGS_Rematch` | Both | 再戦希望通知（ペイロードなし）。双方が送信し合うと両者が Main シーンを再ロードして新規対戦を開始 |
 
