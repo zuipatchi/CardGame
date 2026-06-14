@@ -442,6 +442,9 @@ namespace Main
                 _gameEndOverlay = new VisualElement();
                 _gameEndOverlay.AddToClassList("game-end-overlay");
                 _gameEndOverlay.style.display = DisplayStyle.None;
+                // 暗幕自身はクリックを透過させ、勝敗演出後も下のフィールドカードをクリックして
+                // カード詳細を開けるようにする（子のボタン行は Position のままクリック可能）
+                _gameEndOverlay.pickingMode = PickingMode.Ignore;
                 _gameEndEmblem = new VisualElement();
                 _gameEndEmblem.AddToClassList("game-end-emblem");
                 _gameEndEmblem.pickingMode = PickingMode.Ignore;
