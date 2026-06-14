@@ -19,6 +19,9 @@ namespace Main.Card
         DamageAllEnemies,
         // 発動した側の勝利点（緑属性の勝利条件）に EventValue / EffectValue 分を加算する。
         GainVictoryPoints,
+        // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（緑属性の勝利条件）に加算する。
+        // EventValue / EffectValue は不使用（0）。墓地に緑カードがなければ加点 0。
+        GainVPPerGreenGrave,
         // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
         // それぞれに EventValue2 / EffectValue2 分のダメージ（値2）を同時に与え、HP 0 以下を破壊する。
         // 対象はプレイヤーが選択（対象数が敵の数以上なら全員・0体なら空振り）。

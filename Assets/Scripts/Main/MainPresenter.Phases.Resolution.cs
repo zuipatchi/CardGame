@@ -92,7 +92,8 @@ namespace Main
                     await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
                 }
             }
-            else if (eventData.EventType == CardEventType.GainVictoryPoints)
+            else if (eventData.EventType == CardEventType.GainVictoryPoints
+                || eventData.EventType == CardEventType.GainVPPerGreenGrave)
             {
                 await PlayFloatingMedalAsync(card, ct);
             }
@@ -209,6 +210,10 @@ namespace Main
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(charData.EffectValue, toLocal: isLocal, ct);
                     break;
+                case CardEventType.GainVPPerGreenGrave:
+                    await PlayFloatingMedalAsync(sourceCard, ct);
+                    await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
+                    break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
                     break;
@@ -216,6 +221,14 @@ namespace Main
                     await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
                     break;
             }
+        }
+
+        // 発動した側の墓地にある緑属性カードの枚数を返す（GainVPPerGreenGrave の動的な加点値）。
+        // 墓地は両クライアントで同期済みのため、オンラインでも対称に解決される（追加同期不要）。
+        private int CountGreenInGraveyard(bool isLocal)
+        {
+            GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            return graveyard.CountByAttribute(CardAttribute.Green);
         }
 
         private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CardView sourceCard, CancellationToken ct)
@@ -295,6 +308,9 @@ namespace Main
                     break;
                 case CardEventType.GainVictoryPoints:
                     await AddVictoryPoints(data.EventValue, toLocal: isLocal, ct);
+                    break;
+                case CardEventType.GainVPPerGreenGrave:
+                    await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
                     break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);

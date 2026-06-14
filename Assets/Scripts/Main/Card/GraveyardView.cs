@@ -40,6 +40,20 @@ namespace Main.Card
             _cards.Add(card.Data);
         }
 
+        // 墓地にある指定属性のカード枚数を返す（GainVPPerGreenGrave などの動的な効果値に使う）
+        public int CountByAttribute(CardAttribute attribute)
+        {
+            int count = 0;
+            foreach (CardData card in _cards)
+            {
+                if (card.Attribute == attribute)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         public List<CardData> TakeFromTop(int count)
         {
             int toTake = Mathf.Min(count, _cards.Count);
