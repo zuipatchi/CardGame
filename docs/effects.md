@@ -258,7 +258,7 @@ waitSeconds = playbackTime;
 
 カード効果のパーティクル演出は `PlayParticleAtUiPositionAsync` の**末尾で共通の余韻ディレイ `EffectTrailingDelaySeconds`（0.25秒）**を入れている。これにより「演出が消える → 0.25秒 → 次の処理（適用・カード移動など）」というテンポがカード効果全般で統一される。`PlayParticleAtCardAsync` 経由を含め、この関数を通る演出（バウンス・ドロー・リカバー・バニッシュ・ダメージ・進化・召喚など）はすべて自動でこのディレイがかかるため、各呼び出し側で個別に `UniTask.Delay` を挟む必要はない。
 
-同じ `EffectTrailingDelaySeconds` は、パーティクルを通らない**フローティングラベル（`PlayFloatingLabelAsync`）・メダル（`PlayFloatingMedalAsync`）**の末尾にも入れている。これで Evolve / ExtraTurn（「もう一度！」）/ コスト0 / Switch / GainVictoryPoints など、ラベル・メダルのみの演出も同じ 0.25 秒ディレイで揃う。
+同じ `EffectTrailingDelaySeconds` は、パーティクルを通らない**フローティングラベル（`PlayFloatingLabelAsync`）・メダル（`PlayFloatingMedalAsync`）**の末尾にも入れている。これで Evolve / ExtraTurn（「もう一度！」）/ コスト0 / Switch / 勝利点付帯値（MedalIcon）など、ラベル・メダルのみの演出も同じ 0.25 秒ディレイで揃う。
 
 - ラベル＋パーティクルを `WhenAll` で同時再生する演出（Draw / Recover / BanishChar）は、両方の末尾に同じディレイが付くが `WhenAll` が最大値を取るため**二重にはならず +0.25 秒のまま**
 - ディレイ秒数を変えるなら [MainPresenter.cs](../Assets/Scripts/Main/MainPresenter.cs) の `EffectTrailingDelaySeconds` を変更する（1か所でパーティクル・ラベル・メダル全演出に反映）

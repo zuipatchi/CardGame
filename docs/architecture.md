@@ -336,8 +336,10 @@ EventType         enum（EffectType.cs）。
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
                   CostBoost（コスト支払い時に倍化・属性連動）/ DamageAllEnemies（敵全体にダメージ）
                   DamageEnemy（敵を値1体選び値2ダメージ）/ SummonChar（指定キャラを召喚）
-                  GainVictoryPoints（勝利点を加算）/ GainVPPerGreenGrave（自分の墓地の緑カード枚数だけ勝利点を加算）
+                  GainVPPerGreenGrave（自分の墓地の緑カード枚数だけ勝利点を加算）
+                  HealAllAllies（自フィールド全キャラのHPを回復・値0で全回復）
                   NextCardCostFree（次の1枚を無料）
+                  ※固定値の勝利点付与は EventType ではなく全カード共通の VictoryPointBonus 付帯値で行う
                   Bounce（敵を値1体選び所有者の手札へ戻す。DamageEnemy と対象選択を共用）
 
 CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（属性ごとに分割。Assets/Data/{属性}/ に配置）
