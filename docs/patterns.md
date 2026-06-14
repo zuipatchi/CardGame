@@ -98,9 +98,11 @@ public enum EventType
 
 > ここに演出を追加すると `OnPlay`・`OnTurnStart` 両方に自動で反映される（共通メソッドのため）。
 
-パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。回転が必要な場合は `PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct, Quaternion.Euler(x, y, z))` のように4引数版を使う。
+パーティクルが必要なら `MainPresenter.cs` に `[SerializeField] private GameObject _xxxEffectPrefab;` を追加し、`PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct)` を呼ぶ。回転が必要な場合は `PlayParticleAtCardAsync(card, _xxxEffectPrefab, ct, Quaternion.Euler(x, y, z))` のように4引数版を使う。カード以外の位置（フィールド中央など）で再生したい・拡大したい場合は `PlayParticleAtUiPositionAsync(panelRef, uiPos, prefab, ct, scale: 2f)` を直接呼ぶ（BounceAll はこれでフィールド中央に全体エフェクトを1度だけ再生している）。
 フローティングラベルのみの場合は `PlayFloatingLabelAsync(text, cssClass, anchor, ct)` を呼ぶ。`anchor` には演出の基準となる `VisualElement`（カードやスロット等）を渡す。CSS クラス名で見た目をカスタマイズする。
 ラベル + パーティクルの組み合わせは `PlayXxxEffectAsync` から `PlayFloatingLabelAsync` と `PlayParticleAtCardAsync` を `UniTask.WhenAll` で並列実行するパターンを使う。
+
+> **演出後の共通ディレイ**: `PlayParticleAtUiPositionAsync`（パーティクル）・`PlayFloatingLabelAsync`・`PlayFloatingMedalAsync` はいずれも末尾で共通の余韻ディレイ `EffectTrailingDelaySeconds`（`MainPresenter.cs`、0.25秒）を待つ。これにより「演出終了 → 0.25秒 → 次の処理」のテンポが全カード効果で統一されるため、呼び出し側で個別に `UniTask.Delay` を挟む必要はない。パーティクルの待ち時間は Prefab の実再生時間（`max(duration, lifetime) / simulationSpeed`）に補正済み。詳細は [docs/effects.md](effects.md) のセクション7を参照。
 
 **イベント効果解決中（メインフェーズ内の即時解決）にプレイヤー入力が必要な効果（Switch / Evolve 相当）の場合**
 

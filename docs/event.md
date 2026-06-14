@@ -99,7 +99,9 @@
 - **DamageAllEnemies / DamageEnemy / SummonChar / GainVictoryPoints / NextCardCostFree / Bounce / BounceAll / ExtraTurn**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart）両方で使用可能。
 - **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。
-- **BounceAll**: Bounce の全員対象版。`ApplyBounceAllAsync` が敵フィールドの全数を `ApplyBounceAsync` に渡し、「対象数が敵の数以上なら全員（選択不要）」分岐を流用して全体バウンスを実現する。対象選択 UI は出ず、全員確定のためオンラインの追加同期も不要。手札へ戻す挙動（裏向き／表向き）は Bounce と同じ。`EventValue` / `EventValue2` は不使用（0）。
+- **BounceAll**: Bounce の全員対象版。`ApplyBounceAllAsync` が敵フィールドの全数を `ApplyBounceAsync` に渡し、「対象数が敵の数以上なら全員（選択不要）」分岐を流用して全体バウンスを実現する。対象選択 UI は出ず、全員確定のためオンラインの追加同期も不要。演出は個別バウンス（対象ごとにパーティクル＋1枚ずつ戻す）と異なり、**フィールド中央で全体用エフェクト（`_bounceAllEffectPrefab`）を1度だけ再生し、全カードをまとめて同時に手札へ戻す**（`ApplyBounceAsync` の一括モード `simultaneous` を使用）。手札へ戻す挙動（裏向き／表向き）は Bounce と同じ。`EventValue` / `EventValue2` は不使用（0）。
+
+> バウンス演出のパーティクルは `MainPresenter` の `_bounceEffectPrefab`（個別 Bounce・対象ごと）/ `_bounceAllEffectPrefab`（BounceAll・フィールド中央に1度）。各カード効果の演出は終了後に共通の余韻ディレイ（`EffectTrailingDelaySeconds` = 0.25秒）を挟んでから次の処理へ進む（[docs/effects.md](effects.md) セクション7）。
 - **OnDestroy**: 破壊されたキャラの効果は、破壊が完了して墓地へ送られた後に発動する。複数体が同時に破壊された場合は破壊演出を同時再生したうえで OnDestroy を1体ずつ順番に解決する（対象選択 UI の競合を防ぐ）。効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも両クライアントで対称に発動する（追加同期不要）。OnDestroy 効果がさらに別キャラを破壊した場合は連鎖して発動する（盤面が有限のため停止する）。
 - **DamageEnemy**: **値1=対象数、値2=ダメージ**（値2が0だとダメージ0で無効果になる点に注意）。プレイヤーが敵キャラを値1体クリックで選ぶ（`selectable-char` でハイライト、選択済みは `selected-char` で赤枠）。対象数が敵の数以上なら全員が対象・0体なら空振り。選んだ全対象に同時ダメージ。オンラインでは対象をフィールドのインデックス配列で相手へ送るため、同名カードが複数いても曖昧にならない。
 - **SummonChar**: 値1=召喚キャラIDの数字部分（例 1001→"C1001"。ID採番は属性別、下記「設定方法」参照）、値2=体数（0は1体）。手札・デッキを消費せず自フィールドに新規生成し、召喚キャラの OnEnter も発動する。フィールドは9体上限（`FieldView.MaxCharacters`）で、満杯になると召喚は打ち切られ OnEnter 連鎖も自然停止する（自己召喚カードでも無限ループにならない）。オンラインは召喚IDがカードデータで確定するため追加同期不要（決定的）。
