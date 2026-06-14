@@ -31,6 +31,7 @@ Title (アディティブ)   →   Home (アディティブ)   →   DeckBuilder
 - `Common` シーンは起動時にロードされ、以降アンロードされない
 - 他シーンは `Common` の上にアディティブでロード・アンロードされる
 - シーン遷移は `SceneTransitioner.Transit(Scenes next)` を呼ぶだけでよい
+- 同じシーンを初期状態から作り直したい場合は `SceneTransitioner.Reload(Scenes target)` を使う（対象シーンをアンロード→再ロード。オンライン再戦で利用。NGO セッションは Common 常駐の NetworkManager が保持するため切断されない）
 - 遷移時は `TransitionPresenter` が画面をフェードアウト→ロード→フェードインの演出を行う
 
 ### なぜアディティブか
