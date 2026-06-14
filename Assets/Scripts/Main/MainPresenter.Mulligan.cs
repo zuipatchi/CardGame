@@ -66,6 +66,9 @@ namespace Main
 
             VisualElement overlay = new VisualElement();
             overlay.AddToClassList("mulligan-overlay");
+            // 背景部分のクリックは下の手札カードへ透過させ、確認中もカード詳細を開けるようにする
+            // （Yes/No ボタンは子要素として通常どおりクリックを受け取る）
+            overlay.pickingMode = PickingMode.Ignore;
 
             Label label = new Label("マリガンしますか？");
             label.AddToClassList("mulligan-label");
