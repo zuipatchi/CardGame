@@ -20,6 +20,7 @@ namespace Main.Network
         private const string k_ClientReady = "NGS_ClientReady";
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
+        private const string k_Rematch = "NGS_Rematch";
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_Switch = "NGS_Switch";
@@ -595,6 +596,34 @@ namespace Main.Network
             await tcs.Task.AttachExternalCancellation(ct);
         }
 
+        public void SendRematchRequest()
+        {
+            CustomMessagingManager messaging = GetMessagingManager();
+            if (messaging == null)
+            {
+                return;
+            }
+            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
+            {
+                messaging.SendNamedMessage(k_Rematch, _opponentClientId, writer);
+            }
+        }
+
+        public async UniTask WaitForOpponentRematchAsync(CancellationToken ct)
+        {
+            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+
+            void OnRematch(ulong senderId, FastBufferReader reader)
+            {
+                messaging.UnregisterNamedMessageHandler(k_Rematch);
+                tcs.TrySetResult();
+            }
+
+            messaging.RegisterNamedMessageHandler(k_Rematch, OnRematch);
+            await tcs.Task.AttachExternalCancellation(ct);
+        }
+
         public void Dispose()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -614,6 +643,7 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_MainAction);
             m.UnregisterNamedMessageHandler(k_Draw);
             m.UnregisterNamedMessageHandler(k_Surrender);
+            m.UnregisterNamedMessageHandler(k_Rematch);
             m.UnregisterNamedMessageHandler(k_Mulligan);
             m.UnregisterNamedMessageHandler(k_RecoverDeck);
             m.UnregisterNamedMessageHandler(k_Switch);

@@ -75,8 +75,17 @@ namespace Main
         private VisualElement _gameEndEmblem;
         private Label _gameEndLabel;
         private Label _gameEndSubLabel;
+        private VisualElement _gameEndButtonRow;
+        private Button _gameEndRematchButton;
         private Button _gameEndTitleButton;
+        private Label _gameEndRematchStatusLabel;
         private CancellationTokenSource _surrenderCts;
+
+        // 再戦ハンドシェイク状態
+        private bool _localRematchRequested;
+        private bool _opponentRematchRequested;
+        private bool _rematchStarted;
+        private bool _opponentLeft;
 
         [SerializeField] private GameObject _fireworkPrefab;
         [SerializeField] private GameObject _costEffectPrefab;
@@ -437,13 +446,30 @@ namespace Main
                 _gameEndSubLabel.pickingMode = PickingMode.Ignore;
                 _gameEndSubLabel.style.display = DisplayStyle.None;
                 _gameEndOverlay.Add(_gameEndSubLabel);
+
+                _gameEndRematchStatusLabel = new Label();
+                _gameEndRematchStatusLabel.AddToClassList("game-end-sub-label");
+                _gameEndRematchStatusLabel.pickingMode = PickingMode.Ignore;
+                _gameEndRematchStatusLabel.style.display = DisplayStyle.None;
+                _gameEndOverlay.Add(_gameEndRematchStatusLabel);
+
+                _gameEndButtonRow = new VisualElement();
+                _gameEndButtonRow.AddToClassList("game-end-button-row");
+                _gameEndButtonRow.style.opacity = 0f;
+
+                _gameEndRematchButton = new Button();
+                _gameEndRematchButton.text = "再戦する";
+                _gameEndRematchButton.AddToClassList("game-end-button");
+                _gameEndRematchButton.clicked += OnRematchClicked;
+                _gameEndButtonRow.Add(_gameEndRematchButton);
+
                 _gameEndTitleButton = new Button();
                 _gameEndTitleButton.text = "ホームに戻る";
                 _gameEndTitleButton.AddToClassList("game-end-button");
-                _gameEndTitleButton.style.opacity = 0f;
                 _gameEndTitleButton.clicked += () => LeaveSessionAndGoHomeAsync().Forget();
+                _gameEndButtonRow.Add(_gameEndTitleButton);
 
-                _gameEndOverlay.Add(_gameEndTitleButton);
+                _gameEndOverlay.Add(_gameEndButtonRow);
                 mainRoot.Add(_gameEndOverlay);
 
                 _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
@@ -579,6 +605,7 @@ namespace Main
                 _optionPresenter.ClearSurrenderHandler();
             }
             _surrenderCts?.Dispose();
+            UnregisterRematchCallbacks();
             if (_rainDefeatEffect != null)
             {
                 Destroy(_rainDefeatEffect);

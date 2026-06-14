@@ -82,6 +82,10 @@ namespace Main
         {
             _optionPresenter.ClearSurrenderHandler();
             _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
+            if (_isOnline)
+            {
+                StartRematchWatch();
+            }
             PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, winAttribute, destroyCancellationToken).Forget();
         }
     }

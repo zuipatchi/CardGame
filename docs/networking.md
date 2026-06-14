@@ -309,8 +309,13 @@ else
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
+| `NGS_Rematch` | Both | 再戦希望通知（ペイロードなし）。双方が送信し合うと両者が Main シーンを再ロードして新規対戦を開始 |
 
 `NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は YOU LOSE + 「降参しました」を表示し、受信者は YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
+
+### 再戦（NGS_Rematch）
+
+ゲーム終了オーバーレイの「再戦する」ボタンで使う。`OnGameEnd`（オンライン時）で `WatchForOpponentRematchAsync` と `NetworkManager.OnClientDisconnectCallback` の監視を開始する。「再戦する」を押すと `NGS_Rematch` を送信して「対戦相手を待っています...」を表示し、**自分の希望と相手の希望の2フラグが揃ったら** 両者が `SceneTransitioner.Reload(Scenes.Main)` で Main シーンを再ロードして新規対戦を開始する。`Reload` は対象シーンをアンロードしてから再ロードするため `BuildAsync` → `PrepareDecksAsync` の再ハンドシェイクで再配牌される（NGO セッションは Common 常駐の `NetworkManager` が保持するため切断されない）。デッキは `DeckModel`（Common）から再取得するので同一、先攻後攻はホストが再抽選する。CPU 戦は相手待ちなしで即再ロードする。再戦フェーズ中に相手が退出（`OnClientDisconnectCallback` 発火）したら「対戦相手が退出しました」を表示し再戦ボタンを消す。
 
 ---
 

@@ -833,6 +833,17 @@
     margin-bottom: 32px;
 }
 
+.game-end-button-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-end-button-row .game-end-button {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
 .game-end-button {
     height: 64px;
     min-width: 200px;

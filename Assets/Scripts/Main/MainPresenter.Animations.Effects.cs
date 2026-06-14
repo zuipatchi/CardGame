@@ -506,7 +506,7 @@ namespace Main
                 _gameEndSubLabel.style.display = DisplayStyle.None;
             }
 
-            _gameEndTitleButton.style.opacity = 0f;
+            _gameEndButtonRow.style.opacity = 0f;
             _gameEndOverlay.style.display = DisplayStyle.Flex;
             _gameEndOverlay.style.opacity = 0f;
 
@@ -526,8 +526,8 @@ namespace Main
                     1f, 0.4f).SetEase(Ease.OutBack))
                 .AppendInterval(0.3f)
                 .Append(DOTween.To(
-                    () => _gameEndTitleButton.style.opacity.value,
-                    v => _gameEndTitleButton.style.opacity = v,
+                    () => _gameEndButtonRow.style.opacity.value,
+                    v => _gameEndButtonRow.style.opacity = v,
                     1f, 0.3f).SetEase(Ease.OutQuad))
                 .OnComplete(() => tcs.TrySetResult());
 

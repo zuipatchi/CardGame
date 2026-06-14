@@ -93,6 +93,72 @@ namespace Common.SceneManagement
             }
         }
 
+        // 指定シーンを一度アンロードしてから再ロードし、まっさらな状態で作り直す。
+        // オンライン再戦などで同じシーンを初期状態から開始したい場合に使う。
+        // NGO セッションは Common 常駐の NetworkManager が保持するため、シーン再ロードでは切断されない。
+        public async UniTask Reload(Scenes target)
+        {
+            if (target == Scenes.Common) return;
+
+            // 遷移中なら無視（ゲートをすぐ取れない = 別の遷移が実行中）
+            if (!await _gate.WaitAsync(0)) return;
+
+            bool gateReleased = false;
+            try
+            {
+                await _transitionPresenter.CoverAsync();
+
+                // アクティブシーンをアンロードできないため、対象がアクティブなら一旦 Common に移す
+                Scene current = SceneManager.GetSceneByBuildIndex((int)target);
+                if (current.IsValid() && current.isLoaded)
+                {
+                    if (SceneManager.GetActiveScene().buildIndex == (int)target)
+                    {
+                        Scene common = SceneManager.GetSceneByBuildIndex((int)Scenes.Common);
+                        if (common.IsValid() && common.isLoaded)
+                        {
+                            SceneManager.SetActiveScene(common);
+                        }
+                    }
+                    await SceneManager.UnloadSceneAsync(current).WithCancellation(_ct);
+                }
+
+                await SceneManager.LoadSceneAsync((int)target, LoadSceneMode.Additive)
+                    .WithCancellation(_ct);
+                Scene nextScene = SceneManager.GetSceneByBuildIndex((int)target);
+
+                nextScene.BuildLifetimeScopes();
+
+                if (SceneManager.GetActiveScene().buildIndex != (int)target)
+                {
+                    SceneManager.SetActiveScene(nextScene);
+                }
+
+                foreach (GameObject rootGo in nextScene.GetRootGameObjects())
+                {
+                    ISceneReady sceneReady = rootGo.GetComponentInChildren<ISceneReady>(true);
+                    if (sceneReady != null)
+                    {
+                        await sceneReady.ReadyAsync(_ct);
+                        break;
+                    }
+                }
+
+                // RevealAsync 前にゲートを解放して新シーンのボタンをすぐ有効化
+                gateReleased = true;
+                _gate.Release();
+                await _transitionPresenter.RevealAsync();
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                if (!gateReleased)
+                {
+                    _gate.Release();
+                }
+            }
+        }
+
         private async UniTask UnloadOldScenesAsync(int keepBuildIndex)
         {
             System.Collections.Generic.List<Scene> toUnload = new System.Collections.Generic.List<Scene>();
