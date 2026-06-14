@@ -42,6 +42,8 @@ namespace Main
             int cost = card.Data.Cost;
             if (cost <= 0)
             {
+                // 0コストは支払うカードが無いので飛翔演出は無いが、カード中心のコストエフェクトは再生する
+                await PlayCostEffectAtCardAsync(card, ct);
                 return Array.Empty<string>();
             }
 
