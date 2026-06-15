@@ -209,6 +209,9 @@ namespace Main
                 case CardEventType.SummonFromDeckByKeyword:
                     await ApplySummonFromDeckByKeywordAsync(charData.Keyword, isLocal, ct);
                     break;
+                case CardEventType.CopyFieldChar:
+                    await ApplyCopyFieldCharAsync(charData.EffectValue, isLocal, ct);
+                    break;
                 case CardEventType.GainVPPerGreenGrave:
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
@@ -329,6 +332,9 @@ namespace Main
                     break;
                 case CardEventType.SummonFromDeckByKeyword:
                     await ApplySummonFromDeckByKeywordAsync(data.Keyword, isLocal, ct);
+                    break;
+                case CardEventType.CopyFieldChar:
+                    await ApplyCopyFieldCharAsync(data.EventValue, isLocal, ct);
                     break;
                 case CardEventType.GainVPPerGreenGrave:
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
@@ -861,10 +867,15 @@ namespace Main
             }
         }
 
-        // SummonChar の1体分：飛来 → 配置 → キャラ8体勝利判定（OnCardPlayed）→ 演出 → 登場時効果（OnEnter）
-        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, Rect fromRect, CancellationToken ct)
+        // SummonChar の1体分：飛来 → 配置 → キャラ8体勝利判定（OnCardPlayed）→ 演出 → 登場時効果（OnEnter）。
+        // stateSource を渡すと、そのキャラのランタイム状態（バフ・現在HP）をコピーして生成する（CopyFieldChar 用）。
+        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, Rect fromRect, CancellationToken ct, CardView stateSource = null)
         {
             CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
+            if (stateSource != null)
+            {
+                newChar.CopyRuntimeStateFrom(stateSource);
+            }
             await FlyCardToDestAsync(newChar, fromRect, field, ct);
             field.PlaceCard(newChar);
             OnCardPlayed(data, playedByLocal: isLocal);

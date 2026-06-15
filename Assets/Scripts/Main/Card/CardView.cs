@@ -268,6 +268,17 @@ namespace Main.Card
             _hpLabel.text = _currentHp.ToString();
         }
 
+        // 別キャラのランタイム状態（攻撃力バフ・HPバフ・現在HP）をこのカードへ複製する（演出なしで即時反映）。
+        // CopyFieldChar 効果で「バフ・ダメージ込みの現在値」をコピーするのに使う。
+        public void CopyRuntimeStateFrom(CardView source)
+        {
+            _attackBuff = source._attackBuff;
+            _hpBuff = source._hpBuff;
+            _currentHp = source._currentHp;
+            _atkLabel.text = CurrentAttack.ToString();
+            _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
+        }
+
         // 攻撃力を amount 永続的に上げる（BuffAttackByKeyword）。ATK ラベルを更新しオレンジのパルス演出を出す。
         public async UniTask BuffAttackAsync(int amount, CancellationToken ct)
         {

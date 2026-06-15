@@ -886,6 +886,8 @@ namespace GameEditor
                     return string.IsNullOrEmpty(keyword)
                         ? "デッキからキャラを1枚選んで場に出す"
                         : $"デッキから『{keyword}』を持つキャラを1枚選んで場に出す";
+                case EventType.CopyFieldChar:
+                    return $"自分のキャラを1体選び、そのコピーを{(value1 <= 0 ? 1 : value1)}体出す";
                 default:
                     return string.Empty;
             }
@@ -947,6 +949,8 @@ namespace GameEditor
                     return new ValueInfo(true, "値1（対象数）", false, "値2（未使用）", "値1=破壊する敵キャラの体数（0=1体）。対象数が敵の数以上なら全員。");
                 case EventType.SummonFromDeckByKeyword:
                     return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "デッキから自身の特徴を持つキャラを1枚選んで場に出す。値は未使用。発動カードに特徴の設定が必要。");
+                case EventType.CopyFieldChar:
+                    return new ValueInfo(true, "値1（コピー体数）", false, "値2（未使用）", "値1=選んだ自分のキャラのコピーを出す体数（0=1体）。バフ・現在HP込みでコピー。");
                 case EventType.Switch:
                 case EventType.Evolve:
                 case EventType.GainVPPerGreenGrave:

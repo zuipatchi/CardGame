@@ -62,5 +62,9 @@ namespace Main.Card
         // 対象はプレイヤーが選択（CPU は最高コスト・オンラインはデッキ内インデックスで同期）。デッキから消費し、
         // 配置時に OnEnter も発動する。特徴一致キャラがデッキにいない／フィールド満杯なら空振り。EventValue / EventValue2 は不使用。
         SummonFromDeckByKeyword = 24,
+        // 発動側が自フィールドのキャラを1体選び、そのキャラのコピーを EventValue / EffectValue 体（未設定=0 は1体）自フィールドに出す。
+        // コピーはバフ・現在HP込みの状態を複製する。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
+        // 配置時に OnEnter も発動。フィールド満杯で打ち切り。自キャラが0体なら空振り。EventValue2 / EffectValue2 は不使用。
+        CopyFieldChar = 25,
     }
 }
