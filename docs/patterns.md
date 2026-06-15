@@ -93,9 +93,9 @@ public enum EventType
 
 効果種別ごとの事前演出 ＋ `ApplyEventEffectAsync` は `ResolveEventCardEffectAsync`（[MainPresenter.Phases.Resolution.cs](../Assets/Scripts/Main/MainPresenter.Phases.Resolution.cs)）に集約されており、`OnPlay` のプレイ時（`ResolveSingleCardAsync`）と `OnTurnStart` 永続イベントの毎ターン発動（`PlayGraveyardEventEffectAsync`）の両方から呼ばれる。演出のタイミングによって2パターンある（`ResolveEventCardEffectAsync` の `if/else if` ブランチ内に記述）：
 
-- **効果適用前に演出**（Draw / BanishChar / GainVPPerGreenGrave）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、BanishChar は対象キャラ上に「BANISH!」ラベル+パーティクル、GainVPPerGreenGrave は MedalIcon フロートを表示してから効果適用。
+- **効果適用前に演出**（Draw / GainVPPerGreenGrave）: `await ApplyEventEffectAsync(...)` の直前に `else if` で演出を先に呼ぶ。Draw はドロー前の予告、GainVPPerGreenGrave は MedalIcon フロートを表示してから効果適用。
 - **勝利点付帯値（VictoryPointBonus）**: 効果（EventType）とは独立した加点。`ResolveEventCardEffectAsync` / `ResolveCharacterTriggeredEffectAsync` の効果解決後に `ApplyVictoryPointBonusAsync(bonus, isLocal, card, ct)` が MedalIcon 演出 ＋ `AddVictoryPoints` をまとめて実行する（bonus が 0 なら何もしない）。「効果＋勝利点」も「勝利点を得るだけ」（`EventType=None` ＋ 付帯値）もこれで賄う。
-- **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内で `await FlyCardToDestAsync(...)` 等を呼ぶ。`worldBound` はフィールドから除去前に記録すること。
+- **`ApplyEventEffectAsync` 内でアニメーション**（BanishChar）: 効果適用自体にアニメが必要な場合は `ApplyEventEffectAsync` のケース内（または専用の Apply メソッド）でアニメを呼ぶ。BanishChar は `ApplyBanishCharAsync` で `ResolveEnemyCharTargetsAsync`（DamageEnemy / Bounce と共用の対象選択）により N 体選び、対象ごとに「BANISH!」演出 → `await FlyCardToDestAsync(...)` で墓地へ送る。`worldBound` はフィールドから除去前に記録すること。
 
 > ここに演出を追加すると `OnPlay`・`OnTurnStart` 両方に自動で反映される（共通メソッドのため）。
 
