@@ -9,7 +9,7 @@
 
 > **勝利点付帯値（`VictoryPointBonus`）**: `EventType` の効果とは独立して、全カード共通で「勝利点を N 得る」付帯値を持てる（`CardData.VictoryPointBonus`）。効果解決のタイミング（キャラはトリガー時、イベントはプレイ／OnTurnStart 時）に、効果（EventType）とあわせて発動側へ加算される。0 のときは加算なし（演出も出ない）。「効果＋勝利点」（例: 全回復しつつ勝利点2）も「勝利点を得るだけ」（`EventType=None` + 付帯値）もこれ1つで表現する。加点は **緑属性カード**で設定すること（勝利点は共通の勝利条件だが、加点する手段は緑カードに限る設計）。**緑属性以外のカードでは付帯値は常に 0 に固定される**（getter が 0 を返し、エディタの SO 検証でも 0 に書き戻される）。
 
-効果の説明文は `Description` に手書きし、カード詳細モーダルに表示される（自動生成はしない）。`Description` とは別に世界観テキスト用の `Flavor Text`（`FlavorText`）も全カード共通で設定でき、詳細モーダルの最下部に斜体で表示される（効果には影響しない）。
+効果の説明文は `Description` に設定し、カード詳細モーダルに表示される。手書きするほか、カードエディタの **「自動生成」** ボタンで現在の発動タイミング・効果種別・値・属性・勝利点付帯値から生成できる（対応表は下記「効果テキストの自動生成」）。`Description` とは別に世界観テキスト用の `Flavor Text`（`FlavorText`）も全カード共通で設定でき、詳細モーダルの最下部に斜体で表示される（効果には影響しない）。
 
 ---
 
@@ -43,7 +43,46 @@
 
 ## 設定方法
 
-> SO のインスペクターで直接編集するほか、メニュー **`Card → カードエディタ`**（[CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs)）で全属性のカードを横断して検索・編集・追加・削除できる。EventType に応じて値1/値2 の意味がラベル・ヒント表示され、画像は ObjectField で割り当てられる。採番ルールを変えた後は同ウィンドウの「ID再採番」で全カードを一括で振り直せる（旧 ID を参照する SummonChar 値・保存デッキは別途修正が必要）。
+> SO のインスペクターで直接編集するほか、メニュー **`Card → カードエディタ`**（[CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs)）で全属性のカードを横断して検索・編集・追加・削除できる。EventType に応じて値1/値2 の意味がラベル・ヒント表示され、画像は ObjectField で割り当てられる。採番ルールを変えた後は同ウィンドウの「ID再採番」で全カードを一括で振り直せる（旧 ID を参照する SummonChar 値・保存デッキは別途修正が必要）。効果テキスト（`Description`）は「自動生成」ボタンで下記ルールから生成できる。
+
+### 効果テキストの自動生成
+
+カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。生成ロジックは [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` / `EffectBody`。
+
+発動タイミング（接頭辞）
+
+| トリガー | テキスト |
+|---|---|
+| キャラ OnEnter / OnAttack / OnDestroy / OnUsedAsCost / OnTurnStart / OnAttacked / OnKill | 場に出た時 / 攻撃した時 / 破壊された時 / コストとして使用した時 / 自分のターン開始時 / 攻撃された時 / 相手キャラを撃破した時 |
+| キャラ None・イベント OnPlay | （接頭辞なし） |
+| イベント OnTurnStart | 自分のターン開始時に毎ターン |
+
+効果本体（EventType）
+
+| EventType | テキスト |
+|---|---|
+| None / AtkBoost / DefBoost / Negate | （空文字） |
+| Draw | カードをn枚引く |
+| BanishChar | 相手の先頭キャラを破壊する |
+| Recover | 墓地から上のn枚をデッキに戻す |
+| Switch | 自分のキャラ1体を手札に戻し、手札からキャラを1体配置する |
+| Evolve | 自分のキャラ1体を生贄にして、より高コストのキャラをコストなしで配置する |
+| CostBoost | {属性}コストn個分として扱う |
+| DamageAllEnemies | 相手キャラ全体にnダメージを与える |
+| GainVPPerGreenGrave | 墓地にある緑カードの数だけ勝利点を得る |
+| DamageEnemy | 相手キャラn体にmダメージを与える |
+| SummonChar | 「{召喚カード名}」をm体召喚する（ID `C{n}` から名前解決。m=0は1体） |
+| NextCardCostFree | 次に使うカード1枚のコストを0にする |
+| Bounce | 相手キャラn体を持ち主の手札に戻す |
+| BounceAll | 相手キャラ全体を持ち主の手札に戻す |
+| ExtraTurn | 追加でもう1度自分のターンを行う |
+| HealAllAllies | 自分のキャラ全体のHPをn回復する（n=0は「全回復する」） |
+| DrawSkipNext | カードをn枚引く。次のドローを1回スキップする |
+| DrawNextTurnStart | 次の自分のターン開始時にn枚多く引く |
+
+勝利点付帯値が n>0 のとき末尾に「勝利点をn得る」を付与。効果も勝利点も無い（EventType=None かつ付帯値0）ときは空文字（接頭辞も付けない）。
+
+> 例: OnEnter + DamageEnemy(値1=1,値2=2) →「場に出た時、相手キャラ1体に2ダメージを与える」。OnUsedAsCost + CostBoost(値1=2)・赤属性 →「コストとして使用した時、赤コスト2個分として扱う」。
 
 ### イベントカード
 
