@@ -882,6 +882,10 @@ namespace GameEditor
                     return BuildKeywordBuffBody(keyword, value1, "攻撃力");
                 case EventType.BuffHpByKeyword:
                     return BuildKeywordBuffBody(keyword, value1, "HP");
+                case EventType.SummonFromDeckByKeyword:
+                    return string.IsNullOrEmpty(keyword)
+                        ? "デッキからキャラを1枚選んで場に出す"
+                        : $"デッキから『{keyword}』を持つキャラを1枚選んで場に出す";
                 default:
                     return string.Empty;
             }
@@ -941,6 +945,8 @@ namespace GameEditor
                     return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "効果なし。勝利点付帯値だけ得るカードはこれ＋付帯値で作る。");
                 case EventType.BanishChar:
                     return new ValueInfo(true, "値1（対象数）", false, "値2（未使用）", "値1=破壊する敵キャラの体数（0=1体）。対象数が敵の数以上なら全員。");
+                case EventType.SummonFromDeckByKeyword:
+                    return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "デッキから自身の特徴を持つキャラを1枚選んで場に出す。値は未使用。発動カードに特徴の設定が必要。");
                 case EventType.Switch:
                 case EventType.Evolve:
                 case EventType.GainVPPerGreenGrave:

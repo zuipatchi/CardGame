@@ -1278,6 +1278,55 @@
     scale: 0.94 0.94;
 }
 
+/* ─── デッキから召喚するキャラの選択（SummonFromDeckByKeyword）────────────── */
+
+.deck-pick-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.deck-pick-label {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(230, 230, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 20px;
+}
+
+.deck-pick-scroll {
+    max-width: 90%;
+    flex-grow: 0;
+}
+
+.deck-pick-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-pick-card {
+    margin-left: 12px;
+    margin-right: 12px;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.deck-pick-card:hover {
+    scale: 1.06 1.06;
+}
+
+.deck-pick-card:active {
+    scale: 0.94 0.94;
+}
+
 /* ─── VS 演出 ─────────────────────────────────────────────────────── */
 
 .vs-overlay {

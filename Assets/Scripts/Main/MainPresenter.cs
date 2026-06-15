@@ -125,6 +125,8 @@ namespace Main
         private int _evolveMinCost;
 
         private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
+        // SummonFromDeckByKeyword のデッキカード選択：選んだカードのデッキ内インデックスを返す
+        private UniTaskCompletionSource<int> _deckCardSelectionTcs;
         private UniTaskCompletionSource<List<CardView>> _enemyCharSelectionTcs;
         private List<CardView> _enemyCharSelected;
         private int _enemyCharSelectTarget;

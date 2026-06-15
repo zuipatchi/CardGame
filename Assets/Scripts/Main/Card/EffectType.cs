@@ -58,5 +58,9 @@ namespace Main.Card
         BuffAttackByKeyword = 22,
         // BuffAttackByKeyword と同じ対象選択で、HP（現在HP・最大HP両方）を EventValue / EffectValue 上げる。
         BuffHpByKeyword = 23,
+        // 発動側のデッキから、発動カード自身の特徴（CardData.Keyword）を持つキャラを1枚選んで自フィールドに出す。
+        // 対象はプレイヤーが選択（CPU は最高コスト・オンラインはデッキ内インデックスで同期）。デッキから消費し、
+        // 配置時に OnEnter も発動する。特徴一致キャラがデッキにいない／フィールド満杯なら空振り。EventValue / EventValue2 は不使用。
+        SummonFromDeckByKeyword = 24,
     }
 }

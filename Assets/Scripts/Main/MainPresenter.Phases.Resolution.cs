@@ -206,6 +206,9 @@ namespace Main
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
                     break;
+                case CardEventType.SummonFromDeckByKeyword:
+                    await ApplySummonFromDeckByKeywordAsync(charData.Keyword, isLocal, ct);
+                    break;
                 case CardEventType.GainVPPerGreenGrave:
                     await PlayFloatingMedalAsync(sourceCard, ct);
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
@@ -323,6 +326,9 @@ namespace Main
                     break;
                 case CardEventType.SummonChar:
                     await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
+                    break;
+                case CardEventType.SummonFromDeckByKeyword:
+                    await ApplySummonFromDeckByKeywordAsync(data.Keyword, isLocal, ct);
                     break;
                 case CardEventType.GainVPPerGreenGrave:
                     await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);

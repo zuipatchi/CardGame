@@ -80,6 +80,33 @@ namespace Main.Card
             _countLabel.text = _deckCards.Count.ToString();
         }
 
+        // デッキ内のカードデータを並び順のスナップショットで返す（インデックスは _deckCards と一致）。
+        // SummonFromDeckByKeyword の候補抽出・オンライン同期（インデックス指定）に使う。
+        public IReadOnlyList<CardData> GetCardDataSnapshot()
+        {
+            CardData[] data = new CardData[_deckCards.Count];
+            for (int i = 0; i < _deckCards.Count; i++)
+            {
+                data[i] = _deckCards[i].Data;
+            }
+            return data;
+        }
+
+        // 指定インデックスのカードをデッキから取り除いてそのデータを返す（範囲外なら null）。
+        // 両クライアントのデッキ並び順は同期済みのため、同じインデックスで同じカードを取り除ける。
+        public CardData RemoveAt(int index)
+        {
+            if (index < 0 || index >= _deckCards.Count)
+            {
+                return null;
+            }
+            CardView card = _deckCards[index];
+            _deckCards.RemoveAt(index);
+            card.RemoveFromHierarchy();
+            UpdateSize();
+            return card.Data;
+        }
+
         public string[] GetCardIds()
         {
             string[] ids = new string[_deckCards.Count];
