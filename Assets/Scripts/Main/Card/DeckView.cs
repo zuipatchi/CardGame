@@ -94,7 +94,8 @@ namespace Main.Card
 
         // 指定インデックスのカードをデッキから取り除いてそのデータを返す（範囲外なら null）。
         // 両クライアントのデッキ並び順は同期済みのため、同じインデックスで同じカードを取り除ける。
-        public CardData RemoveAt(int index)
+        // （基底 VisualElement.RemoveAt と区別するため Card 付きの名前にしている）
+        public CardData RemoveCardAt(int index)
         {
             if (index < 0 || index >= _deckCards.Count)
             {

@@ -51,7 +51,7 @@ namespace Main
 
             // デッキから抜いてフィールドへ飛ばす（デッキ位置を起点に SummonChar と同じ配置・OnEnter 経路を使う）
             UnityEngine.Rect fromRect = deck.worldBound;
-            CardData data = deck.RemoveAt(chosenIndex);
+            CardData data = deck.RemoveCardAt(chosenIndex);
             deck.RefreshCount();
             if (data == null)
             {
@@ -104,10 +104,32 @@ namespace Main
             VisualElement overlay = new VisualElement();
             overlay.AddToClassList("deck-pick-overlay");
 
-            Label label = new Label($"『{keyword}』を持つキャラを1枚選択");
-            label.AddToClassList("deck-pick-label");
-            label.pickingMode = PickingMode.Ignore;
-            overlay.Add(label);
+            // パネル本体（縦長のダークパネル。上辺をアクセントカラーで縁取り）
+            VisualElement panel = new VisualElement();
+            panel.AddToClassList("deck-pick-panel");
+
+            // ヘッダー：タイトル（特徴名）＋サブタイトル
+            VisualElement header = new VisualElement();
+            header.AddToClassList("deck-pick-header");
+            header.pickingMode = PickingMode.Ignore;
+
+            Label title = new Label(string.IsNullOrEmpty(keyword) ? "キャラを選択" : $"『{keyword}』を選択");
+            title.AddToClassList("deck-pick-title");
+            header.Add(title);
+
+            Label subtitle = new Label("デッキから1枚選んで場に出す");
+            subtitle.AddToClassList("deck-pick-subtitle");
+            header.Add(subtitle);
+            panel.Add(header);
+
+            VisualElement divider = new VisualElement();
+            divider.AddToClassList("deck-pick-divider");
+            divider.pickingMode = PickingMode.Ignore;
+            panel.Add(divider);
+
+            // カードを並べる「ステージ」。縦方向のスペースを確保しつつ候補カードを中央に配置する
+            VisualElement stage = new VisualElement();
+            stage.AddToClassList("deck-pick-stage");
 
             ScrollView scroll = new ScrollView(ScrollViewMode.Horizontal);
             scroll.AddToClassList("deck-pick-scroll");
@@ -122,7 +144,15 @@ namespace Main
                 card.RegisterCallback<ClickEvent>(_ => _deckCardSelectionTcs?.TrySetResult(captured));
                 scroll.Add(card);
             }
-            overlay.Add(scroll);
+            stage.Add(scroll);
+            panel.Add(stage);
+
+            Label hint = new Label("カードをタップして選択");
+            hint.AddToClassList("deck-pick-hint");
+            hint.pickingMode = PickingMode.Ignore;
+            panel.Add(hint);
+
+            overlay.Add(panel);
             _mainRoot.Add(overlay);
 
             try

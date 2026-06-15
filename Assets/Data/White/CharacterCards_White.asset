@@ -158,11 +158,11 @@ MonoBehaviour:
     _attack: 1
     _hp: 2
     _attribute: 6
-    _effectTrigger: 0
-    _effectType: 0
+    _effectTrigger: 1
+    _effectType: 24
     _effectValue: 0
     _effectValue2: 0
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u30C7\u30C3\u30AD\u304B\u3089\u300C\u3071\u3063\u3061\u300D\u3068\u540D\u306E\u4ED8\u304F\u30AD\u30E3\u30E9\u4E00\u4F53\u3092\u5834\u306B\u51FA\u3059"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u30C7\u30C3\u30AD\u304B\u3089\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u30AD\u30E3\u30E9\u30921\u679A\u9078\u3093\u3067\u5834\u306B\u51FA\u3059"
