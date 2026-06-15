@@ -18,7 +18,7 @@ MonoBehaviour:
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
     _cost: 1
     _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
-    _flavorText: "\u5F37\u6B32\u306A\u30C4\u30DC\u304B\u306A"
+    _flavorText: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _eventTrigger: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: c50b93b927c929e4ab6dc2dff78d8625, type: 3}
     _flavorText: "\u30EF\u30AF\u30EF\u30AF"
     _victoryPointBonus: 0
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _eventTrigger: 0
     _eventType: 21
     _eventValue: 2
@@ -76,7 +76,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: bac83860baceb724ab1947e60833c443, type: 3}
     _flavorText: 
     _victoryPointBonus: 0
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _eventTrigger: 0
     _eventType: 18
     _eventValue: 0

@@ -78,14 +78,14 @@ MonoBehaviour:
     _attack: 2
     _hp: 6
     _attribute: 1
-    _effectTrigger: 6
+    _effectTrigger: 2
     _effectType: 3
     _effectValue: 1
     _effectValue2: 0
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u653B\u6483\u3055\u308C\u305F\u3068\u304D1\u679A\u30C9\u30ED\u30FC"
+    _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
   - _id: C2005
     _cardName: "\u75BE\u98A8\u306E\u6709\u99AC"
     _cost: 4
