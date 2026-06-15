@@ -51,7 +51,7 @@ public sealed class XxxCardSO : ScriptableObject
 
 該当属性の SO の Inspector で `_cards` リストにカードを追加して入力する。各カードの `Attribute` は SO が一括設定するため**インスペクタでは読み取り専用（グレー表示）**で、SO の `Attribute` に自動追従する。
 
-ID は SO の `OnValidate` で**自動採番**される（`CardIdAutoAssigner`）。採番規則は **`C{(属性番号)×1000 + リスト連番}`**（属性番号 = `(int)CardAttribute + 1`。赤=`C1001`/青=`C2001`/…、イベントは `E1001`…）。1属性あたり最大999枚・最大9属性で、属性別 SO 間でも一意・"C{番号}" 形式を保つ（SummonChar 互換）。要素の追加・削除・並び替えのたびに振り直されるため手入力不要。
+ID は SO の `OnValidate` で**自動採番**される（`CardIdAutoAssigner`）。採番規則は **`C{(属性番号)×1000 + リスト連番}`**（属性番号 = 白1/青2/緑3/黄4/赤5/黒6/紫7。白=`C1001`/青=`C2001`/…、イベントは `E1001`…）。1属性あたり最大999枚で、属性別 SO 間でも一意・"C{番号}" 形式を保つ（SummonChar 互換）。要素の追加・削除・並び替えのたびに振り直されるため手入力不要。
 
 > 既存の単一 SO を属性別へ分割する移行ツール：メニュー **`Card → 属性別SOに分割`**（[CardSoAttributeSplitter.cs](../Assets/Scripts/Editor/CardSoAttributeSplitter.cs)）。属性で振り分けて各フォルダに SO を生成し CardDatabase へアサインする。複数属性が混在する SO は属性を上書きしない（レガシー SO の破壊防止）。
 
