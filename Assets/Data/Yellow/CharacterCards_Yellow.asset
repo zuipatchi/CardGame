@@ -20,6 +20,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: a7d1aa94c9b218645b93ae927185b733, type: 3}
     _flavorText: 
     _victoryPointBonus: 0
+    _excludeFromGame: 1
     _attack: 2
     _hp: 3
     _attribute: 3
