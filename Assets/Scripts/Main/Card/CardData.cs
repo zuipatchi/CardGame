@@ -14,6 +14,10 @@ namespace Main.Card
         // キャラはトリガー（OnEnter 等）のタイミング、イベントはプレイ／OnTurnStart のタイミングで加算。
         // 0 のときは加算なし（演出も出ない）。「勝利点を得るだけ」のカードは EventType=None + この値で表現する。
         [SerializeField] protected int _victoryPointBonus;
+        // ゲームで使用しないカード（調整中・未完成など）の除外フラグ。
+        // 既定値 false＝ゲームで使用する（既存アセットは未設定でも false になるため移行不要）。
+        // true のカードは CardDatabase の集計（プール・対戦）から完全に除外される。
+        [SerializeField] protected bool _excludeFromGame;
         public string Id => _id;
         public string CardName => _cardName;
         public int Cost => _cost;
@@ -21,6 +25,8 @@ namespace Main.Card
         public string FlavorText => _flavorText;
         // 勝利点の加点は緑属性カードで設定する設計のため、緑以外のカードでは付帯値を常に 0 とみなす（誤設定しても加点されない）。
         public int VictoryPointBonus => Attribute == CardAttribute.Green ? _victoryPointBonus : 0;
+        // ゲームで使用するか（デッキ構築のプール・対戦への供給対象か）。
+        public bool InUse => !_excludeFromGame;
 
         public virtual int Attack => 0;
         public virtual int Hp => 0;

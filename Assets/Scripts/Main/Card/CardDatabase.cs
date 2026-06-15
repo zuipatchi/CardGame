@@ -44,7 +44,7 @@ namespace Main.Card
 
             foreach (T card in cards)
             {
-                if (card != null && !string.IsNullOrEmpty(card.Id))
+                if (card != null && card.InUse && !string.IsNullOrEmpty(card.Id))
                 {
                     _dict[card.Id] = card;
                 }
@@ -100,7 +100,7 @@ namespace Main.Card
 
             foreach (T card in source)
             {
-                if (card != null)
+                if (card != null && card.InUse)
                 {
                     target.Add(card);
                 }

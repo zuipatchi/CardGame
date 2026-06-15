@@ -21,6 +21,7 @@ namespace GameEditor
             public string Id { get; set; }
             public string Name { get; set; }
             public CardAttribute Attribute { get; set; }
+            public bool InUse { get; set; }
         }
 
         // EventType ごとの値の意味（フィールドラベル・ヒント表示に使う）。
@@ -132,6 +133,7 @@ namespace GameEditor
                     Id = card.Id,
                     Name = card.CardName,
                     Attribute = card.Attribute,
+                    InUse = card.InUse,
                 };
                 _entries.Add(entry);
             }
@@ -299,13 +301,20 @@ namespace GameEditor
                 GUILayout.Label("■", GUILayout.Width(16f));
                 GUI.color = previous;
 
-                string label = $"{entry.Id}  {entry.Name}";
+                string label = entry.InUse ? $"{entry.Id}  {entry.Name}" : $"{entry.Id}  {entry.Name}  (未使用)";
                 GUIStyle style = isSelected ? EditorStyles.boldLabel : EditorStyles.label;
+                Color previousContent = GUI.color;
+                if (!entry.InUse)
+                {
+                    // 未使用カードはグレーアウトして判別する。
+                    GUI.color = new Color(previousContent.r, previousContent.g, previousContent.b, 0.5f);
+                }
                 if (GUILayout.Button(label, style))
                 {
                     Select(entry);
                     GUI.FocusControl(null);
                 }
+                GUI.color = previousContent;
 
                 EditorGUILayout.EndHorizontal();
             }
@@ -414,6 +423,7 @@ namespace GameEditor
                 // 採番や名前の変更を一覧へ即反映する。
                 _selected.Id = element.FindPropertyRelative("_id").stringValue;
                 _selected.Name = element.FindPropertyRelative("_cardName").stringValue;
+                _selected.InUse = !element.FindPropertyRelative("_excludeFromGame").boolValue;
                 EditorUtility.SetDirty(_selected.So);
             }
 
@@ -429,6 +439,15 @@ namespace GameEditor
                 EditorGUILayout.EnumPopup("属性", (CardAttribute)element.FindPropertyRelative("_attribute").enumValueIndex);
             }
             EditorGUILayout.LabelField("種別", _selected.IsCharacter ? "キャラ" : "イベント");
+
+            // ゲームで使用する／しない（保存フィールド _excludeFromGame は反転値）。
+            SerializedProperty exclude = element.FindPropertyRelative("_excludeFromGame");
+            bool inUse = EditorGUILayout.Toggle("ゲームで使用", !exclude.boolValue);
+            exclude.boolValue = !inUse;
+            if (!inUse)
+            {
+                EditorGUILayout.HelpBox("このカードはゲーム（デッキ構築・対戦）から除外されます。", MessageType.Warning);
+            }
         }
 
         private void DrawCommonFields(SerializedProperty element)
@@ -565,6 +584,7 @@ namespace GameEditor
             element.FindPropertyRelative("_image").objectReferenceValue = null;
             element.FindPropertyRelative("_flavorText").stringValue = string.Empty;
             element.FindPropertyRelative("_victoryPointBonus").intValue = 0;
+            element.FindPropertyRelative("_excludeFromGame").boolValue = false;
             element.FindPropertyRelative("_description").stringValue = string.Empty;
 
             if (isCharacter)
