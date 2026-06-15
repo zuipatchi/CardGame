@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 4
   _cards:
-  - _id: C5001
+  - _id: C6001
     _cardName: "\u95C7\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: a5738855d9824764dbf410d8c8aef44c, type: 3}
+    _flavorText: 
+    _victoryPointBonus: 0
     _attack: 2
     _hp: 3
     _attribute: 4

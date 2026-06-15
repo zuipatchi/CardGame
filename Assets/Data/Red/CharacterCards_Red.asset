@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 0
   _cards:
-  - _id: C1001
+  - _id: C5001
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54"
     _cost: 0
     _image: {fileID: 21300000, guid: a88d226b180bb03439df641071e0fb4b, type: 3}
@@ -31,7 +31,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: 
-  - _id: C1002
+  - _id: C5002
     _cardName: "\u30B4\u30D6\u30EA\u30F3\u30AE\u30E3\u30F3\u30B0"
     _cost: 1
     _image: {fileID: 21300000, guid: 8bb63c7698aa5c74da9c01dc6efc8db5, type: 3}
@@ -48,7 +48,7 @@ MonoBehaviour:
     _haste: 1
     _flying: 0
     _description: 
-  - _id: C1003
+  - _id: C5003
     _cardName: "\u30C9\u30E9\u30B4\u30F3\u30D9\u30D3\u30FC"
     _cost: 1
     _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
@@ -65,7 +65,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 1
     _description: 
-  - _id: C1004
+  - _id: C5004
     _cardName: "\u696D\u706B\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: 9b06ed7237e254646b45ad469fc9e500, type: 3}
@@ -82,7 +82,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u8D64\u30B3\u30B9\u30C82\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
-  - _id: C1005
+  - _id: C5005
     _cardName: "\u708E\u9B5A"
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
@@ -99,7 +99,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u30AD\u30E3\u30E91\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
-  - _id: C1006
+  - _id: C5006
     _cardName: "\u30AD\u30EC\u305F\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
@@ -116,7 +116,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u5168\u3066\u306E\u30AD\u30E3\u30E9\u306B2\u30C0\u30E1\u30FC\u30B8"
-  - _id: C1007
+  - _id: C5007
     _cardName: "\u30B9\u30AB\u30FC\u30EC\u30C3\u30C8\u30FBDOM"
     _cost: 4
     _image: {fileID: 21300000, guid: 9504da2ecccf4b942adc689996cdea8f, type: 3}
