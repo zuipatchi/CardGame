@@ -33,15 +33,17 @@ namespace DeckBuilder
             }
         }
 
+        // 左から ID の属性番号順（White=1, Blue=2, Green=3, Yellow=4, Red=5, Black=6, Purple=7）に並べる。
+        // CardIdAutoAssigner.AttributeNumber を参照。
         private static readonly CardAttribute[] FilterAttributes =
         {
-            CardAttribute.Red,
+            CardAttribute.White,
             CardAttribute.Blue,
             CardAttribute.Green,
             CardAttribute.Yellow,
+            CardAttribute.Red,
             CardAttribute.Black,
             CardAttribute.Purple,
-            CardAttribute.White,
         };
 
         private VisualElement _deckBuilderRoot;
@@ -187,6 +189,9 @@ namespace DeckBuilder
                 return null;
             }
 
+            // ID 順（属性番号×1000+連番）に並べる。ID の数値部分でソート。
+            cardList.Sort((a, b) => ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id)));
+
             VisualElement wrapper = new VisualElement();
 
             Label header = new Label(title);
@@ -274,6 +279,29 @@ namespace DeckBuilder
                 RefreshFilter();
             };
             return btn;
+        }
+
+        // "C1001" / "E2003" などの ID から数値部分（属性番号×1000+連番）を取り出す。
+        // 解析できない場合は末尾に並べる。
+        private static int ParseCardIdNumber(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return int.MaxValue;
+            }
+
+            int start = 0;
+            while (start < id.Length && !char.IsDigit(id[start]))
+            {
+                start++;
+            }
+
+            if (start >= id.Length || !int.TryParse(id.Substring(start), out int number))
+            {
+                return int.MaxValue;
+            }
+
+            return number;
         }
 
         private static string GetFilterAttributeIconClass(CardAttribute attribute)
