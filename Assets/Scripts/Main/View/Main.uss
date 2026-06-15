@@ -76,6 +76,15 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+/* 自分のターンに直接攻撃できる相手デッキのハイライト（赤〜オレンジ系で強調・少し拡大） */
+.deck-view--attack-target {
+    scale: 1.08 1.08;
+    -unity-background-image-tint-color: rgb(255, 150, 100);
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
 .graveyard-view {
     width: 80px;
     height: 80px;
@@ -172,16 +181,6 @@
     height: 80px;
 }
 
-.deck-blue-win-icon {
-    position: absolute;
-    left: -20px;
-    top: -20px;
-    right: -20px;
-    bottom: -20px;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/WaterIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-
 .graveyard-count-icon {
     position: absolute;
     left: 0;
@@ -206,6 +205,16 @@
     -unity-text-align: middle-center;
     -unity-text-outline-width: 3px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.95);
+}
+
+.deck-count-icon {
+    position: absolute;
+    left: -28px;
+    top: -28px;
+    right: -28px;
+    bottom: -28px;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 .deck-count-label {
@@ -777,32 +786,19 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
-.game-end-emblem--red {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/FireIcon.png");
+/* デッキ切れ勝利 */
+.game-end-emblem--deckout {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/GraveIcon.png");
 }
 
-.game-end-emblem--blue {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/WaterIcon.png");
-}
-
-.game-end-emblem--green {
+/* 勝利点勝利 */
+.game-end-emblem--victorypoints {
     background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
 }
 
-.game-end-emblem--yellow {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/DiceIcon.png");
-}
-
-.game-end-emblem--black {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/ClockIcon.png");
-}
-
-.game-end-emblem--purple {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/DevilIcon.png");
-}
-
-.game-end-emblem--white {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/FlowerIcon.png");
+/* キャラ8体（制圧）勝利 */
+.game-end-emblem--fieldchars {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
 }
 
 .game-end-label {
@@ -1362,40 +1358,7 @@
     margin-right: 48px;
 }
 
-.life-hearts {
-    position: absolute;
-    flex-direction: row;
-}
-
-.life-hearts--opponent {
-    top: 8px;
-    right: 8px;
-}
-
-.life-hearts--player {
-    bottom: 8px;
-    left: 8px;
-}
-
-.life-heart {
-    width: 56px;
-    height: 56px;
-    margin-left: 4px;
-    margin-right: 4px;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/HeartIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-}
-
-/* 自分のターンに攻撃できる相手ハートのハイライト（赤〜オレンジ系で強調・少し拡大） */
-.life-heart--attack-target {
-    scale: 1.15 1.15;
-    -unity-background-image-tint-color: rgb(255, 150, 100);
-    transition-property: scale;
-    transition-duration: 0.12s;
-    transition-timing-function: ease-out;
-}
-
-/* ─── 勝利点（緑属性の勝利条件）───────────────────────────────── */
+/* ─── 勝利点（共通の勝利条件・常時表示）───────────────────────────────── */
 
 .victory-points {
     position: absolute;
@@ -1405,12 +1368,12 @@
 }
 
 .victory-points--opponent {
-    top: 76px;
+    top: 8px;
     right: 8px;
 }
 
 .victory-points--player {
-    bottom: 76px;
+    bottom: 8px;
     left: 8px;
 }
 

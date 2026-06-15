@@ -158,7 +158,7 @@ namespace Main
         }
 
         // ─── キャラ攻撃時効果 ────────────────────────────────────────────────
-        // キャラ攻撃・ハート攻撃の攻撃宣言時に、攻撃側キャラの EffectTrigger == OnAttack 効果を発動する。
+        // キャラ攻撃・デッキ攻撃の攻撃宣言時に、攻撃側キャラの EffectTrigger == OnAttack 効果を発動する。
         private UniTask ResolveCharacterAttackEffectAsync(CardView attacker, bool isLocal, CancellationToken ct)
         {
             return ResolveCharacterTriggeredEffectAsync(attacker, CharacterEffectTrigger.OnAttack, isLocal, ct);
@@ -786,7 +786,8 @@ namespace Main
             int summonCount = count <= 0 ? 1 : count;
             for (int i = 0; i < summonCount; i++)
             {
-                if (field.IsCharactersFull)
+                // キャラ8体勝利が成立したら以降の召喚は打ち切る
+                if (field.IsCharactersFull || _isGameOver)
                 {
                     break;
                 }
@@ -794,7 +795,7 @@ namespace Main
             }
         }
 
-        // SummonChar の1体分：飛来 → 配置 → 勝利条件武装 → 演出 → 登場時効果（OnEnter）
+        // SummonChar の1体分：飛来 → 配置 → キャラ8体勝利判定（OnCardPlayed）→ 演出 → 登場時効果（OnEnter）
         private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, Rect fromRect, CancellationToken ct)
         {
             CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
@@ -1145,7 +1146,7 @@ namespace Main
             // ドロー演出完了後、次の処理へ進む前に少し待つ
             await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
 
-            CheckBlueWin(isLocalDeck: isLocal);
+            CheckDeckOutWin(isLocalDeck: isLocal);
         }
     }
 }

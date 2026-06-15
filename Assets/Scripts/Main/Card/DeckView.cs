@@ -14,7 +14,6 @@ namespace Main.Card
         private readonly bool _isOpponent;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
-        private readonly VisualElement _blueWinIcon;
         private int _visualCount;
 
         public int Count => _deckCards.Count;
@@ -47,11 +46,11 @@ namespace Main.Card
             VisualElement badge = new VisualElement();
             badge.AddToClassList("deck-count-badge");
 
-            // WaterIcon を背面に敷き、その上に枚数ラベルを重ねる（墓地アイコンと同様）
-            _blueWinIcon = new VisualElement();
-            _blueWinIcon.AddToClassList("deck-blue-win-icon");
-            _blueWinIcon.style.display = DisplayStyle.None;
-            badge.Add(_blueWinIcon);
+            // HeartIcon を背面に敷き、その上に枚数ラベルを重ねる（墓地アイコンと同様）
+            VisualElement countIcon = new VisualElement();
+            countIcon.AddToClassList("deck-count-icon");
+            countIcon.pickingMode = PickingMode.Ignore;
+            badge.Add(countIcon);
 
             _countLabel = new Label(cards.Length.ToString());
             _countLabel.AddToClassList("deck-count-label");
@@ -60,12 +59,6 @@ namespace Main.Card
             badgeContainer.Add(badge);
             Add(badgeContainer);
 
-        }
-
-        // 青属性の勝利条件を武装したことを示す WaterIcon を枚数表示に重ねて出す（一度出したら永続）
-        public void ShowBlueWinIcon()
-        {
-            _blueWinIcon.style.display = DisplayStyle.Flex;
         }
 
         public CardData DrawTop()

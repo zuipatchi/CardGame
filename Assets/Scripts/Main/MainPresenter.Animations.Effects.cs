@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Main.Card;
+using Main.Game;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -176,7 +177,7 @@ namespace Main
             await PlayParticleAtUiPositionAsync(field, field.worldBound.center, _areaDamageEffectPrefab, ct, scale: AreaDamageEffectScale);
         }
 
-        // ─── 勝利点獲得演出（緑属性の勝利条件）──────────────────────────────
+        // ─── 勝利点獲得演出（勝利点の勝利条件）──────────────────────────────
         // 数字を from→to へカウントアップ、「+N」を浮かび上がらせ、メダルを弾ませる。
         private async UniTask PlayVictoryPointGainAsync(VictoryPointsView view, int from, int to, int amount, CancellationToken ct)
         {
@@ -436,7 +437,7 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
-        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, CardAttribute? winAttribute, CancellationToken ct)
+        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, WinReason? winReason, int winValue, CancellationToken ct)
         {
             if (_mulliganOverlay != null)
             {
@@ -462,20 +463,20 @@ namespace Main
             _gameEndLabel.RemoveFromClassList("game-end-label--lose");
             _gameEndLabel.RemoveFromClassList("game-end-label--draw");
 
-            if (winAttribute.HasValue)
+            if (winReason.HasValue)
             {
-                // 色による勝利条件: 「〇色勝利／〇色敗北」を勝因の属性色で表示し、属性アイコンを紋章として出す
+                // 共通の勝利条件: 勝因ごとのテキストを勝因色で表示し、対応アイコンを紋章として出す
                 bool isWin = playerWins == true;
-                _gameEndLabel.text = $"{GetWinColorName(winAttribute.Value)}{(isWin ? "勝利" : "敗北")}";
+                _gameEndLabel.text = GetWinReasonText(winReason.Value, isWin, winValue);
 
-                Color color = GetWinColor(winAttribute.Value);
+                Color color = GetWinReasonColor(winReason.Value);
                 if (!isWin)
                 {
                     color = new Color(color.r * 0.55f, color.g * 0.55f, color.b * 0.55f, 1f);
                 }
                 _gameEndLabel.style.color = color;
 
-                ApplyEmblemAttribute(winAttribute.Value);
+                ApplyEmblemReason(winReason.Value);
                 _gameEndEmblem.style.display = DisplayStyle.Flex;
             }
             else
@@ -537,44 +538,37 @@ namespace Main
             catch (OperationCanceledException) { }
         }
 
-        // 勝因の属性に対応する紋章（属性アイコン）クラスを適用する
-        private void ApplyEmblemAttribute(CardAttribute attribute)
+        // 勝因に対応する紋章（アイコン）クラスを適用する
+        private void ApplyEmblemReason(WinReason reason)
         {
-            _gameEndEmblem.EnableInClassList("game-end-emblem--red", attribute == CardAttribute.Red);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--blue", attribute == CardAttribute.Blue);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--green", attribute == CardAttribute.Green);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--yellow", attribute == CardAttribute.Yellow);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--black", attribute == CardAttribute.Black);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--purple", attribute == CardAttribute.Purple);
-            _gameEndEmblem.EnableInClassList("game-end-emblem--white", attribute == CardAttribute.White);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--deckout", reason == WinReason.DeckOut);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--victorypoints", reason == WinReason.VictoryPoints);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--fieldchars", reason == WinReason.FieldChars);
         }
 
-        private static string GetWinColorName(CardAttribute attribute)
+        // 勝因ごとの勝敗テキスト。value は勝利点勝利のときの勝者の到達勝利点。
+        private static string GetWinReasonText(WinReason reason, bool isWin, int value)
         {
-            return attribute switch
+            switch (reason)
             {
-                CardAttribute.Red => "赤色",
-                CardAttribute.Blue => "青色",
-                CardAttribute.Green => "緑色",
-                CardAttribute.Yellow => "黄色",
-                CardAttribute.Black => "黒色",
-                CardAttribute.Purple => "紫色",
-                CardAttribute.White => "白色",
-                _ => ""
-            };
+                case WinReason.DeckOut:
+                    return isWin ? "デッキ切れ勝利" : "デッキ切れ敗北";
+                case WinReason.VictoryPoints:
+                    return isWin ? $"勝利点を{value}得て勝利した" : $"勝利点{value}で敗北した";
+                case WinReason.FieldChars:
+                    return isWin ? "制圧勝利" : "制圧敗北";
+                default:
+                    return "";
+            }
         }
 
-        private static Color GetWinColor(CardAttribute attribute)
+        private static Color GetWinReasonColor(WinReason reason)
         {
-            return attribute switch
+            return reason switch
             {
-                CardAttribute.Red => new Color(0.92f, 0.32f, 0.32f, 1f),
-                CardAttribute.Blue => new Color(0.36f, 0.60f, 0.96f, 1f),
-                CardAttribute.Green => new Color(0.32f, 0.84f, 0.40f, 1f),
-                CardAttribute.Yellow => new Color(0.94f, 0.82f, 0.30f, 1f),
-                CardAttribute.Black => new Color(0.58f, 0.58f, 0.68f, 1f),
-                CardAttribute.Purple => new Color(0.74f, 0.42f, 0.92f, 1f),
-                CardAttribute.White => new Color(0.92f, 0.92f, 0.96f, 1f),
+                WinReason.DeckOut => new Color(0.40f, 0.65f, 0.96f, 1f),       // 青系
+                WinReason.VictoryPoints => new Color(0.95f, 0.80f, 0.30f, 1f), // 金系
+                WinReason.FieldChars => new Color(0.96f, 0.55f, 0.30f, 1f),    // 橙系
                 _ => Color.white
             };
         }

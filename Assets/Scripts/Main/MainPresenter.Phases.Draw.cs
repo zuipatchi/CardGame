@@ -70,7 +70,7 @@ namespace Main
                 {
                     _networkGameService.SendDrawNotification();
                 }
-                if (CheckBlueWin(isLocalDeck: true))
+                if (CheckDeckOutWin(isLocalDeck: true))
                 {
                     return;
                 }
@@ -112,7 +112,7 @@ namespace Main
                         await PlayCpuDrawAsync(drawn, deckRect, ct);
                     }
                 }
-                if (CheckBlueWin(isLocalDeck: false))
+                if (CheckDeckOutWin(isLocalDeck: false))
                 {
                     return;
                 }

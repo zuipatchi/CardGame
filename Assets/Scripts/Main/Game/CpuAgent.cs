@@ -36,22 +36,6 @@ namespace Main.Game
             return bestIdx;
         }
 
-        // ハート攻撃：ATK 1 以上のキャラの中で最高 ATK のインデックスを返す。いなければ -1
-        public static int ChooseHeartAttacker(IReadOnlyList<CardData> ownChars)
-        {
-            int bestIdx = -1;
-            int bestAtk = 0;
-            for (int i = 0; i < ownChars.Count; i++)
-            {
-                if (ownChars[i].Attack > bestAtk)
-                {
-                    bestAtk = ownChars[i].Attack;
-                    bestIdx = i;
-                }
-            }
-            return bestIdx;
-        }
-
         private static int FindFirst<T>(IReadOnlyList<CardData> hand, Func<int, bool> canAfford) where T : CardData
         {
             for (int i = 0; i < hand.Count; i++)

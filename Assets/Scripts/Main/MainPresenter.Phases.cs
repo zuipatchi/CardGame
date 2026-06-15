@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
+using Main.Game;
 using UnityEngine;
 
 namespace Main
@@ -76,9 +77,10 @@ namespace Main
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
         }
 
-        // winAttribute: 色による勝利条件で決着した場合の勝因属性（赤=ハート / 青=デッキ0）。
-        // 降参・タイムアウトなど色に依らない決着では null。
-        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false, CardAttribute? winAttribute = null)
+        // winReason: 共通の勝利条件で決着した場合の勝因（デッキ切れ / 勝利点 / キャラ8体）。
+        // 降参・タイムアウトなど勝因を区別しない決着では null。
+        // winValue: 勝利点勝利のとき、勝者の到達勝利点（勝因テキストに表示する）。
+        private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false, WinReason? winReason = null, int winValue = 0)
         {
             _optionPresenter.ClearSurrenderHandler();
             _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
@@ -86,7 +88,7 @@ namespace Main
             {
                 StartRematchWatch();
             }
-            PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, winAttribute, destroyCancellationToken).Forget();
+            PlayGameEndAsync(playerWins, isSurrenderWin, isPlayerSurrender, winReason, winValue, destroyCancellationToken).Forget();
         }
     }
 }

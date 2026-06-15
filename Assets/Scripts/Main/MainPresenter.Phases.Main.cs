@@ -214,8 +214,8 @@ namespace Main
             return true;
         }
 
-        // 攻撃者 attacker が防御側のハートを攻撃できるか。守護がいるとハートは狙えないが、飛行を持つ attacker は守護を無視できる
-        private bool CanAttackHeart(CardView attacker, FieldView defenderField)
+        // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。守護がいるとデッキは狙えないが、飛行を持つ attacker は守護を無視できる
+        private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
             return IsFlying(attacker) || !HasGuardian(defenderField);
         }
@@ -243,9 +243,9 @@ namespace Main
                     await ResolveSingleCardAsync(action._card, ct);
                     break;
                 case MainPhaseActionType.Attack:
-                    if (action._targetsHeart)
+                    if (action._targetsDeck)
                     {
-                        await ExecuteHeartAttackAsync(action._attacker, isLocal: true, ct);
+                        await ExecuteDeckAttackAsync(action._attacker, isLocal: true, ct);
                     }
                     else
                     {
@@ -275,9 +275,9 @@ namespace Main
                     await ExecuteOpponentCardPlayAsync(action._card.Data, action._card, isEvent: true, costCardIds: null, ct);
                     break;
                 case MainPhaseActionType.Attack:
-                    if (action._targetsHeart)
+                    if (action._targetsDeck)
                     {
-                        await ExecuteHeartAttackAsync(action._attacker, isLocal: false, ct);
+                        await ExecuteDeckAttackAsync(action._attacker, isLocal: false, ct);
                     }
                     else
                     {
@@ -320,9 +320,9 @@ namespace Main
                 {
                     CardView attacker = _opponentFieldView.Characters
                         .FirstOrDefault(c => c.Data.Id == networkAction.AttackerId);
-                    if (networkAction.TargetsHeart)
+                    if (networkAction.TargetsDeck)
                     {
-                        await ExecuteHeartAttackAsync(attacker, isLocal: false, ct);
+                        await ExecuteDeckAttackAsync(attacker, isLocal: false, ct);
                         break;
                     }
                     CardView target = networkAction.TargetId != null
@@ -451,48 +451,36 @@ namespace Main
             graveyard.AddCard(card);
         }
 
-        // ─── プレイ時トリガー（勝利条件の武装）──────────────────────────────
+        // ─── 共通の勝利条件 ──────────────────────────────────────────────
 
-        // 青属性の勝利条件（自デッキ0で勝利）の武装状態
-        private bool _playerBlueWinArmed;
-        private bool _opponentBlueWinArmed;
-
-        // カードのプレイ（キャラ配置 or イベント使用）時に呼ぶ。赤＝ハート出現、青＝デッキ0勝利の武装
+        // カードのプレイ（キャラ配置 or イベント使用）時に呼ぶ。
+        // キャラを配置した直後にフィールドのキャラ数勝利（8体）を判定する。
         private void OnCardPlayed(CardData playedCard, bool playedByLocal)
         {
-            // 赤属性: プレイした側の攻撃対象ハートを出現させる（一度出たら永続）
-            if (HeartRule.ActivatesHearts(playedCard))
-            {
-                LifeHeartsView hearts = playedByLocal ? _opponentLifeHearts : _playerLifeHearts;
-                hearts.Activate();
-            }
-
-            // 青属性: プレイした側の「自デッキ0で勝利」を武装する（一度武装したら永続）
-            if (BlueRule.ActivatesBlueWin(playedCard))
-            {
-                if (playedByLocal && !_playerBlueWinArmed)
-                {
-                    _playerBlueWinArmed = true;
-                    _playerDeckView.ShowBlueWinIcon();
-                }
-                else if (!playedByLocal && !_opponentBlueWinArmed)
-                {
-                    _opponentBlueWinArmed = true;
-                    _opponentDeckView.ShowBlueWinIcon();
-                }
-            }
-
-            // 緑属性: プレイした側の勝利点表示を出現させる（一度出たら永続）
-            if (GreenRule.ActivatesVictoryPoints(playedCard))
-            {
-                VictoryPointsView victoryPoints = playedByLocal ? _playerVictoryPoints : _opponentVictoryPoints;
-                victoryPoints.Activate();
-            }
+            CheckFieldCharsWin(playedByLocal);
         }
 
-        // 緑属性の勝利条件：プレイした側の勝利点に加算し、WinPoints 到達でそのプレイヤーの勝利。
+        // フィールドのキャラ数勝利条件：自フィールドにキャラを規定数（WinRule.FieldCharsToWin）
+        // 同時に並べた側の勝利。キャラ配置・召喚の直後（OnCardPlayed）に呼ぶ。
+        private void CheckFieldCharsWin(bool isLocalField)
+        {
+            if (_isGameOver)
+            {
+                return;
+            }
+
+            FieldView field = isLocalField ? _playerFieldView : _opponentFieldView;
+            if (!WinRule.IsFieldCharsWin(field.Characters.Count))
+            {
+                return;
+            }
+
+            _isGameOver = true;
+            OnGameEnd(playerWins: isLocalField, winReason: WinReason.FieldChars);
+        }
+
+        // 勝利点勝利条件：加算した側の勝利点が規定値（WinRule.VictoryPointsToWin）に到達したら勝利。
         // 勝利点付帯値（VictoryPointBonus）や GainVPPerGreenGrave の解決時に呼ぶ。
-        // 勝利点表示のアクティブ化は緑カードのプレイ（OnCardPlayed）のみが行う。ここでは Activate しない。
         private async UniTask AddVictoryPoints(int amount, bool toLocal, CancellationToken ct)
         {
             if (amount <= 0)
@@ -507,69 +495,77 @@ namespace Main
             // 数字カウントアップ + 「+N」フローティング + メダルの弾み演出
             await PlayVictoryPointGainAsync(victoryPoints, from, victoryPoints.Points, amount, ct);
 
-            if (!_isGameOver && GreenRule.IsGreenWin(victoryPoints.Points))
+            if (!_isGameOver && WinRule.IsVictoryPointsWin(victoryPoints.Points))
             {
                 _isGameOver = true;
-                OnGameEnd(playerWins: toLocal, winAttribute: CardAttribute.Green);
+                OnGameEnd(playerWins: toLocal, winReason: WinReason.VictoryPoints, winValue: victoryPoints.Points);
             }
         }
 
-        // 青属性の勝利条件判定：武装済みでデッキが0枚なら、そのプレイヤーの勝利。
-        // デッキが減る各ドロー処理の直後に呼ぶ。勝利が成立したら true を返す。
-        private bool CheckBlueWin(bool isLocalDeck)
+        // デッキ切れ勝利条件：あるプレイヤーがデッキを引き切って0枚になったら、その相手が勝利。
+        // デッキが減る各ドロー処理の直後に呼ぶ。勝敗が成立したら true を返す。
+        private bool CheckDeckOutWin(bool isLocalDeck)
         {
             if (_isGameOver)
             {
                 return false;
             }
 
-            bool armed = isLocalDeck ? _playerBlueWinArmed : _opponentBlueWinArmed;
             DeckView deck = isLocalDeck ? _playerDeckView : _opponentDeckView;
-            if (!BlueRule.IsBlueWin(armed, deck.Count))
+            if (!WinRule.IsDeckOut(deck.Count))
             {
                 return false;
             }
 
             _isGameOver = true;
-            OnGameEnd(playerWins: isLocalDeck, winAttribute: CardAttribute.Blue);
+            // 引き切った側（isLocalDeck）が敗北 → 相手が勝利
+            OnGameEnd(playerWins: !isLocalDeck, winReason: WinReason.DeckOut);
             return true;
         }
 
-        // ハート攻撃：突進 → パーティクル → ハート削除。3個目を破壊した側が勝利
-        private async UniTask ExecuteHeartAttackAsync(CardView attacker, bool isLocal, CancellationToken ct)
+        // デッキへの直接攻撃：突進 → 相手デッキ上から ATK 枚を墓地へ送る（ミル）→ デッキ切れ判定。
+        // ATK 0 はシールドブロックで不発。デッキを0にすれば相手はデッキ切れで敗北（攻撃側の勝利）。
+        private async UniTask ExecuteDeckAttackAsync(CardView attacker, bool isLocal, CancellationToken ct)
         {
-            LifeHeartsView targetHearts = isLocal ? _opponentLifeHearts : _playerLifeHearts;
-            if (attacker == null || !targetHearts.CanBeAttacked)
+            if (attacker == null)
             {
                 return;
             }
 
+            DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
+            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+
             await ResolveCharacterAttackEffectAsync(attacker, isLocal, ct);
 
-            VisualElement targetHeart = targetHearts.PeekNextHeart();
-            await PlayCardChargeAsync(attacker, targetHeart, ct);
+            await PlayCardChargeAsync(attacker, targetDeck, ct);
 
-            if (!HeartRule.CanBreakHeart(attacker.Data.Attack))
+            int atk = attacker.Data.Attack;
+            if (atk <= 0)
             {
-                await PlayShieldBlockEffectAsync(targetHeart, ct);
+                await PlayShieldBlockEffectAsync(targetDeck, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                 return;
             }
 
-            if (_charDestroyEffectPrefab != null)
+            // ATK 枚をデッキ上から1枚ずつ墓地へ送る（デッキ枚数が少なければ全枚数）
+            int millCount = Mathf.Min(atk, targetDeck.Count);
+            for (int i = 0; i < millCount; i++)
             {
-                // ハートはカードより小さいためパーティクルを縮小して再生する
-                const float HeartEffectScale = 0.4f;
-                await PlayParticleAtUiPositionAsync(targetHeart, targetHeart.worldBound.center, _charDestroyEffectPrefab, ct, scale: HeartEffectScale);
+                Rect deckRect = targetDeck.worldBound;
+                CardData milled = targetDeck.DrawTop();
+                targetDeck.RefreshCount();
+                if (milled == null)
+                {
+                    break;
+                }
+                // ミルされるカードは攻撃側ではなく守る側（デッキの持ち主）のもの。攻撃側が自分(isLocal)なら相手のカード
+                CardView milledCard = new CardView(_cardStore.CardTemplate, milled, _cardStore.CardBack, faceDown: false, isOpponent: isLocal);
+                await FlyToGraveyardAsync(milledCard, deckRect, targetGraveyard, ct);
             }
-            targetHearts.RemoveHeart();
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
-            if (targetHearts.Remaining == 0 && !_isGameOver)
-            {
-                _isGameOver = true;
-                OnGameEnd(playerWins: isLocal, winAttribute: CardAttribute.Red);
-            }
+            // 攻撃で相手デッキが0になったら、その相手がデッキ切れで敗北
+            CheckDeckOutWin(isLocalDeck: !isLocal);
         }
 
         // ─── CPU アクション選択 ───────────────────────────────────────────
@@ -582,25 +578,30 @@ namespace Main
             // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
             List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
 
-            // プレイヤーのハートが攻撃可能なら最優先で攻撃（勝利に直結）。
-            // 守護がいるとハートは狙えないが、飛行を持つ攻撃者は守護を無視してハートを攻撃できる
-            if (_playerLifeHearts.CanBeAttacked)
+            // 相手デッキを直接攻撃できる攻撃者（守護・飛行を考慮）。デッキが空なら対象外
+            int playerDeckCount = _playerDeckView.Count;
+            List<CardView> deckAttackers = playerDeckCount > 0
+                ? availableAttackers.Where(a => CanAttackDeck(a, _playerFieldView)).ToList()
+                : new List<CardView>();
+
+            // lethal：1回の攻撃で相手デッキを引き切らせられるなら、デッキ攻撃で勝利を狙う
+            CardView lethalDeckAttacker = null;
+            foreach (CardView a in deckAttackers)
             {
-                List<CardView> heartAttackers = availableAttackers
-                    .Where(a => CanAttackHeart(a, _playerFieldView)).ToList();
-                if (heartAttackers.Count > 0)
+                if (a.Data.Attack >= playerDeckCount
+                    && (lethalDeckAttacker == null || a.Data.Attack > lethalDeckAttacker.Data.Attack))
                 {
-                    int heartAttackerIdx = CpuAgent.ChooseHeartAttacker(heartAttackers.Select(c => c.Data).ToList());
-                    if (heartAttackerIdx >= 0)
-                    {
-                        return new MainPhaseAction
-                        {
-                            _actionType = MainPhaseActionType.Attack,
-                            _attacker = heartAttackers[heartAttackerIdx],
-                            _targetsHeart = true
-                        };
-                    }
+                    lethalDeckAttacker = a;
                 }
+            }
+            if (lethalDeckAttacker != null)
+            {
+                return new MainPhaseAction
+                {
+                    _actionType = MainPhaseActionType.Attack,
+                    _attacker = lethalDeckAttacker,
+                    _targetsDeck = true
+                };
             }
 
             // キャラ攻撃：飛行・守護を考慮し、合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATKを選ぶ
@@ -637,6 +638,18 @@ namespace Main
                     _actionType = MainPhaseActionType.Attack,
                     _attacker = battleAttacker,
                     _target = battleTarget
+                };
+            }
+
+            // 合法なキャラ攻撃対象がいない場合、相手デッキを削る（chip mill。最高ATKの攻撃者で）
+            if (deckAttackers.Count > 0)
+            {
+                CardView deckAttacker = deckAttackers.OrderByDescending(a => a.Data.Attack).First();
+                return new MainPhaseAction
+                {
+                    _actionType = MainPhaseActionType.Attack,
+                    _attacker = deckAttacker,
+                    _targetsDeck = true
                 };
             }
 
@@ -744,9 +757,10 @@ namespace Main
                         });
                         return true;
                     }
-                    if (_opponentLifeHearts.ContainsWorldPoint(worldPos))
+                    // 相手デッキへの直接攻撃（ATK 枚をミル）
+                    if (_opponentDeckView.Count > 0 && _opponentDeckView.worldBound.Contains(worldPos))
                     {
-                        if (!CanAttackHeart(capturedChar, _opponentFieldView))
+                        if (!CanAttackDeck(capturedChar, _opponentFieldView))
                         {
                             ShowToast("守護を持つキャラを攻撃してください");
                             return false;
@@ -755,7 +769,7 @@ namespace Main
                         {
                             _actionType = MainPhaseActionType.Attack,
                             _attacker = capturedChar,
-                            _targetsHeart = true
+                            _targetsDeck = true
                         });
                         return true;
                     }
@@ -765,7 +779,7 @@ namespace Main
                 manipulators.Add((charCard, arrowManip));
             }
 
-            // 攻撃できる自キャラが1体以上いる場合のみ、攻撃可能な相手キャラ・ハートをハイライト
+            // 攻撃できる自キャラが1体以上いる場合のみ、攻撃可能な相手キャラをハイライト
             List<CardView> attackers = manipulators.Select(m => m.card).ToList();
             List<CardView> highlightedTargets = attackers.Count > 0
                 ? HighlightAttackTargets(attackers)
@@ -794,11 +808,11 @@ namespace Main
                 {
                     target.RemoveFromClassList("attack-target-char");
                 }
-                _opponentLifeHearts.SetAttackTargetHighlight(false);
+                _opponentDeckView.RemoveFromClassList("deck-view--attack-target");
             }
         }
 
-        // 攻撃可能な相手キャラ・ハートをハイライトし、ハイライトした相手キャラのリストを返す（クリーンアップ用）。
+        // 攻撃可能な相手キャラ・相手デッキをハイライトし、ハイライトした相手キャラのリストを返す（クリーンアップ用）。
         // 「いずれかの攻撃可能な自キャラ（attackers）が攻撃できる対象」をハイライトする（守護・飛行を考慮）。
         private List<CardView> HighlightAttackTargets(IReadOnlyList<CardView> attackers)
         {
@@ -824,19 +838,22 @@ namespace Main
                     highlighted.Add(enemyChar);
                 }
             }
-            bool anyCanHitHeart = false;
+
+            // 相手デッキを直接攻撃できる自キャラが1体以上いればデッキもハイライト
+            bool anyCanHitDeck = false;
             foreach (CardView attacker in attackers)
             {
-                if (CanAttackHeart(attacker, _opponentFieldView))
+                if (CanAttackDeck(attacker, _opponentFieldView))
                 {
-                    anyCanHitHeart = true;
+                    anyCanHitDeck = true;
                     break;
                 }
             }
-            if (anyCanHitHeart && _opponentLifeHearts.CanBeAttacked)
+            if (anyCanHitDeck && _opponentDeckView.Count > 0)
             {
-                _opponentLifeHearts.SetAttackTargetHighlight(true);
+                _opponentDeckView.AddToClassList("deck-view--attack-target");
             }
+
             return highlighted;
         }
 
@@ -854,7 +871,7 @@ namespace Main
                     return NetworkGameService.MainActionData.Attack(
                         action._attacker?.Data.Id,
                         action._target?.Data.Id,
-                        action._targetsHeart);
+                        action._targetsDeck);
                 default:
                     return NetworkGameService.MainActionData.Pass();
             }

@@ -55,10 +55,8 @@ namespace Main
         private DeckView _opponentDeckView;
         private GraveyardView _playerGraveyardView;
         private GraveyardView _opponentGraveyardView;
-        private LifeHeartsView _playerLifeHearts;    // 自分のライフ（自分フィールド左下・相手が攻撃する）
-        private LifeHeartsView _opponentLifeHearts;  // 相手のライフ（相手フィールド右上・自分が攻撃する）
-        private VictoryPointsView _playerVictoryPoints;    // 自分の勝利点（自分フィールド左下）
-        private VictoryPointsView _opponentVictoryPoints;  // 相手の勝利点（相手フィールド右上）
+        private VictoryPointsView _playerVictoryPoints;    // 自分の勝利点（自分フィールド左下・常時表示）
+        private VictoryPointsView _opponentVictoryPoints;  // 相手の勝利点（相手フィールド右上・常時表示）
         private VisualElement _actionButtonsArea;
         private Button _okButton;
         private Button _backButton;
@@ -177,7 +175,7 @@ namespace Main
             internal CardView _card;
             internal CardView _attacker;
             internal CardView _target;
-            internal bool _targetsHeart;
+            internal bool _targetsDeck;
         }
 
         private sealed class StagedInput
@@ -346,12 +344,7 @@ namespace Main
                 _playerFieldView = new FieldView();
                 playerFieldArea.Add(_playerFieldView);
 
-                _opponentLifeHearts = new LifeHeartsView(isOpponent: true);
-                opponentFieldArea.Add(_opponentLifeHearts);
-
-                _playerLifeHearts = new LifeHeartsView(isOpponent: false);
-                playerFieldArea.Add(_playerLifeHearts);
-
+                // 勝利点はゲーム共通の勝利条件のため、開始時から両者を常時表示する
                 _opponentVictoryPoints = new VictoryPointsView(isOpponent: true);
                 opponentFieldArea.Add(_opponentVictoryPoints);
 

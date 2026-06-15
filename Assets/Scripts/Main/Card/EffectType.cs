@@ -21,7 +21,7 @@ namespace Main.Card
         // HP が 0 以下になったキャラを破壊する。敵キャラがいなければ空振り。
         DamageAllEnemies = 10,
         // 11 は欠番（旧 GainVictoryPoints）。勝利点の付与は CardData.VictoryPointBonus に統合した。
-        // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（緑属性の勝利条件）に加算する。
+        // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（勝利点の勝利条件への加点）に加算する。
         // EventValue / EffectValue は不使用（0）。墓地に緑カードがなければ加点 0。
         GainVPPerGreenGrave = 12,
         // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
