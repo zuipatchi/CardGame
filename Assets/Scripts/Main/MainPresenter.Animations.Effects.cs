@@ -437,7 +437,7 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
-        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, WinReason? winReason, int winValue, CancellationToken ct)
+        private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, WinReason? winReason, CancellationToken ct)
         {
             if (_mulliganOverlay != null)
             {
@@ -467,7 +467,7 @@ namespace Main
             {
                 // 共通の勝利条件: 勝因ごとのテキストを勝因色で表示し、対応アイコンを紋章として出す
                 bool isWin = playerWins == true;
-                _gameEndLabel.text = GetWinReasonText(winReason.Value, isWin, winValue);
+                _gameEndLabel.text = GetWinReasonText(winReason.Value, isWin);
 
                 Color color = GetWinReasonColor(winReason.Value);
                 if (!isWin)
@@ -546,15 +546,15 @@ namespace Main
             _gameEndEmblem.EnableInClassList("game-end-emblem--fieldchars", reason == WinReason.FieldChars);
         }
 
-        // 勝因ごとの勝敗テキスト。value は勝利点勝利のときの勝者の到達勝利点。
-        private static string GetWinReasonText(WinReason reason, bool isWin, int value)
+        // 勝因ごとの勝敗テキスト。
+        private static string GetWinReasonText(WinReason reason, bool isWin)
         {
             switch (reason)
             {
                 case WinReason.DeckOut:
                     return isWin ? "デッキ切れ勝利" : "デッキ切れ敗北";
                 case WinReason.VictoryPoints:
-                    return isWin ? $"勝利点を{value}得て勝利した" : $"勝利点{value}で敗北した";
+                    return isWin ? "勝利点勝利" : "勝利点敗北";
                 case WinReason.FieldChars:
                     return isWin ? "制圧勝利" : "制圧敗北";
                 default:

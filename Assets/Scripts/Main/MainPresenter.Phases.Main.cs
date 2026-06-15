@@ -498,7 +498,7 @@ namespace Main
             if (!_isGameOver && WinRule.IsVictoryPointsWin(victoryPoints.Points))
             {
                 _isGameOver = true;
-                OnGameEnd(playerWins: toLocal, winReason: WinReason.VictoryPoints, winValue: victoryPoints.Points);
+                OnGameEnd(playerWins: toLocal, winReason: WinReason.VictoryPoints);
             }
         }
 
