@@ -35,8 +35,12 @@
 | HealAllAllies | 発動側の**自フィールドのキャラ全員**の HP を EventValue 分回復する（最大HP=元のHPでクランプ）。**EventValue=0 のときは最大HPまで全回復**。自キャラが0体なら空振り。各キャラの HP ラベルが緑にパルスする演出 | 回復量（0=全回復） |
 | DrawSkipNext | 発動プレイヤーが指定枚数ドローし（Draw と同じ。デッキ0枚で中断）、その代わり**そのプレイヤーの次のドローフェーズを1回スキップ**する（ドロー0枚にして消費。スキップ時は「ドロースキップ」トースト表示）。スキップ予約はターンをまたいで次に来る自分のドローフェーズで消費される（ExtraTurn 中でも「次に来るドロー」を飛ばす） | ドロー枚数 |
 | DrawNextTurnStart | 発動時には引かず（「次ターン DRAW X」フロート表示のみ）、**そのプレイヤーの次のターン開始時のドローフェーズで通常ドローに上乗せして指定枚数を追加ドロー**する。複数回発動すると枚数は累積する。デッキが尽きた時点で中断 | ドロー枚数 |
+| BuffAttackByKeyword | 発動側の自フィールドにいる、**発動キャラと同じ特徴（`Keyword`）を持つ他のキャラ（自分自身を除く）**の攻撃力を EventValue 分上げる（**発動時に一度だけ永続加算**。後から場に出たキャラには適用されない）。発動キャラの特徴が未設定（空）なら空振り。対象は ATK ラベルがオレンジにパルスし、戦闘ダメージ・CPU判断・対象選択すべてにバフ後の値（`CardView.CurrentAttack`）が反映される。イベントカードに付けた場合は場に発動元キャラがいないため、対象特徴を持つ味方キャラ全員に適用 | 攻撃力の上昇量 |
+| BuffHpByKeyword | BuffAttackByKeyword と同じ対象選択で、**HP（現在HP・最大HP両方）**を EventValue 分上げる。対象は HP ラベルが緑にパルスし、回復（HealAllAllies 等）のクランプ上限も `CardView.MaxHp`（=元HP+バフ）まで上がる | HPの上昇量 |
 
 > 「勝利点を固定値で得るだけ」のカードは `EventType=None` ＋ 勝利点付帯値（`VictoryPointBonus`）で作る（旧 `GainVictoryPoints` は撤去・付帯値へ統合。enum の整数 11 は欠番）。
+
+> **特徴（キーワード / `CardData.Keyword`）**: 全カード共通で任意の特徴文字列を持てる（空＝特徴なし）。種族シナジー等の判定（`BuffAttackByKeyword` / `BuffHpByKeyword` の対象＝「同じ特徴を持つキャラ」）に使い、マッチングは文字列一致で行う。登録候補は **`CardKeywordSO`（特徴マスターリスト）** で管理し、カードエディタの「特徴」ドロップダウンから選ぶ（`Assets/Data/CardKeywords.asset`。カードエディタの「特徴」行の「管理」ボタンで作成・表示できる）。実行時はカードに乗った文字列だけで判定するため `CardKeywordSO` をロードしない（特徴を増やしてもコード変更不要）。カード詳細モーダルにも特徴がタグ表示される。
 > `AtkBoost` / `DefBoost` / `Negate` は enum に定義のみで未実装。
 
 ---
@@ -79,6 +83,8 @@
 | HealAllAllies | 自分のキャラ全体のHPをn回復する（n=0は「全回復する」） |
 | DrawSkipNext | カードをn枚引く。次のドローを1回スキップする |
 | DrawNextTurnStart | 次の自分のターン開始時にn枚多く引く |
+| BuffAttackByKeyword | 自分以外の『{特徴}』を持つ味方キャラの攻撃力をn上げる（特徴未設定なら「自分以外の味方キャラ」） |
+| BuffHpByKeyword | 自分以外の『{特徴}』を持つ味方キャラのHPをn上げる |
 
 勝利点付帯値が n>0 のとき末尾に「勝利点をn得る」を付与。効果も勝利点も無い（EventType=None かつ付帯値0）ときは空文字（接頭辞も付けない）。
 
@@ -149,7 +155,8 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / SummonChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageAllEnemies / DamageEnemy / SummonChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **BuffAttackByKeyword / BuffHpByKeyword（特徴シナジー）**: 発動側の自フィールドで、発動元（source）と同じ特徴（`CardData.Keyword`）を持つキャラを source 自身を除いて集め、`CardView.BuffAttackAsync` / `BuffHpAsync` で攻撃力／HP を `EventValue`（=上昇量）分**永続加算**する（`ApplyBuffByKeywordAsync`）。攻撃力には従来実行時バフの仕組みが無かったため、`CardView` に `_attackBuff` / `_hpBuff`（→ `CurrentAttack` / `MaxHp`）を新設し、戦闘ダメージ・CPU判断・対象選択の攻撃力参照を `Data.Attack`→`CurrentAttack` に統一した。HP バフは現在HPと最大HP（回復のクランプ上限）の両方を上げる。発動時の盤面スナップショットに対して一度だけ適用するため、**後から場に出たキャラや特徴の異なるキャラは対象外**。source の特徴が空なら空振り。効果はカードデータ（特徴）と同期済み盤面から決定的に解決されるため、CPU・オンラインでも対称に発動する（追加同期不要）。イベントカードに付けた場合は場に source キャラがいないので、対象特徴を持つ味方キャラ全員に適用される。
 - **OnAttacked / OnKill（キャラ専用の戦闘トリガー）**: いずれも `ExecuteAttackAsync`（キャラ vs キャラ戦闘）からのみ発動する。`OnAttacked` は被攻撃側が攻撃の対象になった直後（破壊判定の前）に解決され、source は攻撃された本人・所有者は攻撃側の相手。**攻撃側 ATK 0 の盾ブロック（ダメージ0）でも発動する**。`OnKill` は攻撃側が対象を撃破し、対象の OnDestroy 解決後に攻撃側が場に残っていれば解決され、source は攻撃した本人・所有者は攻撃側（ダメージ0では撃破が起きないため発動しない）。どちらも戦闘から決定的に解決されるためオンライン・CPU でも追加同期なしで対称発動する（`DamageEnemy` 等の効果ダメージでは発動しない）。
 - **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。
