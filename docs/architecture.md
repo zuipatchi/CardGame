@@ -339,6 +339,7 @@ EventType         enum（EffectType.cs）。
                   CostBoost（コスト支払い時に倍化・属性連動）/ DamageAllEnemies（敵全体にダメージ）
                   DamageEnemy（敵を値1体選び値2ダメージ）/ SummonChar（指定キャラを召喚）
                   SummonFromDeckByKeyword（自身の特徴を持つキャラをデッキから1枚選んで召喚）
+                  CopyFieldChar（自分の場のキャラを1体選び、そのコピーをN体出す。バフ・現在HP込み）
                   GainVPPerGreenGrave（自分の墓地の緑カード枚数だけ勝利点を加算）
                   HealAllAllies（自フィールド全キャラのHPを回復・値0で全回復）
                   NextCardCostFree（次の1枚を無料）

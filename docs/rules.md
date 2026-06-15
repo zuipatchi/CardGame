@@ -224,7 +224,7 @@
 | 項目 | 内容 |
 |---|---|
 | 勝敗 | 自フィールドのキャラ数が 8 体に達した瞬間にその側が勝利（破壊されて減ると再び 8 体並べ直す必要がある） |
-| 判定タイミング | キャラ配置・召喚（通常配置・SummonChar・SummonFromDeckByKeyword・Switch / Evolve での配置）の直後に `OnCardPlayed` → `CheckFieldCharsWin` で判定 |
+| 判定タイミング | キャラ配置・召喚（通常配置・SummonChar・SummonFromDeckByKeyword・CopyFieldChar・Switch / Evolve での配置）の直後に `OnCardPlayed` → `CheckFieldCharsWin` で判定 |
 | フィールド上限 | フィールドのキャラ上限は 9 体（`FieldView.MaxCharacters`）のため 8 体は到達可能 |
 
 - オンライン対戦では配置・召喚が `NGS_MainAction` と決定的な召喚処理で両クライアントに同期されるため、キャラ数判定も対称に成立する（追加のネットワークメッセージ不要）
