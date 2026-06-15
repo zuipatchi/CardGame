@@ -57,6 +57,13 @@ namespace Main.Card
             nameLabel.AddToClassList("card-detail-name");
             stats.Add(nameLabel);
 
+            // 特徴（キーワード）。設定されているカードのみ、名前の下にタグ表示する。
+            if (!string.IsNullOrEmpty(data.Keyword))
+            {
+                Label keywordLabel = new Label(data.Keyword);
+                keywordLabel.AddToClassList("card-detail-keyword");
+                stats.Add(keywordLabel);
+            }
 
             VisualElement divider = new VisualElement();
             divider.AddToClassList("card-detail-divider");

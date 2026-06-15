@@ -52,5 +52,11 @@ namespace Main.Card
         // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
         // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。
         DrawNextTurnStart = 21,
+        // 発動側の自フィールドにいる、発動キャラと同じ特徴（CardData.Keyword）を持つ他のキャラ（自分自身を除く）の
+        // 攻撃力を EventValue / EffectValue 上げる（発動時に一度だけ永続加算。後から出たキャラには適用されない）。
+        // 発動キャラの特徴が未設定（空）なら空振り。EventValue2 / EffectValue2 は不使用。
+        BuffAttackByKeyword = 22,
+        // BuffAttackByKeyword と同じ対象選択で、HP（現在HP・最大HP両方）を EventValue / EffectValue 上げる。
+        BuffHpByKeyword = 23,
     }
 }

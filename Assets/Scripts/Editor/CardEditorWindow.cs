@@ -72,6 +72,10 @@ namespace GameEditor
         private CardAttribute _newAttribute = CardAttribute.Red;
         private bool _newIsCharacter = true;
 
+        // 特徴（キーワード）ドロップダウンの選択肢キャッシュ。[0] は「特徴なし（空文字）」。
+        private const string KeywordNoneLabel = "（特徴なし）";
+        private string[] _keywordOptions = { KeywordNoneLabel };
+
         [MenuItem("Card/カードエディタ")]
         public static void Open()
         {
@@ -83,6 +87,58 @@ namespace GameEditor
         private void OnEnable()
         {
             RebuildEntries();
+            ReloadKeywordOptions();
+        }
+
+        // 特徴マスター SO（CardKeywordSO）から特徴ドロップダウンの選択肢を読み込む。SO が無ければ「特徴なし」のみ。
+        private void ReloadKeywordOptions()
+        {
+            List<string> options = new List<string> { KeywordNoneLabel };
+            CardKeywordSO so = FindKeywordSo();
+            if (so != null && so.Keywords != null)
+            {
+                foreach (string keyword in so.Keywords)
+                {
+                    if (!string.IsNullOrEmpty(keyword) && !options.Contains(keyword))
+                    {
+                        options.Add(keyword);
+                    }
+                }
+            }
+            _keywordOptions = options.ToArray();
+        }
+
+        private static CardKeywordSO FindKeywordSo()
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:CardKeywordSO"))
+            {
+                CardKeywordSO so = AssetDatabase.LoadAssetAtPath<CardKeywordSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (so != null)
+                {
+                    return so;
+                }
+            }
+            return null;
+        }
+
+        // 特徴マスター SO を選択（無ければ Assets/Data/CardKeywords.asset に新規作成）してインスペクタへ表示する。
+        // 特徴の登録・編集はこの SO のインスペクタで行う。
+        private void OpenOrCreateKeywordSo()
+        {
+            CardKeywordSO so = FindKeywordSo();
+            if (so == null)
+            {
+                if (!AssetDatabase.IsValidFolder("Assets/Data"))
+                {
+                    AssetDatabase.CreateFolder("Assets", "Data");
+                }
+                so = ScriptableObject.CreateInstance<CardKeywordSO>();
+                AssetDatabase.CreateAsset(so, "Assets/Data/CardKeywords.asset");
+                AssetDatabase.SaveAssets();
+            }
+            ReloadKeywordOptions();
+            Selection.activeObject = so;
+            EditorGUIUtility.PingObject(so);
         }
 
         // 全 SO を走査して一覧を作り直す。選択は SO＋インデックスで復元を試みる。
@@ -268,6 +324,7 @@ namespace GameEditor
             if (GUILayout.Button("再読込", EditorStyles.toolbarButton, GUILayout.Width(56f)))
             {
                 RebuildEntries();
+                ReloadKeywordOptions();
             }
             if (GUILayout.Button("保存", EditorStyles.toolbarButton, GUILayout.Width(48f)))
             {
@@ -479,6 +536,40 @@ namespace GameEditor
             // _flavorText は [TextArea] のため PropertyField だと複数行になる。ここでは1行で編集する。
             SerializedProperty flavor = element.FindPropertyRelative("_flavorText");
             flavor.stringValue = EditorGUILayout.TextField("フレーバー", flavor.stringValue);
+
+            DrawKeywordField(element);
+        }
+
+        // 特徴（キーワード）をマスター SO の一覧からドロップダウンで選ぶ。「管理」ボタンで SO を作成／表示する。
+        // 登録外の値（SO から削除された等）が入っている場合は選択肢の末尾に補って表示する。
+        private void DrawKeywordField(SerializedProperty element)
+        {
+            SerializedProperty keyword = element.FindPropertyRelative("_keyword");
+            string current = keyword.stringValue ?? string.Empty;
+
+            List<string> options = new List<string>(_keywordOptions);
+            if (!string.IsNullOrEmpty(current) && !options.Contains(current))
+            {
+                options.Add(current);
+            }
+
+            int selected = string.IsNullOrEmpty(current) ? 0 : options.IndexOf(current);
+            if (selected < 0)
+            {
+                selected = 0;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            int next = EditorGUILayout.Popup("特徴", selected, options.ToArray());
+            if (next != selected)
+            {
+                keyword.stringValue = next == 0 ? string.Empty : options[next];
+            }
+            if (GUILayout.Button("管理", GUILayout.Width(48f)))
+            {
+                OpenOrCreateKeywordSo();
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawCharacterFields(SerializedProperty element)
@@ -586,6 +677,7 @@ namespace GameEditor
             element.FindPropertyRelative("_victoryPointBonus").intValue = 0;
             element.FindPropertyRelative("_excludeFromGame").boolValue = false;
             element.FindPropertyRelative("_description").stringValue = string.Empty;
+            element.FindPropertyRelative("_keyword").stringValue = string.Empty;
 
             if (isCharacter)
             {
@@ -691,7 +783,8 @@ namespace GameEditor
                 parts.Add(prefix);
             }
 
-            string body = EffectBody(type, value1, value2, attribute);
+            string keyword = element.FindPropertyRelative("_keyword").stringValue;
+            string body = EffectBody(type, value1, value2, attribute, keyword);
             if (!string.IsNullOrEmpty(body))
             {
                 parts.Add(body);
@@ -746,8 +839,8 @@ namespace GameEditor
             }
         }
 
-        // EventType と値（n=値1, m=値2）・属性から効果本体のテキストを作る。効果なし/未実装は空文字。
-        private string EffectBody(EventType type, int value1, int value2, CardAttribute attribute)
+        // EventType と値（n=値1, m=値2）・属性・特徴から効果本体のテキストを作る。効果なし/未実装は空文字。
+        private string EffectBody(EventType type, int value1, int value2, CardAttribute attribute, string keyword)
         {
             switch (type)
             {
@@ -785,9 +878,22 @@ namespace GameEditor
                     return $"カードを{value1}枚引く。次のドローを1回スキップする";
                 case EventType.DrawNextTurnStart:
                     return $"次の自分のターン開始時に{value1}枚多く引く";
+                case EventType.BuffAttackByKeyword:
+                    return BuildKeywordBuffBody(keyword, value1, "攻撃力");
+                case EventType.BuffHpByKeyword:
+                    return BuildKeywordBuffBody(keyword, value1, "HP");
                 default:
                     return string.Empty;
             }
+        }
+
+        // キーワードバフ（BuffAttackByKeyword / BuffHpByKeyword）の効果テキストを作る。
+        private static string BuildKeywordBuffBody(string keyword, int value, string statName)
+        {
+            string subject = string.IsNullOrEmpty(keyword)
+                ? "自分以外の味方キャラ"
+                : $"自分以外の『{keyword}』を持つ味方キャラ";
+            return $"{subject}の{statName}を{value}上げる";
         }
 
         // SummonChar 用：ID から一覧上のカード名を引く。見つからなければ ID をそのまま返す。
@@ -827,6 +933,10 @@ namespace GameEditor
                     return new ValueInfo(true, "値1（ドロー枚数）", false, "値2（未使用）", "値1=即時ドロー枚数。次のドローフェーズを1回スキップする。");
                 case EventType.DrawNextTurnStart:
                     return new ValueInfo(true, "値1（ドロー枚数）", false, "値2（未使用）", "値1=次ターン開始時に追加でドローする枚数。");
+                case EventType.BuffAttackByKeyword:
+                    return new ValueInfo(true, "値1（攻撃力の上昇量）", false, "値2（未使用）", "値1=同じ特徴を持つ味方キャラ（自分以外）の攻撃力を上げる量。発動キャラに特徴の設定が必要。");
+                case EventType.BuffHpByKeyword:
+                    return new ValueInfo(true, "値1（HPの上昇量）", false, "値2（未使用）", "値1=同じ特徴を持つ味方キャラ（自分以外）のHP（現在・最大）を上げる量。発動キャラに特徴の設定が必要。");
                 case EventType.None:
                     return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "効果なし。勝利点付帯値だけ得るカードはこれ＋付帯値で作る。");
                 case EventType.BanishChar:

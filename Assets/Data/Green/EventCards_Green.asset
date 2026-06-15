@@ -19,6 +19,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: c3359c97a7091624baf6fdff5d3b0335, type: 3}
     _flavorText: "\u3044\u3044\u3082\u306E\u898B\u3064\u3051\u3061\u3083\u3063\u305F\u3071\u3061"
+    _keyword: 
     _victoryPointBonus: 3
     _excludeFromGame: 0
     _eventTrigger: 0
@@ -33,6 +34,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 5387ab133d3670b459a16c72144c64c2, type: 3}
     _flavorText: "\u3042\u3041...\u306A\u3093\u3066\u6C17\u6301\u3061\u3044\u3044\u3093\u3060"
+    _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
     _eventTrigger: 1
@@ -47,6 +49,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: a5621eb2657cc0149b14eb6ab40b8bb4, type: 3}
     _flavorText: 
+    _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
     _eventTrigger: 0
@@ -61,13 +64,14 @@ MonoBehaviour:
     _cost: 0
     _image: {fileID: 21300000, guid: c5c38ccec296de34d807647fa6a8aa0a, type: 3}
     _flavorText: "\u4E0D\u6B7B\u9CE5\u306E\u30AA\u30CA\u30E9\u306B\u306F\u751F\u547D\u529B\u304C\u3042\u308B\u3068\u8A00\u308F\u308C\u3066\u3044\u308B"
-    _victoryPointBonus: 2
+    _keyword: 
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 19
     _eventValue: 2
     _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30922\u56DE\u5FA9\u3059\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30922\u56DE\u5FA9\u3059\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
     _triggerOnGrave: 0
     _attribute: 2
   - _id: E3005
@@ -75,6 +79,7 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: c57889398fd965640a5a66fd20c5c716, type: 3}
     _flavorText: "\u30E2\u30CA\u30B3\u30FC\u30FC\u30FC\u30F3\uFF01"
+    _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _eventTrigger: 0

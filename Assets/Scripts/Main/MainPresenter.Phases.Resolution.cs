@@ -213,6 +213,12 @@ namespace Main
                 case CardEventType.HealAllAllies:
                     await ApplyHealAllAlliesAsync(charData.EffectValue, isLocal, ct);
                     break;
+                case CardEventType.BuffAttackByKeyword:
+                    await ApplyBuffByKeywordAsync(sourceCard, charData.EffectValue, isAttack: true, isLocal, ct);
+                    break;
+                case CardEventType.BuffHpByKeyword:
+                    await ApplyBuffByKeywordAsync(sourceCard, charData.EffectValue, isAttack: false, isLocal, ct);
+                    break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
                     break;
@@ -324,6 +330,12 @@ namespace Main
                 case CardEventType.HealAllAllies:
                     await ApplyHealAllAlliesAsync(data.EventValue, isLocal, ct);
                     break;
+                case CardEventType.BuffAttackByKeyword:
+                    await ApplyBuffByKeywordAsync(sourceCard, data.EventValue, isAttack: true, isLocal, ct);
+                    break;
+                case CardEventType.BuffHpByKeyword:
+                    await ApplyBuffByKeywordAsync(sourceCard, data.EventValue, isAttack: false, isLocal, ct);
+                    break;
                 case CardEventType.NextCardCostFree:
                     await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
                     break;
@@ -414,6 +426,50 @@ namespace Main
                 healTasks.Add(target.HealAsync(amount, ct));
             }
             await UniTask.WhenAll(healTasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
+        // 発動側の自フィールドにいる、source と同じ特徴（Keyword）を持つキャラ（source 自身を除く）の
+        // 攻撃力（isAttack=true）または HP（false）を amount 上げる（発動時に一度だけ永続加算）。
+        // source の特徴が未設定（空）なら空振り。後から場に出たキャラには適用されない。
+        // 効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも対称に発動する（追加同期不要）。
+        private async UniTask ApplyBuffByKeywordAsync(CardView source, int amount, bool isAttack, bool isLocal, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+            string keyword = source?.Data.Keyword;
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return;
+            }
+
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
+            List<CardView> targets = new List<CardView>();
+            foreach (CardView c in ownField.Characters)
+            {
+                // source 自身は対象外（イベントカードは場のキャラに含まれないため自然に除外される）
+                if (c == source)
+                {
+                    continue;
+                }
+                if (c.Data.Keyword == keyword)
+                {
+                    targets.Add(c);
+                }
+            }
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> tasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                tasks.Add(isAttack ? target.BuffAttackAsync(amount, ct) : target.BuffHpAsync(amount, ct));
+            }
+            await UniTask.WhenAll(tasks);
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
 
@@ -613,7 +669,7 @@ namespace Main
             }
 
             // CPU：攻撃力の高い順に targetCount 体を狙う
-            return chars.OrderByDescending(c => c.Data.Attack).Take(targetCount).ToList();
+            return chars.OrderByDescending(c => c.CurrentAttack).Take(targetCount).ToList();
         }
 
         // 敵フィールドのキャラをハイライトし、プレイヤーが targetCount 体をクリックで選ぶのを待つ

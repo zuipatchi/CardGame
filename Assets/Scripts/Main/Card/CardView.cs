@@ -23,12 +23,19 @@ namespace Main.Card
         private readonly VisualElement _hasteIcon;
         private readonly VisualElement _flyingIcon;
         private int _currentHp;
+        // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
+        private int _attackBuff;
+        private int _hpBuff;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
         public CardData Data { get; }
         public CardState State { get; private set; }
         public int CurrentHp => _currentHp;
+        // バフを含む現在の攻撃力（戦闘ダメージ・CPU判断・対象選択はこの値を使う）。
+        public int CurrentAttack => Data.Attack + _attackBuff;
+        // バフを含む最大HP（回復のクランプ上限）。
+        public int MaxHp => Data.Hp + _hpBuff;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -225,7 +232,7 @@ namespace Main.Card
         // 回復量が 0（既に満タン等）なら演出せず即終了する。緑のパルス演出付き。
         public async UniTask HealAsync(int amount, CancellationToken ct)
         {
-            int maxHp = Data.Hp;
+            int maxHp = MaxHp;
             int healed = amount <= 0 ? maxHp : Mathf.Min(maxHp, _currentHp + amount);
             if (healed <= _currentHp)
             {
@@ -261,12 +268,59 @@ namespace Main.Card
             _hpLabel.text = _currentHp.ToString();
         }
 
+        // 攻撃力を amount 永続的に上げる（BuffAttackByKeyword）。ATK ラベルを更新しオレンジのパルス演出を出す。
+        public async UniTask BuffAttackAsync(int amount, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+            _attackBuff += amount;
+            _atkLabel.text = CurrentAttack.ToString();
+            await PulseStatAsync(_atkArea, _atkLabel, new Color(1f, 0.65f, 0.1f), ct);
+        }
+
+        // HP（現在HP・最大HP）を amount 永続的に上げる（BuffHpByKeyword）。HP ラベルを更新し緑のパルス演出を出す。
+        public async UniTask BuffHpAsync(int amount, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+            _hpBuff += amount;
+            _currentHp += amount;
+            _hpLabel.text = _currentHp.ToString();
+            await PulseStatAsync(_hpArea, _hpLabel, new Color(0.24f, 0.78f, 0.31f), ct);
+        }
+
+        // ステータス（ATK/HP）の値が上がったときの共通パルス演出：area を拡大し、label の色を color に寄せて戻す。
+        private async UniTask PulseStatAsync(VisualElement area, Label label, Color color, CancellationToken ct)
+        {
+            float scaleVal = 1f;
+            float colorT = 0f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; area.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.8f, 0.12f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; label.style.color = new StyleColor(Color.Lerp(Color.white, color, v)); }, 1f, 0.12f))
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; area.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.30f).SetEase(Ease.OutQuad))
+                .Join(DOTween.To(() => colorT, v => { colorT = v; label.style.color = new StyleColor(Color.Lerp(Color.white, color, v)); }, 0f, 0.40f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            area.style.scale = new Scale(Vector3.one);
+            label.style.color = StyleKeyword.Null;
+        }
+
         private void Bind(CardData data)
         {
             _currentHp = data.Hp;
             _costLabel.text = data.Cost.ToString();
             _nameLabel.text = data.CardName;
-            _atkLabel.text = data.Attack.ToString();
+            _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = _currentHp.ToString();
 
             _atkArea.style.display = data is EventCardData

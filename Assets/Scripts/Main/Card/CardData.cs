@@ -10,6 +10,10 @@ namespace Main.Card
         [SerializeField] protected Sprite _image;
         // フレーバーテキスト（世界観・雰囲気用。ゲーム効果には影響せず、カード詳細表示の最下部に表示される）
         [SerializeField, TextArea] protected string _flavorText;
+        // 特徴（キーワード）。種族シナジー等の判定に使う任意の文字列（空＝特徴なし）。
+        // 登録候補は CardKeywordSO（マスターリスト）で管理し、カードエディタのドロップダウンから選ぶ。
+        // マッチング（同じ特徴か）は文字列一致で行うため、実行時に CardKeywordSO をロードする必要はない。
+        [SerializeField] protected string _keyword;
         // 勝利点付帯値（勝利点の勝利条件への加点）。EventType の効果とは独立して、効果解決時に発動側へ加算する。
         // キャラはトリガー（OnEnter 等）のタイミング、イベントはプレイ／OnTurnStart のタイミングで加算。
         // 0 のときは加算なし（演出も出ない）。「勝利点を得るだけ」のカードは EventType=None + この値で表現する。
@@ -23,6 +27,8 @@ namespace Main.Card
         public int Cost => _cost;
         public Sprite Image => _image;
         public string FlavorText => _flavorText;
+        // 特徴（キーワード）。空＝特徴なし。BuffAttackByKeyword / BuffHpByKeyword の対象判定（同じ特徴か）に使う。
+        public string Keyword => _keyword;
         // 勝利点の加点は緑属性カードで設定する設計のため、緑以外のカードでは付帯値を常に 0 とみなす（誤設定しても加点されない）。
         public int VictoryPointBonus => Attribute == CardAttribute.Green ? _victoryPointBonus : 0;
         // ゲームで使用するか（デッキ構築のプール・対戦への供給対象か）。

@@ -382,7 +382,7 @@ namespace Main
 
             await PlayCardChargeAsync(attacker, target, ct);
 
-            int atk = attacker.Data.Attack;
+            int atk = attacker.CurrentAttack;
             int damage = atk;
 
             if (damage == 0)
@@ -539,7 +539,7 @@ namespace Main
 
             await PlayCardChargeAsync(attacker, targetDeck, ct);
 
-            int atk = attacker.Data.Attack;
+            int atk = attacker.CurrentAttack;
             if (atk <= 0)
             {
                 await PlayShieldBlockEffectAsync(targetDeck, ct);
@@ -588,8 +588,8 @@ namespace Main
             CardView lethalDeckAttacker = null;
             foreach (CardView a in deckAttackers)
             {
-                if (a.Data.Attack >= playerDeckCount
-                    && (lethalDeckAttacker == null || a.Data.Attack > lethalDeckAttacker.Data.Attack))
+                if (a.CurrentAttack >= playerDeckCount
+                    && (lethalDeckAttacker == null || a.CurrentAttack > lethalDeckAttacker.CurrentAttack))
                 {
                     lethalDeckAttacker = a;
                 }
@@ -616,7 +616,7 @@ namespace Main
                     {
                         continue;
                     }
-                    if (lowestTarget == null || candidate.Data.Attack < lowestTarget.Data.Attack)
+                    if (lowestTarget == null || candidate.CurrentAttack < lowestTarget.CurrentAttack)
                     {
                         lowestTarget = candidate;
                     }
@@ -625,7 +625,7 @@ namespace Main
                 {
                     continue;
                 }
-                if (battleAttacker == null || attacker.Data.Attack > battleAttacker.Data.Attack)
+                if (battleAttacker == null || attacker.CurrentAttack > battleAttacker.CurrentAttack)
                 {
                     battleAttacker = attacker;
                     battleTarget = lowestTarget;
@@ -644,7 +644,7 @@ namespace Main
             // 合法なキャラ攻撃対象がいない場合、相手デッキを削る（chip mill。最高ATKの攻撃者で）
             if (deckAttackers.Count > 0)
             {
-                CardView deckAttacker = deckAttackers.OrderByDescending(a => a.Data.Attack).First();
+                CardView deckAttacker = deckAttackers.OrderByDescending(a => a.CurrentAttack).First();
                 return new MainPhaseAction
                 {
                     _actionType = MainPhaseActionType.Attack,
