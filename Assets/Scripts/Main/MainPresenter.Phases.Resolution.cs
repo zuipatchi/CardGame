@@ -55,17 +55,6 @@ namespace Main
             {
                 await PlayDrawEffectAsync(card, eventData.EventValue, ct);
             }
-            else if (eventData.EventType == CardEventType.BanishChar)
-            {
-                FieldView banishField = isLocal ? _opponentFieldView : _playerFieldView;
-                CardView banishTarget = banishField.Characters.Count > 0
-                    ? banishField.Characters[0]
-                    : null;
-                if (banishTarget != null)
-                {
-                    await PlayBanishCharEffectAsync(banishTarget, ct);
-                }
-            }
             else if (eventData.EventType == CardEventType.Recover)
             {
                 await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
@@ -199,23 +188,8 @@ namespace Main
                     AddPendingNextDraw(charData.EffectValue, isLocal);
                     break;
                 case CardEventType.BanishChar:
-                {
-                    FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
-                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-                    if (targetField.Characters.Count == 0)
-                    {
-                        break;
-                    }
-                    CardView banishTarget = targetField.Characters[0];
-                    await PlayBanishCharEffectAsync(banishTarget, ct);
-                    Rect fromRect = banishTarget.worldBound;
-                    targetField.RemoveCard(banishTarget);
-                    await FlyCardToDestAsync(banishTarget, fromRect, targetGraveyard, ct);
-                    targetGraveyard.AddCard(banishTarget);
-                    // 除去されたキャラの OnDestroy を発動（所有者は発動側の相手 = !isLocal）
-                    await FireOnDestroyEffectAsync(banishTarget, !isLocal, ct);
+                    await ApplyBanishCharAsync(charData.EffectValue, isLocal, ct);
                     break;
-                }
                 case CardEventType.DamageAllEnemies:
                     await ApplyDamageAllEnemiesAsync(charData.EffectValue, isLocal, ct);
                     break;
@@ -291,22 +265,8 @@ namespace Main
                     AddPendingNextDraw(data.EventValue, isLocal);
                     break;
                 case CardEventType.BanishChar:
-                {
-                    FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
-                    GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
-                    if (targetField.Characters.Count == 0)
-                    {
-                        break;
-                    }
-                    CardView charCard = targetField.Characters[0];
-                    Rect fromRect = charCard.worldBound;
-                    targetField.RemoveCard(charCard);
-                    await FlyCardToDestAsync(charCard, fromRect, targetGraveyard, ct);
-                    targetGraveyard.AddCard(charCard);
-                    // 除去されたキャラの OnDestroy を発動（所有者は発動側の相手 = !isLocal）
-                    await FireOnDestroyEffectAsync(charCard, !isLocal, ct);
+                    await ApplyBanishCharAsync(data.EventValue, isLocal, ct);
                     break;
-                }
                 case CardEventType.Recover:
                 {
                     GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
@@ -549,6 +509,50 @@ namespace Main
                 }
             }
             await UniTask.WhenAll(destroyTasks);
+
+            // 破壊された各キャラの OnDestroy を順番に発動（破壊されたキャラの所有者は発動側の相手 = !isLocal）
+            foreach (CardView destroyedChar in destroyed)
+            {
+                await FireOnDestroyEffectAsync(destroyedChar, !isLocal, ct);
+            }
+        }
+
+        // 発動側から見た敵キャラを count 体（値1。未設定=0 は1体）対象に選び、それぞれを破壊して墓地へ送る。
+        // 対象数が敵の数以上なら全員が対象。対象選択は DamageEnemy / Bounce と同じ仕組み（プレイヤー選択／CPU 自動／オンライン同期）を共用する。
+        private async UniTask ApplyBanishCharAsync(int count, bool isLocal, CancellationToken ct)
+        {
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
+
+            int enemyCount = targetField.Characters.Count;
+            // 敵キャラがいなければ空振り。両クライアントで盤面は同期されており対称に判定されるため追加同期は不要
+            if (enemyCount == 0)
+            {
+                return;
+            }
+
+            int targetCount = Mathf.Min(count <= 0 ? 1 : count, enemyCount);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "破壊する相手キャラを選択", ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            // 選んだ対象を順番に破壊して墓地へ送る
+            List<CardView> destroyed = new List<CardView>();
+            foreach (CardView target in targets)
+            {
+                if (!targetField.Contains(target))
+                {
+                    continue;
+                }
+                await PlayBanishCharEffectAsync(target, ct);
+                Rect fromRect = target.worldBound;
+                targetField.RemoveCard(target);
+                await FlyCardToDestAsync(target, fromRect, targetGraveyard, ct);
+                targetGraveyard.AddCard(target);
+                destroyed.Add(target);
+            }
 
             // 破壊された各キャラの OnDestroy を順番に発動（破壊されたキャラの所有者は発動側の相手 = !isLocal）
             foreach (CardView destroyedChar in destroyed)

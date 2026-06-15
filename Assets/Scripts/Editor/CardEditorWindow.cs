@@ -734,7 +734,7 @@ namespace GameEditor
                 case EventType.Draw:
                     return $"カードを{value1}枚引く";
                 case EventType.BanishChar:
-                    return "相手の先頭キャラを破壊する";
+                    return $"相手のキャラを{(value1 <= 0 ? 1 : value1)}体選んで破壊する";
                 case EventType.Recover:
                     return $"墓地から上の{value1}枚をデッキに戻す";
                 case EventType.Switch:
@@ -810,6 +810,7 @@ namespace GameEditor
                 case EventType.None:
                     return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "効果なし。勝利点付帯値だけ得るカードはこれ＋付帯値で作る。");
                 case EventType.BanishChar:
+                    return new ValueInfo(true, "値1（対象数）", false, "値2（未使用）", "値1=破壊する敵キャラの体数（0=1体）。対象数が敵の数以上なら全員。");
                 case EventType.Switch:
                 case EventType.Evolve:
                 case EventType.GainVPPerGreenGrave:
