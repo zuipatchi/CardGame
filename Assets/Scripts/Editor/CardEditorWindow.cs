@@ -447,7 +447,16 @@ namespace GameEditor
                 EditorGUILayout.LabelField(" ", "※ 勝利点付帯値は緑属性カードのみ有効", EditorStyles.miniLabel);
             }
 
-            EditorGUILayout.PropertyField(element.FindPropertyRelative("_description"), new GUIContent("説明"));
+            SerializedProperty description = element.FindPropertyRelative("_description");
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(description, new GUIContent("効果テキスト"));
+            if (GUILayout.Button("自動生成", GUILayout.Width(72f)))
+            {
+                description.stringValue = BuildDescription(element);
+                GUI.FocusControl(null);
+            }
+            EditorGUILayout.EndHorizontal();
+
             // _flavorText は [TextArea] のため PropertyField だと複数行になる。ここでは1行で編集する。
             SerializedProperty flavor = element.FindPropertyRelative("_flavorText");
             flavor.stringValue = EditorGUILayout.TextField("フレーバー", flavor.stringValue);
@@ -639,6 +648,139 @@ namespace GameEditor
                 return EventType.None;
             }
             return EventTypeValues[index];
+        }
+
+        // 現在の選択内容（発動タイミング・効果種別・値・属性・勝利点）から効果テキストを自動生成する。
+        // 守護/速攻/飛行フラグは（アイコン表示があるため）テキストに含めない。
+        private string BuildDescription(SerializedProperty element)
+        {
+            bool isCharacter = _selected.IsCharacter;
+            CardAttribute attribute = (CardAttribute)element.FindPropertyRelative("_attribute").enumValueIndex;
+
+            string prefix = isCharacter
+                ? CharacterTriggerPrefix((CharacterEffectTrigger)element.FindPropertyRelative("_effectTrigger").enumValueIndex)
+                : EventTriggerPrefix((EventCardTrigger)element.FindPropertyRelative("_eventTrigger").enumValueIndex);
+
+            EventType type = ToEventType(element.FindPropertyRelative(isCharacter ? "_effectType" : "_eventType"));
+            int value1 = element.FindPropertyRelative(isCharacter ? "_effectValue" : "_eventValue").intValue;
+            int value2 = element.FindPropertyRelative(isCharacter ? "_effectValue2" : "_eventValue2").intValue;
+
+            List<string> parts = new List<string>();
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                parts.Add(prefix);
+            }
+
+            string body = EffectBody(type, value1, value2, attribute);
+            if (!string.IsNullOrEmpty(body))
+            {
+                parts.Add(body);
+            }
+
+            int victoryPoint = element.FindPropertyRelative("_victoryPointBonus").intValue;
+            if (victoryPoint > 0)
+            {
+                parts.Add($"勝利点を{victoryPoint}得る");
+            }
+
+            // 効果も勝利点も無いときは接頭辞だけ残さず空にする。
+            if (body.Length == 0 && victoryPoint <= 0)
+            {
+                return string.Empty;
+            }
+
+            return string.Join("、", parts);
+        }
+
+        private static string CharacterTriggerPrefix(CharacterEffectTrigger trigger)
+        {
+            switch (trigger)
+            {
+                case CharacterEffectTrigger.OnEnter:
+                    return "場に出た時";
+                case CharacterEffectTrigger.OnAttack:
+                    return "攻撃した時";
+                case CharacterEffectTrigger.OnDestroy:
+                    return "破壊された時";
+                case CharacterEffectTrigger.OnUsedAsCost:
+                    return "コストとして使用した時";
+                case CharacterEffectTrigger.OnTurnStart:
+                    return "自分のターン開始時";
+                case CharacterEffectTrigger.OnAttacked:
+                    return "攻撃された時";
+                case CharacterEffectTrigger.OnKill:
+                    return "相手キャラを撃破した時";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private static string EventTriggerPrefix(EventCardTrigger trigger)
+        {
+            switch (trigger)
+            {
+                case EventCardTrigger.OnTurnStart:
+                    return "自分のターン開始時に毎ターン";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        // EventType と値（n=値1, m=値2）・属性から効果本体のテキストを作る。効果なし/未実装は空文字。
+        private string EffectBody(EventType type, int value1, int value2, CardAttribute attribute)
+        {
+            switch (type)
+            {
+                case EventType.Draw:
+                    return $"カードを{value1}枚引く";
+                case EventType.BanishChar:
+                    return "相手の先頭キャラを破壊する";
+                case EventType.Recover:
+                    return $"墓地から上の{value1}枚をデッキに戻す";
+                case EventType.Switch:
+                    return "自分のキャラ1体を手札に戻し、手札からキャラを1体配置する";
+                case EventType.Evolve:
+                    return "自分のキャラ1体を生贄にして、より高コストのキャラをコストなしで配置する";
+                case EventType.CostBoost:
+                    return $"{AttributeShortName(attribute)}コスト{value1}個分として扱う";
+                case EventType.DamageAllEnemies:
+                    return $"相手キャラ全体に{value1}ダメージを与える";
+                case EventType.GainVPPerGreenGrave:
+                    return "墓地にある緑カードの数だけ勝利点を得る";
+                case EventType.DamageEnemy:
+                    return $"相手キャラ{value1}体に{value2}ダメージを与える";
+                case EventType.SummonChar:
+                    return $"「{ResolveCardName($"C{value1}")}」を{(value2 <= 0 ? 1 : value2)}体召喚する";
+                case EventType.NextCardCostFree:
+                    return "次に使うカード1枚のコストを0にする";
+                case EventType.Bounce:
+                    return $"相手キャラ{value1}体を持ち主の手札に戻す";
+                case EventType.BounceAll:
+                    return "相手キャラ全体を持ち主の手札に戻す";
+                case EventType.ExtraTurn:
+                    return "追加でもう1度自分のターンを行う";
+                case EventType.HealAllAllies:
+                    return value1 <= 0 ? "自分のキャラ全体のHPを全回復する" : $"自分のキャラ全体のHPを{value1}回復する";
+                case EventType.DrawSkipNext:
+                    return $"カードを{value1}枚引く。次のドローを1回スキップする";
+                case EventType.DrawNextTurnStart:
+                    return $"次の自分のターン開始時に{value1}枚多く引く";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        // SummonChar 用：ID から一覧上のカード名を引く。見つからなければ ID をそのまま返す。
+        private string ResolveCardName(string id)
+        {
+            foreach (CardEntry entry in _entries)
+            {
+                if (entry.Id == id)
+                {
+                    return entry.Name;
+                }
+            }
+            return id;
         }
 
         private static ValueInfo GetValueInfo(EventType type)
