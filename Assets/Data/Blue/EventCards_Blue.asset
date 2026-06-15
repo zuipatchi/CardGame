@@ -20,6 +20,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
     _flavorText: "\u5F37\u6B32\u306A\u30C4\u30DC\u304B\u306A"
     _victoryPointBonus: 0
+    _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 3
     _eventValue: 2
@@ -33,6 +34,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: c50b93b927c929e4ab6dc2dff78d8625, type: 3}
     _flavorText: "\u30EF\u30AF\u30EF\u30AF"
     _victoryPointBonus: 0
+    _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 21
     _eventValue: 2
@@ -46,6 +48,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: ad9c905863f812e4a82c4c1bc95c100e, type: 3}
     _flavorText: 
     _victoryPointBonus: 0
+    _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 16
     _eventValue: 1
@@ -59,6 +62,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: 8caac34f889cf244dba7da79640f2ff3, type: 3}
     _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
     _victoryPointBonus: 0
+    _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 20
     _eventValue: 3
@@ -72,6 +76,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: bac83860baceb724ab1947e60833c443, type: 3}
     _flavorText: 
     _victoryPointBonus: 0
+    _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 18
     _eventValue: 0
