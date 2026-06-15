@@ -30,7 +30,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u7DD1\u30B3\u30B9\u30C82\u3064\u5206\u3068\u3057\u3066\u6271\u3046"
+    _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u7DD1\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C3002
     _cardName: "\u76D7\u4EBA\u30B4\u30D6\u30EA\u30F3"
     _cost: 1
@@ -47,7 +47,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C3003
     _cardName: "\u6BD2\u866B"
     _cost: 1
