@@ -360,7 +360,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_InitialState` | Host → Client | 初期手札・デッキ・先攻後攻 + ホストのユーザーネーム |
 | `NGS_Mulligan` | Both | マリガン実施有無 + マリガン後のデッキ順序（mulliganed / newDeckIds。マリガンしない場合 newDeckIds は null） |
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
-| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsHeart / costCardIds[]）。targetsHeart=true はハート攻撃（ハート勝利条件）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
+| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsDeck / costCardIds[]）。targetsDeck=true は相手デッキへの直接攻撃（ATK 枚をミル。デッキ順が両クライアントで同期済みのため決定的）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
 | `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信。**対戦開始時に永続登録 + キューでバッファ**（セクション 11） |
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId）。アニメーション前に事前登録 |
