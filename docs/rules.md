@@ -236,7 +236,7 @@
 | 決着の種類 | 表示テキスト | 紋章 | テキスト色 |
 |---|---|---|---|
 | デッキ切れ（`WinReason.DeckOut`） | 「デッキ切れ勝利」「デッキ切れ敗北」 | GraveIcon | 青系（敗北側は暗め） |
-| 勝利点（`WinReason.VictoryPoints`） | 「勝利点を{得点}得て勝利した」「勝利点{得点}で敗北した」 | MedalIcon | 金系（敗北側は暗め） |
+| 勝利点（`WinReason.VictoryPoints`） | 「勝利点勝利」「勝利点敗北」 | MedalIcon | 金系（敗北側は暗め） |
 | キャラ8体（`WinReason.FieldChars`） | 「制圧勝利」「制圧敗北」 | AttackIcon | 橙系（敗北側は暗め） |
 | 降参・タイムアウト・引き分け | 「YOU WIN」「YOU LOSE」「DRAW」 | なし | 勝=金 / 敗=赤 / 分=灰 |
 
