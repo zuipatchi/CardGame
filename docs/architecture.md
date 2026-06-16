@@ -330,8 +330,8 @@ CharacterEffectTrigger  enum（CharacterEffectTrigger.cs）。キャラの効果
                   None / OnEnter（登場時）/ OnAttack（攻撃時）/ OnDestroy（破壊時。戦闘・DamageEnemy/DamageAllEnemies での撃破・BanishChar での除去で発動）
 
 EventType         enum（EffectType.cs）。
-                  None / AtkBoost / DefBoost（enum に定義のみ。現在は未使用）
-                  Draw（EventValue 枚ドロー）/ Negate（enum に定義のみ。現在は未使用）
+                  None / AtkBoost（自フィールドから値1体選び攻撃力を値2上げる）/ HpBoost（同・HP を上げる。旧 DefBoost）
+                  Draw（EventValue 枚ドロー）
                   BanishChar（相手キャラをフィールドから墓地へ）
                   Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
                   Switch（自分のキャラを手札に戻して別キャラを配置）
