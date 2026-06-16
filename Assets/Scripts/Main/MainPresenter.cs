@@ -20,7 +20,6 @@ namespace Main
 {
     public sealed partial class MainPresenter : MonoBehaviour, IStartable, ISceneReady
     {
-        private const int InitialHandSize = 5;
         private const float DrawStagger = 0.12f;
         private const float CpuThinkSeconds = 0.8f;
         private const float CpuCardFlyDuration = 0.3f;
@@ -154,6 +153,12 @@ namespace Main
         // ExtraTurn 効果: アクティブプレイヤーがこのターン中に発動すると true。
         // ターン終了時に消費し、相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
         private bool _extraTurnPending;
+
+        // 各プレイヤーの初手（このゲームで最初に迎えた自分のドローフェーズ）はドローなし。
+        // 先攻有利の補正として、先攻・後攻の双方の初手をドローなしにする。各プレイヤーの最初の
+        // ドローフェーズで true にして消費するため、ExtraTurn で通算ターン番号がずれても各自の初手だけが対象になる。
+        private bool _playerHadFirstTurn;
+        private bool _opponentHadFirstTurn;
 
         // DrawSkipNext 効果: 発動側の次のドローフェーズを1回スキップする。
         // 発動時に立て、そのプレイヤーの次の RunDrawPhaseAsync でドロー0枚にして消費する。
@@ -290,7 +295,9 @@ namespace Main
                 CardData[] playerDeckCards;
                 CardData[] cpuHandCards;
                 CardData[] cpuDeckCards;
-                int handSize;
+                int playerHandSize;
+                int cpuHandSize;
+                bool isLocalFirst;
 
                 if (isOnline)
                 {
@@ -311,11 +318,14 @@ namespace Main
                         return;
                     }
                     _onlineIsLocalFirst = state.IsLocalFirst;
-                    handSize = state.LocalHand.Length;
+                    isLocalFirst = state.IsLocalFirst;
+                    // 先攻/後攻に応じた手札枚数はホストが配り済み。配列長・OpponentHandCount で双方に伝わる。
+                    playerHandSize = state.LocalHand.Length;
+                    cpuHandSize = state.OpponentHandCount;
                     playerHandCards = state.LocalHand;
                     playerDeckCards = state.LocalDeck;
                     CardData placeholder = allCards.Length > 0 ? allCards[0] : null;
-                    cpuHandCards = new CardData[state.OpponentHandCount];
+                    cpuHandCards = new CardData[cpuHandSize];
                     for (int i = 0; i < cpuHandCards.Length; i++) cpuHandCards[i] = placeholder;
                     cpuDeckCards = state.OpponentDeck;
                     _opponentUsername = string.IsNullOrEmpty(state.OpponentUsername) ? "ゲスト" : state.OpponentUsername;
@@ -324,13 +334,15 @@ namespace Main
                 else
                 {
                     _opponentUsername = "CPU";
+                    // 先攻後攻を配牌前に決める（手札枚数が先攻3枚・後攻4枚で変わるため）。
+                    isLocalFirst = UnityEngine.Random.value > 0.5f;
                     playerDeckFull = _deckModel.Count > 0
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
                         : allCards;
-                    handSize = Mathf.Min(InitialHandSize, playerDeckFull.Length);
+                    playerHandSize = Mathf.Min(MulliganRule.InitialHandSize(isLocalFirst), playerDeckFull.Length);
                     CardData[] playerShuffled = CardArrayUtils.Shuffle((CardData[])playerDeckFull.Clone());
-                    playerHandCards = playerShuffled.Take(handSize).ToArray();
-                    playerDeckCards = playerShuffled.Skip(handSize).ToArray();
+                    playerHandCards = playerShuffled.Take(playerHandSize).ToArray();
+                    playerDeckCards = playerShuffled.Skip(playerHandSize).ToArray();
                     CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
                     bool cpuDeckEmpty = cpuDeckSo == null || cpuDeckSo.CardIds.Count == 0;
                     if (cpuDeckEmpty)
@@ -340,9 +352,10 @@ namespace Main
                     CardData[] cpuPool = !cpuDeckEmpty
                         ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
                         : allCards;
+                    cpuHandSize = Mathf.Min(MulliganRule.InitialHandSize(!isLocalFirst), cpuPool.Length);
                     CardData[] cpuShuffled = CardArrayUtils.Shuffle((CardData[])cpuPool.Clone());
-                    cpuHandCards = cpuShuffled.Take(handSize).ToArray();
-                    cpuDeckCards = cpuShuffled.Skip(handSize).ToArray();
+                    cpuHandCards = cpuShuffled.Take(cpuHandSize).ToArray();
+                    cpuDeckCards = cpuShuffled.Skip(cpuHandSize).ToArray();
                 }
 
                 _opponentFieldView = new FieldView(isOpponent: true);
@@ -541,13 +554,20 @@ namespace Main
                 string localDisplayName = string.IsNullOrEmpty(_localUsername) ? "ゲスト" : _localUsername;
                 await PlayVsAnnouncementAsync(localDisplayName, _opponentUsername, ct);
 
+                // 先攻後攻を配牌前にコイントスで確定する（手札枚数が先攻3枚・後攻4枚で変わるため）。
+                await InitializeFirstTurnAsync(isLocalFirst, ct);
+
                 Rect deckWorldRect = _playerDeckView.worldBound;
                 Rect opponentDeckWorldRect = _opponentDeckView.worldBound;
-                UniTask[] drawTasks = new UniTask[handSize * 2];
-                for (int i = 0; i < handSize; i++)
+                UniTask[] drawTasks = new UniTask[playerHandSize + cpuHandSize];
+                int drawTaskIndex = 0;
+                for (int i = 0; i < playerHandSize; i++)
                 {
-                    drawTasks[i] = _handView.AddCardAnimatedAsync(playerHandCards[i], deckWorldRect, i * DrawStagger, ct);
-                    drawTasks[handSize + i] = _opponentHandView.AddCardAnimatedAsync(cpuHandCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
+                    drawTasks[drawTaskIndex++] = _handView.AddCardAnimatedAsync(playerHandCards[i], deckWorldRect, i * DrawStagger, ct);
+                }
+                for (int i = 0; i < cpuHandSize; i++)
+                {
+                    drawTasks[drawTaskIndex++] = _opponentHandView.AddCardAnimatedAsync(cpuHandCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
                 }
                 await UniTask.WhenAll(drawTasks);
 
@@ -556,29 +576,27 @@ namespace Main
                     CardData[] onlinePlayerFull = playerHandCards.Concat(playerDeckCards).ToArray();
                     CardData opponentPlaceholder = allCards.Length > 0 ? allCards[0] : null;
                     UniTask<NetworkGameService.MulliganResult> waitOpponentMulligan = _networkGameService.WaitForOpponentMulliganDecisionAsync(ct);
-                    bool localChose = await RunPlayerMulliganAsync(onlinePlayerFull, _handView, _playerDeckView, handSize, ct);
+                    bool localChose = await RunPlayerMulliganAsync(onlinePlayerFull, _handView, _playerDeckView, playerHandSize, ct);
                     string[] newDeckIds = localChose ? _playerDeckView.GetCardIds() : null;
                     _networkGameService.SendMulliganDecision(localChose, newDeckIds);
                     _waitingOverlay.style.display = DisplayStyle.Flex;
                     NetworkGameService.MulliganResult opponentResult = await waitOpponentMulligan;
                     // マリガン同期（最後の通信同期点）直後に登録しておく。
-                    // 以降の InitializePriority アニメーション中に相手が先に DrawPhase へ入って
+                    // この後すぐ RunGame に入るため、先攻の相手が自分より先に DrawPhase へ入って
                     // NGS_Draw を送っても、ハンドラ未登録で捨てられるのを防ぐ。
                     _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
                     _hasPreDrawTask = true;
                     _waitingOverlay.style.display = DisplayStyle.None;
                     if (opponentResult.Mulliganed)
                     {
-                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, handSize, opponentResult.NewDeck, ct);
+                        await RunOpponentMulliganAnimationAsync(opponentPlaceholder, cpuHandSize, opponentResult.NewDeck, ct);
                     }
                 }
                 else
                 {
-                    await RunPlayerMulliganAsync(playerDeckFull, _handView, _playerDeckView, handSize, ct);
-                    await RunCpuMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, handSize, ct);
+                    await RunPlayerMulliganAsync(playerDeckFull, _handView, _playerDeckView, playerHandSize, ct);
+                    await RunCpuMulliganIfNeededAsync(allCards, _opponentHandView, _opponentDeckView, cpuHandSize, ct);
                 }
-
-                await InitializeFirstTurnAsync(ct);
 
                 _surrenderCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCt);
                 RunGameAsync(_surrenderCts.Token).Forget();

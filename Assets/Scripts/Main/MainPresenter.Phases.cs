@@ -63,11 +63,10 @@ namespace Main
             }
         }
 
-        // ゲーム開始時に先攻後攻を決定する。
-        // （先攻の初手はドローなしで先攻有利を補正するため、後攻への補正ドローは行わない）
-        private async UniTask InitializeFirstTurnAsync(CancellationToken ct)
+        // ゲーム開始時の先攻後攻をコイントス演出で提示する（決定済みの isLocalFirst を受け取る）。
+        // 配牌前に呼ぶ（手札枚数が先攻3枚・後攻4枚で変わるため）。先攻・後攻の双方の初手はドローなしで補正する。
+        private async UniTask InitializeFirstTurnAsync(bool isLocalFirst, CancellationToken ct)
         {
-            bool isLocalFirst = _isOnline ? _onlineIsLocalFirst : UnityEngine.Random.value > 0.5f;
             _gameModel.SetInitialTurn(isLocalFirst);
 
             string resultText = isLocalFirst ? "先攻！" : "後攻！";

@@ -10,15 +10,25 @@ namespace Main
     {
         // ─── ドローフェーズ（アクティブプレイヤーのみドロー）──────────────────
 
-        // 1ドローフェーズで引く枚数。ただし先攻の初手（ターン1）はドローなし。
+        // 1ドローフェーズで引く枚数。ただし各プレイヤーの初手はドローなし。
         private const int DrawPhaseCardCount = 3;
 
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             bool isLocalTurn = _gameModel.IsLocalTurn;
 
-            // ターン1は必ず先攻の初手。先攻の初手のみドローなし。
-            int drawCount = _gameModel.TurnNumber == 1 ? 0 : DrawPhaseCardCount;
+            // 各プレイヤーの初手（このゲームで最初の自分のドローフェーズ）はドローなし＝先攻有利の補正。
+            // 先攻・後攻の双方が対象。ExtraTurn で通算ターン番号がずれても、各自の初手のみ正しく0枚になる。
+            bool isFirstTurnForActive = isLocalTurn ? !_playerHadFirstTurn : !_opponentHadFirstTurn;
+            if (isLocalTurn)
+            {
+                _playerHadFirstTurn = true;
+            }
+            else
+            {
+                _opponentHadFirstTurn = true;
+            }
+            int drawCount = isFirstTurnForActive ? 0 : DrawPhaseCardCount;
 
             // DrawSkipNext 効果でアクティブプレイヤーの次ドローがスキップ予約されていれば、ドロー0枚にして消費する。
             // 両クライアントとも自分側のフラグ（アクティブ側）を見るため、drawCount は対称に 0 になる。

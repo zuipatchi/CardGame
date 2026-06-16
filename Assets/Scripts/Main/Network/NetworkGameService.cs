@@ -6,6 +6,7 @@ using Common.GameSession;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
+using Main.Game;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -156,17 +157,18 @@ namespace Main.Network
             CardData[] hostDeck = _cardDatabase.BuildDeck(localDeckIds);
             CardData[] clientDeck = _cardDatabase.BuildDeck(receivedIds);
 
-            int handSize = Mathf.Min(5, Mathf.Min(hostDeck.Length, clientDeck.Length));
+            // 先攻後攻を先に決め、手札枚数を先攻3枚・後攻4枚で配る（双方の初手はドローなしで補正）。
+            bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
+            int hostHandSize = Mathf.Min(MulliganRule.InitialHandSize(hostGoesFirst), hostDeck.Length);
+            int clientHandSize = Mathf.Min(MulliganRule.InitialHandSize(!hostGoesFirst), clientDeck.Length);
 
             CardData[] hostShuffled = CardArrayUtils.Shuffle(hostDeck);
             CardData[] clientShuffled = CardArrayUtils.Shuffle(clientDeck);
 
-            CardData[] hostHand = Slice(hostShuffled, 0, handSize);
-            CardData[] hostRemaining = Slice(hostShuffled, handSize, hostShuffled.Length - handSize);
-            CardData[] clientHand = Slice(clientShuffled, 0, handSize);
-            CardData[] clientRemaining = Slice(clientShuffled, handSize, clientShuffled.Length - handSize);
-
-            bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
+            CardData[] hostHand = Slice(hostShuffled, 0, hostHandSize);
+            CardData[] hostRemaining = Slice(hostShuffled, hostHandSize, hostShuffled.Length - hostHandSize);
+            CardData[] clientHand = Slice(clientShuffled, 0, clientHandSize);
+            CardData[] clientRemaining = Slice(clientShuffled, clientHandSize, clientShuffled.Length - clientHandSize);
 
             SendInitialStateToClient(messaging, remoteClientId,
                 clientHand, clientRemaining,
