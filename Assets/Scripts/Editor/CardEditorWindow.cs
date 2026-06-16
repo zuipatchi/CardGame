@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Main.Card;
+using Main.Card.Effects;
 using UnityEditor;
 using UnityEngine;
 using EventType = Main.Card.EventType;
@@ -30,25 +31,6 @@ namespace GameEditor
         {
             Id,
             Cost,
-        }
-
-        // EventType ごとの値の意味（フィールドラベル・ヒント表示に使う）。
-        private readonly struct ValueInfo
-        {
-            public bool Value1Used { get; }
-            public bool Value2Used { get; }
-            public string Value1Label { get; }
-            public string Value2Label { get; }
-            public string Help { get; }
-
-            public ValueInfo(bool value1Used, string value1Label, bool value2Used, string value2Label, string help)
-            {
-                Value1Used = value1Used;
-                Value1Label = value1Label;
-                Value2Used = value2Used;
-                Value2Label = value2Label;
-                Help = help;
-            }
         }
 
         // EventType は明示的な整数値（11 欠番）を持つため、enumValueIndex（宣言順）を実際の値へ変換するのに使う。
@@ -342,7 +324,7 @@ namespace GameEditor
                 {
                     GUI.backgroundColor = AttributeColor(attribute);
                 }
-                bool next = GUILayout.Toggle(on, AttributeShortName(attribute), EditorStyles.toolbarButton, GUILayout.Width(28f));
+                bool next = GUILayout.Toggle(on, CardAttributeNames.Short(attribute), EditorStyles.toolbarButton, GUILayout.Width(28f));
                 GUI.backgroundColor = previous;
                 if (next != on)
                 {
@@ -655,7 +637,8 @@ namespace GameEditor
         // EventType に応じて値1/値2 のラベルを切り替え、意味のヒントを表示する。
         private void DrawValueFields(EventType type, SerializedProperty value1, SerializedProperty value2)
         {
-            ValueInfo info = GetValueInfo(type);
+            EffectHandler handler = EffectCatalog.Get(type);
+            EffectValueInfo info = handler != null ? handler.Values : default;
 
             if (!string.IsNullOrEmpty(info.Help))
             {
@@ -827,7 +810,10 @@ namespace GameEditor
             }
 
             string keyword = element.FindPropertyRelative("_keyword").stringValue;
-            string body = EffectBody(type, value1, value2, attribute, keyword);
+            EffectHandler handler = EffectCatalog.Get(type);
+            string body = handler != null
+                ? handler.BuildBody(new EffectTextContext(value1, value2, attribute, keyword, ResolveCardName))
+                : string.Empty;
             if (!string.IsNullOrEmpty(body))
             {
                 parts.Add(body);
@@ -882,69 +868,6 @@ namespace GameEditor
             }
         }
 
-        // EventType と値（n=値1, m=値2）・属性・特徴から効果本体のテキストを作る。効果なし/未実装は空文字。
-        private string EffectBody(EventType type, int value1, int value2, CardAttribute attribute, string keyword)
-        {
-            switch (type)
-            {
-                case EventType.Draw:
-                    return $"カードを{value1}枚引く";
-                case EventType.BanishChar:
-                    return $"相手のキャラを{(value1 <= 0 ? 1 : value1)}体選んで破壊する";
-                case EventType.Recover:
-                    return $"墓地から上の{value1}枚をデッキに戻す";
-                case EventType.Switch:
-                    return "自分のキャラ1体を手札に戻し、手札からキャラを1体配置する";
-                case EventType.Evolve:
-                    return "自分のキャラ1体を生贄にして、より高コストのキャラをコストなしで配置する";
-                case EventType.CostBoost:
-                    return $"{AttributeShortName(attribute)}コスト{value1}個分として扱う";
-                case EventType.DamageAllEnemies:
-                    return $"相手キャラ全体に{value1}ダメージを与える";
-                case EventType.GainVPPerGreenGrave:
-                    return "墓地にある緑カードの数だけ勝利点を得る";
-                case EventType.DamageEnemy:
-                    return $"相手キャラ{value1}体に{value2}ダメージを与える";
-                case EventType.SummonChar:
-                    return $"「{ResolveCardName($"C{value1}")}」を{(value2 <= 0 ? 1 : value2)}体召喚する";
-                case EventType.NextCardCostFree:
-                    return "次に使うカード1枚のコストを0にする";
-                case EventType.Bounce:
-                    return $"相手キャラ{value1}体を持ち主の手札に戻す";
-                case EventType.BounceAll:
-                    return "相手キャラ全体を持ち主の手札に戻す";
-                case EventType.ExtraTurn:
-                    return "追加でもう1度自分のターンを行う";
-                case EventType.HealAllAllies:
-                    return value1 <= 0 ? "自分のキャラ全体のHPを全回復する" : $"自分のキャラ全体のHPを{value1}回復する";
-                case EventType.DrawSkipNext:
-                    return $"カードを{value1}枚引く。次のドローを1回スキップする";
-                case EventType.DrawNextTurnStart:
-                    return $"次の自分のターン開始時に{value1}枚多く引く";
-                case EventType.BuffAttackByKeyword:
-                    return BuildKeywordBuffBody(keyword, value1, "攻撃力");
-                case EventType.BuffHpByKeyword:
-                    return BuildKeywordBuffBody(keyword, value1, "HP");
-                case EventType.SummonFromDeckByKeyword:
-                    return string.IsNullOrEmpty(keyword)
-                        ? "デッキからキャラを1枚選んで場に出す"
-                        : $"デッキから『{keyword}』を持つキャラを1枚選んで場に出す";
-                case EventType.CopyFieldChar:
-                    return $"自分のキャラを1体選び、そのコピーを{(value1 <= 0 ? 1 : value1)}体出す";
-                default:
-                    return string.Empty;
-            }
-        }
-
-        // キーワードバフ（BuffAttackByKeyword / BuffHpByKeyword）の効果テキストを作る。
-        private static string BuildKeywordBuffBody(string keyword, int value, string statName)
-        {
-            string subject = string.IsNullOrEmpty(keyword)
-                ? "自分以外の味方キャラ"
-                : $"自分以外の『{keyword}』を持つ味方キャラ";
-            return $"{subject}の{statName}を{value}上げる";
-        }
-
         // SummonChar 用：ID から一覧上のカード名を引く。見つからなければ ID をそのまま返す。
         private string ResolveCardName(string id)
         {
@@ -956,58 +879,6 @@ namespace GameEditor
                 }
             }
             return id;
-        }
-
-        private static ValueInfo GetValueInfo(EventType type)
-        {
-            switch (type)
-            {
-                case EventType.Draw:
-                    return new ValueInfo(true, "値1（ドロー枚数）", false, "値2（未使用）", "値1=デッキ上から手札に加える枚数。");
-                case EventType.Recover:
-                    return new ValueInfo(true, "値1（回収枚数）", false, "値2（未使用）", "値1=墓地の上から回収してデッキへ戻す枚数。");
-                case EventType.CostBoost:
-                    return new ValueInfo(true, "値1（コスト換算値）", false, "値2（未使用）", "値1=コストとして支払うときに数える値（属性一致時のみ）。");
-                case EventType.DamageAllEnemies:
-                    return new ValueInfo(true, "値1（ダメージ量）", false, "値2（未使用）", "値1=敵フィールド全員へ与えるダメージ。");
-                case EventType.DamageEnemy:
-                    return new ValueInfo(true, "値1（対象数）", true, "値2（ダメージ量）", "値1=選ぶ対象数 / 値2=各対象へのダメージ。");
-                case EventType.SummonChar:
-                    return new ValueInfo(true, "値1（召喚キャラID数字）", true, "値2（体数）", "値1=召喚するキャラIDの数字部分（例 1001→C1001）/ 値2=体数（0=1体）。");
-                case EventType.Bounce:
-                    return new ValueInfo(true, "値1（戻す体数）", false, "値2（未使用）", "値1=相手の手札へ戻す敵キャラの体数。");
-                case EventType.HealAllAllies:
-                    return new ValueInfo(true, "値1（回復量）", false, "値2（未使用）", "値1=自フィールド全員の回復量（0=最大HPまで全回復）。");
-                case EventType.DrawSkipNext:
-                    return new ValueInfo(true, "値1（ドロー枚数）", false, "値2（未使用）", "値1=即時ドロー枚数。次のドローフェーズを1回スキップする。");
-                case EventType.DrawNextTurnStart:
-                    return new ValueInfo(true, "値1（ドロー枚数）", false, "値2（未使用）", "値1=次ターン開始時に追加でドローする枚数。");
-                case EventType.BuffAttackByKeyword:
-                    return new ValueInfo(true, "値1（攻撃力の上昇量）", false, "値2（未使用）", "値1=同じ特徴を持つ味方キャラ（自分以外）の攻撃力を上げる量。発動キャラに特徴の設定が必要。");
-                case EventType.BuffHpByKeyword:
-                    return new ValueInfo(true, "値1（HPの上昇量）", false, "値2（未使用）", "値1=同じ特徴を持つ味方キャラ（自分以外）のHP（現在・最大）を上げる量。発動キャラに特徴の設定が必要。");
-                case EventType.None:
-                    return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "効果なし。勝利点付帯値だけ得るカードはこれ＋付帯値で作る。");
-                case EventType.BanishChar:
-                    return new ValueInfo(true, "値1（対象数）", false, "値2（未使用）", "値1=破壊する敵キャラの体数（0=1体）。対象数が敵の数以上なら全員。");
-                case EventType.SummonFromDeckByKeyword:
-                    return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "デッキから自身の特徴を持つキャラを1枚選んで場に出す。値は未使用。発動カードに特徴の設定が必要。");
-                case EventType.CopyFieldChar:
-                    return new ValueInfo(true, "値1（コピー体数）", false, "値2（未使用）", "値1=選んだ自分のキャラのコピーを出す体数（0=1体）。バフ・現在HP込みでコピー。");
-                case EventType.Switch:
-                case EventType.Evolve:
-                case EventType.GainVPPerGreenGrave:
-                case EventType.NextCardCostFree:
-                case EventType.BounceAll:
-                case EventType.ExtraTurn:
-                    return new ValueInfo(false, "値1（未使用）", false, "値2（未使用）", "この効果は値を使用しません（0 のままで可）。");
-                case EventType.AtkBoost:
-                case EventType.DefBoost:
-                case EventType.Negate:
-                    return new ValueInfo(true, "値1", true, "値2", "※ この効果は enum 定義のみで未実装です。");
-                default:
-                    return new ValueInfo(true, "値1", true, "値2", string.Empty);
-            }
         }
 
         private static Color AttributeColor(CardAttribute attribute)
@@ -1030,29 +901,6 @@ namespace GameEditor
                     return new Color(0.95f, 0.95f, 0.95f);
                 default:
                     return Color.white;
-            }
-        }
-
-        private static string AttributeShortName(CardAttribute attribute)
-        {
-            switch (attribute)
-            {
-                case CardAttribute.Red:
-                    return "赤";
-                case CardAttribute.Blue:
-                    return "青";
-                case CardAttribute.Green:
-                    return "緑";
-                case CardAttribute.Yellow:
-                    return "黄";
-                case CardAttribute.Black:
-                    return "黒";
-                case CardAttribute.Purple:
-                    return "紫";
-                case CardAttribute.White:
-                    return "白";
-                default:
-                    return "?";
             }
         }
     }

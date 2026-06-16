@@ -14,7 +14,7 @@ namespace Main
         // 配置時に OnEnter も発動する。自キャラが0体なら空振り、フィールド満杯で打ち切り。
         // 選択はプレイヤー（自フィールドのクリック選択）／CPU（攻撃力上位）／オンライン相手（フィールド内インデックスを受信）で分岐。
         // インデックスは両クライアントで同期済みの盤面に対するもので、DamageEnemy と同じ NGS_DamageTarget チャネルを流用する。
-        private async UniTask ApplyCopyFieldCharAsync(int copies, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyCopyFieldCharAsync(int copies, bool isLocal, CancellationToken ct)
         {
             FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
             List<CardView> chars = new List<CardView>(field.Characters);

@@ -13,7 +13,7 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
-        private async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
+        internal async UniTask PlayFloatingLabelAsync(string text, string cssClass, VisualElement anchor, CancellationToken ct)
         {
             const float LabelW = 200f;
             const float LabelH = 60f;
@@ -63,7 +63,7 @@ namespace Main
         }
 
         // ─── MedalIcon フローティング（勝利点を得るカードの上に表示）──────
-        private async UniTask PlayFloatingMedalAsync(VisualElement anchor, CancellationToken ct)
+        internal async UniTask PlayFloatingMedalAsync(VisualElement anchor, CancellationToken ct)
         {
             const float IconSize = 140f;
             const float RiseDist = 80f;
@@ -224,7 +224,7 @@ namespace Main
 
         // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────
 
-        private async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)
+        internal async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)
         {
             if (_switchEffectPrefab != null)
             {
@@ -276,7 +276,7 @@ namespace Main
 
         // ─── Draw エフェクト（ラベル上昇 + パーティクル同時再生）────────────────
 
-        private async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
+        internal async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
             tasks.Add(PlayFloatingLabelAsync($"DRAW {value}", "draw-label", card, ct));
@@ -289,7 +289,7 @@ namespace Main
 
         // ─── Recover エフェクト（ラベル上昇 + パーティクル同時再生）────────────
 
-        private async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
+        internal async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
             tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct));

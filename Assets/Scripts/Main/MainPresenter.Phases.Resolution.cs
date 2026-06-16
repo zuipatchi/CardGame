@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
+using Main.Card.Effects;
 using Main.Game;
 using CardEventType = Main.Card.EventType;
 using UnityEngine;
@@ -46,50 +47,18 @@ namespace Main
 
         }
 
-        // イベント効果の解決（種別ごとの事前演出 ＋ ApplyEventEffectAsync の適用）。
+        // イベント効果の解決：効果種別ごとのハンドラ（演出 ＋ 盤面適用）を発動し、最後に勝利点付帯値を加算する。
         // OnPlay のプレイ時と、OnTurnStart 永続イベントの毎ターン発動の両方から呼ぶ。
         // card は演出のアンカー（プレイ時はプレイしたカード、OnTurnStart は墓地からせり出した一時カード）。
+        // 事前演出は各 EffectHandler.ApplyAsync 内に含まれる（EffectCatalog 経由で取得）。
         private async UniTask ResolveEventCardEffectAsync(EventCardData eventData, CardView card, bool isLocal, CancellationToken ct)
         {
-            if (eventData.EventType == CardEventType.Draw || eventData.EventType == CardEventType.DrawSkipNext)
+            EffectHandler handler = EffectCatalog.Get(eventData.EventType);
+            if (handler != null && handler.ValidOnEvent)
             {
-                await PlayDrawEffectAsync(card, eventData.EventValue, ct);
+                EffectInvocation inv = new EffectInvocation(isLocal, card, eventData.EventValue, eventData.EventValue2, eventData.Keyword);
+                await handler.ApplyAsync(this, inv, ct);
             }
-            else if (eventData.EventType == CardEventType.Recover)
-            {
-                await PlayRecoverEffectAsync(card, eventData.EventValue, ct);
-            }
-            else if (eventData.EventType == CardEventType.Switch)
-            {
-                FieldView switchField = isLocal ? _playerFieldView : _opponentFieldView;
-                CardView switchChar = switchField.Characters.Count > 0
-                    ? switchField.Characters[0]
-                    : null;
-                if (switchChar != null)
-                {
-                    await PlaySwitchEffectAsync(card, switchChar, ct);
-                }
-            }
-            else if (eventData.EventType == CardEventType.Evolve)
-            {
-                FieldView evolveField = isLocal ? _playerFieldView : _opponentFieldView;
-                CardView evolveChar = evolveField.Characters.Count > 0
-                    ? evolveField.Characters[0]
-                    : null;
-                if (evolveChar != null)
-                {
-                    await PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
-                }
-            }
-            else if (eventData.EventType == CardEventType.GainVPPerGreenGrave)
-            {
-                await PlayFloatingMedalAsync(card, ct);
-            }
-            else if (eventData.EventType == CardEventType.DrawNextTurnStart)
-            {
-                await PlayFloatingLabelAsync($"次ターン DRAW {eventData.EventValue}", "draw-label", card, ct);
-            }
-            await ApplyEventEffectAsync(eventData, isLocal, card, ct);
 
             if (_isGameOver)
             {
@@ -153,7 +122,7 @@ namespace Main
             return ResolveCharacterTriggeredEffectAsync(attacker, CharacterEffectTrigger.OnAttack, isLocal, ct);
         }
 
-        // 指定トリガーのキャラ効果を発動する。既存のイベント効果解決処理（演出 + 適用）を流用する。
+        // 指定トリガーのキャラ効果を発動する。効果種別ごとの解決は EffectCatalog のハンドラ（演出 ＋ 適用）に委譲する。
         private async UniTask ResolveCharacterTriggeredEffectAsync(CardView sourceCard, CharacterEffectTrigger trigger, bool isLocal, CancellationToken ct)
         {
             if (sourceCard == null || sourceCard.Data is not CharacterCardData charData)
@@ -172,65 +141,13 @@ namespace Main
                 return;
             }
 
-            switch (charData.EffectType)
+            // 効果種別ごとのハンドラ（演出 ＋ 盤面適用）を発動する。
+            // キャラに無効な効果（Switch / Evolve / Recover など ValidOnCharacter=false）は適用しない。
+            EffectHandler handler = EffectCatalog.Get(charData.EffectType);
+            if (handler != null && handler.ValidOnCharacter)
             {
-                case CardEventType.Draw:
-                    await PlayDrawEffectAsync(sourceCard, charData.EffectValue, ct);
-                    await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.DrawSkipNext:
-                    await PlayDrawEffectAsync(sourceCard, charData.EffectValue, ct);
-                    await ApplyDrawEffectAsync(charData.EffectValue, isLocal, ct);
-                    SetSkipNextDraw(isLocal);
-                    break;
-                case CardEventType.DrawNextTurnStart:
-                    await PlayFloatingLabelAsync($"次ターン DRAW {charData.EffectValue}", "draw-label", sourceCard, ct);
-                    AddPendingNextDraw(charData.EffectValue, isLocal);
-                    break;
-                case CardEventType.BanishChar:
-                    await ApplyBanishCharAsync(charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.DamageAllEnemies:
-                    await ApplyDamageAllEnemiesAsync(charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.DamageEnemy:
-                    // 値1=対象数、値2=ダメージ
-                    await ApplyDamageEnemyAsync(charData.EffectValue2, charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.Bounce:
-                    await ApplyBounceAsync(charData.EffectValue, isLocal, _bounceEffectPrefab, false, ct);
-                    break;
-                case CardEventType.BounceAll:
-                    await ApplyBounceAllAsync(isLocal, ct);
-                    break;
-                case CardEventType.SummonChar:
-                    await ApplySummonCharAsync(charData.EffectValue, charData.EffectValue2, isLocal, sourceCard.worldBound, ct);
-                    break;
-                case CardEventType.SummonFromDeckByKeyword:
-                    await ApplySummonFromDeckByKeywordAsync(charData.Keyword, isLocal, ct);
-                    break;
-                case CardEventType.CopyFieldChar:
-                    await ApplyCopyFieldCharAsync(charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.GainVPPerGreenGrave:
-                    await PlayFloatingMedalAsync(sourceCard, ct);
-                    await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
-                    break;
-                case CardEventType.HealAllAllies:
-                    await ApplyHealAllAlliesAsync(charData.EffectValue, isLocal, ct);
-                    break;
-                case CardEventType.BuffAttackByKeyword:
-                    await ApplyBuffByKeywordAsync(sourceCard, charData.EffectValue, isAttack: true, isLocal, ct);
-                    break;
-                case CardEventType.BuffHpByKeyword:
-                    await ApplyBuffByKeywordAsync(sourceCard, charData.EffectValue, isAttack: false, isLocal, ct);
-                    break;
-                case CardEventType.NextCardCostFree:
-                    await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
-                    break;
-                case CardEventType.ExtraTurn:
-                    await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
-                    break;
+                EffectInvocation inv = new EffectInvocation(isLocal, sourceCard, charData.EffectValue, charData.EffectValue2, charData.Keyword);
+                await handler.ApplyAsync(this, inv, ct);
             }
 
             if (_isGameOver)
@@ -256,105 +173,53 @@ namespace Main
 
         // 発動した側の墓地にある緑属性カードの枚数を返す（GainVPPerGreenGrave の動的な加点値）。
         // 墓地は両クライアントで同期済みのため、オンラインでも対称に解決される（追加同期不要）。
-        private int CountGreenInGraveyard(bool isLocal)
+        internal int CountGreenInGraveyard(bool isLocal)
         {
             GraveyardView graveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
             return graveyard.CountByAttribute(CardAttribute.Green);
         }
 
-        private async UniTask ApplyEventEffectAsync(EventCardData data, bool isLocal, CardView sourceCard, CancellationToken ct)
+        // Recover 効果（RecoverHandler から呼ぶ）：墓地の上から value 枚を回収してデッキへ戻し、シャッフルする。
+        // オンラインでは戻したデッキ順をホスト基準で同期する（受信側はアニメ前にハンドラ登録してロストを防ぐ）。
+        internal async UniTask ApplyRecoverEffectAsync(int value, bool isLocal, CancellationToken ct)
         {
-            switch (data.EventType)
+            GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
+            DeckView targetDeck = isLocal ? _playerDeckView : _opponentDeckView;
+            List<CardData> recovered = sourceGraveyard.TakeFromTop(value);
+            if (recovered.Count > 0)
             {
-                case CardEventType.Draw:
-                    await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.DrawSkipNext:
-                    await ApplyDrawEffectAsync(data.EventValue, isLocal, ct);
-                    SetSkipNextDraw(isLocal);
-                    break;
-                case CardEventType.DrawNextTurnStart:
-                    AddPendingNextDraw(data.EventValue, isLocal);
-                    break;
-                case CardEventType.BanishChar:
-                    await ApplyBanishCharAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.Recover:
+                // アニメーション前にハンドラを登録してメッセージのロストを防ぐ
+                UniTask<CardData[]> recoverReceiveTask = (_isOnline && !isLocal)
+                    ? _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct)
+                    : default;
+                await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
+                if (!_isOnline || isLocal)
                 {
-                    GraveyardView sourceGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
-                    DeckView targetDeck = isLocal ? _playerDeckView : _opponentDeckView;
-                    List<CardData> recovered = sourceGraveyard.TakeFromTop(data.EventValue);
-                    if (recovered.Count > 0)
+                    targetDeck.AddCardsAndShuffle(recovered);
+                    if (_isOnline)
                     {
-                        // アニメーション前にハンドラを登録してメッセージのロストを防ぐ
-                        UniTask<CardData[]> recoverReceiveTask = (_isOnline && !isLocal)
-                            ? _networkGameService.WaitForOpponentRecoverDeckOrderAsync(ct)
-                            : default;
-                        await PlayRecoverFlyAsync(recovered, sourceGraveyard, targetDeck, ct);
-                        if (!_isOnline || isLocal)
-                        {
-                            targetDeck.AddCardsAndShuffle(recovered);
-                            if (_isOnline)
-                            {
-                                _networkGameService.SendRecoverDeckOrder(targetDeck.GetCardIds());
-                            }
-                        }
-                        else
-                        {
-                            CardData[] shuffledDeck = await recoverReceiveTask;
-                            targetDeck.Rebuild(shuffledDeck);
-                        }
-                        await PlayDeckShufflePulseAsync(targetDeck, ct);
+                        _networkGameService.SendRecoverDeckOrder(targetDeck.GetCardIds());
                     }
-                    break;
                 }
-                case CardEventType.Switch:
-                    await ApplySwitchEffectAsync(isLocal, ct);
-                    break;
-                case CardEventType.Evolve:
-                    await ApplyEvolveEffectAsync(isLocal, ct);
-                    break;
-                case CardEventType.DamageAllEnemies:
-                    await ApplyDamageAllEnemiesAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.DamageEnemy:
-                    // 値1=対象数、値2=ダメージ
-                    await ApplyDamageEnemyAsync(data.EventValue2, data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.Bounce:
-                    await ApplyBounceAsync(data.EventValue, isLocal, _bounceEffectPrefab, false, ct);
-                    break;
-                case CardEventType.BounceAll:
-                    await ApplyBounceAllAsync(isLocal, ct);
-                    break;
-                case CardEventType.SummonChar:
-                    await ApplySummonCharAsync(data.EventValue, data.EventValue2, isLocal, sourceCard.worldBound, ct);
-                    break;
-                case CardEventType.SummonFromDeckByKeyword:
-                    await ApplySummonFromDeckByKeywordAsync(data.Keyword, isLocal, ct);
-                    break;
-                case CardEventType.CopyFieldChar:
-                    await ApplyCopyFieldCharAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.GainVPPerGreenGrave:
-                    await AddVictoryPoints(CountGreenInGraveyard(isLocal), toLocal: isLocal, ct);
-                    break;
-                case CardEventType.HealAllAllies:
-                    await ApplyHealAllAlliesAsync(data.EventValue, isLocal, ct);
-                    break;
-                case CardEventType.BuffAttackByKeyword:
-                    await ApplyBuffByKeywordAsync(sourceCard, data.EventValue, isAttack: true, isLocal, ct);
-                    break;
-                case CardEventType.BuffHpByKeyword:
-                    await ApplyBuffByKeywordAsync(sourceCard, data.EventValue, isAttack: false, isLocal, ct);
-                    break;
-                case CardEventType.NextCardCostFree:
-                    await ApplyNextCardCostFreeAsync(isLocal, sourceCard, ct);
-                    break;
-                case CardEventType.ExtraTurn:
-                    await ApplyExtraTurnAsync(isLocal, sourceCard, ct);
-                    break;
+                else
+                {
+                    CardData[] shuffledDeck = await recoverReceiveTask;
+                    targetDeck.Rebuild(shuffledDeck);
+                }
+                await PlayDeckShufflePulseAsync(targetDeck, ct);
             }
+        }
+
+        // 効果ハンドラ用：発動側の自フィールドを返す（Switch / Evolve の事前演出で使う）。
+        internal FieldView FieldFor(bool isLocal)
+        {
+            return isLocal ? _playerFieldView : _opponentFieldView;
+        }
+
+        // Bounce 効果（BounceHandler から呼ぶ）：個別バウンス（per-target エフェクト付き）の既定オーバーロード。
+        internal UniTask ApplyBounceAsync(int count, bool isLocal, CancellationToken ct)
+        {
+            return ApplyBounceAsync(count, isLocal, _bounceEffectPrefab, false, ct);
         }
 
         // ExtraTurn 効果：アクティブプレイヤーが発動したときのみ、相手にターンを渡さず
@@ -362,7 +227,7 @@ namespace Main
         // isLocal は効果の発動側。アクティブプレイヤー（_gameModel.IsLocalTurn）と一致するときだけ有効化し、
         // 相手ターン中の OnDestroy 等（発動側 != アクティブ）では発動しない。
         // 1ターン中に複数回発動しても追加ターンは1回（フラグは bool）。
-        private async UniTask ApplyExtraTurnAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
+        internal async UniTask ApplyExtraTurnAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
         {
             if (isLocal != _gameModel.IsLocalTurn)
             {
@@ -375,7 +240,7 @@ namespace Main
         // DrawSkipNext 効果：発動側の次のドローフェーズを1回スキップするフラグを立てる。
         // フラグは次に来るそのプレイヤーの RunDrawPhaseAsync で消費される。
         // 効果はカードデータから決定的に解決されるため、各クライアントが自分側のフラグを立てれば対称になる（追加同期不要）。
-        private void SetSkipNextDraw(bool isLocal)
+        internal void SetSkipNextDraw(bool isLocal)
         {
             if (isLocal)
             {
@@ -390,7 +255,7 @@ namespace Main
         // DrawNextTurnStart 効果：発動側の次のターン開始時に追加でドローする予約枚数を加算する。
         // 予約は次に来るそのプレイヤーの RunDrawPhaseAsync で通常ドローに上乗せして消費される（複数回発動で累積）。
         // 効果はカードデータから決定的に解決されるため、各クライアントが自分側のカウントを加算すれば対称になる（追加同期不要）。
-        private void AddPendingNextDraw(int count, bool isLocal)
+        internal void AddPendingNextDraw(int count, bool isLocal)
         {
             if (count <= 0)
             {
@@ -407,7 +272,7 @@ namespace Main
         }
 
         // 次にプレイするカード1枚のコストを0にする（使うまで持続）。発動側のフラグを立て、発動カード上に告知を出す
-        private async UniTask ApplyNextCardCostFreeAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
+        internal async UniTask ApplyNextCardCostFreeAsync(bool isLocal, CardView sourceCard, CancellationToken ct)
         {
             if (isLocal)
             {
@@ -423,7 +288,7 @@ namespace Main
         // 発動側の自フィールドのキャラ全員の HP を amount 回復する（最大HPでクランプ）。
         // amount <= 0 は最大HPまで全回復。自キャラがいなければ空振り。
         // 効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも対称に発動する（追加同期不要）。
-        private async UniTask ApplyHealAllAlliesAsync(int amount, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyHealAllAlliesAsync(int amount, bool isLocal, CancellationToken ct)
         {
             FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
             List<CardView> targets = new List<CardView>(ownField.Characters);
@@ -445,7 +310,7 @@ namespace Main
         // 攻撃力（isAttack=true）または HP（false）を amount 上げる（発動時に一度だけ永続加算）。
         // source の特徴が未設定（空）なら空振り。後から場に出たキャラには適用されない。
         // 効果はカードデータと同期済み盤面から決定的に解決されるため、オンラインでも対称に発動する（追加同期不要）。
-        private async UniTask ApplyBuffByKeywordAsync(CardView source, int amount, bool isAttack, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyBuffByKeywordAsync(CardView source, int amount, bool isAttack, bool isLocal, CancellationToken ct)
         {
             if (amount <= 0)
             {
@@ -486,7 +351,7 @@ namespace Main
         }
 
         // 発動側から見た敵フィールドのキャラ全員に同時にダメージを与え、HP 0 以下のキャラを破壊する
-        private async UniTask ApplyDamageAllEnemiesAsync(int damage, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyDamageAllEnemiesAsync(int damage, bool isLocal, CancellationToken ct)
         {
             if (damage <= 0)
             {
@@ -532,7 +397,7 @@ namespace Main
 
         // 発動側から見た敵キャラを count 体（値1。未設定=0 は1体）対象に選び、それぞれに damage（値2）を与えて
         // HP 0 以下なら破壊する。対象数が敵の数以上なら全員が対象。
-        private async UniTask ApplyDamageEnemyAsync(int damage, int count, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyDamageEnemyAsync(int damage, int count, bool isLocal, CancellationToken ct)
         {
             if (damage <= 0)
             {
@@ -587,7 +452,7 @@ namespace Main
 
         // 発動側から見た敵キャラを count 体（値1。未設定=0 は1体）対象に選び、それぞれを破壊して墓地へ送る。
         // 対象数が敵の数以上なら全員が対象。対象選択は DamageEnemy / Bounce と同じ仕組み（プレイヤー選択／CPU 自動／オンライン同期）を共用する。
-        private async UniTask ApplyBanishCharAsync(int count, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyBanishCharAsync(int count, bool isLocal, CancellationToken ct)
         {
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
             GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
@@ -822,7 +687,7 @@ namespace Main
         // フィールド中央で全体用エフェクトを1度だけ再生してから一括バウンスする。
         // ApplyBounceAsync は対象数が敵の数以上のとき選択 UI なしで全員を対象にするため、
         // 敵の全数を渡して全体バウンスを実現する（per-target エフェクトは null で無効化）。
-        private async UniTask ApplyBounceAllAsync(bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyBounceAllAsync(bool isLocal, CancellationToken ct)
         {
             FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
             if (targetField.Characters.Count == 0)
@@ -841,7 +706,7 @@ namespace Main
         // count が 0 以下なら1体扱い。手札・デッキは消費しない。召喚キャラの OnEnter も発動する。
         // フィールドが満杯（FieldView.MaxCharacters）になったら打ち切る。満杯で新キャラが出ないため
         // OnEnter 連鎖もここで自然に停止する（無限ループにならない）。
-        private async UniTask ApplySummonCharAsync(int charNumber, int count, bool isLocal, Rect fromRect, CancellationToken ct)
+        internal async UniTask ApplySummonCharAsync(int charNumber, int count, bool isLocal, Rect fromRect, CancellationToken ct)
         {
             if (charNumber <= 0)
             {
@@ -921,7 +786,7 @@ namespace Main
             return ResolveCharacterTriggeredEffectAsync(attackerCard, CharacterEffectTrigger.OnKill, ownerIsLocal, ct);
         }
 
-        private async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
         {
             FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
             GraveyardView ownGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
@@ -1038,7 +903,7 @@ namespace Main
             }
         }
 
-        private async UniTask ApplySwitchEffectAsync(bool isLocal, CancellationToken ct)
+        internal async UniTask ApplySwitchEffectAsync(bool isLocal, CancellationToken ct)
         {
             FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
             GraveyardView ownGraveyard = isLocal ? _playerGraveyardView : _opponentGraveyardView;
@@ -1185,7 +1050,7 @@ namespace Main
             }
         }
 
-        private async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
         {
             if (count <= 0)
             {

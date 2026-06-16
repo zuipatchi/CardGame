@@ -13,7 +13,7 @@ namespace Main
         // 特徴一致キャラがデッキにいない／フィールド満杯なら空振り。
         // 選択はプレイヤー（UI）／CPU（最高コスト）／オンライン相手（デッキ内インデックスを受信）で分岐する。
         // デッキ並び順は両クライアントで同期済みのため、インデックス指定で同じカードを取り除ける（DamageEnemy と同じチャネルを流用）。
-        private async UniTask ApplySummonFromDeckByKeywordAsync(string keyword, bool isLocal, CancellationToken ct)
+        internal async UniTask ApplySummonFromDeckByKeywordAsync(string keyword, bool isLocal, CancellationToken ct)
         {
             if (string.IsNullOrEmpty(keyword))
             {

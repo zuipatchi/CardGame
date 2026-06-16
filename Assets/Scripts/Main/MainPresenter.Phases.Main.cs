@@ -481,7 +481,7 @@ namespace Main
 
         // 勝利点勝利条件：加算した側の勝利点が規定値（WinRule.VictoryPointsToWin）に到達したら勝利。
         // 勝利点付帯値（VictoryPointBonus）や GainVPPerGreenGrave の解決時に呼ぶ。
-        private async UniTask AddVictoryPoints(int amount, bool toLocal, CancellationToken ct)
+        internal async UniTask AddVictoryPoints(int amount, bool toLocal, CancellationToken ct)
         {
             if (amount <= 0)
             {
