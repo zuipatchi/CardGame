@@ -139,13 +139,27 @@ namespace DeckBuilder
                 topLeftButtons.Add(_filterCharacterButton);
                 topLeftButtons.Add(_filterEventButton);
 
+                HashSet<CardAttribute> presentAttributes = new HashSet<CardAttribute>();
+                foreach (CardData cardData in _cardDatabase.AllCards)
+                {
+                    presentAttributes.Add(cardData.Attribute);
+                }
+
+                bool isFirstAttributeButton = true;
                 for (int i = 0; i < FilterAttributes.Length; i++)
                 {
                     CardAttribute attribute = FilterAttributes[i];
+                    // その属性のカードが1枚も無ければフィルタアイコンを表示しない
+                    if (!presentAttributes.Contains(attribute))
+                    {
+                        continue;
+                    }
+
                     Button attributeButton = CreateAttributeFilterButton(attribute);
-                    if (i == 0)
+                    if (isFirstAttributeButton)
                     {
                         attributeButton.style.marginLeft = 10;
+                        isFirstAttributeButton = false;
                     }
                     _attributeFilterButtons[attribute] = attributeButton;
                     topLeftButtons.Add(attributeButton);
