@@ -657,6 +657,11 @@ namespace GameEditor
         {
             ValueInfo info = GetValueInfo(type);
 
+            if (!string.IsNullOrEmpty(info.Help))
+            {
+                EditorGUILayout.HelpBox(info.Help, MessageType.None);
+            }
+
             using (new EditorGUI.DisabledScope(!info.Value1Used))
             {
                 EditorGUILayout.PropertyField(value1, new GUIContent(info.Value1Label));
@@ -664,11 +669,6 @@ namespace GameEditor
             using (new EditorGUI.DisabledScope(!info.Value2Used))
             {
                 EditorGUILayout.PropertyField(value2, new GUIContent(info.Value2Label));
-            }
-
-            if (!string.IsNullOrEmpty(info.Help))
-            {
-                EditorGUILayout.HelpBox(info.Help, MessageType.None);
             }
         }
 
