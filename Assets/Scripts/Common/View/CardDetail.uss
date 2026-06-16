@@ -95,7 +95,7 @@
 
 .card-detail-stats {
     padding-left: 28px;
-    min-width: 220px;
+    width: 380px;
     flex-direction: column;
     justify-content: center;
 }
@@ -135,6 +135,7 @@
     -unity-font-style: bold;
     color: rgb(240, 240, 255);
     margin-bottom: 16px;
+    white-space: normal;
     -unity-text-outline-width: 1px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.5);
 }
@@ -288,7 +289,7 @@
     color: rgb(200, 200, 220);
     white-space: normal;
     margin-top: 12px;
-    max-width: 240px;
+    max-width: 352px;
 }
 
 .card-detail-flavor {
@@ -297,5 +298,5 @@
     color: rgb(150, 150, 175);
     white-space: normal;
     margin-top: 16px;
-    max-width: 240px;
+    max-width: 352px;
 }
