@@ -444,7 +444,7 @@ BattleArea              （top: 100px〜bottom: 144px）
 DeckArea                （右下・60% スケール）
 GraveyardArea           （左下）
 HandArea                （画面下端・60% スケール）
-ActionButtonsArea       （右下・bottom: 210px・アクションステージ中のみ表示・横並び）
+ActionButtonsArea       （右下・bottom: 210px・アクションステージ中のみ表示・横並び。コンテナは PickingMode.Ignore＝透明な余白が下のカードのドラッグ（攻撃矢印）を奪わないようにし、子ボタンのみがクリックを拾う）
   ├── BackButton        （左・returnButton.png・直前の操作を取り消す）
   ├── PassButton        （PassButton.png・戦闘前フェーズで出さない選択）
   └── OkButton          （右・OKButton.png・処理フェーズへ進む）
