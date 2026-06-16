@@ -51,7 +51,7 @@ MonoBehaviour:
     _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
     _keyword: 
     _victoryPointBonus: 0
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _eventTrigger: 0
     _eventType: 20
     _eventValue: 3
@@ -87,5 +87,20 @@ MonoBehaviour:
     _eventValue: 0
     _eventValue2: 0
     _description: "\u3082\u3046\u4E00\u5EA6\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u3092\u884C\u3046"
+    _triggerOnGrave: 0
+    _attribute: 1
+  - _id: E2006
+    _cardName: "\u529B\u306E\u7D0B\u7AE0\u3092\u5F97\u305F"
+    _cost: 0
+    _image: {fileID: 21300000, guid: c6b59c92104212b4c889692d5e1b2cd8, type: 3}
+    _flavorText: 
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _eventTrigger: 0
+    _eventType: 1
+    _eventValue: 3
+    _eventValue2: 0
+    _description: 
     _triggerOnGrave: 0
     _attribute: 1

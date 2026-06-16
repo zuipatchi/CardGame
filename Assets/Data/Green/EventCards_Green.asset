@@ -51,7 +51,7 @@ MonoBehaviour:
     _flavorText: 
     _keyword: 
     _victoryPointBonus: 1
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _eventTrigger: 0
     _eventType: 13
     _eventValue: 1
@@ -65,13 +65,13 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: c5c38ccec296de34d807647fa6a8aa0a, type: 3}
     _flavorText: "\u4E0D\u6B7B\u9CE5\u306E\u30AA\u30CA\u30E9\u306B\u306F\u751F\u547D\u529B\u304C\u3042\u308B\u3068\u8A00\u308F\u308C\u3066\u3044\u308B"
     _keyword: 
-    _victoryPointBonus: 1
+    _victoryPointBonus: 0
     _excludeFromGame: 0
     _eventTrigger: 0
     _eventType: 19
     _eventValue: 2
     _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30922\u56DE\u5FA9\u3059\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30922\u56DE\u5FA9\u3059\u308B"
     _triggerOnGrave: 0
     _attribute: 2
   - _id: E3005
@@ -81,7 +81,7 @@ MonoBehaviour:
     _flavorText: "\u30E2\u30CA\u30B3\u30FC\u30FC\u30FC\u30F3\uFF01"
     _keyword: 
     _victoryPointBonus: 0
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _eventTrigger: 0
     _eventType: 12
     _eventValue: 0
