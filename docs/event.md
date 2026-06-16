@@ -54,7 +54,7 @@
 
 ### 効果テキストの自動生成
 
-カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
+カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行/防人フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
 
 発動タイミング（接頭辞）
 
@@ -138,7 +138,8 @@
 | Victory Point Bonus | 勝利点付帯値。効果（Effect Type）とは独立して、効果トリガー（OnEnter 等）の発動時にこの値を発動側へ加算する。0 で加算なし。全属性のカードで設定できる（属性による制限なし）。`Effect Type=None` でも値があればトリガー時に勝利点だけ得る |
 | Guardian | **守護**。ON にすると、このキャラが場にいる間は相手はこのキャラ（守護持ち）にしか攻撃できない（守護以外のキャラへの攻撃は不可）。`EffectType` とは独立したフラグで、攻撃のみを制限する。カードと詳細モーダルに ShieldIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Haste | **速攻**。ON にすると、このキャラは召喚酔いせず、場に出したターンから攻撃できる（通常配置・召喚・Switch / Evolve のいずれの配置でも即攻撃可。1ターン1回の攻撃制限は維持）。`EffectType` とは独立したフラグ。カードと詳細モーダルに SpeedIcon を表示（詳細は [rules.md](rules.md)「攻撃回数と召喚酔い」） |
-| Flying | **飛行**。ON にすると、このキャラは守護を無視して攻撃対象（相手キャラ）を選べ、かつ飛行を持つキャラからしか攻撃されない（飛行なしキャラは飛行キャラを攻撃不可）。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに FlyIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
+| Flying | **飛行**。ON にすると、このキャラは守護を無視して攻撃対象（相手キャラ）を選べ、かつ飛行か防人を持つキャラからしか攻撃されない（飛行・防人なしキャラは飛行キャラを攻撃不可）。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに FlyIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
+| Sakimori | **防人**。守護を兼ねる対空ガード。ON にすると、① 飛行はこのキャラがいる間は防人を優先して攻撃せねばならず（守護は無視するが防人は無視できない）、② 非飛行は守護同様このキャラを優先して攻撃せねばならず、③ このキャラ自身は飛行に攻撃できる。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに ProtectorIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
 
