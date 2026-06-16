@@ -78,7 +78,7 @@
 | DamageAllEnemies | 相手キャラ全体にnダメージを与える |
 | GainVPPerGreenGrave | 墓地にある緑カードの数だけ勝利点を得る |
 | DamageEnemy | 相手キャラn体にmダメージを与える |
-| SummonChar | 「{召喚カード名}」をm体召喚する（ID `C{n}` から名前解決。m=0は1体） |
+| SummonChar | 「{ATK}/{HP}の{召喚カード名}」をm体召喚する（ID `C{n}` から名前と攻撃力/HPを解決。数値が引けないときは名前のみ。m=0は1体） |
 | NextCardCostFree | 次に使うカード1枚のコストを0にする |
 | Bounce | 相手キャラn体を持ち主の手札に戻す |
 | BounceAll | 相手キャラ全体を持ち主の手札に戻す |
