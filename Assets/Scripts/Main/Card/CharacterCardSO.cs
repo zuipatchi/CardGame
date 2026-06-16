@@ -68,11 +68,6 @@ namespace Main.Card
                     card.EditorSetAttribute(_attribute);
                     changed = true;
                 }
-                // 緑以外のカードは勝利点付帯値を 0 に固定する
-                if (card.EditorClampVictoryPointBonusToAttribute())
-                {
-                    changed = true;
-                }
             }
             return changed;
         }

@@ -538,15 +538,7 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_cost"), new GUIContent("コスト"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_image"), new GUIContent("画像"));
 
-            bool isGreen = (CardAttribute)element.FindPropertyRelative("_attribute").enumValueIndex == CardAttribute.Green;
-            using (new EditorGUI.DisabledScope(!isGreen))
-            {
-                EditorGUILayout.PropertyField(element.FindPropertyRelative("_victoryPointBonus"), new GUIContent("勝利点付帯値"));
-            }
-            if (!isGreen)
-            {
-                EditorGUILayout.LabelField(" ", "※ 勝利点付帯値は緑属性カードのみ有効", EditorStyles.miniLabel);
-            }
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_victoryPointBonus"), new GUIContent("勝利点付帯値"));
 
             SerializedProperty description = element.FindPropertyRelative("_description");
             EditorGUILayout.BeginHorizontal();

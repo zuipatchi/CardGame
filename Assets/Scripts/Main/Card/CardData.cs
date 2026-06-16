@@ -29,8 +29,8 @@ namespace Main.Card
         public string FlavorText => _flavorText;
         // 特徴（キーワード）。空＝特徴なし。BuffAttackByKeyword / BuffHpByKeyword の対象判定（同じ特徴か）に使う。
         public string Keyword => _keyword;
-        // 勝利点の加点は緑属性カードで設定する設計のため、緑以外のカードでは付帯値を常に 0 とみなす（誤設定しても加点されない）。
-        public int VictoryPointBonus => Attribute == CardAttribute.Green ? _victoryPointBonus : 0;
+        // 勝利点付帯値は全属性のカードで設定できる（属性による制限なし）。
+        public int VictoryPointBonus => _victoryPointBonus;
         // ゲームで使用するか（デッキ構築のプール・対戦への供給対象か）。
         public bool InUse => !_excludeFromGame;
 
@@ -57,18 +57,6 @@ namespace Main.Card
         public void EditorSetId(string id)
         {
             _id = id;
-        }
-
-        // エディタ専用：緑属性以外のカードでは勝利点付帯値を 0 に固定する（SO の OnValidate から呼ばれる）。
-        // 変更があったら true を返す。
-        public bool EditorClampVictoryPointBonusToAttribute()
-        {
-            if (Attribute != CardAttribute.Green && _victoryPointBonus != 0)
-            {
-                _victoryPointBonus = 0;
-                return true;
-            }
-            return false;
         }
 #endif
     }
