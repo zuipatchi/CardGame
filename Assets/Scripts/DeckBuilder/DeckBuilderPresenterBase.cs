@@ -119,10 +119,12 @@ namespace DeckBuilder
                 _costOverLabel = root.Q<Label>("CostOverLabel");
                 Button backButton = root.Q<Button>("BackButton");
                 Button sortDeckButton = root.Q<Button>("SortDeckButton");
+                Button costSortDeckButton = root.Q<Button>("CostSortDeckButton");
 
                 backButton.clicked += NavigateBack;
                 _clearDeckButton.clicked += OnClearDeckClicked;
                 sortDeckButton.clicked += OnSortDeckClicked;
+                costSortDeckButton.clicked += OnCostSortDeckClicked;
 
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
@@ -204,20 +206,7 @@ namespace DeckBuilder
             }
 
             // 属性順（FilterAttributes の並び）→ コスト順 → ID 順（属性番号×1000+連番）に並べる。
-            cardList.Sort((a, b) =>
-            {
-                int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
-                if (attributeComparison != 0)
-                {
-                    return attributeComparison;
-                }
-                int costComparison = a.Cost.CompareTo(b.Cost);
-                if (costComparison != 0)
-                {
-                    return costComparison;
-                }
-                return ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id));
-            });
+            cardList.Sort(CompareByAttributeCostId);
 
             VisualElement wrapper = new VisualElement();
 
@@ -306,6 +295,38 @@ namespace DeckBuilder
                 RefreshFilter();
             };
             return btn;
+        }
+
+        // 属性順（FilterAttributes の並び）→ コスト昇順 → ID 昇順（属性番号×1000+連番）で比較する。
+        private static int CompareByAttributeCostId(CardData a, CardData b)
+        {
+            int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
+            if (attributeComparison != 0)
+            {
+                return attributeComparison;
+            }
+            int costComparison = a.Cost.CompareTo(b.Cost);
+            if (costComparison != 0)
+            {
+                return costComparison;
+            }
+            return ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id));
+        }
+
+        // コスト昇順 → 属性順（FilterAttributes の並び）→ ID 昇順（属性番号×1000+連番）で比較する。
+        private static int CompareByCostAttributeId(CardData a, CardData b)
+        {
+            int costComparison = a.Cost.CompareTo(b.Cost);
+            if (costComparison != 0)
+            {
+                return costComparison;
+            }
+            int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
+            if (attributeComparison != 0)
+            {
+                return attributeComparison;
+            }
+            return ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id));
         }
 
         // FilterAttributes での並び位置を返す。未登録の属性は末尾に並べる。
@@ -479,9 +500,45 @@ namespace DeckBuilder
             SaveDeck();
         }
 
+        // 「整列」ボタン：属性→コスト→ID 順に並べ替える。
         private void OnSortDeckClicked()
         {
-            _deckModel.SortById();
+            SortDeckBy(CompareByAttributeCostId);
+        }
+
+        // 「コスト順」ボタン：コスト→属性→ID 順に並べ替える。
+        private void OnCostSortDeckClicked()
+        {
+            SortDeckBy(CompareByCostAttributeId);
+        }
+
+        // デッキ内の各カード（同一 ID はまとめる）を指定の比較関数で並べ替える。
+        // 属性・コストは ID/コストだけを持つ DeckModel では引きづらいため、CardDatabase から CardData を引いて比較する。
+        private void SortDeckBy(Comparison<CardData> compare)
+        {
+            List<string> uniqueIds = new List<string>();
+            HashSet<string> seen = new HashSet<string>();
+            foreach (string id in _deckModel.CardIds)
+            {
+                if (seen.Add(id))
+                {
+                    uniqueIds.Add(id);
+                }
+            }
+
+            uniqueIds.Sort((idA, idB) =>
+            {
+                bool hasA = _cardDatabase.TryGet(idA, out CardData a);
+                bool hasB = _cardDatabase.TryGet(idB, out CardData b);
+                // データベースに無い ID は末尾へ。
+                if (!hasA || !hasB)
+                {
+                    return hasA == hasB ? 0 : (hasA ? -1 : 1);
+                }
+                return compare(a, b);
+            });
+
+            _deckModel.Reorder(uniqueIds);
             RefreshDeckPanel();
             SaveDeck();
         }

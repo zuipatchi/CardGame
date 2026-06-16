@@ -17,7 +17,8 @@
                 <ui:VisualElement class="deckbuilder-deck-header">
                     <ui:Label class="deckbuilder-panel-title" text="CPUデッキ" />
                     <ui:VisualElement class="deckbuilder-deck-header-right">
-                        <ui:Button name="SortDeckButton" class="deckbuilder-button--sort-deck" text="ID順" />
+                        <ui:Button name="CostSortDeckButton" class="deckbuilder-button--sort-deck" text="コスト順" />
+                        <ui:Button name="SortDeckButton" class="deckbuilder-button--sort-deck" text="整列" />
                         <ui:Button name="ClearDeckButton" class="deckbuilder-button--clear-deck" />
                     </ui:VisualElement>
                 </ui:VisualElement>
