@@ -350,6 +350,148 @@ namespace Main
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
 
+        // AtkBoost / HpBoost：発動側が自フィールドから count 体（値1。0=1体）選び、それぞれの
+        // 攻撃力（isAttack=true）または HP（現在・最大。isAttack=false）を amount（値2）永続的に上げる。
+        // 対象数が味方の数以上なら全員。対象選択はプレイヤー選択／CPU 自動／オンライン同期で分岐する。
+        internal async UniTask ApplyBuffSelectedAlliesAsync(int amount, int count, bool isAttack, bool isLocal, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
+            int ownCount = ownField.Characters.Count;
+            if (ownCount == 0)
+            {
+                return;
+            }
+
+            int targetCount = Mathf.Min(count <= 0 ? 1 : count, ownCount);
+            string prompt = isAttack ? "攻撃力を上げる味方を選択" : "HPを上げる味方を選択";
+            List<CardView> targets = await ResolveAllyCharTargetsAsync(ownField, targetCount, ownCount, isLocal, prompt, ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> tasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                tasks.Add(isAttack ? target.BuffAttackAsync(amount, ct) : target.BuffHpAsync(amount, ct));
+            }
+            await UniTask.WhenAll(tasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
+        // 対象決定：対象数が味方の数以上なら全員。そうでなければ、ローカルはプレイヤーが選択し、
+        // オンライン相手はインデックス配列を受信、CPU は攻撃力上位を選ぶ。ResolveEnemyCharTargetsAsync の自フィールド版。
+        private async UniTask<List<CardView>> ResolveAllyCharTargetsAsync(FieldView ownField, int targetCount, int ownCount, bool isLocal, string prompt, CancellationToken ct)
+        {
+            List<CardView> chars = new List<CardView>(ownField.Characters);
+
+            // 全員が対象なら選択不要（両クライアントで決定的なので追加同期も不要）
+            if (targetCount >= ownCount)
+            {
+                return chars;
+            }
+
+            if (isLocal)
+            {
+                List<CardView> selected = await WaitForPlayerAllyCharsSelectionAsync(targetCount, prompt, ct);
+                if (_isOnline)
+                {
+                    int[] indices = new int[selected.Count];
+                    for (int i = 0; i < selected.Count; i++)
+                    {
+                        indices[i] = chars.IndexOf(selected[i]);
+                    }
+                    _networkGameService.SendDamageTargets(indices);
+                }
+                return selected;
+            }
+
+            if (_isOnline)
+            {
+                int[] indices = await _networkGameService.WaitForOpponentDamageTargetsAsync(ct);
+                List<CardView> result = new List<CardView>();
+                foreach (int index in indices)
+                {
+                    if (index >= 0 && index < chars.Count)
+                    {
+                        result.Add(chars[index]);
+                    }
+                }
+                return result;
+            }
+
+            // CPU：攻撃力の高い順に targetCount 体を選ぶ
+            return chars.OrderByDescending(c => c.CurrentAttack).Take(targetCount).ToList();
+        }
+
+        // 自フィールドのキャラをハイライトし、プレイヤーが targetCount 体をクリックで選ぶのを待つ。
+        // WaitForPlayerEnemyCharsSelectionAsync の自フィールド版（_allyCharSelect* を使う）。
+        private async UniTask<List<CardView>> WaitForPlayerAllyCharsSelectionAsync(int targetCount, string prompt, CancellationToken ct)
+        {
+            _allyCharSelected = new List<CardView>();
+            _allyCharSelectTarget = targetCount;
+            _allyCharSelectPrompt = prompt;
+            _allyCharSelectionTcs = new UniTaskCompletionSource<List<CardView>>();
+
+            foreach (CardView c in _playerFieldView.Characters)
+            {
+                c.AddToClassList("selectable-char");
+            }
+            ShowToast($"{prompt}（あと{targetCount}体）");
+
+            try
+            {
+                return await _allyCharSelectionTcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _allyCharSelectionTcs = null;
+                _allyCharSelectTarget = 0;
+                _allyCharSelected = null;
+                _allyCharSelectPrompt = null;
+                foreach (CardView c in _playerFieldView.Characters)
+                {
+                    c.RemoveFromClassList("selectable-char");
+                    c.RemoveFromClassList("selected-char");
+                }
+            }
+        }
+
+        // 自キャラ選択中のクリック処理：未選択のキャラを選択リストに加え、必要数に達したら確定する
+        private void HandleAllyCharSelectionClick(CardView card)
+        {
+            if (_allyCharSelectionTcs == null || _allyCharSelected == null)
+            {
+                return;
+            }
+            if (card.Data is not CharacterCardData)
+            {
+                return;
+            }
+            if (_allyCharSelected.Contains(card))
+            {
+                return;
+            }
+
+            _allyCharSelected.Add(card);
+            card.AddToClassList("selected-char");
+
+            int remaining = _allyCharSelectTarget - _allyCharSelected.Count;
+            if (remaining > 0)
+            {
+                ShowToast($"{_allyCharSelectPrompt}（あと{remaining}体）");
+            }
+            else
+            {
+                _allyCharSelectionTcs.TrySetResult(new List<CardView>(_allyCharSelected));
+            }
+        }
+
         // 発動側から見た敵フィールドのキャラ全員に同時にダメージを与え、HP 0 以下のキャラを破壊する
         internal async UniTask ApplyDamageAllEnemiesAsync(int damage, bool isLocal, CancellationToken ct)
         {

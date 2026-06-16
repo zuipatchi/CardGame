@@ -132,6 +132,11 @@ namespace Main
         private int _enemyCharSelectTarget;
         // 敵キャラ選択中のトースト文言（DamageEnemy / Bounce などで共用）
         private string _enemyCharSelectPrompt;
+        // 自キャラの複数選択（AtkBoost / HpBoost）。敵キャラ選択（_enemyCharSelect*）の自フィールド版
+        private UniTaskCompletionSource<List<CardView>> _allyCharSelectionTcs;
+        private List<CardView> _allyCharSelected;
+        private int _allyCharSelectTarget;
+        private string _allyCharSelectPrompt;
         private UniTaskCompletionSource<MainPhaseAction> _mainActionTcs;
         private CardView _mainStagedCard;
         private MainPhaseActionType _mainStagedType;
@@ -377,14 +382,17 @@ namespace Main
                 };
                 _playerFieldView.OnCardClicked = card =>
                 {
+                    if (_allyCharSelectionTcs != null)
+                    {
+                        HandleAllyCharSelectionClick(card);
+                        return;
+                    }
                     if (_fieldCharSelectionTcs != null)
                     {
                         _fieldCharSelectionTcs.TrySetResult(card);
+                        return;
                     }
-                    else
-                    {
-                        _cardDetailModal.Show(card.Data);
-                    }
+                    _cardDetailModal.Show(card.Data);
                 };
                 _opponentFieldView.OnCardClicked = card =>
                 {

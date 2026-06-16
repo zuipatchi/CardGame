@@ -4,9 +4,13 @@ namespace Main.Card
     // メンバーを削除・並べ替えする場合も既存値を変えないこと（.asset が整数で参照しているため）。
     // メンバーの宣言順はアルファベット順（None は慣例で先頭）。整数値は連番でなくてよい。
     // 11 は旧 GainVictoryPoints（撤去・CardData.VictoryPointBonus 付帯値へ統合）の欠番。
+    // 4 は旧 Negate（撤去）の欠番。新メンバーにこれらの整数値は再利用しないこと。
     public enum EventType
     {
         None = 0,
+        // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
+        // それぞれの攻撃力を EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
+        // 対象数が味方の数以上なら全員。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
         AtkBoost = 1,
         BanishChar = 5,
         // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
@@ -35,7 +39,6 @@ namespace Main.Card
         // それぞれに EventValue2 / EffectValue2 分のダメージ（値2）を同時に与え、HP 0 以下を破壊する。
         // 対象はプレイヤーが選択（対象数が敵の数以上なら全員・0体なら空振り）。
         DamageEnemy = 13,
-        DefBoost = 2,
         Draw = 3,
         // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
         // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。
@@ -54,7 +57,10 @@ namespace Main.Card
         // 発動側の自フィールドのキャラ全員の HP を EventValue / EffectValue 分回復する（最大HPでクランプ）。
         // EventValue / EffectValue = 0 のときは最大HPまで全回復する。自キャラがいなければ空振り。
         HealAllAllies = 19,
-        Negate = 4,
+        // AtkBoost と同じ対象選択で、選んだ味方の HP（現在HP・最大HP両方）を
+        // EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
+        // 旧 DefBoost（防御という独立ステータスは無いため HP ブーストへ統合。整数値 2 を継続使用）。
+        HpBoost = 2,
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree = 15,
         Recover = 6,

@@ -33,46 +33,4 @@ namespace Main.Card.Effects.Handlers
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct) => UniTask.CompletedTask;
     }
-
-    // enum 定義のみで未実装（解決時は何もしない）。実装する場合はこのクラスに ApplyAsync を実装する。
-    [Preserve]
-    public sealed class AtkBoostHandler : EffectHandler
-    {
-        public override EventType Type => EventType.AtkBoost;
-
-        public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1", true, "値2", "※ この効果は enum 定義のみで未実装です。");
-
-        public override string BuildBody(EffectTextContext ctx) => string.Empty;
-
-        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct) => UniTask.CompletedTask;
-    }
-
-    // enum 定義のみで未実装（解決時は何もしない）。
-    [Preserve]
-    public sealed class DefBoostHandler : EffectHandler
-    {
-        public override EventType Type => EventType.DefBoost;
-
-        public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1", true, "値2", "※ この効果は enum 定義のみで未実装です。");
-
-        public override string BuildBody(EffectTextContext ctx) => string.Empty;
-
-        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct) => UniTask.CompletedTask;
-    }
-
-    // enum 定義のみで未実装（解決時は何もしない）。
-    [Preserve]
-    public sealed class NegateHandler : EffectHandler
-    {
-        public override EventType Type => EventType.Negate;
-
-        public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1", true, "値2", "※ この効果は enum 定義のみで未実装です。");
-
-        public override string BuildBody(EffectTextContext ctx) => string.Empty;
-
-        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct) => UniTask.CompletedTask;
-    }
 }
