@@ -53,7 +53,7 @@
 
 ### 効果テキストの自動生成
 
-カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。生成ロジックは [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` / `EffectBody`。
+カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
 
 発動タイミング（接頭辞）
 
@@ -186,4 +186,6 @@
 
 ## 新しい効果を追加する（コード）
 
-新しい `EventType` を実装する手順（enum 追加・`ApplyEventEffectAsync` / `ResolveCharacterTriggeredEffectAsync` への case 追加・演出）は [patterns.md](patterns.md)「2. 新しいイベント効果（EventType）を追加する」「2-B. キャラカードに登場時効果を追加する」「2-C. コスト支払い時に作用する受動効果」を参照。
+効果の解決とエディタ用メタデータ（テキスト・値ラベル）は、効果1種ごとに1つの **`EffectHandler` 派生クラス**にまとまっている（[Assets/Scripts/Main/Card/Effects/](../Assets/Scripts/Main/Card/Effects/)）。[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) が Main アセンブリを走査してハンドラを自動登録するため、効果を追加しても既存の `switch` を編集する必要はない。
+
+新しい `EventType` を実装する手順（enum 追加 → ハンドラクラスを1つ作る → 必要なら盤面操作を MainPresenter に足す）は [patterns.md](patterns.md)「2. 新しいカード効果（EventType）を追加する」を参照。コスト支払い時に作用する受動効果（CostBoost 系）は「2-C」を参照。
