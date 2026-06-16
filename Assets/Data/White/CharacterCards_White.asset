@@ -22,6 +22,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 1
     _hp: 2
     _attribute: 6
@@ -32,6 +33,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: 
   - _id: C1002
     _cardName: "\u3071\u3063\u3061\u9752\u5E74"
@@ -41,6 +43,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 3
     _attribute: 6
@@ -51,6 +54,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 1
     _flying: 0
+    _sakimori: 0
     _description: 
   - _id: C1003
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
@@ -60,6 +64,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 3
     _hp: 1
     _attribute: 6
@@ -70,6 +75,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u4EE5\u5916\u306E\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u5473\u65B9\u30AD\u30E3\u30E9\u306E\u653B\u6483\u529B\u30921\u4E0A\u3052\u308B"
   - _id: C1004
     _cardName: "\u7D14\u767D\u306E\u3071\u3063\u3061"
@@ -79,8 +85,9 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
-    _attack: 2
-    _hp: 3
+    _excludeFromDeckBuilder: 0
+    _attack: 1
+    _hp: 2
     _attribute: 6
     _effectTrigger: 4
     _effectType: 9
@@ -89,6 +96,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u767D\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C1005
     _cardName: "\u3071\u3063\u3061\u8001\u4EBA"
@@ -98,6 +106,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 3
     _attribute: 6
@@ -108,6 +117,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u4EE5\u5916\u306E\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u5473\u65B9\u30AD\u30E3\u30E9\u306EHP\u30922\u4E0A\u3052\u308B"
   - _id: C1006
     _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
@@ -117,6 +127,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 8
     _attribute: 6
@@ -127,6 +138,7 @@ MonoBehaviour:
     _guardian: 1
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: 
   - _id: C1007
     _cardName: "\u3071\u3063\u3061\u5929\u4F7F"
@@ -136,6 +148,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 4
     _attribute: 6
@@ -146,6 +159,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 1
+    _sakimori: 0
     _description: 
   - _id: C1008
     _cardName: "\u9B54\u6CD5\u5C11\u5973\u3071\u3063\u3061"
@@ -155,6 +169,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 1
     _hp: 2
     _attribute: 6
@@ -165,4 +180,5 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u30C7\u30C3\u30AD\u304B\u3089\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u30AD\u30E3\u30E9\u30921\u679A\u9078\u3093\u3067\u5834\u306B\u51FA\u3059"

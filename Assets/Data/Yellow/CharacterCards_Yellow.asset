@@ -19,10 +19,12 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: a7d1aa94c9b218645b93ae927185b733, type: 3}
     _flavorText: 
+    _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
-    _attack: 2
-    _hp: 3
+    _excludeFromDeckBuilder: 0
+    _attack: 1
+    _hp: 2
     _attribute: 3
     _effectTrigger: 4
     _effectType: 9
@@ -31,4 +33,5 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
+    _sakimori: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9EC4\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
