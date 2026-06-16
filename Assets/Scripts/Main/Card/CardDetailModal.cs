@@ -88,6 +88,10 @@ namespace Main.Card
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--flying", string.Empty, "飛行"));
                 }
+                if (charData.Sakimori)
+                {
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--sakimori", string.Empty, "防人"));
+                }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
                     Label descLabel = new Label(charData.Description);

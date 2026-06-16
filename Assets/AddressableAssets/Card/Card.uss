@@ -270,6 +270,16 @@
     display: none;
 }
 
+/* 防人アイコン（飛行アイコンの下に表示。防人持ちキャラのみ CardView で display を切替） */
+.game-card__sakimori-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/ProtectorIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 .game-card__hp-icon {
     position: absolute;
     left: 0;

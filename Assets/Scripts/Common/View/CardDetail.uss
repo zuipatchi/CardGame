@@ -237,6 +237,12 @@
     height: 53px;
 }
 
+.card-detail-stat-icon--sakimori {
+    background-image: url("../../../AddressableAssets/Icon/ProtectorIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--spd {
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }

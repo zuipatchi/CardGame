@@ -633,6 +633,7 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_guardian"), new GUIContent("守護"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_haste"), new GUIContent("速攻"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_flying"), new GUIContent("飛行"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_sakimori"), new GUIContent("防人"));
         }
 
         private void DrawEventFields(SerializedProperty element)
@@ -732,6 +733,7 @@ namespace GameEditor
                 element.FindPropertyRelative("_guardian").boolValue = false;
                 element.FindPropertyRelative("_haste").boolValue = false;
                 element.FindPropertyRelative("_flying").boolValue = false;
+                element.FindPropertyRelative("_sakimori").boolValue = false;
             }
             else
             {

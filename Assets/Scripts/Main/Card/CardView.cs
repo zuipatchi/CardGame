@@ -22,6 +22,7 @@ namespace Main.Card
         private readonly VisualElement _guardianIcon;
         private readonly VisualElement _hasteIcon;
         private readonly VisualElement _flyingIcon;
+        private readonly VisualElement _sakimoriIcon;
         private int _currentHp;
         // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
         private int _attackBuff;
@@ -55,6 +56,7 @@ namespace Main.Card
             _guardianIcon = this.Q<VisualElement>("GuardianIcon");
             _hasteIcon = this.Q<VisualElement>("HasteIcon");
             _flyingIcon = this.Q<VisualElement>("FlyingIcon");
+            _sakimoriIcon = this.Q<VisualElement>("SakimoriIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -379,6 +381,8 @@ namespace Main.Card
             _hasteIcon.style.display = data is CharacterCardData hasteData && hasteData.Haste
                 ? DisplayStyle.Flex : DisplayStyle.None;
             _flyingIcon.style.display = data is CharacterCardData flyingData && flyingData.Flying
+                ? DisplayStyle.Flex : DisplayStyle.None;
+            _sakimoriIcon.style.display = data is CharacterCardData sakimoriData && sakimoriData.Sakimori
                 ? DisplayStyle.Flex : DisplayStyle.None;
 
             if (data.Image != null)

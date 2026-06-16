@@ -194,30 +194,81 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Flying;
         }
 
-        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護を考慮）。
-        // ・飛行を持つ target は、飛行を持つ attacker からしか攻撃されない
-        // ・守護がいる場合は守護持ちにしか攻撃できないが、飛行を持つ attacker は守護を無視できる
+        // ─── 防人（対空ガード＋守護）─────────────────────────────────────
+
+        // 表向きの防人持ちキャラかどうか。防人は守護も兼ねる：飛行はこのキャラを優先して攻撃せねばならず、
+        // 非飛行も守護同様このキャラを優先する。さらにこのキャラ自身は飛行に攻撃できる
+        private static bool IsSakimori(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Sakimori;
+        }
+
+        // フィールドに防人持ちキャラがいるか。いる場合、飛行を持つ相手の攻撃はその防人キャラに限定される
+        private static bool HasSakimori(FieldView field)
+        {
+            foreach (CardView card in field.Characters)
+            {
+                if (IsSakimori(card))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人を考慮）。
+        // ・飛行を持つ target は、飛行か防人を持つ attacker からしか攻撃されない
+        // ・飛行を持つ attacker は、相手フィールドに防人がいる間は防人を優先して攻撃しなければならない（守護は無視）
+        // ・飛行を持たない attacker は、相手フィールドに守護か防人がいる間はそのいずれかを優先して攻撃しなければならない
         private bool CanAttackChar(CardView attacker, CardView target, FieldView defenderField)
         {
             if (target == null || target.IsFaceDown || target.Data is not CharacterCardData)
             {
                 return false;
             }
-            if (IsFlying(target) && !IsFlying(attacker))
+            if (IsFlying(target) && !IsFlying(attacker) && !IsSakimori(attacker))
             {
                 return false;
             }
-            if (!IsFlying(attacker) && HasGuardian(defenderField) && !IsGuardian(target))
+            if (IsFlying(attacker) && HasSakimori(defenderField) && !IsSakimori(target))
+            {
+                return false;
+            }
+            if (!IsFlying(attacker) && (HasGuardian(defenderField) || HasSakimori(defenderField))
+                && !IsGuardian(target) && !IsSakimori(target))
             {
                 return false;
             }
             return true;
         }
 
-        // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。守護がいるとデッキは狙えないが、飛行を持つ attacker は守護を無視できる
+        // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。
+        // ・飛行を持つ attacker は守護を無視できるが、相手フィールドに防人がいる間はデッキを直接狙えない
+        // ・飛行を持たない attacker は守護か防人がいるとデッキを狙えない
         private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
-            return IsFlying(attacker) || !HasGuardian(defenderField);
+            if (IsFlying(attacker))
+            {
+                return !HasSakimori(defenderField);
+            }
+            return !HasGuardian(defenderField) && !HasSakimori(defenderField);
+        }
+
+        // 守護/防人によって攻撃対象が強制されたときの案内トースト文言を、攻撃者種別と相手フィールドの状況から決める
+        private string ForcedTargetMessage(CardView attacker, FieldView defenderField)
+        {
+            // 飛行は防人のみを優先する（守護は無視できる）
+            if (IsFlying(attacker))
+            {
+                return "防人を持つキャラを攻撃してください";
+            }
+            bool hasGuardian = HasGuardian(defenderField);
+            bool hasSakimori = HasSakimori(defenderField);
+            if (hasGuardian && hasSakimori)
+            {
+                return "守護か防人を持つキャラを攻撃してください";
+            }
+            return hasSakimori ? "防人を持つキャラを攻撃してください" : "守護を持つキャラを攻撃してください";
         }
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
@@ -738,16 +789,16 @@ namespace Main
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
-                        // 飛行を持つキャラは飛行を持つキャラからしか攻撃されない
-                        if (IsFlying(targetChar) && !IsFlying(capturedChar))
+                        // 飛行を持つキャラは飛行か防人を持つキャラからしか攻撃されない
+                        if (IsFlying(targetChar) && !IsFlying(capturedChar) && !IsSakimori(capturedChar))
                         {
-                            ShowToast("飛行を持つキャラには飛行でしか攻撃できません");
+                            ShowToast("飛行を持つキャラには飛行か防人でしか攻撃できません");
                             return false;
                         }
-                        // 相手フィールドに守護がいる場合は守護持ちキャラにしか攻撃できない（飛行の攻撃者は無視）
+                        // 守護・防人による対象強制：飛行は防人を、非飛行は守護か防人を優先して攻撃しなければならない
                         if (!CanAttackChar(capturedChar, targetChar, _opponentFieldView))
                         {
-                            ShowToast("守護を持つキャラを攻撃してください");
+                            ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));
                             return false;
                         }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
@@ -763,7 +814,7 @@ namespace Main
                     {
                         if (!CanAttackDeck(capturedChar, _opponentFieldView))
                         {
-                            ShowToast("守護を持つキャラを攻撃してください");
+                            ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));
                             return false;
                         }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
