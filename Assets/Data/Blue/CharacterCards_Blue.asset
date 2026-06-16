@@ -22,6 +22,7 @@ MonoBehaviour:
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
     _attack: 0
     _hp: 1
     _attribute: 1
@@ -38,9 +39,10 @@ MonoBehaviour:
     _cost: 0
     _image: {fileID: 21300000, guid: 40f5c397d66bf9e478771b163f53d6d2, type: 3}
     _flavorText: "\u50D5\u3060\u3063\u3066\u3071\u3063\u3061\u306E\u5F1F\u306A\u3093\u3060"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 1
     _attribute: 1
@@ -57,9 +59,10 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 46157425875687e489a27f317e19f4bb, type: 3}
     _flavorText: "\u6211\u306F\u3071\u3063\u3061\u306E\u5144\u305E"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 4
     _attribute: 1
@@ -76,9 +79,10 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 5b6f4c711c01eef4dae97abfd36bb40e, type: 3}
     _flavorText: "\u3071\u3063\u3061\u3063\u3066\u77E5\u3063\u3066\u308B\uFF1F\u4FFA\u306E\u3044\u3068\u3053\u306A\u3093\u3060\u305C"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 1
     _hp: 2
     _attribute: 1
@@ -98,6 +102,7 @@ MonoBehaviour:
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 2
     _hp: 3
     _attribute: 1
@@ -114,9 +119,10 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 6e9a50159f325764bbe71faa4ff249dd, type: 3}
     _flavorText: "\u3071\u3063\u3061\u307E\u3067\u3072\u3068\u3063\u98DB\u3073\u3060\u30FC"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 1
     _hp: 4
     _attribute: 1
@@ -133,9 +139,10 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: ed1d7354e135c524b8984d207acde1da, type: 3}
     _flavorText: "\u3071\u3063\u3061\u3063\u3066\u3059\u3054\u3044\u308F"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 4
     _hp: 4
     _attribute: 1
@@ -152,9 +159,10 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 9f206bd5c56b4d3498440d37a260f8e4, type: 3}
     _flavorText: "\u3071\u3063\u3061\u304C\u6709\u80FD\u3067\u9F3B\u304C\u9AD8\u3044\u308F"
-    _keyword: "\u3071\u3063\u3061"
+    _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _attack: 3
     _hp: 7
     _attribute: 1

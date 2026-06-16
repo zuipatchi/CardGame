@@ -100,7 +100,9 @@ namespace Main.Card
 
             foreach (T card in source)
             {
-                if (card != null && card.InUse)
+                // AllCards はデッキ構築プール・タイトル演出・フォールバックデッキに使うため、
+                // 対戦専用のトークン（InDeckPool == false）は含めない。対戦の参照は _dict（Register）が担う。
+                if (card != null && card.InDeckPool)
                 {
                     target.Add(card);
                 }

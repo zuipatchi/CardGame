@@ -44,13 +44,19 @@ namespace Main.Card.Effects
         // ID（"C1001" など）からカード名を引くデリゲート。見つからなければ ID をそのまま返す想定。
         public Func<string, string> ResolveCardName { get; }
 
-        public EffectTextContext(int value1, int value2, CardAttribute attribute, string keyword, Func<string, string> resolveCardName)
+        // ID（"C1001" など）から「ATK/HP」表記を引くデリゲート（SummonChar など召喚先の数値表示用）。
+        // 見つからない／キャラでない場合は空文字を返す想定。
+        public Func<string, string> ResolveCardStats { get; }
+
+        public EffectTextContext(int value1, int value2, CardAttribute attribute, string keyword,
+            Func<string, string> resolveCardName, Func<string, string> resolveCardStats)
         {
             Value1 = value1;
             Value2 = value2;
             Attribute = attribute;
             Keyword = keyword;
             ResolveCardName = resolveCardName;
+            ResolveCardStats = resolveCardStats;
         }
     }
 

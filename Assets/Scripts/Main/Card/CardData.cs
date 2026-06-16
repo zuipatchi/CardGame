@@ -22,6 +22,10 @@ namespace Main.Card
         // 既定値 false＝ゲームで使用する（既存アセットは未設定でも false になるため移行不要）。
         // true のカードは CardDatabase の集計（プール・対戦）から完全に除外される。
         [SerializeField] protected bool _excludeFromGame;
+        // デッキ構築のプールからのみ除外するフラグ（トークンカード用）。
+        // true でも対戦の参照テーブル（CardDatabase._dict）には登録されるため、効果から ID で召喚・参照できる。
+        // 既定値 false＝デッキ構築でも使用する（既存アセットは未設定でも false になるため移行不要）。
+        [SerializeField] protected bool _excludeFromDeckBuilder;
         public string Id => _id;
         public string CardName => _cardName;
         public int Cost => _cost;
@@ -31,8 +35,10 @@ namespace Main.Card
         public string Keyword => _keyword;
         // 勝利点付帯値は全属性のカードで設定できる（属性による制限なし）。
         public int VictoryPointBonus => _victoryPointBonus;
-        // ゲームで使用するか（デッキ構築のプール・対戦への供給対象か）。
+        // 対戦で使用するか（対戦の ID 参照テーブルへの登録対象か）。トークンも含む。
         public bool InUse => !_excludeFromGame;
+        // デッキ構築のプールに表示するか（対戦は可だがデッキに入れられないトークンは除外）。
+        public bool InDeckPool => InUse && !_excludeFromDeckBuilder;
 
         public virtual int Attack => 0;
         public virtual int Hp => 0;

@@ -14,8 +14,15 @@ namespace Main.Card.Effects.Handlers
             true, "値1（召喚キャラID数字）", true, "値2（体数）",
             "値1=召喚するキャラIDの数字部分（例 1001→C1001）/ 値2=体数（0=1体）。");
 
-        public override string BuildBody(EffectTextContext ctx) =>
-            $"「{ctx.ResolveCardName($"C{ctx.Value1}")}」を{(ctx.Value2 <= 0 ? 1 : ctx.Value2)}体召喚する";
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            string id = $"C{ctx.Value1}";
+            string name = ctx.ResolveCardName(id);
+            string stats = ctx.ResolveCardStats?.Invoke(id);
+            // 召喚先のカードを参照して「ATK/HPのカード名」と表示する。数値が引けないときは名前のみ。
+            string label = string.IsNullOrEmpty(stats) ? name : $"{stats}の{name}";
+            return $"「{label}」を{(ctx.Value2 <= 0 ? 1 : ctx.Value2)}体召喚する";
+        }
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {

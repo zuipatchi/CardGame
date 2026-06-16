@@ -24,6 +24,12 @@ namespace GameEditor
             public CardAttribute Attribute { get; set; }
             public int Cost { get; set; }
             public bool InUse { get; set; }
+            // 対戦専用トークン（デッキ構築プールから除外）か。
+            public bool IsToken { get; set; }
+            // キャラの攻撃力／HP（イベントは 0）。SummonChar の効果テキストで召喚先の数値表示に使う。
+            public bool IsCharacterCard { get; set; }
+            public int Attack { get; set; }
+            public int Hp { get; set; }
         }
 
         // 一覧の並び順。
@@ -181,6 +187,10 @@ namespace GameEditor
                     Attribute = card.Attribute,
                     Cost = card.Cost,
                     InUse = card.InUse,
+                    IsToken = card.InUse && !card.InDeckPool,
+                    IsCharacterCard = isCharacter,
+                    Attack = card.Attack,
+                    Hp = card.Hp,
                 };
                 _entries.Add(entry);
             }
@@ -383,7 +393,8 @@ namespace GameEditor
                 GUI.color = previous;
 
                 string prefix = _sortMode == SortMode.Cost ? $"[{entry.Cost}]  {entry.Id}" : entry.Id;
-                string label = entry.InUse ? $"{prefix}  {entry.Name}" : $"{prefix}  {entry.Name}  (未使用)";
+                string suffix = !entry.InUse ? "  (未使用)" : entry.IsToken ? "  (トークン)" : string.Empty;
+                string label = $"{prefix}  {entry.Name}{suffix}";
                 GUIStyle style = isSelected ? EditorStyles.boldLabel : EditorStyles.label;
                 Color previousContent = GUI.color;
                 if (!entry.InUse)
@@ -506,6 +517,7 @@ namespace GameEditor
                 _selected.Id = element.FindPropertyRelative("_id").stringValue;
                 _selected.Name = element.FindPropertyRelative("_cardName").stringValue;
                 _selected.InUse = !element.FindPropertyRelative("_excludeFromGame").boolValue;
+                _selected.IsToken = _selected.InUse && element.FindPropertyRelative("_excludeFromDeckBuilder").boolValue;
                 EditorUtility.SetDirty(_selected.So);
             }
 
@@ -529,6 +541,17 @@ namespace GameEditor
             if (!inUse)
             {
                 EditorGUILayout.HelpBox("このカードはゲーム（デッキ構築・対戦）から除外されます。", MessageType.Warning);
+            }
+            else
+            {
+                // 対戦専用トークン：対戦では効果から ID 召喚できるが、デッキ構築のプールには出さない。
+                SerializedProperty excludeFromDeck = element.FindPropertyRelative("_excludeFromDeckBuilder");
+                bool isToken = EditorGUILayout.Toggle("対戦専用（トークン）", excludeFromDeck.boolValue);
+                excludeFromDeck.boolValue = isToken;
+                if (isToken)
+                {
+                    EditorGUILayout.HelpBox("このカードはデッキ構築では使用できませんが、対戦では使用できます（トークン）。", MessageType.Info);
+                }
             }
         }
 
@@ -694,6 +717,7 @@ namespace GameEditor
             element.FindPropertyRelative("_flavorText").stringValue = string.Empty;
             element.FindPropertyRelative("_victoryPointBonus").intValue = 0;
             element.FindPropertyRelative("_excludeFromGame").boolValue = false;
+            element.FindPropertyRelative("_excludeFromDeckBuilder").boolValue = false;
             element.FindPropertyRelative("_description").stringValue = string.Empty;
             element.FindPropertyRelative("_keyword").stringValue = string.Empty;
 
@@ -804,7 +828,7 @@ namespace GameEditor
             string keyword = element.FindPropertyRelative("_keyword").stringValue;
             EffectHandler handler = EffectCatalog.Get(type);
             string body = handler != null
-                ? handler.BuildBody(new EffectTextContext(value1, value2, attribute, keyword, ResolveCardName))
+                ? handler.BuildBody(new EffectTextContext(value1, value2, attribute, keyword, ResolveCardName, ResolveCardStats))
                 : string.Empty;
             if (!string.IsNullOrEmpty(body))
             {
@@ -871,6 +895,20 @@ namespace GameEditor
                 }
             }
             return id;
+        }
+
+        // SummonChar 用：ID から一覧上のキャラの「ATK/HP」表記を引く。
+        // 見つからない／キャラでないときは空文字（呼び出し側は名前のみ表示にフォールバック）。
+        private string ResolveCardStats(string id)
+        {
+            foreach (CardEntry entry in _entries)
+            {
+                if (entry.Id == id)
+                {
+                    return entry.IsCharacterCard ? $"{entry.Attack}/{entry.Hp}" : string.Empty;
+                }
+            }
+            return string.Empty;
         }
 
         private static Color AttributeColor(CardAttribute attribute)
