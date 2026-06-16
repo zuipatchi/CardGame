@@ -21,7 +21,15 @@ namespace GameEditor
             public string Id { get; set; }
             public string Name { get; set; }
             public CardAttribute Attribute { get; set; }
+            public int Cost { get; set; }
             public bool InUse { get; set; }
+        }
+
+        // 一覧の並び順。
+        private enum SortMode
+        {
+            Id,
+            Cost,
         }
 
         // EventType ごとの値の意味（フィールドラベル・ヒント表示に使う）。
@@ -65,6 +73,7 @@ namespace GameEditor
         private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
         private bool _showCharacter = true;
         private bool _showEvent = true;
+        private SortMode _sortMode = SortMode.Id;
 
         private Vector2 _listScroll;
         private Vector2 _formScroll;
@@ -160,8 +169,7 @@ namespace GameEditor
                 AddEntries(so, so != null ? so.Cards : null, false);
             }
 
-            // ID 昇順で並べる（C{4桁}/E{4桁} の固定桁なので序数比較で数値順になり、C → E の順になる）。
-            _entries.Sort(CompareById);
+            SortEntries();
 
             RestoreSelection();
         }
@@ -189,6 +197,7 @@ namespace GameEditor
                     Id = card.Id,
                     Name = card.CardName,
                     Attribute = card.Attribute,
+                    Cost = card.Cost,
                     InUse = card.InUse,
                 };
                 _entries.Add(entry);
@@ -232,6 +241,21 @@ namespace GameEditor
             Debug.Log($"カード ID を再採番しました（更新した SO: {changed} 種）。");
         }
 
+        // 現在のソートモードで一覧を並べ替える。
+        private void SortEntries()
+        {
+            switch (_sortMode)
+            {
+                case SortMode.Cost:
+                    _entries.Sort(CompareByCost);
+                    break;
+                default:
+                    // ID 昇順で並べる（C{4桁}/E{4桁} の固定桁なので序数比較で数値順になり、C → E の順になる）。
+                    _entries.Sort(CompareById);
+                    break;
+            }
+        }
+
         // ID 昇順の比較。空 ID は末尾に回す。
         private static int CompareById(CardEntry a, CardEntry b)
         {
@@ -242,6 +266,13 @@ namespace GameEditor
                 return aEmpty == bEmpty ? 0 : (aEmpty ? 1 : -1);
             }
             return string.CompareOrdinal(a.Id, b.Id);
+        }
+
+        // コスト昇順の比較。同コストは ID 昇順で安定させる。
+        private static int CompareByCost(CardEntry a, CardEntry b)
+        {
+            int byCost = a.Cost.CompareTo(b.Cost);
+            return byCost != 0 ? byCost : CompareById(a, b);
         }
 
         private void RestoreSelection()
@@ -290,6 +321,17 @@ namespace GameEditor
 
             _showCharacter = GUILayout.Toggle(_showCharacter, "キャラ", EditorStyles.toolbarButton, GUILayout.Width(54f));
             _showEvent = GUILayout.Toggle(_showEvent, "イベント", EditorStyles.toolbarButton, GUILayout.Width(64f));
+
+            GUILayout.Space(8f);
+            EditorGUIUtility.labelWidth = 36f;
+            SortMode nextSort = (SortMode)EditorGUILayout.Popup("並び", (int)_sortMode,
+                new[] { "ID順", "コスト順" }, EditorStyles.toolbarPopup, GUILayout.Width(108f));
+            EditorGUIUtility.labelWidth = 0f;
+            if (nextSort != _sortMode)
+            {
+                _sortMode = nextSort;
+                SortEntries();
+            }
 
             GUILayout.Space(8f);
             foreach (CardAttribute attribute in AllAttributes)
@@ -358,7 +400,8 @@ namespace GameEditor
                 GUILayout.Label("■", GUILayout.Width(16f));
                 GUI.color = previous;
 
-                string label = entry.InUse ? $"{entry.Id}  {entry.Name}" : $"{entry.Id}  {entry.Name}  (未使用)";
+                string prefix = _sortMode == SortMode.Cost ? $"[{entry.Cost}]  {entry.Id}" : entry.Id;
+                string label = entry.InUse ? $"{prefix}  {entry.Name}" : $"{prefix}  {entry.Name}  (未使用)";
                 GUIStyle style = isSelected ? EditorStyles.boldLabel : EditorStyles.label;
                 Color previousContent = GUI.color;
                 if (!entry.InUse)

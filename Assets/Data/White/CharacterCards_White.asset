@@ -51,7 +51,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 1
     _flying: 0
-    _description: "\u3071\u3063\u3061\u4E2D\u5E74\u306B\u6210\u9577\u3067\u304D\u308B"
+    _description: 
   - _id: C1003
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
     _cost: 1
@@ -91,44 +91,6 @@ MonoBehaviour:
     _flying: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u767D\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C1005
-    _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
-    _cost: 2
-    _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
-    _flavorText: 
-    _keyword: "\u3071\u3063\u3061"
-    _victoryPointBonus: 0
-    _excludeFromGame: 0
-    _attack: 2
-    _hp: 8
-    _attribute: 6
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 1
-    _haste: 0
-    _flying: 0
-    _description: 
-  - _id: C1006
-    _cardName: "\u3071\u3063\u3061\u5929\u4F7F"
-    _cost: 2
-    _image: {fileID: 21300000, guid: faaacb36ca4712d48b48febfc6f4fd8a, type: 3}
-    _flavorText: 
-    _keyword: "\u3071\u3063\u3061"
-    _victoryPointBonus: 0
-    _excludeFromGame: 0
-    _attack: 2
-    _hp: 4
-    _attribute: 6
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 1
-    _description: 
-  - _id: C1007
     _cardName: "\u3071\u3063\u3061\u8001\u4EBA"
     _cost: 1
     _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
@@ -147,6 +109,44 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u4EE5\u5916\u306E\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u5473\u65B9\u30AD\u30E3\u30E9\u306EHP\u30922\u4E0A\u3052\u308B"
+  - _id: C1006
+    _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
+    _cost: 2
+    _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
+    _flavorText: 
+    _keyword: "\u3071\u3063\u3061"
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _attack: 2
+    _hp: 8
+    _attribute: 6
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 1
+    _haste: 0
+    _flying: 0
+    _description: 
+  - _id: C1007
+    _cardName: "\u3071\u3063\u3061\u5929\u4F7F"
+    _cost: 2
+    _image: {fileID: 21300000, guid: faaacb36ca4712d48b48febfc6f4fd8a, type: 3}
+    _flavorText: 
+    _keyword: "\u3071\u3063\u3061"
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _attack: 2
+    _hp: 4
+    _attribute: 6
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 1
+    _description: 
   - _id: C1008
     _cardName: "\u9B54\u6CD5\u5C11\u5973\u3071\u3063\u3061"
     _cost: 3

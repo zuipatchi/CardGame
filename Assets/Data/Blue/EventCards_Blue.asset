@@ -16,7 +16,7 @@ MonoBehaviour:
   _cards:
   - _id: E2001
     _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
-    _cost: 0
+    _cost: 1
     _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
     _flavorText: 
     _keyword: 
@@ -45,6 +45,21 @@ MonoBehaviour:
     _triggerOnGrave: 0
     _attribute: 1
   - _id: E2003
+    _cardName: "\u524D\u501F\u308A"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 8caac34f889cf244dba7da79640f2ff3, type: 3}
+    _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _eventTrigger: 0
+    _eventType: 20
+    _eventValue: 3
+    _eventValue2: 0
+    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u30C9\u30ED\u30FC\u3059\u308B\u3002\u6B21\u306E\u30BF\u30FC\u30F3\u306E\u958B\u59CB\u6642\u306B\u30C9\u30ED\u30FC\u3067\u304D\u306A\u3044"
+    _triggerOnGrave: 0
+    _attribute: 1
+  - _id: E2004
     _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
     _cost: 2
     _image: {fileID: 21300000, guid: ad9c905863f812e4a82c4c1bc95c100e, type: 3}
@@ -57,21 +72,6 @@ MonoBehaviour:
     _eventValue: 1
     _eventValue2: 0
     _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E91\u4F53\u3092\u624B\u672D\u306B\u623B\u3059"
-    _triggerOnGrave: 0
-    _attribute: 1
-  - _id: E2004
-    _cardName: "\u524D\u501F\u308A"
-    _cost: 1
-    _image: {fileID: 21300000, guid: 8caac34f889cf244dba7da79640f2ff3, type: 3}
-    _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
-    _keyword: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 0
-    _eventTrigger: 0
-    _eventType: 20
-    _eventValue: 3
-    _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u30C9\u30ED\u30FC\u3059\u308B\u3002\u6B21\u306E\u30BF\u30FC\u30F3\u306E\u958B\u59CB\u6642\u306B\u30C9\u30ED\u30FC\u3067\u304D\u306A\u3044"
     _triggerOnGrave: 0
     _attribute: 1
   - _id: E2005
