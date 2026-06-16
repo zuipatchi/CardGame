@@ -102,6 +102,35 @@ namespace Main.Card
             _cardRoot.EnableInClassList("game-card--resolve", state == CardState.Resolve);
         }
 
+        // ─── フィールド配置時のスケール ────────────────────────────────────────
+        // フィールド上のカードのスケールは「フィールド枚数による基準スケール」と
+        // 「攻撃ハイライト時の拡大倍率」の合成で決まる。両方をインライン style.scale で
+        // 個別に指定すると後勝ちで打ち消し合う（USS の scale はインラインに負ける）ため、
+        // CardView が両者を保持して合成した値を一度に適用する。
+        private const float AttackHighlightScale = 1.04f;
+        private float _fieldScale = 1f;
+        private bool _attackHighlighted;
+
+        // フィールドの枚数に応じた基準スケールを設定する（FieldView から呼ぶ）。
+        public void SetFieldScale(float scale)
+        {
+            _fieldScale = scale;
+            ApplyFieldScale();
+        }
+
+        // 攻撃可能／攻撃対象ハイライトの拡大を切り替える（基準スケールに倍率を掛ける）。
+        public void SetAttackHighlighted(bool highlighted)
+        {
+            _attackHighlighted = highlighted;
+            ApplyFieldScale();
+        }
+
+        private void ApplyFieldScale()
+        {
+            float scale = _fieldScale * (_attackHighlighted ? AttackHighlightScale : 1f);
+            style.scale = new Scale(new Vector3(scale, scale, 1f));
+        }
+
         public void FaceUp()
         {
             if (!IsFaceDown)
@@ -123,6 +152,14 @@ namespace Main.Card
 
         public async UniTask FlipAsync(CancellationToken cancellation = default)
         {
+            // 論理的な表裏状態はアニメーション開始時に即座に確定させる。
+            // 見た目のめくり（表示切り替え）は中間点に残すが、IsFaceDown の更新を
+            // 中間点まで遅らせると、fire-and-forget でめくっている最中のカード
+            // （引いた直後の手札など）が一時的に裏向き扱いとなり、速攻判定などが
+            // 誤って弾かれる。そのため状態は先に更新する。
+            bool faceDown = !IsFaceDown;
+            IsFaceDown = faceDown;
+
             await AnimateScaleXAsync(0f, 0.15f, Ease.InQuad, cancellation);
 
             if (cancellation.IsCancellationRequested)
@@ -130,11 +167,10 @@ namespace Main.Card
                 return;
             }
 
-            IsFaceDown = !IsFaceDown;
-            _frontFace.style.display = IsFaceDown ? DisplayStyle.None : DisplayStyle.Flex;
-            _backFace.style.display = IsFaceDown ? DisplayStyle.Flex : DisplayStyle.None;
-            _imageArea.style.display = IsFaceDown ? DisplayStyle.None : DisplayStyle.Flex;
-            ApplyTypeFrame(!IsFaceDown);
+            _frontFace.style.display = faceDown ? DisplayStyle.None : DisplayStyle.Flex;
+            _backFace.style.display = faceDown ? DisplayStyle.Flex : DisplayStyle.None;
+            _imageArea.style.display = faceDown ? DisplayStyle.None : DisplayStyle.Flex;
+            ApplyTypeFrame(!faceDown);
 
             await AnimateScaleXAsync(1f, 0.15f, Ease.OutQuad, cancellation);
         }

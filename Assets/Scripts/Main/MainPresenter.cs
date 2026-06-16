@@ -419,6 +419,9 @@ namespace Main
                 mainRoot.Add(_turnOverlay);
 
                 _actionButtonsArea = root.Q<VisualElement>("ActionButtonsArea");
+                // コンテナ自体はポインタを拾わせない（透明な余白がカードのドラッグ＝攻撃矢印を
+                // 横取りするのを防ぐ）。子のボタンは PickingMode.Position のままなのでクリックは効く。
+                _actionButtonsArea.pickingMode = PickingMode.Ignore;
                 _okButton = root.Q<Button>("OkButton");
                 _backButton = root.Q<Button>("BackButton");
                 _passButton = root.Q<Button>("PassButton");

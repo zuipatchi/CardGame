@@ -96,7 +96,7 @@ namespace Main.Card
                          - Mathf.Max(0, _cards.Count - BaseCardCount);
             foreach (CardView card in _cards)
             {
-                card.style.scale = new Scale(new Vector3(scale, scale, 1f));
+                card.SetFieldScale(scale);
                 card.style.marginLeft = margin;
                 card.style.marginRight = margin;
             }

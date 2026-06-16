@@ -728,6 +728,7 @@ namespace Main
                 }
                 // このターン攻撃できるキャラをハイライト
                 charCard.AddToClassList("attackable-char");
+                charCard.SetAttackHighlighted(true);
                 CardView capturedChar = charCard;
                 AttackArrowManipulator arrowManip = new AttackArrowManipulator(_dragLayer);
                 arrowManip.CanStart = () => _gameModel.Phase == TurnPhase.Main && _mainStagedCard == null
@@ -803,10 +804,12 @@ namespace Main
                     manip.ClearArrow();
                     card.RemoveManipulator(manip);
                     card.RemoveFromClassList("attackable-char");
+                    card.SetAttackHighlighted(false);
                 }
                 foreach (CardView target in highlightedTargets)
                 {
                     target.RemoveFromClassList("attack-target-char");
+                    target.SetAttackHighlighted(false);
                 }
                 _opponentDeckView.RemoveFromClassList("deck-view--attack-target");
             }
@@ -835,6 +838,7 @@ namespace Main
                 if (anyCanAttack)
                 {
                     enemyChar.AddToClassList("attack-target-char");
+                    enemyChar.SetAttackHighlighted(true);
                     highlighted.Add(enemyChar);
                 }
             }

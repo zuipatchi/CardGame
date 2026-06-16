@@ -324,7 +324,9 @@
 
 /* このターン攻撃できる（未攻撃かつ召喚酔いでない）自キャラのハイライト */
 .attackable-char {
-    scale: 1.04 1.04;
+    /* 拡大倍率は CardView.SetAttackHighlighted がインライン scale で適用する
+       （フィールド枚数による基準スケールと合成するため）。ここでは滑らかに
+       拡大させるためのトランジションのみ定義する。 */
     transition-property: scale;
     transition-duration: 0.12s;
     transition-timing-function: ease-out;
@@ -350,7 +352,9 @@
 
 /* 自分のターンに攻撃できる相手キャラのハイライト（攻撃側のシアンと区別する赤〜オレンジ系の枠） */
 .attack-target-char {
-    scale: 1.04 1.04;
+    /* 拡大倍率は CardView.SetAttackHighlighted がインライン scale で適用する
+       （フィールド枚数による基準スケールと合成するため）。ここでは滑らかに
+       拡大させるためのトランジションのみ定義する。 */
     transition-property: scale;
     transition-duration: 0.12s;
     transition-timing-function: ease-out;
