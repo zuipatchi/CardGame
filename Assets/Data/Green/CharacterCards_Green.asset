@@ -80,11 +80,11 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: 1f6e455b1d4533e4da448016f3dd744f, type: 3}
     _flavorText: 
     _keyword: 
-    _victoryPointBonus: 1
+    _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _attack: 2
-    _hp: 3
+    _hp: 2
     _attribute: 2
     _effectTrigger: 1
     _effectType: 0
@@ -93,7 +93,7 @@ MonoBehaviour:
     _guardian: 0
     _haste: 0
     _flying: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
   - _id: C3005
     _cardName: "\u6BD2\u866B"
     _cost: 1
@@ -180,7 +180,7 @@ MonoBehaviour:
     _image: {fileID: 21300000, guid: 54462f80020baab42a8bc2dfa2dd5200, type: 3}
     _flavorText: "\u30E2\u30CA\u7A3D\u53E4\uFF5E\u266A"
     _keyword: 
-    _victoryPointBonus: 1
+    _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _attack: 3
@@ -193,4 +193,4 @@ MonoBehaviour:
     _guardian: 1
     _haste: 0
     _flying: 0
-    _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
