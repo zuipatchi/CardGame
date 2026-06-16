@@ -91,10 +91,10 @@ MonoBehaviour:
     _flying: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u7DD1\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C3005
-    _cardName: "\u6012\u308A\u3050\u307E"
+    _cardName: "\u30E2\u30CA\u30C3\u30AF\u30DE"
     _cost: 2
     _image: {fileID: 21300000, guid: 0d845998d691cf441a36b1eb4a497c31, type: 3}
-    _flavorText: "\u306F\u3042\u3041\u3041\u3041\u3041"
+    _flavorText: "\u30E2\u30CA\u30A2\u30A1\u30A1\u30A1"
     _keyword: 
     _victoryPointBonus: 1
     _excludeFromGame: 0
