@@ -203,8 +203,21 @@ namespace DeckBuilder
                 return null;
             }
 
-            // ID 順（属性番号×1000+連番）に並べる。ID の数値部分でソート。
-            cardList.Sort((a, b) => ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id)));
+            // 属性順（FilterAttributes の並び）→ コスト順 → ID 順（属性番号×1000+連番）に並べる。
+            cardList.Sort((a, b) =>
+            {
+                int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
+                if (attributeComparison != 0)
+                {
+                    return attributeComparison;
+                }
+                int costComparison = a.Cost.CompareTo(b.Cost);
+                if (costComparison != 0)
+                {
+                    return costComparison;
+                }
+                return ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id));
+            });
 
             VisualElement wrapper = new VisualElement();
 
@@ -293,6 +306,13 @@ namespace DeckBuilder
                 RefreshFilter();
             };
             return btn;
+        }
+
+        // FilterAttributes での並び位置を返す。未登録の属性は末尾に並べる。
+        private static int AttributeOrder(CardAttribute attribute)
+        {
+            int index = Array.IndexOf(FilterAttributes, attribute);
+            return index < 0 ? int.MaxValue : index;
         }
 
         // "C1001" / "E2003" などの ID から数値部分（属性番号×1000+連番）を取り出す。
