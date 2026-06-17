@@ -150,14 +150,14 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _attack: 1
-    _hp: 3
+    _hp: 2
     _attribute: 6
     _effectTrigger: 1
-    _effectType: 1
+    _effectType: 0
     _effectValue: 1
     _effectValue2: 1
     _guardian: 0
-    _haste: 0
+    _haste: 1
     _flying: 1
     _sakimori: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0A\u3052\u308B"
