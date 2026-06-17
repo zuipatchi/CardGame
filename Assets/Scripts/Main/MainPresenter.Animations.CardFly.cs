@@ -116,6 +116,9 @@ namespace Main
         // toOpponentHand=true のときは相手の手札（裏向き表示）へ戻すため、戻す前に裏返す。
         private async UniTask ReturnCardToHandOrBurnAsync(CardView card, HandView hand, GraveyardView graveyard, Rect fromRect, bool toOpponentHand, CancellationToken ct)
         {
+            // 手札に戻る前に場で受けた変化（バフ・ダメージ・付与キーワード）を初期状態へ戻す。
+            card.ResetRuntimeState();
+
             if (hand.IsFull)
             {
                 await BurnCardToGraveyardAsync(card, fromRect, graveyard, ct);

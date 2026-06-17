@@ -319,6 +319,22 @@ namespace Main.Card
             _hpLabel.text = _currentHp.ToString();
         }
 
+        // 場で受けた実行時の変化（攻撃力・HPバフ、被ダメージ、付与キーワード）をすべて
+        // カードデータ固有の初期状態へ戻す。バウンスで手札に戻る際に呼び、場の状態を引き継がせない。
+        public void ResetRuntimeState()
+        {
+            _attackBuff = 0;
+            _hpBuff = 0;
+            _currentHp = Data.Hp;
+            _grantedGuardian = false;
+            _grantedHaste = false;
+            _grantedFlying = false;
+            _grantedSakimori = false;
+            _atkLabel.text = CurrentAttack.ToString();
+            _hpLabel.text = _currentHp.ToString();
+            RefreshKeywordIcons();
+        }
+
         // 別キャラのランタイム状態（攻撃力バフ・HPバフ・現在HP）をこのカードへ複製する（演出なしで即時反映）。
         // CopyFieldChar 効果で「バフ・ダメージ込みの現在値」をコピーするのに使う。
         public void CopyRuntimeStateFrom(CardView source)
