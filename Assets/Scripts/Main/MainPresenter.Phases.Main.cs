@@ -162,7 +162,7 @@ namespace Main
         // 速攻持ちの表向きキャラかどうか：召喚酔いせず出したターンから攻撃できる
         private static bool IsHaste(CardView card)
         {
-            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Haste;
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasHaste;
         }
 
         // ─── 守護（タウント）─────────────────────────────────────────────────
@@ -170,7 +170,7 @@ namespace Main
         // 表向きの守護持ちキャラかどうか
         private static bool IsGuardian(CardView card)
         {
-            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Guardian;
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasGuardian;
         }
 
         // フィールドに守護持ちキャラがいるか。いる場合、相手の攻撃はその守護キャラに限定される
@@ -191,7 +191,7 @@ namespace Main
         // 表向きの飛行持ちキャラかどうか：守護を無視して攻撃でき、飛行キャラからしか攻撃されない
         private static bool IsFlying(CardView card)
         {
-            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Flying;
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasFlying;
         }
 
         // ─── 防人（対空ガード＋守護）─────────────────────────────────────
@@ -200,7 +200,7 @@ namespace Main
         // 非飛行も守護同様このキャラを優先する。さらにこのキャラ自身は飛行に攻撃できる
         private static bool IsSakimori(CardView card)
         {
-            return card != null && !card.IsFaceDown && card.Data is CharacterCardData characterData && characterData.Sakimori;
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasSakimori;
         }
 
         // フィールドに防人持ちキャラがいるか。いる場合、飛行を持つ相手の攻撃はその防人キャラに限定される

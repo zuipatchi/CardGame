@@ -27,6 +27,11 @@ namespace Main.Card
         // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
         private int _attackBuff;
         private int _hpBuff;
+        // 実行時に付与されたキーワード能力（GrantKeyword）。SO 固有のフラグとは別に保持する。
+        private bool _grantedGuardian;
+        private bool _grantedHaste;
+        private bool _grantedFlying;
+        private bool _grantedSakimori;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
@@ -37,6 +42,12 @@ namespace Main.Card
         public int CurrentAttack => Data.Attack + _attackBuff;
         // バフを含む最大HP（回復のクランプ上限）。
         public int MaxHp => Data.Hp + _hpBuff;
+
+        // キーワード能力（SO 固有 OR 実行時付与）。攻撃ルール判定・アイコン表示はこれを参照する。
+        public bool HasGuardian => (Data is CharacterCardData guardianData && guardianData.Guardian) || _grantedGuardian;
+        public bool HasHaste => (Data is CharacterCardData hasteData && hasteData.Haste) || _grantedHaste;
+        public bool HasFlying => (Data is CharacterCardData flyingData && flyingData.Flying) || _grantedFlying;
+        public bool HasSakimori => (Data is CharacterCardData sakimoriData && sakimoriData.Sakimori) || _grantedSakimori;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -313,8 +324,71 @@ namespace Main.Card
             _attackBuff = source._attackBuff;
             _hpBuff = source._hpBuff;
             _currentHp = source._currentHp;
+            _grantedGuardian = source._grantedGuardian;
+            _grantedHaste = source._grantedHaste;
+            _grantedFlying = source._grantedFlying;
+            _grantedSakimori = source._grantedSakimori;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
+            RefreshKeywordIcons();
+        }
+
+        // キーワード能力アイコンの表示を現在の状態（SO 固有 OR 付与）に合わせて更新する。
+        private void RefreshKeywordIcons()
+        {
+            _guardianIcon.style.display = HasGuardian ? DisplayStyle.Flex : DisplayStyle.None;
+            _hasteIcon.style.display = HasHaste ? DisplayStyle.Flex : DisplayStyle.None;
+            _flyingIcon.style.display = HasFlying ? DisplayStyle.Flex : DisplayStyle.None;
+            _sakimoriIcon.style.display = HasSakimori ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        // キーワード能力を実行時に永続付与する（GrantKeyword）。既に持っていれば演出のみ。
+        // 付与したアイコンをポップ表示する。
+        public async UniTask GrantKeywordAsync(GrantableKeyword keyword, CancellationToken ct)
+        {
+            VisualElement icon;
+            switch (keyword)
+            {
+                case GrantableKeyword.Guardian:
+                    _grantedGuardian = true;
+                    icon = _guardianIcon;
+                    break;
+                case GrantableKeyword.Haste:
+                    _grantedHaste = true;
+                    icon = _hasteIcon;
+                    break;
+                case GrantableKeyword.Flying:
+                    _grantedFlying = true;
+                    icon = _flyingIcon;
+                    break;
+                case GrantableKeyword.Sakimori:
+                    _grantedSakimori = true;
+                    icon = _sakimoriIcon;
+                    break;
+                default:
+                    return;
+            }
+
+            RefreshKeywordIcons();
+            await PopIconAsync(icon, ct);
+        }
+
+        // 付与アイコンの出現演出：少し大きく弾ませてから元のサイズへ戻す。
+        private async UniTask PopIconAsync(VisualElement icon, CancellationToken ct)
+        {
+            float scaleVal = 0.2f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; icon.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.6f, 0.18f).SetEase(Ease.OutBack))
+                .Append(DOTween.To(() => scaleVal, v => { scaleVal = v; icon.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.22f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            icon.style.scale = new Scale(Vector3.one);
         }
 
         // 攻撃力を amount 永続的に上げる（BuffAttackByKeyword）。ATK ラベルを更新しオレンジのパルス演出を出す。
@@ -376,14 +450,7 @@ namespace Main.Card
                 ? DisplayStyle.None : DisplayStyle.Flex;
             _hpArea.style.display = data is CharacterCardData
                 ? DisplayStyle.Flex : DisplayStyle.None;
-            _guardianIcon.style.display = data is CharacterCardData characterData && characterData.Guardian
-                ? DisplayStyle.Flex : DisplayStyle.None;
-            _hasteIcon.style.display = data is CharacterCardData hasteData && hasteData.Haste
-                ? DisplayStyle.Flex : DisplayStyle.None;
-            _flyingIcon.style.display = data is CharacterCardData flyingData && flyingData.Flying
-                ? DisplayStyle.Flex : DisplayStyle.None;
-            _sakimoriIcon.style.display = data is CharacterCardData sakimoriData && sakimoriData.Sakimori
-                ? DisplayStyle.Flex : DisplayStyle.None;
+            RefreshKeywordIcons();
 
             if (data.Image != null)
             {

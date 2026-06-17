@@ -385,6 +385,43 @@ namespace Main
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
 
+        // GrantKeyword：発動側が自フィールドから count 体（値1。0=場の味方全員）選び、
+        // keywordValue（値2）が示すキーワード能力（1=守護/2=速攻/3=飛行/4=防人）を永続付与する。
+        // 対象選択は AtkBoost / HpBoost と同じ仕組み（プレイヤー選択／CPU 自動／オンライン同期）を共用する。
+        // 付与はカードデータ（値2）と同期済み盤面から決定的に解決されるため、オンラインでも対称に発動する。
+        internal async UniTask ApplyGrantKeywordAsync(int keywordValue, int count, bool isLocal, CancellationToken ct)
+        {
+            GrantableKeyword keyword = GrantableKeywordExtensions.FromValue(keywordValue);
+            if (keyword == GrantableKeyword.None)
+            {
+                return;
+            }
+
+            FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;
+            int ownCount = ownField.Characters.Count;
+            if (ownCount == 0)
+            {
+                return;
+            }
+
+            // 値1=0 は「場の味方キャラ全員」を対象にする
+            int targetCount = count <= 0 ? ownCount : Mathf.Min(count, ownCount);
+            string prompt = $"{keyword.DisplayName()}を付与する味方を選択";
+            List<CardView> targets = await ResolveAllyCharTargetsAsync(ownField, targetCount, ownCount, isLocal, prompt, ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> tasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                tasks.Add(target.GrantKeywordAsync(keyword, ct));
+            }
+            await UniTask.WhenAll(tasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
         // 対象決定：対象数が味方の数以上なら全員。そうでなければ、ローカルはプレイヤーが選択し、
         // オンライン相手はインデックス配列を受信、CPU は攻撃力上位を選ぶ。ResolveEnemyCharTargetsAsync の自フィールド版。
         private async UniTask<List<CardView>> ResolveAllyCharTargetsAsync(FieldView ownField, int targetCount, int ownCount, bool isLocal, string prompt, CancellationToken ct)

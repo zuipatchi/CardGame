@@ -84,6 +84,35 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 発動側が自フィールドから値1体（0=場の味方全員）選び、値2で指定したキーワード能力を永続付与する。
+    [Preserve]
+    public sealed class GrantKeywordHandler : EffectHandler
+    {
+        public override EventType Type => EventType.GrantKeyword;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（対象数）", true, "値2（付与する能力 1=守護/2=速攻/3=飛行/4=防人）",
+            "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=付与するキーワード能力（1=守護・2=速攻・3=飛行・4=防人。範囲外は空振り）。");
+
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            string keyword = GrantableKeywordExtensions.FromValue(ctx.Value2).DisplayName();
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return "";
+            }
+            return ctx.Value1 <= 0
+                ? $"自分のキャラ全体に{keyword}を付与する"
+                : $"自分のキャラ{ctx.Value1}体に{keyword}を付与する";
+        }
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            // 値1=対象数、値2=付与するキーワード
+            return p.ApplyGrantKeywordAsync(inv.Value2, inv.Value1, inv.IsLocal, ct);
+        }
+    }
+
     // 自フィールドのキャラ全員の HP を値1回復する（0=最大HPまで全回復）。
     [Preserve]
     public sealed class HealAllAlliesHandler : EffectHandler

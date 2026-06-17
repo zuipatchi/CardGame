@@ -54,6 +54,10 @@ namespace Main.Card
         // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（勝利点の勝利条件への加点）に加算する。
         // EventValue / EffectValue は不使用（0）。墓地に緑カードがなければ加点 0。
         GainVPPerGreenGrave = 12,
+        // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。0=場の味方全員）選び、
+        // EventValue2 / EffectValue2（値2）で指定したキーワード能力を永続付与する。
+        // 値2: 1=守護 / 2=速攻 / 3=飛行 / 4=防人（それ以外は空振り）。AtkBoost と同じ対象選択。
+        GrantKeyword = 26,
         // 発動側の自フィールドのキャラ全員の HP を EventValue / EffectValue 分回復する（最大HPでクランプ）。
         // EventValue / EffectValue = 0 のときは最大HPまで全回復する。自キャラがいなければ空振り。
         HealAllAllies = 19,
