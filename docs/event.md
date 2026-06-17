@@ -53,11 +53,11 @@
 
 ## 設定方法
 
-> SO のインスペクターで直接編集するほか、メニュー **`Card → カードエディタ`**（[CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs)）で全属性のカードを横断して検索・編集・追加・削除できる。一覧はツールバーの「並び」で **ID順 / コスト順**に切り替えられる（コスト順表示時は各行に `[コスト]` を前置）。EventType に応じて値1/値2 の意味がラベル・ヒント表示され、画像は ObjectField で割り当てられる。採番ルールを変えた後は同ウィンドウの「ID再採番」で全カードを一括で振り直せる（旧 ID を参照する SummonChar 値・保存デッキは別途修正が必要）。効果テキスト（`Description`）は「自動生成」ボタンで下記ルールから生成できる。
+> SO のインスペクターで直接編集するほか、メニュー **`Card → カードエディタ`**（[CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs)）で全属性のカードを横断して検索・編集・追加・削除できる。一覧はツールバーの「並び」で **ID順 / コスト順**に切り替えられる（コスト順表示時は各行に `[コスト]` を前置）。EventType に応じて値1/値2 の意味がラベル・ヒント表示され、画像は ObjectField で割り当てられる。採番ルールを変えた後は同ウィンドウの「ID再採番」で全カードを一括で振り直せる（旧 ID を参照する SummonChar 値・保存デッキは別途修正が必要）。効果テキスト（`Description`）はツールバーの「効果テキスト一括生成」ボタンで全カード分をまとめて下記ルールから生成できる（手動編集したテキストも上書きされる）。
 
 ### 効果テキストの自動生成
 
-カードエディタの「自動生成」ボタンは、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行/防人フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
+カードエディタの「効果テキスト一括生成」ボタンは全カードについて、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行/防人フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
 
 発動タイミング（接頭辞）
 
