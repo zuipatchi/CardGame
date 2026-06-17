@@ -121,6 +121,8 @@ namespace Main.Card.Effects.Handlers
 
 > ハンドラの `ApplyAsync` は `OnPlay` のプレイ時（`ResolveSingleCardAsync`）と `OnTurnStart` 永続イベントの毎ターン発動（`PlayGraveyardEventEffectAsync`）、キャラの各トリガー（`ResolveCharacterTriggeredEffectAsync`）すべてから共通で呼ばれる。演出はハンドラ内に書けば全経路へ自動で反映される。
 
+> **キャラ単位の実行時状態を増やす効果（バフ・能力付与など）**: 攻撃力/HP バフ（`BuffAttack/Hp`）やキーワード能力付与（`GrantKeyword`）のように、キャラ個体へ永続的に乗る状態は [CardView.cs](../Assets/Scripts/Main/Card/CardView.cs) に持たせる。①フィールド（例: `_attackBuff` / `_grantedGuardian`）を追加し、②**SO 固有値と実行時付与を合成した参照プロパティ**（`CurrentAttack` / `MaxHp` / `HasGuardian` 等）を公開して、戦闘判定や表示はこのプロパティ経由に統一する（SO の生フィールドを直接読まない）。③`CopyRuntimeStateFrom` にも複製を追加する（`CopyFieldChar` でコピー元の状態を引き継ぐため）。例として `GrantKeyword` は守護/速攻/飛行/防人の付与フラグと `Has*` プロパティを追加し、`MainPresenter.Phases.Main` の `IsGuardian` 等の攻撃ルール判定を `card.Has*` 参照へ切り替えた。付与キーワードと値2の対応は [GrantableKeyword.cs](../Assets/Scripts/Main/Card/GrantableKeyword.cs)。
+
 **勝利点付帯値（VictoryPointBonus）はハンドラに書かない**
 
 効果（EventType）とは独立した加点で、`ResolveEventCardEffectAsync` / `ResolveCharacterTriggeredEffectAsync` が効果解決後に `ApplyVictoryPointBonusAsync(bonus, isLocal, card, ct)`（MedalIcon 演出 ＋ `AddVictoryPoints`）をまとめて実行する（bonus が 0 なら何もしない）。「効果＋勝利点」も「勝利点を得るだけ」（`EventType=None` ＋ 付帯値）もこれで賄う。
