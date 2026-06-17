@@ -233,6 +233,76 @@ namespace GameEditor
             Debug.Log($"カード ID を再採番しました（更新した SO: {changed} 種）。");
         }
 
+        // 全 SO の全カードの効果テキストを現在の設定（発動タイミング・効果種別・値・勝利点）から
+        // 自動生成して上書きする。ResolveCardName/ResolveCardStats が _entries を参照するため、
+        // 先に最新の一覧を構築しておく。
+        private void RegenerateAllDescriptions()
+        {
+            if (!EditorUtility.DisplayDialog("効果テキスト一括生成",
+                "全カードの効果テキストを現在の設定から自動生成して上書きします。\n"
+                + "手動で編集した効果テキストも上書きされます。続行しますか？",
+                "生成する", "キャンセル"))
+            {
+                return;
+            }
+
+            RebuildEntries();
+
+            int changed = 0;
+            foreach (string guid in AssetDatabase.FindAssets("t:CharacterCardSO"))
+            {
+                CharacterCardSO so = AssetDatabase.LoadAssetAtPath<CharacterCardSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (RegenerateDescriptionsFor(so, true))
+                {
+                    changed++;
+                }
+            }
+            foreach (string guid in AssetDatabase.FindAssets("t:EventCardSO"))
+            {
+                EventCardSO so = AssetDatabase.LoadAssetAtPath<EventCardSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (RegenerateDescriptionsFor(so, false))
+                {
+                    changed++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            if (_selected != null && _selected.So != null)
+            {
+                _selectedSo = new SerializedObject(_selected.So);
+            }
+            Debug.Log($"効果テキストを一括生成しました（更新した SO: {changed} 種）。");
+        }
+
+        // 1つの SO 内の全カードの効果テキストを生成して上書きする。変更があれば true を返す。
+        private bool RegenerateDescriptionsFor(ScriptableObject so, bool isCharacter)
+        {
+            if (so == null)
+            {
+                return false;
+            }
+
+            SerializedObject sobj = new SerializedObject(so);
+            SerializedProperty cards = sobj.FindProperty("_cards");
+            if (cards == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < cards.arraySize; i++)
+            {
+                SerializedProperty element = cards.GetArrayElementAtIndex(i);
+                element.FindPropertyRelative("_description").stringValue = BuildDescription(element, isCharacter);
+            }
+
+            if (sobj.ApplyModifiedProperties())
+            {
+                EditorUtility.SetDirty(so);
+                return true;
+            }
+            return false;
+        }
+
         // 現在のソートモードで一覧を並べ替える。
         private void SortEntries()
         {
@@ -351,6 +421,10 @@ namespace GameEditor
 
             GUILayout.FlexibleSpace();
 
+            if (GUILayout.Button("効果テキスト一括生成", EditorStyles.toolbarButton, GUILayout.Width(120f)))
+            {
+                RegenerateAllDescriptions();
+            }
             if (GUILayout.Button("ID再採番", EditorStyles.toolbarButton, GUILayout.Width(72f)))
             {
                 ReassignAllIds();
@@ -563,15 +637,7 @@ namespace GameEditor
 
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_victoryPointBonus"), new GUIContent("勝利点付帯値"));
 
-            SerializedProperty description = element.FindPropertyRelative("_description");
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(description, new GUIContent("効果テキスト"));
-            if (GUILayout.Button("自動生成", GUILayout.Width(72f)))
-            {
-                description.stringValue = BuildDescription(element);
-                GUI.FocusControl(null);
-            }
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_description"), new GUIContent("効果テキスト"));
 
             // _flavorText は [TextArea] のため PropertyField だと複数行になる。ここでは1行で編集する。
             SerializedProperty flavor = element.FindPropertyRelative("_flavorText");
@@ -807,11 +873,10 @@ namespace GameEditor
             return EventTypeValues[index];
         }
 
-        // 現在の選択内容（発動タイミング・効果種別・値・属性・勝利点）から効果テキストを自動生成する。
+        // 指定カードの設定（発動タイミング・効果種別・値・属性・勝利点）から効果テキストを自動生成する。
         // 守護/速攻/飛行フラグは（アイコン表示があるため）テキストに含めない。
-        private string BuildDescription(SerializedProperty element)
+        private string BuildDescription(SerializedProperty element, bool isCharacter)
         {
-            bool isCharacter = _selected.IsCharacter;
             CardAttribute attribute = (CardAttribute)element.FindPropertyRelative("_attribute").enumValueIndex;
 
             string prefix = isCharacter
