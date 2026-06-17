@@ -64,7 +64,7 @@ namespace Main
         }
 
         // ゲーム開始時の先攻後攻をコイントス演出で提示する（決定済みの isLocalFirst を受け取る）。
-        // 配牌前に呼ぶ（手札枚数が先攻3枚・後攻4枚で変わるため）。先攻・後攻の双方の初手はドローなしで補正する。
+        // 配牌前に呼ぶ（手札枚数が先攻3枚・後攻5枚で変わるため）。先攻・後攻の双方の初手はドローなしで補正する。
         private async UniTask InitializeFirstTurnAsync(bool isLocalFirst, CancellationToken ct)
         {
             _gameModel.SetInitialTurn(isLocalFirst);

@@ -157,7 +157,7 @@ namespace Main.Network
             CardData[] hostDeck = _cardDatabase.BuildDeck(localDeckIds);
             CardData[] clientDeck = _cardDatabase.BuildDeck(receivedIds);
 
-            // 先攻後攻を先に決め、手札枚数を先攻3枚・後攻4枚で配る（双方の初手はドローなしで補正）。
+            // 先攻後攻を先に決め、手札枚数を先攻3枚・後攻5枚で配る（双方の初手はドローなしで補正）。
             bool hostGoesFirst = UnityEngine.Random.value > 0.5f;
             int hostHandSize = Mathf.Min(MulliganRule.InitialHandSize(hostGoesFirst), hostDeck.Length);
             int clientHandSize = Mathf.Min(MulliganRule.InitialHandSize(!hostGoesFirst), clientDeck.Length);

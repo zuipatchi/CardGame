@@ -334,7 +334,7 @@ namespace Main
                 else
                 {
                     _opponentUsername = "CPU";
-                    // 先攻後攻を配牌前に決める（手札枚数が先攻3枚・後攻4枚で変わるため）。
+                    // 先攻後攻を配牌前に決める（手札枚数が先攻3枚・後攻5枚で変わるため）。
                     isLocalFirst = UnityEngine.Random.value > 0.5f;
                     playerDeckFull = _deckModel.Count > 0
                         ? _cardDatabase.BuildDeck(_deckModel.CardIds)
@@ -554,7 +554,7 @@ namespace Main
                 string localDisplayName = string.IsNullOrEmpty(_localUsername) ? "ゲスト" : _localUsername;
                 await PlayVsAnnouncementAsync(localDisplayName, _opponentUsername, ct);
 
-                // 先攻後攻を配牌前にコイントスで確定する（手札枚数が先攻3枚・後攻4枚で変わるため）。
+                // 先攻後攻を配牌前にコイントスで確定する（手札枚数が先攻3枚・後攻5枚で変わるため）。
                 await InitializeFirstTurnAsync(isLocalFirst, ct);
 
                 Rect deckWorldRect = _playerDeckView.worldBound;
