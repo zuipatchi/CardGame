@@ -14,7 +14,7 @@ namespace Main.Card.Effects.Handlers
         public override EffectValueInfo Values => new EffectValueInfo(
             true, "値1（ミル枚数）", false, "値2（未使用）", "値1=相手デッキの上から墓地へ送る枚数。");
 
-        public override string BuildBody(EffectTextContext ctx) => $"相手のデッキの上から{ctx.Value1}枚を墓地へ送る";
+        public override string BuildBody(EffectTextContext ctx) => $"相手のデッキに{ctx.Value1}ダメージを与える";
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
@@ -33,7 +33,7 @@ namespace Main.Card.Effects.Handlers
         public override EffectValueInfo Values => new EffectValueInfo(
             true, "値1（ミル枚数）", false, "値2（未使用）", "値1=自分と相手それぞれのデッキの上から墓地へ送る枚数。");
 
-        public override string BuildBody(EffectTextContext ctx) => $"お互いのデッキの上から{ctx.Value1}枚ずつを墓地へ送る";
+        public override string BuildBody(EffectTextContext ctx) => $"お互いのデッキに{ctx.Value1}ダメージを与える";
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
