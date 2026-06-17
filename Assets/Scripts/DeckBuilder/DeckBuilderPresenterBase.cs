@@ -297,7 +297,23 @@ namespace DeckBuilder
             return btn;
         }
 
-        // 属性順（FilterAttributes の並び）→ コスト昇順 → ID 昇順（属性番号×1000+連番）で比較する。
+        // 「整列」ボタン：カード一覧と同じ並び（キャラ→イベント → 属性 → コスト → ID）で比較する。
+        private static int CompareByTypeAttributeCostId(CardData a, CardData b)
+        {
+            int typeComparison = TypeOrder(a).CompareTo(TypeOrder(b));
+            if (typeComparison != 0)
+            {
+                return typeComparison;
+            }
+            return CompareByAttributeCostId(a, b);
+        }
+
+        // カード種別の並び位置を返す。キャラカードを先、イベントカードを後にする。
+        private static int TypeOrder(CardData card)
+        {
+            return card is CharacterCardData ? 0 : 1;
+        }
+
         private static int CompareByAttributeCostId(CardData a, CardData b)
         {
             int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
@@ -313,13 +329,18 @@ namespace DeckBuilder
             return ParseCardIdNumber(a.Id).CompareTo(ParseCardIdNumber(b.Id));
         }
 
-        // コスト昇順 → 属性順（FilterAttributes の並び）→ ID 昇順（属性番号×1000+連番）で比較する。
+        // コスト昇順 → カード種別（キャラ→イベント）→ 属性順（FilterAttributes の並び）→ ID 昇順（属性番号×1000+連番）で比較する。
         private static int CompareByCostAttributeId(CardData a, CardData b)
         {
             int costComparison = a.Cost.CompareTo(b.Cost);
             if (costComparison != 0)
             {
                 return costComparison;
+            }
+            int typeComparison = TypeOrder(a).CompareTo(TypeOrder(b));
+            if (typeComparison != 0)
+            {
+                return typeComparison;
             }
             int attributeComparison = AttributeOrder(a.Attribute).CompareTo(AttributeOrder(b.Attribute));
             if (attributeComparison != 0)
@@ -500,13 +521,13 @@ namespace DeckBuilder
             SaveDeck();
         }
 
-        // 「整列」ボタン：属性→コスト→ID 順に並べ替える。
+        // 「整列」ボタン：カード一覧と同じ並び（キャラ→イベント → 属性 → コスト → ID）で並べ替える。
         private void OnSortDeckClicked()
         {
-            SortDeckBy(CompareByAttributeCostId);
+            SortDeckBy(CompareByTypeAttributeCostId);
         }
 
-        // 「コスト順」ボタン：コスト→属性→ID 順に並べ替える。
+        // 「コスト順」ボタン：コスト→種別（キャラ→イベント）→属性→ID 順に並べ替える。
         private void OnCostSortDeckClicked()
         {
             SortDeckBy(CompareByCostAttributeId);
