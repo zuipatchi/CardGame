@@ -150,7 +150,7 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _attack: 2
-    _hp: 2
+    _hp: 1
     _attribute: 2
     _effectTrigger: 2
     _effectType: 0
@@ -171,7 +171,7 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _attack: 3
-    _hp: 4
+    _hp: 3
     _attribute: 2
     _effectTrigger: 7
     _effectType: 0

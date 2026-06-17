@@ -12,34 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 759d107d8464bd041a141db5b302605c, type: 3}
   m_Name: CpuDeck
   m_EditorClassIdentifier: Main::Main.Card.CpuDeckSO
-  CardIds:
-  - C1003
-  - C1003
-  - C1003
-  - C1001
-  - C1001
-  - C1001
-  - C1004
-  - C1004
-  - C1004
-  - C1005
-  - C1005
-  - C1005
-  - C1008
-  - C1008
-  - C1008
-  - C1010
-  - C1010
-  - C1010
-  - C1002
-  - C1002
-  - C1002
-  - C1007
-  - C1007
-  - C1007
-  - C1006
-  - C1006
-  - C1006
-  - E1001
-  - E1003
-  - E1004
+  CardIds: []
