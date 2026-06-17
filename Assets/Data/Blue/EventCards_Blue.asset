@@ -21,7 +21,7 @@ MonoBehaviour:
     _flavorText: 
     _keyword: 
     _victoryPointBonus: 2
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
@@ -48,19 +48,19 @@ MonoBehaviour:
     _attribute: 1
   - _id: E2003
     _cardName: "\u672A\u6765\u3078\u306E\u671F\u5F85"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: c50b93b927c929e4ab6dc2dff78d8625, type: 3}
     _flavorText: "\u30EF\u30AF\u30EF\u30AF"
     _keyword: 
     _victoryPointBonus: 0
-    _excludeFromGame: 1
+    _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 21
-    _eventValue: 2
+    _eventValue: 4
     _eventValue2: 0
-    _description: "\u6B21\u306E\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B2\u679A\u591A\u304F\u5F15\u304F"
+    _description: "\u6B21\u306E\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B4\u679A\u591A\u304F\u5F15\u304F"
     _attribute: 1
   - _id: E2004
     _cardName: "\u524D\u501F\u308A"

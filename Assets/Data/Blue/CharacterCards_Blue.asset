@@ -68,8 +68,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 2
-    _hp: 3
+    _attack: 1
+    _hp: 2
     _attribute: 1
     _effectTrigger: 4
     _effectType: 9
@@ -90,8 +90,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 1
-    _attack: 3
-    _hp: 6
+    _attack: 2
+    _hp: 4
     _attribute: 1
     _effectTrigger: 0
     _effectType: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 2
-    _hp: 2
+    _hp: 3
     _attribute: 1
     _effectTrigger: 2
     _effectType: 3
@@ -128,7 +128,7 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u30DA\u30C3\u30C8"
     _cost: 3
     _image: {fileID: 21300000, guid: 6e9a50159f325764bbe71faa4ff249dd, type: 3}
-    _flavorText: "\u3071\u3063\u3061\u307E\u3067\u3072\u3068\u3063\u98DB\u3073\u3060\u30FC"
+    _flavorText: "\u3071\u3063\u3061\u306E\u3068\u3053\u307E\u3067\u3001\u3072\u3068\u3063\u98DB\u3073\u30FC"
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
@@ -156,8 +156,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 5
-    _hp: 9
+    _attack: 4
+    _hp: 6
     _attribute: 1
     _effectTrigger: 0
     _effectType: 0
@@ -178,15 +178,15 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 8
-    _hp: 12
+    _attack: 5
+    _hp: 9
     _attribute: 1
     _effectTrigger: 0
     _effectType: 0
     _effectValue: 1
     _effectValue2: 0
     _guardian: 0
-    _haste: 1
+    _haste: 0
     _flying: 0
     _sakimori: 0
     _description: 
@@ -200,8 +200,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
+    _attack: 1
+    _hp: 1
     _attribute: 1
     _effectTrigger: 1
     _effectType: 3
@@ -214,16 +214,16 @@ MonoBehaviour:
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
   - _id: C2010
     _cardName: "\u3071\u3063\u3061\u306E\u7236"
-    _cost: 0
+    _cost: 4
     _image: {fileID: 21300000, guid: 390f922b378d9394bbffe32cc9666974, type: 3}
     _flavorText: "\u3071\u3063\u3061\u306E\u7E6B\u6804\u306F\u6C38\u9060\u306A\u308A\uFF5E"
     _keyword: 
-    _victoryPointBonus: 4
+    _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
+    _attack: 3
+    _hp: 7
     _attribute: 1
     _effectTrigger: 3
     _effectType: 3
@@ -233,4 +233,4 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30924\u5F97\u308B"
+    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
