@@ -65,8 +65,8 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 1
-    _hp: 2
+    _attack: 2
+    _hp: 3
     _attribute: 1
     _effectTrigger: 4
     _effectType: 9

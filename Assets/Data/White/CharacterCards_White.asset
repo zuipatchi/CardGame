@@ -86,8 +86,8 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 1
-    _hp: 2
+    _attack: 2
+    _hp: 3
     _attribute: 6
     _effectTrigger: 4
     _effectType: 9
@@ -173,7 +173,7 @@ MonoBehaviour:
     _attack: 1
     _hp: 2
     _attribute: 6
-    _effectTrigger: 2
+    _effectTrigger: 1
     _effectType: 14
     _effectValue: 1009
     _effectValue2: 1
@@ -181,7 +181,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u300C1/1\u306E\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3\u300D\u30921\u4F53\u53EC\u559A\u3059\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u300C1/1\u306E\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3\u300D\u30921\u4F53\u53EC\u559A\u3059\u308B"
   - _id: C1009
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3"
     _cost: 0
@@ -215,12 +215,12 @@ MonoBehaviour:
     _attack: 2
     _hp: 1
     _attribute: 6
-    _effectTrigger: 2
+    _effectTrigger: 1
     _effectType: 1
     _effectValue: 1
-    _effectValue2: 2
+    _effectValue2: 1
     _guardian: 0
-    _haste: 0
+    _haste: 1
     _flying: 0
     _sakimori: 0
-    _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0A\u3052\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0A\u3052\u308B"
