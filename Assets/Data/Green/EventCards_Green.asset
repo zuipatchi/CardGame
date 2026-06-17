@@ -23,12 +23,12 @@ MonoBehaviour:
     _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _eventTrigger: 1
     _eventType: 0
     _eventValue: 0
     _eventValue2: 0
     _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B\u6BCE\u30BF\u30FC\u30F3\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
-    _triggerOnGrave: 0
     _attribute: 2
   - _id: E3002
     _cardName: "\u4E0D\u6B7B\u9CE5\u306E\u6075\u307F"
@@ -39,12 +39,12 @@ MonoBehaviour:
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 1
     _eventValue: 1
-    _eventValue2: 3
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30923\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
-    _triggerOnGrave: 0
+    _eventValue2: 2
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 2
   - _id: E3003
     _cardName: "\u731B\u6BD2\u3092\u5674\u5C04\u3057\u305F"
@@ -55,12 +55,12 @@ MonoBehaviour:
     _victoryPointBonus: 1
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 13
     _eventValue: 1
     _eventValue2: 3
     _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306B3\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
-    _triggerOnGrave: 0
     _attribute: 2
   - _id: E3004
     _cardName: "\u30E1\u30C0\u30EB\u3092\u62FE\u3063\u305F"
@@ -71,12 +71,12 @@ MonoBehaviour:
     _victoryPointBonus: 4
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 0
     _eventValue: 0
     _eventValue2: 0
     _description: "\u52DD\u5229\u70B9\u30924\u5F97\u308B"
-    _triggerOnGrave: 0
     _attribute: 2
   - _id: E3005
     _cardName: "\u6700\u5F8C\u306E\u565B\u307F\u3064\u304D"
@@ -87,10 +87,10 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 12
     _eventValue: 0
     _eventValue2: 0
     _description: "\u81EA\u5206\u306E\u5893\u5730\u306B\u3042\u308B\u7DD1\u306E\u30AB\u30FC\u30C9\u306E\u6570\u3060\u3051\u52DD\u5229\u70B9\u3092\u5F97\u308B"
-    _triggerOnGrave: 0
     _attribute: 2

@@ -16,13 +16,14 @@ MonoBehaviour:
   _cards:
   - _id: C1001
     _cardName: "\u3071\u3063\u3061\u5C11\u5E74"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: 4b89463c6d0140042b3e3f223cf4c131, type: 3}
     _flavorText: "\u7269\u8A9E\u306F\u3053\u3053\u304B\u3089\u59CB\u307E\u308B\u3071\u3061!"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 1
     _attack: 2
     _hp: 4
     _attribute: 6
@@ -37,15 +38,16 @@ MonoBehaviour:
     _description: 
   - _id: C1002
     _cardName: "\u3071\u3063\u3061\u9752\u5E74"
-    _cost: 2
+    _cost: 3
     _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
     _flavorText: "\u3071\u3063\u3061\u3063\u3066\u8A00\u3046\u306A\uFF01"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _attack: 4
-    _hp: 5
+    _hp: 6
     _attribute: 6
     _effectTrigger: 0
     _effectType: 0
@@ -58,13 +60,14 @@ MonoBehaviour:
     _description: 
   - _id: C1003
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
-    _cost: 0
+    _cost: 1
     _image: {fileID: 21300000, guid: 2e09ecb7c8227e841b69acfc10aff300, type: 3}
     _flavorText: "\u5352\u696D\u3057\u305F\u3071\u3061"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 1
     _attack: 1
     _hp: 2
     _attribute: 6
@@ -86,8 +89,9 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 2
-    _hp: 3
+    _triggerOnGrave: 0
+    _attack: 1
+    _hp: 2
     _attribute: 6
     _effectTrigger: 4
     _effectType: 9
@@ -107,8 +111,9 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 1
-    _hp: 3
+    _triggerOnGrave: 0
+    _attack: 0
+    _hp: 1
     _attribute: 6
     _effectTrigger: 1
     _effectType: 2
@@ -121,14 +126,15 @@ MonoBehaviour:
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30921\u4E0A\u3052\u308B"
   - _id: C1006
     _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
-    _cost: 3
+    _cost: 4
     _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
     _flavorText: "\u304A\u3044\u3001\u3042\u308A\u307E\uFF5E"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 5
+    _triggerOnGrave: 0
+    _attack: 4
     _hp: 9
     _attribute: 6
     _effectTrigger: 0
@@ -149,10 +155,11 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _attack: 1
     _hp: 2
     _attribute: 6
-    _effectTrigger: 1
+    _effectTrigger: 0
     _effectType: 0
     _effectValue: 1
     _effectValue2: 1
@@ -160,7 +167,7 @@ MonoBehaviour:
     _haste: 1
     _flying: 1
     _sakimori: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0A\u3052\u308B"
+    _description: 
   - _id: C1008
     _cardName: "\u9B54\u6CD5\u5C11\u5973\u3071\u3063\u3061"
     _cost: 1
@@ -170,8 +177,9 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _attack: 1
-    _hp: 2
+    _hp: 1
     _attribute: 6
     _effectTrigger: 1
     _effectType: 14
@@ -191,6 +199,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 1
+    _triggerOnGrave: 0
     _attack: 1
     _hp: 1
     _attribute: 6
@@ -205,13 +214,14 @@ MonoBehaviour:
     _description: 
   - _id: C1010
     _cardName: "\u525B\u8155\u306E\u3071\u3063\u3061"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: 4f346ad087d3e9c4ca9f13f4a06dc6cc, type: 3}
     _flavorText: "\u304B\u304B\u3063\u3066\u304F\u308B\u3071\u3061"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _attack: 1
     _hp: 1
     _attribute: 6
