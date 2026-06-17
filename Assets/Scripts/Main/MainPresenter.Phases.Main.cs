@@ -584,7 +584,6 @@ namespace Main
             }
 
             DeckView targetDeck = isLocal ? _opponentDeckView : _playerDeckView;
-            GraveyardView targetGraveyard = isLocal ? _opponentGraveyardView : _playerGraveyardView;
 
             await ResolveCharacterAttackEffectAsync(attacker, isLocal, ct);
 
@@ -598,25 +597,58 @@ namespace Main
                 return;
             }
 
-            // ATK 枚をデッキ上から1枚ずつ墓地へ送る（デッキ枚数が少なければ全枚数）
-            int millCount = Mathf.Min(atk, targetDeck.Count);
+            // ATK 枚を守る側（デッキの持ち主＝!isLocal）のデッキ上から墓地へ送る
+            await MillDeckAsync(deckOwnerIsLocal: !isLocal, atk, ct);
+
+            // 相手プレイヤー（デッキ）にダメージを与えた → 攻撃キャラの OnDealPlayerDamage 効果を発動
+            // （ATK>0 のデッキ攻撃は CanAttackDeck で相手デッキ1枚以上が保証されているため必ずダメージが入る）
+            if (!_isGameOver)
+            {
+                FieldView attackerField = isLocal ? _playerFieldView : _opponentFieldView;
+                if (attackerField.Contains(attacker))
+                {
+                    await FireOnDealPlayerDamageEffectAsync(attacker, isLocal, ct);
+                }
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
+        // デッキミル共通処理：deckOwnerIsLocal のデッキ上から count 枚を1枚ずつ墓地へ送る（デッキ枚数が少なければ全枚数）。
+        // 「ダメージトリガー」カードは墓地行きの代わりに、デッキの持ち主がコストを支払わずに使用する（ResolveGraveTriggerFromDeckAsync）。
+        // ミル後にデッキ切れ（デッキアウト）を判定する。デッキ攻撃（ExecuteDeckAttackAsync）と
+        // デッキダメージ効果（DamageEnemyDeck / DamageBothDecks）の共通の building-block。
+        // デッキ順・カードデータは同期済みのため両クライアントで決定的に動作する（追加同期不要）。
+        internal async UniTask MillDeckAsync(bool deckOwnerIsLocal, int count, CancellationToken ct)
+        {
+            DeckView deck = deckOwnerIsLocal ? _playerDeckView : _opponentDeckView;
+            GraveyardView graveyard = deckOwnerIsLocal ? _playerGraveyardView : _opponentGraveyardView;
+
+            int millCount = Mathf.Min(count, deck.Count);
             for (int i = 0; i < millCount; i++)
             {
-                Rect deckRect = targetDeck.worldBound;
-                CardData milled = targetDeck.DrawTop();
-                targetDeck.RefreshCount();
+                if (_isGameOver)
+                {
+                    return;
+                }
+                Rect deckRect = deck.worldBound;
+                CardData milled = deck.DrawTop();
+                deck.RefreshCount();
                 if (milled == null)
                 {
                     break;
                 }
-                // ミルされるカードは攻撃側ではなく守る側（デッキの持ち主）のもの。攻撃側が自分(isLocal)なら相手のカード
-                CardView milledCard = new CardView(_cardStore.CardTemplate, milled, _cardStore.CardBack, faceDown: false, isOpponent: isLocal);
-                await FlyToGraveyardAsync(milledCard, deckRect, targetGraveyard, ct);
+                // 「ダメージトリガー」カードは墓地行きの代わりに、デッキの持ち主がコストなしで使用する
+                if (milled.TriggerOnGrave)
+                {
+                    await ResolveGraveTriggerFromDeckAsync(milled, ownerIsLocal: deckOwnerIsLocal, fromRect: deckRect, ct);
+                    continue;
+                }
+                CardView milledCard = new CardView(_cardStore.CardTemplate, milled, _cardStore.CardBack, faceDown: false, isOpponent: !deckOwnerIsLocal);
+                await FlyToGraveyardAsync(milledCard, deckRect, graveyard, ct);
             }
-            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
 
-            // 攻撃で相手デッキが0になったら、その相手がデッキ切れで敗北
-            CheckDeckOutWin(isLocalDeck: !isLocal);
+            // デッキが0になったら、そのプレイヤーがデッキ切れで敗北
+            CheckDeckOutWin(isLocalDeck: deckOwnerIsLocal);
         }
 
         // ─── CPU アクション選択 ───────────────────────────────────────────

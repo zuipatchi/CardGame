@@ -26,6 +26,8 @@
 | CostBoost | 通常プレイ時は**無効果**。手札からコストとして支払うときに、このカードを EventValue 分のコストとして数える（コスト倍化）。**属性連動**：このカードの属性がプレイするカードの属性と一致するときのみ EventValue 分、それ以外の属性のコストには通常どおり1（白も一般属性扱い）。例: 赤の CostBoost(2) は赤カードのコストに2・青/白などには1、白の CostBoost は白カードのコストにのみ2。キャラに付ける場合は `CharacterEffectTrigger.OnUsedAsCost` と併用、イベントは `EventType=CostBoost` 単体で判定 | コスト換算値（例: 2） |
 | DamageAllEnemies | 発動側から見た敵フィールドのキャラ全員に EventValue 分のダメージを同時に与え、HP が 0 以下になったキャラを破壊する。敵フィールド中央に AoE パーティクル演出を再生（敵キャラが0体でも演出は再生） | ダメージ量 |
 | DamageEnemy | 発動側から見た敵キャラを**値1体**選び、それぞれに**値2分**のダメージを同時に与え、HP が 0 以下なら破壊する。対象はプレイヤーがクリックで選択（選択中は金枠ハイライト `selectable-char`、選択済みは赤枠 `selected-char`、残り体数をトースト表示）。対象数が敵の数以上なら全員が対象（選択不要）・0体なら空振り。CPU は攻撃力上位を狙う。オンラインは対象をフィールドのインデックス配列で同期（`NGS_DamageTarget`） | 値1=対象数 / 値2=ダメージ量 |
+| DamageEnemyDeck | **相手のデッキの上から値1枚を墓地へ送る**（デッキへのダメージ＝ミル）。デッキ枚数が値1未満なら全枚数。ミルされたカードが**ダメージトリガー**（`TriggerOnGrave`）なら持ち主（相手）がコストなしで使用する（下記「効果ごとの注意点」の「ダメージトリガー」参照）。相手デッキが0枚になると相手はデッキ切れで敗北（[rules.md](rules.md)「勝敗条件」）。デッキ攻撃のミルと共通処理（`MillDeckAsync`） | 値1=ミル枚数 |
+| DamageBothDecks | **お互いのデッキの上から値1枚ずつを墓地へ送る**（自分 → 相手の順）。自分のデッキも削れる両刃の効果。各ミルは DamageEnemyDeck と同じ（ダメージトリガー・デッキ切れ判定込み）。**自分のデッキを先に削り、その時点で0枚なら自分がデッキ切れで即敗北**（続く相手のミルは行われない） | 値1=ミル枚数 |
 | SummonChar | 発動側の自フィールドに、指定キャラ（**値1**=キャラIDの数字部分→"C{番号}"。例 1001→C1001）を**値2**体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。召喚キャラの OnEnter も発動する。フィールドが9体（`FieldView.MaxCharacters`）で打ち切り（OnEnter 連鎖もここで自然停止）。存在しない／キャラ以外のIDは空振り | 値1=召喚キャラID数字 / 値2=体数 |
 | GainVPPerGreenGrave | 発動した側の墓地にある**緑属性カードの枚数**だけ、自分の勝利点に加算する（演出は勝利点付帯値と同じ MedalIcon フロート＋加点演出）。墓地に緑カードがなければ加点 0。イベントカードは効果解決後に墓地へ送られるため、プレイしたそのカード自身は枚数に含まれない | 使用しない（0 固定） |
 | NextCardCostFree | 発動した側が**次にプレイするカード1枚のコストを0にする**（使うまで持続。ターンをまたいでも次の1枚に適用）。発動カード上に「コスト0」フロート表示。コスト0のカードに使うと無駄に消費される点に注意 | 使用しない（0 固定） |
@@ -61,7 +63,7 @@
 
 | トリガー | テキスト |
 |---|---|
-| キャラ OnEnter / OnAttack / OnDestroy / OnUsedAsCost / OnTurnStart / OnAttacked / OnKill | 場に出た時 / 攻撃した時 / 破壊された時 / コストとして使用した時 / 自分のターン開始時 / 攻撃された時 / 相手キャラを撃破した時 |
+| キャラ OnEnter / OnAttack / OnDestroy / OnUsedAsCost / OnTurnStart / OnAttacked / OnKill / OnDealPlayerDamage | 場に出た時 / 攻撃した時 / 破壊された時 / コストとして使用した時 / 自分のターン開始時 / 攻撃された時 / 相手キャラを撃破した時 / 相手プレイヤーにダメージを与えた時 |
 | キャラ None・イベント OnPlay | （接頭辞なし） |
 | イベント OnTurnStart | 自分のターン開始時に毎ターン |
 
@@ -113,7 +115,7 @@
 | Victory Point Bonus | 勝利点付帯値。効果（Event Type）とは独立して、プレイ／OnTurnStart 時に発動側へこの値を加算する。0 で加算なし。全属性のカードで設定できる（属性による制限なし） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
-| Trigger On Grave | ON にすると、このカードが墓地に送られたときにコストを支払わずに効果が発動する |
+| ダメージトリガー | ON にすると、このカードが**デッキから**墓地へ送られたとき（デッキ攻撃のミル・将来のデッキミル効果）、デッキの持ち主がコストを支払わずに使用する。イベントは効果を解決してから墓地へ送る。手札・場・コスト支払い・戦闘破壊などデッキ以外から墓地へ行った場合は発動しない（下記「ダメージトリガー」参照）。守護などのキーワード能力と同じ枠で**カードと詳細モーダルに GraveIcon を表示**する |
 | Event Trigger | 発動タイミング（下表）。既定は `OnPlay` |
 
 - ID は属性ごとに自動採番される：`E{(属性番号)×1000 + 連番}`（属性番号=白1/青2/緑3/黄4/赤5/黒6/紫7。白=`E1001`/青=`E2001`/…。`CardIdAutoAssigner`）
@@ -144,6 +146,7 @@
 | Sakimori | **防人**。守護を兼ねる対空ガード。ON にすると、① 飛行はこのキャラがいる間は防人を優先して攻撃せねばならず（守護は無視するが防人は無視できない）、② 非飛行は守護同様このキャラを優先して攻撃せねばならず、③ このキャラ自身は飛行に攻撃できる。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに ProtectorIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
+| ダメージトリガー | ON にすると、このキャラが**デッキから**墓地へ送られたとき（デッキ攻撃のミル・将来のデッキミル効果）、デッキの持ち主がコストを支払わずに場へ召喚する（OnEnter 効果も発動し、そのまま場に残る）。手札・場・コスト支払い・戦闘破壊などデッキ以外から墓地へ行った場合は発動しない（下記「ダメージトリガー」参照）。守護などのキーワード能力と同じ枠で**カードと詳細モーダルに GraveIcon を表示**する |
 
 #### EffectTrigger（[CharacterEffectTrigger.cs](../Assets/Scripts/Main/Card/CharacterEffectTrigger.cs)）
 
@@ -157,6 +160,7 @@
 | OnTurnStart | 自分のターン開始時（ターン開始演出の直後・ドローフェーズの前）。このキャラが場にいる限り毎ターン1回発動する。場を離れると発動しない（出したターンは既に開始時を過ぎているため次の自分ターンから発動） |
 | OnAttacked | 被攻撃時。**相手キャラの攻撃の対象になった**瞬間に発動する（攻撃された本人を source として解決）。**攻撃側 ATK 0 の盾ブロック（ダメージ0）でも発動する**（ダメージの有無は問わない）。`DamageEnemy` 等の効果ダメージでは発動しない（キャラの攻撃＝戦闘のみ）。ダメージ適用後・破壊判定の前に発動するため、回復効果で生き残ったり反撃したりできる（破壊判定は OnAttacked 後に再計算される） |
 | OnKill | 撃破時。**このキャラの攻撃で相手キャラを破壊した**ときに発動する（攻撃した本人を source として解決）。**戦闘での撃破のみ**で、`DamageEnemy` / `BanishChar` 等の効果破壊では発動しない。対象の OnDestroy 解決後に発動し、反撃等で攻撃側が場を離れている場合は発動しない |
+| OnDealPlayerDamage | 相手プレイヤーにダメージを与えた時。**このキャラのデッキ攻撃で相手プレイヤー（＝相手デッキ）にダメージ（ミル）を与えた**ときに発動する（攻撃した本人を source として解決）。**デッキ攻撃のみ**で、`DamageEnemyDeck` / `DamageBothDecks` のデッキミル効果では発動しない。ミル解決後に発動し、1回のデッキ攻撃につき1回（攻撃キャラが場を離れている場合・ミルで相手がデッキ切れ敗北した場合は発動しない） |
 
 - ID は属性ごとに自動採番される：`C{(属性番号)×1000 + 連番}`（属性番号=白1/青2/緑3/黄4/赤5/黒6/紫7。白=`C1001`/青=`C2001`/…。`CardIdAutoAssigner`）
 
@@ -165,10 +169,12 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / SummonChar / SummonFromDeckByKeyword / CopyFieldChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageAllEnemies / DamageEnemy / DamageEnemyDeck / DamageBothDecks / SummonChar / SummonFromDeckByKeyword / CopyFieldChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageEnemyDeck / DamageBothDecks（デッキへのダメージ）**: デッキの上から指定枚数を墓地へ送る（ミル）。デッキ攻撃（`ExecuteDeckAttackAsync`）と同じ `MillDeckAsync` を経由するため、**ダメージトリガーカードの起動・デッキ切れ判定・オンライン同期**がすべて共通。`DamageEnemyDeck` は相手デッキのみ、`DamageBothDecks` は自分 → 相手の順に両デッキを削り、自分のデッキが先に0枚になればその時点で自滅敗北する（両刃）。デッキ順は同期済みのため決定的に対称動作する（追加同期不要）。
 - **BuffAttackByKeyword / BuffHpByKeyword（特徴シナジー）**: 発動側の自フィールドで、発動元（source）と同じ特徴（`CardData.Keyword`）を持つキャラを source 自身を除いて集め、`CardView.BuffAttackAsync` / `BuffHpAsync` で攻撃力／HP を `EventValue`（=上昇量）分**永続加算**する（`ApplyBuffByKeywordAsync`）。攻撃力には従来実行時バフの仕組みが無かったため、`CardView` に `_attackBuff` / `_hpBuff`（→ `CurrentAttack` / `MaxHp`）を新設し、戦闘ダメージ・CPU判断・対象選択の攻撃力参照を `Data.Attack`→`CurrentAttack` に統一した。HP バフは現在HPと最大HP（回復のクランプ上限）の両方を上げる。発動時の盤面スナップショットに対して一度だけ適用するため、**後から場に出たキャラや特徴の異なるキャラは対象外**。source の特徴が空なら空振り。効果はカードデータ（特徴）と同期済み盤面から決定的に解決されるため、CPU・オンラインでも対称に発動する（追加同期不要）。イベントカードに付けた場合は場に source キャラがいないので、対象特徴を持つ味方キャラ全員に適用される。
 - **OnAttacked / OnKill（キャラ専用の戦闘トリガー）**: いずれも `ExecuteAttackAsync`（キャラ vs キャラ戦闘）からのみ発動する。`OnAttacked` は被攻撃側が攻撃の対象になった直後（破壊判定の前）に解決され、source は攻撃された本人・所有者は攻撃側の相手。**攻撃側 ATK 0 の盾ブロック（ダメージ0）でも発動する**。`OnKill` は攻撃側が対象を撃破し、対象の OnDestroy 解決後に攻撃側が場に残っていれば解決され、source は攻撃した本人・所有者は攻撃側（ダメージ0では撃破が起きないため発動しない）。どちらも戦闘から決定的に解決されるためオンライン・CPU でも追加同期なしで対称発動する（`DamageEnemy` 等の効果ダメージでは発動しない）。
 - **OnTurnStart（キャラ・イベント共通）**: 自分のターン開始時（ドロー前）に毎ターン発動。キャラは場にいる間、イベントはプレイして登録された後ずっと発動し続ける（コストとして捨てたイベントは登録されず発動しない）。発動順は「場のキャラ → 登録済みイベント」。オンラインでは盤面・登録簿が同期済みのため決定的に対称解決される（対象選択は既存の同期を流用・追加同期なし）。
+- **ダメージトリガー（`CardData.TriggerOnGrave`／キャラ・イベント共通）**: `EffectTrigger` / `EventTrigger` とは独立したフラグ。**「デッキ」から墓地へ送られた瞬間のみ**発動し、デッキの持ち主がコストを支払わずにそのカードを使用する。現状の発動経路は**デッキ攻撃のミル**（`ExecuteDeckAttackAsync`）で、将来のデッキミル効果も同じ発動メソッド（`ResolveGraveTriggerFromDeckAsync`）を経由する。キャラはデッキの持ち主の場へ召喚され（OnEnter 効果も発動し、そのまま場に残る／キャラ8体勝利判定も走る）、イベントはデッキ→場中央へせり出して効果を解決後に墓地へ送られる。**手札・場・コスト支払い・戦闘破壊・通常ドローの手札満杯バーンなど、デッキ以外から墓地へ行った場合は発動しない**。デッキ順・カードデータは同期済みのためオンライン・CPU でも決定的に対称発動する（追加同期不要）。表示は守護などのキーワード能力と同じ枠で、`TriggerOnGrave` のカードは**カードと詳細モーダルに GraveIcon（墓場アイコン）を表示**する（`CardView.RefreshKeywordIcons` / `CardDetailModal`）。
 - **Bounce**: 対象選択は DamageEnemy と同じ仕組み（`ResolveEnemyCharTargetsAsync` を共用。プレイヤー選択／CPU 自動／オンラインはインデックス同期）。対象キャラは所有者の手札へ戻す（相手の手札に戻す場合は裏向きで、自分の手札に戻る場合は表向き）。`EventValue` = 戻す体数（値2は不使用）。デッキは消費しないため手札が増える。**戻し先の手札が上限（8枚）に達している場合は手札へ戻さず所有者の墓地へ送る（バーン）**（[rules.md](rules.md)「手札の上限」）。
 - **BounceAll**: Bounce の全員対象版。`ApplyBounceAllAsync` が敵フィールドの全数を `ApplyBounceAsync` に渡し、「対象数が敵の数以上なら全員（選択不要）」分岐を流用して全体バウンスを実現する。対象選択 UI は出ず、全員確定のためオンラインの追加同期も不要。演出は個別バウンス（対象ごとにパーティクル＋1枚ずつ戻す）と異なり、**フィールド中央で全体用エフェクト（`_bounceAllEffectPrefab`）を1度だけ再生し、全カードをまとめて同時に手札へ戻す**（`ApplyBounceAsync` の一括モード `simultaneous` を使用）。手札へ戻す挙動（裏向き／表向き）は Bounce と同じ。手札が上限（8枚）の場合のバーンも Bounce と同じだが、一括モードでは事前に空きスロット数を確定して超過分をバーンへ振り分ける（同時実行の競合回避）。`EventValue` / `EventValue2` は不使用（0）。
 

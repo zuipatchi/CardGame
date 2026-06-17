@@ -243,6 +243,12 @@
     height: 53px;
 }
 
+.card-detail-stat-icon--trigger-on-grave {
+    background-image: url("../../../AddressableAssets/Icon/GraveIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--spd {
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }

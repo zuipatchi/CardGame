@@ -978,6 +978,14 @@ namespace Main
             return ResolveCharacterTriggeredEffectAsync(attackerCard, CharacterEffectTrigger.OnKill, ownerIsLocal, ct);
         }
 
+        // デッキ攻撃で相手プレイヤー（相手デッキ）にダメージを与えた攻撃キャラの OnDealPlayerDamage 効果を発動する。
+        // ownerIsLocal = 攻撃側キャラの所有者が自分側か。デッキ攻撃（ExecuteDeckAttackAsync）からのみ呼ぶ。
+        // 効果はカードデータと同期済み盤面から決定的に解決される（追加同期不要）。
+        private UniTask FireOnDealPlayerDamageEffectAsync(CardView attackerCard, bool ownerIsLocal, CancellationToken ct)
+        {
+            return ResolveCharacterTriggeredEffectAsync(attackerCard, CharacterEffectTrigger.OnDealPlayerDamage, ownerIsLocal, ct);
+        }
+
         internal async UniTask ApplyEvolveEffectAsync(bool isLocal, CancellationToken ct)
         {
             FieldView ownField = isLocal ? _playerFieldView : _opponentFieldView;

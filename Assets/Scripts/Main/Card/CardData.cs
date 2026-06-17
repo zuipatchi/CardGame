@@ -26,6 +26,12 @@ namespace Main.Card
         // true でも対戦の参照テーブル（CardDatabase._dict）には登録されるため、効果から ID で召喚・参照できる。
         // 既定値 false＝デッキ構築でも使用する（既存アセットは未設定でも false になるため移行不要）。
         [SerializeField] protected bool _excludeFromDeckBuilder;
+        // ダメージトリガー：このカードが「デッキ」から墓地へ送られた場合（デッキ攻撃のミル・将来のデッキミル効果）、
+        // デッキの持ち主がコストを支払わずにこのカードを使用する。
+        // キャラは場に召喚（登場時効果も発動）、イベントは効果を解決してから墓地へ送る。
+        // デッキ以外（手札・場・コスト支払い・戦闘破壊など）から墓地へ行った場合は発動しない。
+        // 既定値 false（既存アセットは未設定でも false になるため移行不要）。キャラ・イベント共通。
+        [SerializeField] protected bool _triggerOnGrave;
         public string Id => _id;
         public string CardName => _cardName;
         public int Cost => _cost;
@@ -39,6 +45,8 @@ namespace Main.Card
         public bool InUse => !_excludeFromGame;
         // デッキ構築のプールに表示するか（対戦は可だがデッキに入れられないトークンは除外）。
         public bool InDeckPool => InUse && !_excludeFromDeckBuilder;
+        // ダメージトリガーするか（デッキから墓地へ送られたときコストなしで使用）。キャラ・イベント共通。
+        public bool TriggerOnGrave => _triggerOnGrave;
 
         public virtual int Attack => 0;
         public virtual int Hp => 0;

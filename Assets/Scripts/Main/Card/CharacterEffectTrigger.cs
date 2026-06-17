@@ -7,6 +7,8 @@ namespace Main.Card
     // OnTurnStart（自分のターン開始時）は、このキャラが場にいる限り自分のターン開始時（ドロー前）に毎ターン1回発動する。
     // OnAttacked（被攻撃時）は、相手キャラの攻撃の対象になったときに発動する（攻撃側 ATK0 の盾ブロック=ダメージ0でも発動。効果ダメージでは発動しない）。
     // OnKill（撃破時）は、このキャラの攻撃で相手キャラを破壊したときに発動する（戦闘のみ。効果破壊では発動しない）。
+    // OnDealPlayerDamage（相手プレイヤーにダメージを与えた時）は、このキャラのデッキ攻撃で相手プレイヤー＝相手デッキに
+    // ダメージ（ミル）を与えたときに発動する（デッキ攻撃のみ。デッキミル効果では発動しない）。1回のデッキ攻撃につき1回。
     // ※ メンバーは末尾に追加すること（既存の serialized 整数値がズレるため並べ替え・中間削除をしない）。
     public enum CharacterEffectTrigger
     {
@@ -18,5 +20,6 @@ namespace Main.Card
         OnTurnStart,
         OnAttacked,
         OnKill,
+        OnDealPlayerDamage,
     }
 }

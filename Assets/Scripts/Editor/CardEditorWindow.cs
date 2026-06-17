@@ -634,6 +634,7 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_haste"), new GUIContent("速攻"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_flying"), new GUIContent("飛行"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_sakimori"), new GUIContent("防人"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
         }
 
         private void DrawEventFields(SerializedProperty element)
@@ -647,7 +648,7 @@ namespace GameEditor
                 element.FindPropertyRelative("_eventValue"),
                 element.FindPropertyRelative("_eventValue2"));
 
-            EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("墓地で発動"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
         }
 
         // EventType に応じて値1/値2 のラベルを切り替え、意味のヒントを表示する。
@@ -721,6 +722,7 @@ namespace GameEditor
             element.FindPropertyRelative("_excludeFromDeckBuilder").boolValue = false;
             element.FindPropertyRelative("_description").stringValue = string.Empty;
             element.FindPropertyRelative("_keyword").stringValue = string.Empty;
+            element.FindPropertyRelative("_triggerOnGrave").boolValue = false;
 
             if (isCharacter)
             {
@@ -741,7 +743,6 @@ namespace GameEditor
                 element.FindPropertyRelative("_eventType").enumValueIndex = (int)EventType.None;
                 element.FindPropertyRelative("_eventValue").intValue = 0;
                 element.FindPropertyRelative("_eventValue2").intValue = 0;
-                element.FindPropertyRelative("_triggerOnGrave").boolValue = false;
             }
         }
 
@@ -870,6 +871,8 @@ namespace GameEditor
                     return "攻撃された時";
                 case CharacterEffectTrigger.OnKill:
                     return "相手キャラを撃破した時";
+                case CharacterEffectTrigger.OnDealPlayerDamage:
+                    return "相手プレイヤーにダメージを与えた時";
                 default:
                     return string.Empty;
             }

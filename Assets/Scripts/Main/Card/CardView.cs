@@ -23,6 +23,7 @@ namespace Main.Card
         private readonly VisualElement _hasteIcon;
         private readonly VisualElement _flyingIcon;
         private readonly VisualElement _sakimoriIcon;
+        private readonly VisualElement _triggerOnGraveIcon;
         private int _currentHp;
         // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
         private int _attackBuff;
@@ -68,6 +69,7 @@ namespace Main.Card
             _hasteIcon = this.Q<VisualElement>("HasteIcon");
             _flyingIcon = this.Q<VisualElement>("FlyingIcon");
             _sakimoriIcon = this.Q<VisualElement>("SakimoriIcon");
+            _triggerOnGraveIcon = this.Q<VisualElement>("TriggerOnGraveIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
 
@@ -334,12 +336,14 @@ namespace Main.Card
         }
 
         // キーワード能力アイコンの表示を現在の状態（SO 固有 OR 付与）に合わせて更新する。
+        // ダメージトリガー（Data.TriggerOnGrave）はカードデータ固定のフラグだが、守護などと同じアイコン枠として一括更新する。
         private void RefreshKeywordIcons()
         {
             _guardianIcon.style.display = HasGuardian ? DisplayStyle.Flex : DisplayStyle.None;
             _hasteIcon.style.display = HasHaste ? DisplayStyle.Flex : DisplayStyle.None;
             _flyingIcon.style.display = HasFlying ? DisplayStyle.Flex : DisplayStyle.None;
             _sakimoriIcon.style.display = HasSakimori ? DisplayStyle.Flex : DisplayStyle.None;
+            _triggerOnGraveIcon.style.display = Data.TriggerOnGrave ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         // キーワード能力を実行時に永続付与する（GrantKeyword）。既に持っていれば演出のみ。

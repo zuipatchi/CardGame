@@ -35,10 +35,18 @@ namespace Main.Card
         // 発動側から見た敵フィールドのキャラ全員に EventValue / EffectValue 分のダメージを与え、
         // HP が 0 以下になったキャラを破壊する。敵キャラがいなければ空振り。
         DamageAllEnemies = 10,
+        // お互いのデッキの上から EventValue / EffectValue 枚ずつを墓地へ送る（デッキへのダメージ＝ミル）。
+        // 自分 → 相手の順にミルする。ミルされたカードが「ダメージトリガー」なら持ち主がコストなしで使用する。
+        // 自分のデッキを先に削り、その時点で0枚なら自分がデッキ切れで即敗北（続く相手のミルは行われない）。EventValue2 / EffectValue2 は不使用。
+        DamageBothDecks = 27,
         // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
         // それぞれに EventValue2 / EffectValue2 分のダメージ（値2）を同時に与え、HP 0 以下を破壊する。
         // 対象はプレイヤーが選択（対象数が敵の数以上なら全員・0体なら空振り）。
         DamageEnemy = 13,
+        // 相手のデッキの上から EventValue / EffectValue 枚を墓地へ送る（デッキへのダメージ＝ミル）。
+        // ミルされたカードが「ダメージトリガー」なら持ち主（相手）がコストなしで使用する。
+        // 相手デッキが0枚になればデッキ切れで相手が敗北。EventValue2 / EffectValue2 は不使用。
+        DamageEnemyDeck = 28,
         Draw = 3,
         // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
         // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。

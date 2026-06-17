@@ -223,6 +223,61 @@ namespace Main
             }
         }
 
+        // ─── ダメージトリガー（デッキダメージ） ─────────────────────────────────────
+        // デッキ攻撃のミル・将来のデッキミル効果でデッキ→墓地に送られた「ダメージトリガー」カードを、
+        // デッキの持ち主（ownerIsLocal）がコストなしで使用する。
+        //   キャラ：持ち主の場へ召喚（登場時効果 OnEnter も発動）し、場に残る。
+        //   イベント：デッキ → 場中央へせり出して効果を解決し、墓地へ送る。
+        // fromRect は演出の起点（ミル元のデッキ位置）。
+        // カードデータ・盤面は同期済みのため両クライアントで決定的に発動する（追加同期不要）。
+        private async UniTask ResolveGraveTriggerFromDeckAsync(CardData data, bool ownerIsLocal, Rect fromRect, CancellationToken ct)
+        {
+            if (data is CharacterCardData)
+            {
+                // 持ち主の場へコストなしで召喚（OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
+                FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
+                await SummonSingleCharAsync(data, field, ownerIsLocal, fromRect, ct);
+                return;
+            }
+
+            if (data is EventCardData eventData)
+            {
+                // デッキ → 場中央へせり出して効果を解決し、解決後に墓地へ送る
+                GraveyardView graveyard = ownerIsLocal ? _playerGraveyardView : _opponentGraveyardView;
+                FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
+                Rect fieldRect = field.worldBound;
+
+                float fromLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+                float fromTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+                float displayLeft = fieldRect.center.x - CardScaleConstants.CardWidth / 2f;
+                float displayTop = fieldRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+                CardView temp = new CardView(_cardStore.CardTemplate, eventData, _cardStore.CardBack, faceDown: false, isOpponent: !ownerIsLocal);
+                temp.style.position = Position.Absolute;
+                temp.style.left = fromLeft;
+                temp.style.top = fromTop;
+                temp.style.scale = new Scale(Vector3.zero);
+                temp.pickingMode = PickingMode.Ignore;
+                _dragLayer.Add(temp);
+
+                // デッキ → 場中央へせり出す
+                await TweenCardAbsoluteAsync(temp, displayLeft, displayTop, 1f, 0.3f, Ease.OutBack, ct);
+
+                // 効果発動（temp.worldBound が有効な状態で、種別ごとの演出込みで解決）
+                await ResolveEventCardEffectAsync(eventData, temp, ownerIsLocal, ct);
+
+                // 場 → 墓地へ送る（AddCard が _dragLayer から取り除いて墓地データに加える）
+                if (temp.parent == _dragLayer)
+                {
+                    Rect graveRect = graveyard.worldBound;
+                    float graveLeft = graveRect.center.x - CardScaleConstants.CardWidth / 2f;
+                    float graveTop = graveRect.center.y - CardScaleConstants.CardHeight / 2f;
+                    await TweenCardAbsoluteAsync(temp, graveLeft, graveTop, 0f, 0.25f, Ease.InQuad, ct);
+                    graveyard.AddCard(temp);
+                }
+            }
+        }
+
         // _dragLayer 上の絶対配置カードの left / top / scale を同時にトゥイーンする（カードは layer に残す）
         private async UniTask TweenCardAbsoluteAsync(CardView card, float targetLeft, float targetTop, float targetScale, float duration, Ease ease, CancellationToken ct)
         {

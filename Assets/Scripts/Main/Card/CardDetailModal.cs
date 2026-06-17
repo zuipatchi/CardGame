@@ -92,6 +92,10 @@ namespace Main.Card
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--sakimori", string.Empty, "防人"));
                 }
+                if (charData.TriggerOnGrave)
+                {
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));
+                }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
                     Label descLabel = new Label(charData.Description);
@@ -101,6 +105,10 @@ namespace Main.Card
             }
             else if (data is EventCardData eventData)
             {
+                if (eventData.TriggerOnGrave)
+                {
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));
+                }
                 if (!string.IsNullOrEmpty(eventData.Description))
                 {
                     Label descLabel = new Label(eventData.Description);

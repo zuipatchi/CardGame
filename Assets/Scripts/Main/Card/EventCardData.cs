@@ -12,7 +12,6 @@ namespace Main.Card
         [SerializeField] private int _eventValue;
         [SerializeField] private int _eventValue2;
         [SerializeField] private string _description;
-        [SerializeField] private bool _triggerOnGrave;
         // 属性は所属する EventCardSO（属性別 SO）が一括設定するため、インスペクタでは読み取り専用
         [SerializeField, ReadOnly] private CardAttribute _attribute;
 
@@ -21,7 +20,6 @@ namespace Main.Card
         // 効果ごとの2つ目の数値（例: SummonChar の召喚体数）。未使用の効果では 0
         public int EventValue2 => _eventValue2;
         public string Description => _description;
-        public bool TriggerOnGrave => _triggerOnGrave;
         // 発動タイミング（OnPlay：プレイ時即時 / OnTurnStart：墓地から毎ターン開始時）
         public EventCardTrigger EventTrigger => _eventTrigger;
         public override CardAttribute Attribute => _attribute;
