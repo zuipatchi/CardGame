@@ -16,7 +16,7 @@ MonoBehaviour:
   _cards:
   - _id: E5001
     _cardName: "\u3071\u3061\u3071\u3061\u5F3E\u3051\u308B\u3072\u306E\u3053"
-    _cost: 0
+    _cost: 1
     _image: {fileID: 21300000, guid: 16e198de48695204e8e8cf17814eada1, type: 3}
     _flavorText: "\u3071\u3061\u3071\u3061\u3071\u3061\uFF5E"
     _keyword: 
@@ -44,7 +44,7 @@ MonoBehaviour:
     _eventType: 14
     _eventValue: 5001
     _eventValue2: 2
-    _description: "\u300C\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
+    _description: "\u300C1/2\u306E\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
     _attribute: 0
   - _id: E5003
     _cardName: "\u706B\u708E\u653E\u5C04"
@@ -57,10 +57,10 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 10
+    _eventType: 13
     _eventValue: 3
-    _eventValue2: 0
-    _description: "\u76F8\u624B\u30AD\u30E3\u30E9\u5168\u4F53\u306B3\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _eventValue2: 2
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E93\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 0
   - _id: E5004
     _cardName: "\u30C9\u30E9\u30B4\u30F3\u306E\u9006\u9C57\u306B\u89E6\u308C\u305F"
@@ -73,10 +73,10 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 10
-    _eventValue: 5
+    _eventType: 13
+    _eventValue: 3
     _eventValue2: 3
-    _description: "\u76F8\u624B\u30AD\u30E3\u30E9\u5168\u4F53\u306B5\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E93\u4F53\u306B3\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 0
   - _id: E5005
     _cardName: "\u5927\u7206\u767A"
@@ -92,7 +92,7 @@ MonoBehaviour:
     _eventType: 27
     _eventValue: 4
     _eventValue2: 0
-    _description: "\u304A\u4E92\u3044\u306E\u30C7\u30C3\u30AD\u306E\u4E0A\u304B\u30895\u679A\u305A\u3064\u3092\u5893\u5730\u3078\u9001\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u304A\u4E92\u3044\u306E\u30C7\u30C3\u30AD\u306E\u4E0A\u304B\u30894\u679A\u305A\u3064\u3092\u5893\u5730\u3078\u9001\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 0
   - _id: E5006
     _cardName: "\u6EC5\u3073\u306E\u5100\u5F0F"
@@ -106,7 +106,7 @@ MonoBehaviour:
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 28
-    _eventValue: 3
+    _eventValue: 2
     _eventValue2: 0
-    _description: "\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306E\u4E0A\u304B\u30893\u679A\u3092\u5893\u5730\u3078\u9001\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306E\u4E0A\u304B\u30892\u679A\u3092\u5893\u5730\u3078\u9001\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 0

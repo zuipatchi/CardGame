@@ -44,7 +44,7 @@ MonoBehaviour:
     _eventType: 3
     _eventValue: 2
     _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30922\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u30AB\u30FC\u30C9\u30922\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 1
   - _id: E2003
     _cardName: "\u672A\u6765\u3078\u306E\u671F\u5F85"
@@ -60,7 +60,7 @@ MonoBehaviour:
     _eventType: 21
     _eventValue: 2
     _eventValue2: 0
-    _description: "\u6B21\u306E\u30BF\u30FC\u30F3\u306E\u958B\u59CB\u6642\u306B2\u679A\u30C9\u30ED\u30FC\u3059\u308B"
+    _description: "\u6B21\u306E\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B2\u679A\u591A\u304F\u5F15\u304F"
     _attribute: 1
   - _id: E2004
     _cardName: "\u524D\u501F\u308A"
@@ -76,7 +76,7 @@ MonoBehaviour:
     _eventType: 20
     _eventValue: 3
     _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u30C9\u30ED\u30FC\u3059\u308B\u3002\u6B21\u306E\u30BF\u30FC\u30F3\u306E\u958B\u59CB\u6642\u306B\u30C9\u30ED\u30FC\u3067\u304D\u306A\u3044"
+    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F\u3002\u6B21\u306E\u30C9\u30ED\u30FC\u30921\u56DE\u30B9\u30AD\u30C3\u30D7\u3059\u308B"
     _attribute: 1
   - _id: E2005
     _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
@@ -92,7 +92,7 @@ MonoBehaviour:
     _eventType: 16
     _eventValue: 1
     _eventValue2: 0
-    _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E91\u4F53\u3092\u624B\u672D\u306B\u623B\u3059"
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u3092\u6301\u3061\u4E3B\u306E\u624B\u672D\u306B\u623B\u3059"
     _attribute: 1
   - _id: E2006
     _cardName: "\u5B87\u5B99\u3092\u8D85\u3048\u305F\u51FA\u4F1A\u3044"
@@ -108,7 +108,7 @@ MonoBehaviour:
     _eventType: 18
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u3082\u3046\u4E00\u5EA6\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u3092\u884C\u3046"
+    _description: "\u8FFD\u52A0\u3067\u3082\u30461\u5EA6\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u3092\u884C\u3046"
     _attribute: 1
   - _id: E2007
     _cardName: "\u30C8\u30EA\u30D7\u30EB\u30C9\u30ED\u30FC"

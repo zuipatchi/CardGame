@@ -145,7 +145,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u5168\u3066\u306E\u30AD\u30E3\u30E9\u306B2\u30C0\u30E1\u30FC\u30B8"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E9\u5168\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
   - _id: C5007
     _cardName: "\u30B9\u30AB\u30FC\u30EC\u30C3\u30C8\u30FBDOM"
     _cost: 3
@@ -156,8 +156,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 5
-    _hp: 6
+    _attack: 3
+    _hp: 4
     _attribute: 0
     _effectTrigger: 0
     _effectType: 0

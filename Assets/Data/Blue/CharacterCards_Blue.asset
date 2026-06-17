@@ -35,7 +35,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u7834\u58CA\u3055\u308C\u305F\u3068\u304D1\u679A\u30C9\u30ED\u30FC\u3059\u308B"
+    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
   - _id: C2002
     _cardName: "\u3071\u3063\u3061\u306E\u5F1F"
     _cost: 1
@@ -46,8 +46,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 1
-    _attack: 2
-    _hp: 4
+    _attack: 1
+    _hp: 2
     _attribute: 1
     _effectTrigger: 0
     _effectType: 0
@@ -233,4 +233,4 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u76F8\u624B\u30AD\u30E3\u30E9\u3092\u6483\u7834\u3057\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
+    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30924\u5F97\u308B"
