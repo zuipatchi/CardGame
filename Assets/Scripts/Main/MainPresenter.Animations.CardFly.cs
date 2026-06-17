@@ -53,6 +53,82 @@ namespace Main
             _opponentHandView.AcceptCard(card);
         }
 
+        // ─── 手札上限バーン（満杯時に手札へ入るはずだったカードを墓地へ送る）──────
+
+        // 既存の CardView を fromRect から墓地へ飛ばし、表向きにして墓地へ追加する。
+        private async UniTask BurnCardToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct)
+        {
+            const float FlyDuration = 0.3f;
+
+            card.style.position = Position.Absolute;
+            card.style.left = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            card.style.top = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+            card.style.bottom = StyleKeyword.Null;
+            card.style.width = StyleKeyword.Null;
+            card.style.height = StyleKeyword.Null;
+            card.style.rotate = new Rotate(0);
+            card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
+            card.style.transformOrigin = StyleKeyword.Null;
+            card.style.marginLeft = StyleKeyword.Null;
+            card.style.marginRight = StyleKeyword.Null;
+            card.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(card);
+
+            // 墓地は公開情報のため表向きにする
+            if (card.IsFaceDown)
+            {
+                await card.FlipAsync(ct);
+            }
+
+            Rect toRect = graveyard.worldBound;
+            float targetLeft = toRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = toRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Join(DOTween.To(() => card.style.left.value.value, v => card.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                .Join(DOTween.To(() => card.style.top.value.value, v => card.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try
+            {
+                await tcs.Task;
+            }
+            catch (OperationCanceledException) { }
+
+            if (card.parent == _dragLayer)
+            {
+                _dragLayer.Remove(card);
+            }
+            graveyard.AddCard(card);
+        }
+
+        // ドロー由来（手札に入るはずだったカードデータ）を CardView 化してバーンする。
+        private UniTask BurnDrawnCardAsync(CardData data, Rect fromRect, GraveyardView graveyard, bool isOpponent, CancellationToken ct)
+        {
+            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent);
+            return BurnCardToGraveyardAsync(card, fromRect, graveyard, ct);
+        }
+
+        // キャラ等を所有者の手札へ戻す。手札が満杯なら墓地へ送る（バーン）。
+        // toOpponentHand=true のときは相手の手札（裏向き表示）へ戻すため、戻す前に裏返す。
+        private async UniTask ReturnCardToHandOrBurnAsync(CardView card, HandView hand, GraveyardView graveyard, Rect fromRect, bool toOpponentHand, CancellationToken ct)
+        {
+            if (hand.IsFull)
+            {
+                await BurnCardToGraveyardAsync(card, fromRect, graveyard, ct);
+                return;
+            }
+
+            if (toOpponentHand && !card.IsFaceDown)
+            {
+                await card.FlipAsync(ct);
+            }
+            await hand.AddCardBackAsync(card, fromRect, ct);
+        }
+
         // ─── カード移動ヘルパー ──────────────────────────────────────────
 
         private async UniTask FlyCardToDestAsync(CardView card, Rect fromWorldRect, VisualElement dest, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)

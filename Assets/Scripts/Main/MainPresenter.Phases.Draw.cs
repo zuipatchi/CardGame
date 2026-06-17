@@ -72,7 +72,15 @@ namespace Main
                     if (drawn != null)
                     {
                         Rect deckRect = _playerDeckView.worldBound;
-                        await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                        if (_handView.IsFull)
+                        {
+                            ShowToast("手札が上限 → 墓地へ");
+                            await BurnDrawnCardAsync(drawn, deckRect, _playerGraveyardView, isOpponent: false, ct);
+                        }
+                        else
+                        {
+                            await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                        }
                     }
                 }
                 // ドロー0枚でも同期のため通知は送る（両者の lockstep を崩さない）。
@@ -119,7 +127,14 @@ namespace Main
                     if (drawn != null)
                     {
                         Rect deckRect = _opponentDeckView.worldBound;
-                        await PlayCpuDrawAsync(drawn, deckRect, ct);
+                        if (_opponentHandView.IsFull)
+                        {
+                            await BurnDrawnCardAsync(drawn, deckRect, _opponentGraveyardView, isOpponent: true, ct);
+                        }
+                        else
+                        {
+                            await PlayCpuDrawAsync(drawn, deckRect, ct);
+                        }
                     }
                 }
                 if (CheckDeckOutWin(isLocalDeck: false))

@@ -787,11 +787,24 @@ namespace Main
                         moves.Add((target, target.worldBound));
                     }
                 }
+                // 同時実行では各カードの追加完了が並行するため、IsFull の判定が競合する。
+                // 事前に空きスロット数を確定し、超過分はバーンへ振り分ける。
+                bool toOpponentHand = targetHand == _opponentHandView;
+                GraveyardView ownerGraveyard = toOpponentHand ? _opponentGraveyardView : _playerGraveyardView;
+                int freeSlots = Mathf.Max(0, HandView.MaxCards - targetHand.Count);
                 List<UniTask> moveTasks = new List<UniTask>(moves.Count);
-                foreach ((CardView target, Rect fromRect) in moves)
+                for (int i = 0; i < moves.Count; i++)
                 {
+                    (CardView target, Rect fromRect) = moves[i];
                     targetField.RemoveCard(target);
-                    moveTasks.Add(BounceCardToHandAsync(target, targetHand, fromRect, ct));
+                    if (i < freeSlots)
+                    {
+                        moveTasks.Add(BounceCardToHandAsync(target, targetHand, fromRect, ct));
+                    }
+                    else
+                    {
+                        moveTasks.Add(BurnCardToGraveyardAsync(target, fromRect, ownerGraveyard, ct));
+                    }
                 }
                 await UniTask.WhenAll(moveTasks);
                 return;
@@ -816,13 +829,12 @@ namespace Main
         }
 
         // 1体を所有者の手札へ戻す。相手の手札（裏向き表示）に戻すときは裏返してから加える。
-        private async UniTask BounceCardToHandAsync(CardView target, HandView targetHand, Rect fromRect, CancellationToken ct)
+        // 戻し先の手札が満杯なら所有者の墓地へ送る（バーン）。
+        private UniTask BounceCardToHandAsync(CardView target, HandView targetHand, Rect fromRect, CancellationToken ct)
         {
-            if (targetHand == _opponentHandView && !target.IsFaceDown)
-            {
-                await target.FlipAsync(ct);
-            }
-            await targetHand.AddCardBackAsync(target, fromRect, ct);
+            bool toOpponentHand = targetHand == _opponentHandView;
+            GraveyardView ownerGraveyard = toOpponentHand ? _opponentGraveyardView : _playerGraveyardView;
+            return ReturnCardToHandOrBurnAsync(target, targetHand, ownerGraveyard, fromRect, toOpponentHand, ct);
         }
 
         // バウンス（全体）：発動側から見た敵フィールドのキャラ全員を所有者（相手）の手札へ戻す。
@@ -1069,7 +1081,7 @@ namespace Main
 
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);
-                await _handView.AddCardBackAsync(existingChar, charRect, ct);
+                await ReturnCardToHandOrBurnAsync(existingChar, _handView, ownGraveyard, charRect, toOpponentHand: false, ct);
 
                 CardView newChar = await WaitForPlayerSwitchInputAsync(ct);
                 if (_isOnline)
@@ -1104,8 +1116,7 @@ namespace Main
                 {
                     Rect sacrificedRect = sacrificedChar.worldBound;
                     _opponentFieldView.RemoveCard(sacrificedChar);
-                    await sacrificedChar.FlipAsync(ct);
-                    await _opponentHandView.AddCardBackAsync(sacrificedChar, sacrificedRect, ct);
+                    await ReturnCardToHandOrBurnAsync(sacrificedChar, _opponentHandView, ownGraveyard, sacrificedRect, toOpponentHand: true, ct);
                 }
 
                 if (!string.IsNullOrEmpty(oppNewCardId) && _cardDatabase.TryGet(oppNewCardId, out CardData cardData))
@@ -1128,8 +1139,7 @@ namespace Main
                 CardView existingChar = ownField.Characters[0];
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);
-                await existingChar.FlipAsync(ct);
-                await _opponentHandView.AddCardBackAsync(existingChar, charRect, ct);
+                await ReturnCardToHandOrBurnAsync(existingChar, _opponentHandView, ownGraveyard, charRect, toOpponentHand: true, ct);
 
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
                 List<CardData> cpuHandData = cpuHand.Select(c => c.Data).ToList();
@@ -1220,11 +1230,26 @@ namespace Main
 
                 if (isLocal)
                 {
-                    await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                    if (_handView.IsFull)
+                    {
+                        ShowToast("手札が上限 → 墓地へ");
+                        await BurnDrawnCardAsync(drawn, deckRect, _playerGraveyardView, isOpponent: false, ct);
+                    }
+                    else
+                    {
+                        await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
+                    }
                 }
                 else
                 {
-                    await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    if (_opponentHandView.IsFull)
+                    {
+                        await BurnDrawnCardAsync(drawn, deckRect, _opponentGraveyardView, isOpponent: true, ct);
+                    }
+                    else
+                    {
+                        await PlayCpuDrawAsync(drawn, deckRect, ct);
+                    }
                 }
             }
 

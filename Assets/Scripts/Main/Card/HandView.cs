@@ -10,6 +10,9 @@ namespace Main.Card
 {
     public sealed class HandView : VisualElement
     {
+        // 手札に持てる枚数の上限。上限到達時に手札へ入るはずだったカードは墓地へ送る（バーン）。
+        public const int MaxCards = 8;
+
         private const float CardSpacing = 100f;
         private const float MaxAngleDeg = 20f;
         private const float ArcLiftMax = 20f;
@@ -121,6 +124,12 @@ namespace Main.Card
                 card.FlipAsync(ct).Forget();
             }
         }
+
+        // 現在の手札枚数
+        public int Count => _entries.Count;
+
+        // 手札が上限（MaxCards）に達しているか
+        public bool IsFull => _entries.Count >= MaxCards;
 
         public IReadOnlyList<CardView> Cards
         {
