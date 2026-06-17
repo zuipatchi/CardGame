@@ -153,6 +153,7 @@
 - HP が **0 以下**になったキャラカードを墓地へ送る
 - HP の残量は `CardView.CurrentHp` で管理し、カード上の HP ラベルにリアルタイムで反映される
 - キャラをフィールドに配置するたびに HP は最大値（`CardData.Hp`）にリセットされる（Switch で手札に戻して再出しした場合も同様）
+- キャラが手札に戻る（Switch / Bounce / BounceAll）と、場で受けた実行時の変化（攻撃力・HPバフ、被ダメージ、付与キーワード）はすべて初期状態にリセットされる。リセットは手札へ戻す共通処理（`MainPresenter.ReturnCardToHandOrBurnAsync` → `CardView.ResetRuntimeState`）で行う
 
 ### イベント効果一覧
 
