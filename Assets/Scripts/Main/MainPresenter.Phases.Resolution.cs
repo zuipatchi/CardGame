@@ -367,7 +367,8 @@ namespace Main
                 return;
             }
 
-            int targetCount = Mathf.Min(count <= 0 ? 1 : count, ownCount);
+            // 値1=0 は「場の味方キャラ全員」を対象にする
+            int targetCount = count <= 0 ? ownCount : Mathf.Min(count, ownCount);
             string prompt = isAttack ? "攻撃力を上げる味方を選択" : "HPを上げる味方を選択";
             List<CardView> targets = await ResolveAllyCharTargetsAsync(ownField, targetCount, ownCount, isLocal, prompt, ct);
             if (targets.Count == 0)

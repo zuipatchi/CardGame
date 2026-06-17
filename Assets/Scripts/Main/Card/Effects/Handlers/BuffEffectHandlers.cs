@@ -40,7 +40,7 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
-    // 発動側が自フィールドから値1体（0=1体）選び、それぞれの攻撃力を値2、永続的に上げる。
+    // 発動側が自フィールドから値1体（0=場の味方全員）選び、それぞれの攻撃力を値2、永続的に上げる。
     [Preserve]
     public sealed class AtkBoostHandler : EffectHandler
     {
@@ -48,10 +48,12 @@ namespace Main.Card.Effects.Handlers
 
         public override EffectValueInfo Values => new EffectValueInfo(
             true, "値1（対象数）", true, "値2（攻撃力の上昇量）",
-            "値1=自フィールドから選ぶ味方の体数（0=1体・対象数が味方の数以上なら全員）/ 値2=各対象の攻撃力を永続的に上げる量。");
+            "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=各対象の攻撃力を永続的に上げる量。");
 
         public override string BuildBody(EffectTextContext ctx) =>
-            $"自分のキャラ{(ctx.Value1 <= 0 ? 1 : ctx.Value1)}体の攻撃力を{ctx.Value2}上げる";
+            ctx.Value1 <= 0
+                ? $"自分のキャラ全体の攻撃力を{ctx.Value2}上げる"
+                : $"自分のキャラ{ctx.Value1}体の攻撃力を{ctx.Value2}上げる";
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
@@ -60,7 +62,7 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
-    // 発動側が自フィールドから値1体（0=1体）選び、それぞれの HP（現在・最大）を値2、永続的に上げる。
+    // 発動側が自フィールドから値1体（0=場の味方全員）選び、それぞれの HP（現在・最大）を値2、永続的に上げる。
     [Preserve]
     public sealed class HpBoostHandler : EffectHandler
     {
@@ -68,10 +70,12 @@ namespace Main.Card.Effects.Handlers
 
         public override EffectValueInfo Values => new EffectValueInfo(
             true, "値1（対象数）", true, "値2（HPの上昇量）",
-            "値1=自フィールドから選ぶ味方の体数（0=1体・対象数が味方の数以上なら全員）/ 値2=各対象のHP（現在・最大）を永続的に上げる量。");
+            "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=各対象のHP（現在・最大）を永続的に上げる量。");
 
         public override string BuildBody(EffectTextContext ctx) =>
-            $"自分のキャラ{(ctx.Value1 <= 0 ? 1 : ctx.Value1)}体のHPを{ctx.Value2}上げる";
+            ctx.Value1 <= 0
+                ? $"自分のキャラ全体のHPを{ctx.Value2}上げる"
+                : $"自分のキャラ{ctx.Value1}体のHPを{ctx.Value2}上げる";
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {

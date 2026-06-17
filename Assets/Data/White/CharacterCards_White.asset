@@ -39,12 +39,12 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u9752\u5E74"
     _cost: 1
     _image: {fileID: 21300000, guid: d2905510287ff4e4ab845664123ed7d4, type: 3}
-    _flavorText: 
+    _flavorText: "\u3071\u3063\u3061\u3063\u3066\u8A00\u3046\u306A\uFF01"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 2
+    _attack: 3
     _hp: 3
     _attribute: 6
     _effectTrigger: 0
@@ -52,7 +52,7 @@ MonoBehaviour:
     _effectValue: 0
     _effectValue2: 0
     _guardian: 0
-    _haste: 1
+    _haste: 0
     _flying: 0
     _sakimori: 0
     _description: 
@@ -100,42 +100,42 @@ MonoBehaviour:
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u767D\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C1005
     _cardName: "\u3071\u3063\u3061\u8001\u4EBA"
-    _cost: 1
+    _cost: 3
     _image: {fileID: 21300000, guid: fa2fe2f341715fa48b796e6cbfcca395, type: 3}
     _flavorText: "\u3053\u306E\u5E74\u306B\u306A\u3063\u3066\u3084\u3063\u3068\u4E0D\u8001\u4E0D\u6B7B\u3092\u624B\u306B\u5165\u308C\u305F\u3071\u3061"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 2
-    _hp: 3
+    _attack: 3
+    _hp: 11
     _attribute: 6
-    _effectTrigger: 1
-    _effectType: 23
+    _effectTrigger: 0
+    _effectType: 0
     _effectValue: 2
     _effectValue2: 0
     _guardian: 0
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u4EE5\u5916\u306E\u300E\u3071\u3063\u3061\u300F\u3092\u6301\u3064\u5473\u65B9\u30AD\u30E3\u30E9\u306EHP\u30922\u4E0A\u3052\u308B"
+    _description: 
   - _id: C1006
     _cardName: "\u3071\u3063\u3061\u4E2D\u5E74"
     _cost: 2
     _image: {fileID: 21300000, guid: c841035b20ec4634a9eea683ebc0d0df, type: 3}
-    _flavorText: 
+    _flavorText: "\u304A\u3044\u3001\u3042\u308A\u307E\uFF5E"
     _keyword: "\u3071\u3063\u3061"
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _attack: 2
-    _hp: 8
+    _attack: 3
+    _hp: 6
     _attribute: 6
     _effectTrigger: 0
     _effectType: 0
     _effectValue: 0
     _effectValue2: 0
-    _guardian: 1
+    _guardian: 0
     _haste: 0
     _flying: 0
     _sakimori: 0

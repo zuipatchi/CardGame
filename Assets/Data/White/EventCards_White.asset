@@ -22,11 +22,12 @@ MonoBehaviour:
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _eventTrigger: 0
     _eventType: 14
     _eventValue: 1002
     _eventValue2: 2
-    _description: "\u300C\u3071\u3063\u3061\u9752\u5E74\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
+    _description: "\u300C3/3\u306E\u3071\u3063\u3061\u9752\u5E74\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
     _triggerOnGrave: 0
     _attribute: 6
   - _id: E1002
@@ -37,10 +38,27 @@ MonoBehaviour:
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
     _eventTrigger: 0
     _eventType: 25
     _eventValue: 2
     _eventValue2: 0
     _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u30921\u4F53\u9078\u3073\u3001\u305D\u306E\u30B3\u30D4\u30FC\u30922\u4F53\u51FA\u3059"
+    _triggerOnGrave: 0
+    _attribute: 6
+  - _id: E1003
+    _cardName: "\u6607\u9032\u3057\u305F\u3071\u3061"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 42b50c38e7c9acb4093820b7fe21d534, type: 3}
+    _flavorText: 
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _eventTrigger: 0
+    _eventType: 2
+    _eventValue: 0
+    _eventValue2: 2
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E9\u5168\u4F53\u306EHP\u30922\u4E0A\u3052\u308B"
     _triggerOnGrave: 0
     _attribute: 6

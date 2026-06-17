@@ -41,9 +41,9 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _eventTrigger: 0
     _eventType: 1
-    _eventValue: 3
-    _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E93\u4F53\u306E\u653B\u6483\u529B\u30920\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _eventValue: 1
+    _eventValue2: 3
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30923\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _triggerOnGrave: 0
     _attribute: 2
   - _id: E3003
