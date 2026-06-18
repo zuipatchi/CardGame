@@ -18,11 +18,13 @@ MonoBehaviour:
     _cardName: "\u95C7\u306E\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: a5738855d9824764dbf410d8c8aef44c, type: 3}
-    _flavorText: 
+    _flavorText: "\u95C7\u306B\u843D\u3061\u308D\u3071\u3061"
+    _voiceSpeaker: 85
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
     _attack: 2
     _hp: 3
     _attribute: 4
