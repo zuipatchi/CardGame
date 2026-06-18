@@ -103,10 +103,6 @@
     -unity-background-scale-mode: stretch-to-fill;
 }
 
-.game-card__hidden {
-    display: none;
-}
-
 .game-card--attr-red {
     border-left-color: rgb(220, 60, 60);
     border-right-color: rgb(220, 60, 60);
@@ -194,12 +190,6 @@
     border-right-width: 3px;
     border-top-width: 3px;
     border-bottom-width: 3px;
-}
-
-.game-card__stat {
-    font-size: 12px;
-    -unity-font-style: bold;
-    color: rgb(240, 240, 255);
 }
 
 .game-card__atk-area {
