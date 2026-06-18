@@ -504,8 +504,10 @@ namespace Main
             }
         }
 
-        // デッキ切れ勝利条件：あるプレイヤーがデッキを引き切って0枚になったら、その相手が勝利。
-        // デッキが減る各ドロー処理の直後に呼ぶ。勝敗が成立したら true を返す。
+        // デッキ切れ勝利条件（オーバーリミット）：デッキが0枚の状態でカードを引く／ミルしようとした瞬間に、
+        // その本人が敗北＝相手が勝利。カードを1枚引く／ミルする「直前」に呼び、デッキが空なら敗北を成立させる。
+        // デッキを0枚にした引き／ミルそのものでは負けない（その時点ではまだ空ではないため false を返す）。
+        // 勝敗が成立したら true を返す。
         private bool CheckDeckOutWin(bool isLocalDeck)
         {
             if (_isGameOver)
@@ -525,6 +527,44 @@ namespace Main
             return true;
         }
 
+        // オーバーリミット（リミットブレイク）検出：デッキが初めて0枚になった瞬間（>0→0 の down-crossing）を検出し、
+        // 新たに0枚へ落ちたら true を返す。デッキが減る各処理（ドロー・ミル）でカードを抜いた直後に呼ぶ。
+        // デッキが1枚以上残っていればフラグを戻すため、Recover 等で補充された後に再び0枚へ落ちたとき再度検出する。
+        // 告知はここでは行わず、呼び出し側が一連のドロー/ミル処理の最後に PlayLimitBreakAnnouncementAsync で行う。
+        // リミットブレイク直後に同じ処理内で敗北する場合（残り1枚に2ダメージ等）は告知しないため、判定と告知を分離する。
+        private bool UpdateLimitBreak(bool isLocalDeck)
+        {
+            DeckView deck = isLocalDeck ? _playerDeckView : _opponentDeckView;
+            bool isEmpty = WinRule.IsDeckOut(deck.Count);
+
+            if (isLocalDeck)
+            {
+                if (!isEmpty)
+                {
+                    _playerLimitBroken = false;
+                    return false;
+                }
+                if (_playerLimitBroken)
+                {
+                    return false;
+                }
+                _playerLimitBroken = true;
+                return true;
+            }
+
+            if (!isEmpty)
+            {
+                _opponentLimitBroken = false;
+                return false;
+            }
+            if (_opponentLimitBroken)
+            {
+                return false;
+            }
+            _opponentLimitBroken = true;
+            return true;
+        }
+
         // ─── CPU アクション選択 ───────────────────────────────────────────
 
         private MainPhaseAction CpuChooseMainAction()
@@ -535,17 +575,19 @@ namespace Main
             // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
             List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
 
-            // 相手デッキを直接攻撃できる攻撃者（守護・飛行を考慮）。デッキが空なら対象外
+            // 相手デッキを直接攻撃できる攻撃者（守護・飛行を考慮）。
+            // オーバーリミットでは相手デッキが空（0枚）でもデッキ攻撃で finish できる（空デッキへのミル＝敗北）ため、
+            // デッキ枚数では絞らない。
             int playerDeckCount = _playerDeckView.Count;
-            List<CardView> deckAttackers = playerDeckCount > 0
-                ? availableAttackers.Where(a => CanAttackDeck(a, _playerFieldView)).ToList()
-                : new List<CardView>();
+            List<CardView> deckAttackers = availableAttackers.Where(a => CanAttackDeck(a, _playerFieldView)).ToList();
 
-            // lethal：1回の攻撃で相手デッキを引き切らせられるなら、デッキ攻撃で勝利を狙う
+            // lethal：1回の攻撃で相手を敗北させられるなら、デッキ攻撃で勝利を狙う。
+            // オーバーリミットでは「0枚の状態でミルした瞬間」に敗北するため、ATK が相手デッキ枚数を
+            // 「超える」必要がある（ちょうど引き切る ATK == 枚数 はデッキを0にするだけで負けない）。
             CardView lethalDeckAttacker = null;
             foreach (CardView a in deckAttackers)
             {
-                if (a.CurrentAttack >= playerDeckCount
+                if (a.CurrentAttack > playerDeckCount
                     && (lethalDeckAttacker == null || a.CurrentAttack > lethalDeckAttacker.CurrentAttack))
                 {
                     lethalDeckAttacker = a;
@@ -598,8 +640,10 @@ namespace Main
                 };
             }
 
-            // 合法なキャラ攻撃対象がいない場合、相手デッキを削る（chip mill。最高ATKの攻撃者で）
-            if (deckAttackers.Count > 0)
+            // 合法なキャラ攻撃対象がいない場合、相手デッキを削る（chip mill。最高ATKの攻撃者で）。
+            // 空デッキ（0枚）への攻撃は lethal 側で処理済みのため、ここでは相手デッキにカードが残っている場合のみ。
+            // （0枚を ATK 0 の攻撃者で無駄に殴って盾ブロックさせない）
+            if (playerDeckCount > 0 && deckAttackers.Count > 0)
             {
                 CardView deckAttacker = deckAttackers.OrderByDescending(a => a.CurrentAttack).First();
                 return new MainPhaseAction
@@ -721,8 +765,8 @@ namespace Main
                         });
                         return true;
                     }
-                    // 相手デッキへの直接攻撃（ATK 枚をミル）
-                    if (_opponentDeckView.Count > 0 && _opponentDeckView.worldBound.Contains(worldPos))
+                    // 相手デッキへの直接攻撃（ATK 枚をミル）。オーバーリミットでは空デッキ（0枚）も対象にできる（ミル＝敗北）
+                    if (_opponentDeckView.worldBound.Contains(worldPos))
                     {
                         if (!CanAttackDeck(capturedChar, _opponentFieldView))
                         {
@@ -816,7 +860,8 @@ namespace Main
                     break;
                 }
             }
-            if (anyCanHitDeck && _opponentDeckView.Count > 0)
+            // オーバーリミットでは空デッキ（0枚）もデッキ攻撃で finish できるためハイライトする
+            if (anyCanHitDeck)
             {
                 _opponentDeckView.AddToClassList("deck-view--attack-target");
             }
