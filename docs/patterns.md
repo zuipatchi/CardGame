@@ -144,7 +144,7 @@ namespace Main.Card.Effects.Handlers
 
 複数選択（DamageEnemy）の場合は、クリックハンドラで未選択キャラを選択リストへ追加して `selected-char`（赤枠）を付け、残り体数をトーストで更新し、必要数に達したら `TrySetResult(list)` で確定する。対象数が候補数以上なら選択不要で全員を対象にする。オンラインでは選んだ対象を**フィールドのインデックス配列**で相手へ送る（`NetworkGameService` の `SendDamageTargets` / `WaitForOpponentDamageTargetsAsync` と専用メッセージキー・ペイロード。同名カードが複数いても曖昧にならない）。選択が不要なケース（全員が対象）では送受信しない。敵フィールドの複数選択は `ResolveEnemyCharTargetsAsync` / `HandleEnemyCharSelectionClick`、**自フィールド（味方）の複数選択**は `ResolveAllyCharTargetsAsync` / `WaitForPlayerAllyCharsSelectionAsync` / `HandleAllyCharSelectionClick`（AtkBoost / HpBoost が使用。`_allyCharSelect*` フィールドと `_playerFieldView.OnCardClicked` の分岐）が参考例。どちらも `NGS_DamageTarget` チャネルを共用する。
 
-> **オンライン同期の注意**: 受信側のハンドラ登録がアニメーション後だと、相手の送信が先に届いたとき NGO が未登録メッセージを破棄して**永久待機になる**。`NGS_DamageTarget` は OnEnter / OnAttack / OnDestroy / イベント / Bounce と多数の箇所から呼ばれるため、対戦開始時（`PrepareDecksAsync`）にハンドラを永続登録しキューでバッファしている。新たに対象同期メッセージを追加するときは、**永続登録＋キュー** か **アニメーション開始前の事前登録** のどちらかにすること（[networking.md](networking.md) セクション11）。
+> **オンライン同期の注意**: 受信側のハンドラ登録がアニメーション後だと、相手の送信が先に届いたとき NGO が未登録メッセージを破棄して**永久待機になる**。これを防ぐため、`NetworkGameService` の全ゲームプレイメッセージ（`k_GameplayChannels`）は対戦開始時（`PrepareDecksAsync` → `RegisterGameplayChannels`）にハンドラを永続登録し、受信値を per-channel のキューにバッファしている。`NGS_DamageTarget` も OnEnter / OnAttack / OnDestroy / イベント / Bounce と多数の箇所から呼ばれるが、この仕組みでタイミング非依存になっている。新たな同期メッセージを追加するときは、種別定数を `k_GameplayChannels` に足して `SendJson` / `WaitJsonAsync` を使うだけでよい（手動のハンドラ登録・解除は不要・禁止）（[networking.md](networking.md) セクション13）。
 
 ---
 
