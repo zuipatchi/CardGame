@@ -113,14 +113,14 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 2
-    _hp: 3
+    _hp: 1
     _attribute: 1
     _effectTrigger: 2
     _effectType: 3
     _effectValue: 1
     _effectValue2: 0
     _guardian: 0
-    _haste: 0
+    _haste: 1
     _flying: 0
     _sakimori: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"

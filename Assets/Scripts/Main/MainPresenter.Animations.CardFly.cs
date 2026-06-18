@@ -239,7 +239,7 @@ namespace Main
             {
                 // 持ち主の場へコストなしで召喚（OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
                 FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
-                await SummonSingleCharAsync(data, field, ownerIsLocal, fromRect, ct);
+                await SummonSingleCharAsync(data, field, ownerIsLocal, ct);
                 return;
             }
 
@@ -390,6 +390,75 @@ namespace Main
             catch (OperationCanceledException) { }
 
             deck.style.scale = new Scale(Vector3.one);
+        }
+
+        // ─── 召喚キャラの登場演出（その場で出現）────────────────────────────
+        // 飛来させず、配置済みのカードを「フラッシュ＋スケールポップ」でその場に出現させる。
+        // 既存パーティクル（_evolveEffectPrefab）も同時に並行再生してテンポを保つ。
+        private async UniTask PlaySummonAppearAsync(CardView card, CancellationToken ct)
+        {
+            // 着地スケール（フィールド枚数に応じた基準スケール）。PlaceCard 直後に適用済みの値を捕捉。
+            float targetScale = card.style.scale.value.value.x;
+            if (targetScale <= 0f)
+            {
+                targetScale = CardScaleConstants.FieldSlot;
+            }
+
+            // ポップ前に 0 スケールへ。PlaceCard と同フレームで隠すことで等倍の一瞬表示を防ぐ。
+            card.style.scale = new Scale(Vector3.zero);
+
+            // worldBound（パーティクル位置）の確定を待つ。
+            await UniTask.NextFrame(ct);
+            if (card.panel == null)
+            {
+                card.style.scale = new Scale(new Vector3(targetScale, targetScale, 1f));
+                return;
+            }
+
+            // 白フラッシュ用オーバーレイ（カードの子。カードのスケール／位置に追従する）。
+            VisualElement flash = new VisualElement();
+            flash.pickingMode = PickingMode.Ignore;
+            flash.style.position = Position.Absolute;
+            flash.style.left = 0f;
+            flash.style.right = 0f;
+            flash.style.top = 0f;
+            flash.style.bottom = 0f;
+            flash.style.backgroundColor = Color.white;
+            flash.style.opacity = 0f;
+            flash.style.borderTopLeftRadius = 12f;
+            flash.style.borderTopRightRadius = 12f;
+            flash.style.borderBottomLeftRadius = 12f;
+            flash.style.borderBottomRightRadius = 12f;
+            card.Add(flash);
+
+            // 既存パーティクル（魔法陣的な光）を並行再生（await はシーケンス後にまとめて行う）。
+            UniTask particleTask = _evolveEffectPrefab != null
+                ? PlayParticleAtCardAsync(card, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f))
+                : UniTask.CompletedTask;
+
+            // スケールポップ（OutBack でオーバーシュート → 着地スケールへ）＋フラッシュの明滅。
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            float popScale = 0f;
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => popScale, v =>
+                {
+                    popScale = v;
+                    card.style.scale = new Scale(new Vector3(v, v, 1f));
+                }, targetScale, 0.28f).SetEase(Ease.OutBack))
+                .Join(DOTween.To(() => flash.style.opacity.value, v => flash.style.opacity = v, 0.85f, 0.08f).SetEase(Ease.OutQuad))
+                .Insert(0.08f, DOTween.To(() => flash.style.opacity.value, v => flash.style.opacity = v, 0f, 0.2f).SetEase(Ease.InQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            // 着地スケールへ確定（OutBack のオーバーシュート誤差を消す）し、フラッシュを撤去。
+            card.style.scale = new Scale(new Vector3(targetScale, targetScale, 1f));
+            flash.RemoveFromHierarchy();
+
+            await particleTask;
         }
 
         // ─── マリガン：手札をデッキへ返すアニメーション ─────────────────────────
