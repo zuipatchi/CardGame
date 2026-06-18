@@ -45,5 +45,11 @@ namespace Main.Card.Effects
                 : $"自分以外の『{keyword}』を持つ味方キャラ";
             return $"{subject}の{statName}を{value}上げる";
         }
+
+        // 自フィールドから値1体（0=場の味方全員）選ぶ効果テキストの対象部分を作る共有ヘルパー。
+        protected static string AlliesTargetPrefix(int value1)
+        {
+            return value1 <= 0 ? "自分のキャラ全体" : $"自分のキャラ{value1}体";
+        }
     }
 }

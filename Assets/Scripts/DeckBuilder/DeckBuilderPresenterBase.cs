@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Common.Deck;
 using Common.SceneManagement;
+using Common.View;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using UnityEngine;
@@ -53,7 +53,7 @@ namespace DeckBuilder
         private Button _clearDeckButton;
         private Label _costOverLabel;
         private Label _toastLabel;
-        private CancellationTokenSource _toastCts;
+        private ToastController _toast;
         private VisualElement _cardListDragLayer;
         private CardDetailModal _cardDetailModal;
         private DeckAnalysisModal _deckAnalysisModal;
@@ -185,6 +185,7 @@ namespace DeckBuilder
                 _toastLabel.pickingMode = PickingMode.Ignore;
                 _toastLabel.style.display = DisplayStyle.None;
                 _deckBuilderRoot.Add(_toastLabel);
+                _toast = new ToastController(_toastLabel);
 
                 // 全ボタン OFF の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
                 RefreshFilter();
@@ -483,7 +484,7 @@ namespace DeckBuilder
             if (_deckRuleModel != null && _deckRuleModel.LimitSameCards
                 && _deckModel.CountOf(id) >= DeckRuleModel.MaxCopiesPerId)
             {
-                ShowToastAsync($"同名カードは{DeckRuleModel.MaxCopiesPerId}枚までです").Forget();
+                _toast.Show($"同名カードは{DeckRuleModel.MaxCopiesPerId}枚までです", 1500, destroyCancellationToken);
                 return false;
             }
             _deckModel.Add(id, cost);
@@ -492,26 +493,9 @@ namespace DeckBuilder
             return true;
         }
 
-        private async UniTaskVoid ShowToastAsync(string message)
-        {
-            _toastCts?.Cancel();
-            _toastCts?.Dispose();
-            _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
-            CancellationToken token = _toastCts.Token;
-            _toastLabel.text = message;
-            _toastLabel.style.display = DisplayStyle.Flex;
-            try
-            {
-                await UniTask.Delay(1500, cancellationToken: token);
-                _toastLabel.style.display = DisplayStyle.None;
-            }
-            catch (OperationCanceledException) { }
-        }
-
         private void OnDestroy()
         {
-            _toastCts?.Cancel();
-            _toastCts?.Dispose();
+            _toast?.Dispose();
         }
 
         private void OnRemoveClicked(string id)

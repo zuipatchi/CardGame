@@ -6,6 +6,7 @@ using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
 using Common.Username;
+using Common.View;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -33,7 +34,7 @@ namespace Home
         private Label _costOverToastLabel;
         private Label _usernameLabel;
         private VisualElement _darkOverlay;
-        private CancellationTokenSource _toastCts;
+        private ToastController _deckToast;
 #if UNITY_EDITOR
         // Editor 再生時のみ表示するデバッグ用トグル（同名カード3枚制限の ON/OFF）。
         // ビルドには存在しないため、ビルドでは制限は常に有効。
@@ -122,6 +123,7 @@ namespace Home
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
+            _deckToast = new ToastController(_costOverToastLabel);
             _usernameLabel = root.Q<Label>("UsernameLabel");
             _darkOverlay = root.Q<VisualElement>("DarkOverlay");
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
@@ -146,6 +148,8 @@ namespace Home
             _deckBuilderButton = null;
             _battleButton = null;
             _matchingButton = null;
+            _deckToast?.Dispose();
+            _deckToast = null;
             _costOverToastLabel = null;
             _usernameLabel = null;
             _darkOverlay = null;
@@ -153,7 +157,6 @@ namespace Home
 
         private void OnDestroy()
         {
-            _toastCts?.Dispose();
 #if UNITY_EDITOR
             if (_sameCardLimitToggle != null)
             {
@@ -188,7 +191,7 @@ namespace Home
             PlayEnterSE();
             if (!_deckModel.IsValid)
             {
-                ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
+                _deckToast.Show(GetDeckErrorMessage(), 1500, destroyCancellationToken);
                 return;
             }
             StartCpuBattleAsync().Forget();
@@ -205,7 +208,7 @@ namespace Home
             PlayEnterSE();
             if (!_deckModel.IsValid)
             {
-                ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
+                _deckToast.Show(GetDeckErrorMessage(), 1500, destroyCancellationToken);
                 return;
             }
             _sceneTransitioner.Transit(Scenes.Matching).Forget();
@@ -218,22 +221,6 @@ namespace Home
                 return $"デッキが{DeckModel.MaxCards}枚を超えています";
             }
             return $"デッキが{DeckModel.MaxCards}枚になっていません";
-        }
-
-        private async UniTaskVoid ShowDeckToastAsync(string message)
-        {
-            _toastCts?.Cancel();
-            _toastCts?.Dispose();
-            _toastCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
-            CancellationToken token = _toastCts.Token;
-            _costOverToastLabel.text = message;
-            _costOverToastLabel.style.display = DisplayStyle.Flex;
-            try
-            {
-                await UniTask.Delay(1500, cancellationToken: token);
-                _costOverToastLabel.style.display = DisplayStyle.None;
-            }
-            catch (OperationCanceledException) { }
         }
     }
 }
