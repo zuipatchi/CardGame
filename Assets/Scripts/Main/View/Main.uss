@@ -1175,11 +1175,16 @@
 
 /* ─── コスト選択ハイライト ──────────────────────────────────────────── */
 
+/* コスト選択中のカードは opacity の変化を滑らかにアニメーションさせる（薄くなる演出）。 */
 .cost-selectable {
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
 }
 
+/* コストとして選択したカードは薄くする。 */
 .cost-selected {
-    opacity: 0.65;
+    opacity: 0.45;
 }
 
 /* ─── 攻撃優先権コイン ────────────────────────────────────────────────── */

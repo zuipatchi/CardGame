@@ -397,6 +397,10 @@ namespace Main
                         HandleCostCardClick(card);
                         return;
                     }
+                    if (IsStagingCard())
+                    {
+                        return;
+                    }
                     _cardDetailModal.Show(card.Data);
                 };
                 _playerFieldView.OnCardClicked = card =>
