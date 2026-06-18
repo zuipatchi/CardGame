@@ -62,7 +62,7 @@ MonoBehaviour:
     _cardName: "\u30C9\u30E9\u30B4\u30F3\u30D9\u30D3\u30FC"
     _cost: 1
     _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
-    _flavorText: 
+    _flavorText: "\u6210\u9F8D\u306B\u306A\u308B\u307E\u306788\u5E74\u304B\u304B\u308B\u3089\u3057\u3044"
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -106,13 +106,13 @@ MonoBehaviour:
     _cardName: "\u708E\u9B5A"
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
-    _flavorText: 
+    _flavorText: "\u5730\u7403\u6E29\u6696\u5316\u306E\u539F\u56E0\u3068\u3057\u3066\u99C6\u9664\u3055\u308C\u7D9A\u3051\u3066\u3044\u308B"
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 2
+    _attack: 1
     _hp: 3
     _attribute: 0
     _effectTrigger: 1
