@@ -20,6 +20,13 @@ Multiplayer play mode を使用してオンライン対戦を行う
 - UnityGamingService
 - Live2D Cubism SDK（`Assets/Live2D/`、Git 管理対象）
 
+## カードのフレーバー音声生成（VOICEVOX）
+カードのフレーバーテキスト読み上げ音声は [VOICEVOX](https://voicevox.hiroshiba.jp/)（無料）で事前生成する。
+- VOICEVOX アプリ（またはエンジン）を起動した状態で、Unity メニュー `Card → フレーバー音声を一括生成` を実行
+- 全カードの FlavorText を WAV 化して `Assets/AddressableAssets/Voice/{CardId}.wav` に保存し、Addressables アドレス `Voice/{CardId}` に自動登録する（差分のみ生成。話者 ID は既定 3＝ずんだもん）
+- 生成した音声 WAV は Git 管理対象（Addressables の GUID 参照を壊さないため）。再生成が必要なのはカード追加・文言変更・話者変更のときのみ
+- 配布時は使用した話者分のクレジット表記（例 `VOICEVOX:ずんだもん`）が必要
+
 ## プラットフォーム
 Windows MacOS
 
