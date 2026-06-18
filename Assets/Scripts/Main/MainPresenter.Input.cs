@@ -88,11 +88,19 @@ namespace Main
             }
 
             if (_gameModel.Phase == TurnPhase.Main && _gameModel.IsLocalTurn
-                && _mainActionTcs != null && _mainStagedCard == null)
+                && _mainActionTcs != null)
             {
                 if (!_playerFieldView.worldBound.Contains(worldPos))
                 {
                     return false;
+                }
+
+                // すでに別のカードをステージ中なら、それを手札へ戻してから差し替える
+                // （Return ボタンを押す代わりに、別カードをフィールドへドラッグして出し直せる）。
+                // 戻したカードは手札データへ同期登録されるため、続けて出すカードのコスト計算にも含まれる。
+                if (_mainStagedCard != null)
+                {
+                    ReturnStagedMainCardToHand();
                 }
 
                 if (card.Data is CharacterCardData)
@@ -256,12 +264,21 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.Main && _mainActionTcs != null && _mainStagedCard != null)
             {
-                CardView card = _mainStagedCard;
-                _mainStagedCard = null;
-                _mainStagedType = MainPhaseActionType.None;
-                CancelStagedCostSelection();
-                ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
+                ReturnStagedMainCardToHand();
             }
+        }
+
+        // ステージ中（フィールドに仮置き）のメインフェーズのカードを手札へ戻し、コスト選択もキャンセルする。
+        // Return ボタンと、別カードのドロップによる差し替えの両方から呼ぶ。
+        // AddCardBackAsync は手札データへの登録を飛行アニメ開始前（同期）に行うため、差し替えで続けて出す
+        // カードのコスト計算でも、戻したこのカードを支払い要員として数えられる。
+        private void ReturnStagedMainCardToHand()
+        {
+            CardView card = _mainStagedCard;
+            _mainStagedCard = null;
+            _mainStagedType = MainPhaseActionType.None;
+            CancelStagedCostSelection();
+            ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
         }
 
         private void ReturnStagedCardToHand(CardView card, Rect fromRect, Action removeFromPlace, bool flipCard)
@@ -347,7 +364,9 @@ namespace Main
 
             if (_gameModel.Phase == TurnPhase.Main && _gameModel.IsLocalTurn && _mainActionTcs != null)
             {
-                return _mainStagedCard == null;
+                // ステージ中（_mainStagedCard != null）でも別のカードをドラッグできる。
+                // フィールドへドロップするとステージ中のカードを手札へ戻して差し替える（Return の代わり）。
+                return true;
             }
 
             return false;

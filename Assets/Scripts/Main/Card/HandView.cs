@@ -171,6 +171,11 @@ namespace Main.Card
             card.pickingMode = PickingMode.Ignore;
             _dragLayer.Add(card);
 
+            // 飛行アニメ開始前に手札データへ登録しておく（同期）。これにより、戻している最中でも
+            // Cards に含まれ、差し替えで続けて出すカードのコスト計算で支払い要員として数えられる。
+            // 飛行中はまだ手札コンテナの子ではないため、ApplyPositions はレイアウト対象から除外する。
+            _entries.Add(new HandCardEntry { Card = card });
+
             Rect handRect = worldBound;
             float targetLeft = handRect.center.x - CardScaleConstants.CardWidth / 2f;
             float targetTop = handRect.yMin;
@@ -193,6 +198,7 @@ namespace Main.Card
             }
             catch (OperationCanceledException)
             {
+                _entries.RemoveAll(e => e.Card == card);
                 _dragLayer.Remove(card);
                 return;
             }
@@ -200,7 +206,6 @@ namespace Main.Card
             _dragLayer.Remove(card);
             card.pickingMode = PickingMode.Position;
             SetupCardInHand(card);
-            _entries.Add(new HandCardEntry { Card = card });
             Add(card);
             ApplyPositions(animate: true);
 
@@ -244,7 +249,18 @@ namespace Main.Card
 
         private void ApplyPositions(bool animate)
         {
-            int count = _entries.Count;
+            // 飛行アニメ中でまだ手札コンテナに戻っていないカード（_dragLayer 所属）はレイアウト対象から除外する。
+            // データ（_entries / Cards）には含めるが、配置は手札の子になってから行う（飛行アニメを壊さないため）。
+            List<CardView> laidOut = new List<CardView>(_entries.Count);
+            foreach (HandCardEntry entry in _entries)
+            {
+                if (entry.Card.parent == this)
+                {
+                    laidOut.Add(entry.Card);
+                }
+            }
+
+            int count = laidOut.Count;
             style.width = count > 0 ? (count - 1) * CardSpacing + CardScaleConstants.CardWidth : 0;
 
             float centerIndex = (count - 1) / 2f;
@@ -255,7 +271,7 @@ namespace Main.Card
                 float targetBottom = (1f - relativePos * relativePos) * ArcLiftMax;
                 float targetAngle = relativePos * MaxAngleDeg;
 
-                CardView card = _entries[i].Card;
+                CardView card = laidOut[i];
                 if (!animate)
                 {
                     card.style.left = targetLeft;
