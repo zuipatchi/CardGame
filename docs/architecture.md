@@ -82,7 +82,6 @@ OptionModel
   BGMVolume: ReactiveProperty<float>
   SEVolume:  ReactiveProperty<float>
   AutoOk:    ReactiveProperty<bool>   カード配置後に自動で OK するか（デフォルト ON）
-  AutoPass:  ReactiveProperty<bool>   プレイ可能カードがなければ自動パスするか（デフォルト ON）
 
 OptionPresenter
   → BGMVolume.Subscribe で Slider を更新
