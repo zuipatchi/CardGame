@@ -215,6 +215,20 @@ Vector3 worldPos = ray.origin + ray.direction * t;
 
 **注意:** `ray.direction.z` がほぼ 0 のとき（カメラが Z 軸と水平）は交差しないため、このプロジェクトのようにカメラが Z 方向を向いている前提で使用する。
 
+### 落とし穴：配置直後の `worldBound` は1フレーム未確定（パーティクルが画面左上に出る）
+
+`FieldView.PlaceCard` などで VisualElement を **付け替えた直後**は、レイアウトが次のパスまで再計算されないため `worldBound` が `(0,0)`（≒画面左上）を返す。この値でパーティクルを出すと、エフェクトがカードではなく**画面左上にズレて**再生される。相手フィールド（画面上部）では左上が近いため気づきにくく、自フィールド（画面下部）では「出ていない」ように見える。
+
+対処は **配置後に `await UniTask.NextFrame(ct)` を1回挟んでレイアウトを確定させてから** `worldBound` を読むこと。召喚の登場演出（`PlaySummonAppearAsync`）と相手進化の召喚演出で実施している。
+
+```csharp
+field.PlaceCard(newChar);
+await UniTask.NextFrame(ct);              // レイアウト確定を待つ
+await PlayParticleAtCardAsync(newChar, prefab, ct);  // 正しいカード位置に出る
+```
+
+> 既に場に居る既存カード（ドラッグ配置済み・攻撃対象など）は `worldBound` が確定済みなので待つ必要はない。**新規生成して付け替えた直後のカード**だけが対象。
+
 ---
 
 ## 7. パーティクルの再生時間（PlaybackTime）を縮める／伸ばす
