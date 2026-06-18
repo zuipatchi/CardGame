@@ -35,15 +35,17 @@
                     <ui:Label text="イラスト：Nano Banana" class="home-credit-entry"/>
                     <ui:Label text="テスター" class="home-credit-section"/>
                     <ui:Label text="テトラマックス、有馬、どえむ、ザニザニマン" class="home-credit-entry"/>
+                    <ui:Label text="サウンド" class="home-credit-section"/>
+                    <ui:Label text="BGM：魔王魂、ぱっち" class="home-credit-entry"/>
+                    <ui:Label text="効果音：効果音ラボ" class="home-credit-entry"/>
                     <ui:Label text="使用OSS / アセット" class="home-credit-section"/>
                     <ui:Label text="VOICEVOX（フレーバーテキスト読み上げ）" class="home-credit-entry"/>
                     <ui:Label text="Live2D Cubism SDK / Live2D Inc." class="home-credit-entry"/>
                     <ui:Label text="DoTween / Demigiant" class="home-credit-entry"/>
                     <ui:Label text="Noto Sans JP / Google Fonts" class="home-credit-entry"/>
                     <ui:Label text="VContainer・R3・UniTask" class="home-credit-entry"/>
-                    <ui:Label text="サウンド" class="home-credit-section"/>
-                    <ui:Label text="BGM：魔王魂、ぱっち" class="home-credit-entry"/>
-                    <ui:Label text="効果音：効果音ラボ" class="home-credit-entry"/>
+                    <ui:Label text="Free Quick Effects Vol.1 / Gabriel Aguiar Productions" class="home-credit-entry"/>
+                    <ui:Label text="Cartoon FX Remaster / Jean Moreno (JMO Assets)" class="home-credit-entry"/>
                 </ui:ScrollView>
                 <ui:Button name="CreditCloseButton" text="閉じる" class="home-credit-close-button"/>
             </ui:VisualElement>
