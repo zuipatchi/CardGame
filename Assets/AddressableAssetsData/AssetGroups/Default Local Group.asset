@@ -98,6 +98,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3a8add812454f644d929f459616a10f0
+    m_Address: Voice/C3007
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3bcd522bfcd724c49b59ef242409fb7f
     m_Address: Sound/SE/Enter1
     m_ReadOnly: 0
@@ -148,6 +153,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 56cbc1ecfc5853a47b975c3443244e87
     m_Address: Voice/E3004
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57c3e3cdbf30509489653c819310b698
+    m_Address: Voice/C4003
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -217,8 +227,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7dcb81c7a96ffc644940d1a96bf62afc
+    m_Address: Voice/C7001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 882b614ccecb765468e50993bf402198
     m_Address: Voice/C3009
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f2da9cfc4c7e5e4b9059722ebbd8e38
+    m_Address: Voice/C3005
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -311,6 +331,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ce706d54b3e98d34d9f8e41a9b62fee9
+    m_Address: Voice/C4002
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d039ea2757016874299f240249acc26d
     m_Address: Image/NoButton
     m_ReadOnly: 0
@@ -341,6 +366,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd602057a691bfa468b056107729a8b8
+    m_Address: Voice/C6001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dfd04fff07ee1f941937173d560c8456
     m_Address: Voice/C3004
     m_ReadOnly: 0
@@ -360,6 +390,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e60c941ff8c63d743aa6205072cd9a4c
     m_Address: Voice/C2003
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ed061e91e5a7c42488ce3c5eb735c391
+    m_Address: Voice/C4001
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
