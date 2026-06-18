@@ -491,7 +491,16 @@
 }
 
 .deck-analysis-section {
-    margin-bottom: 28px;
+    margin-bottom: 18px;
+}
+
+.deck-analysis-row {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.deck-analysis-row > .deck-analysis-section {
+    margin-right: 40px;
 }
 
 .deck-analysis-section-title {
@@ -514,7 +523,7 @@
 
 .deck-analysis-bar-column {
     width: 52px;
-    height: 240px;
+    height: 170px;
     flex-shrink: 0;
     margin-right: 6px;
     margin-left: 6px;
@@ -548,6 +557,34 @@
 
 .deck-analysis-bar--event {
     background-color: rgba(255, 220, 80, 0.85);
+}
+
+.deck-analysis-bar--attr-red {
+    background-color: rgba(219, 61, 61, 0.85);
+}
+
+.deck-analysis-bar--attr-blue {
+    background-color: rgba(69, 130, 230, 0.85);
+}
+
+.deck-analysis-bar--attr-green {
+    background-color: rgba(61, 199, 79, 0.85);
+}
+
+.deck-analysis-bar--attr-yellow {
+    background-color: rgba(219, 191, 51, 0.85);
+}
+
+.deck-analysis-bar--attr-black {
+    background-color: rgba(99, 99, 120, 0.85);
+}
+
+.deck-analysis-bar--attr-purple {
+    background-color: rgba(171, 79, 219, 0.85);
+}
+
+.deck-analysis-bar--attr-white {
+    background-color: rgba(209, 209, 224, 0.85);
 }
 
 .deck-analysis-bar-label {

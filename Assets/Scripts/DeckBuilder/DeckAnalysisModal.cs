@@ -11,9 +11,9 @@ namespace DeckBuilder
         private readonly CardDatabase _cardDatabase;
         private VisualElement _overlay;
 
-        private const float BarWrapperHeight = 240f;
-        private const float BottomLabelSpace = 50f;
-        private const float ChartMaxHeight = 160f;
+        private const float BarWrapperHeight = 170f;
+        private const float BottomLabelSpace = 44f;
+        private const float ChartMaxHeight = 100f;
 
         public DeckAnalysisModal(VisualElement root, CardDatabase cardDatabase)
         {
@@ -49,10 +49,16 @@ namespace DeckBuilder
             panel.Add(header);
 
             Dictionary<int, int> costDist = BuildCostDistribution(deckModel);
+            Dictionary<CardAttribute, int> attrDist = BuildAttributeDistribution(deckModel);
             (int charCount, int eventCount) = BuildTypeDistribution(deckModel);
 
             panel.Add(BuildSection("コスト分布", BuildCostChart(costDist)));
-            panel.Add(BuildSection("種類分布", BuildTypeChart(charCount, eventCount)));
+
+            VisualElement secondRow = new VisualElement();
+            secondRow.AddToClassList("deck-analysis-row");
+            secondRow.Add(BuildSection("属性分布", BuildAttributeChart(attrDist)));
+            secondRow.Add(BuildSection("種類分布", BuildTypeChart(charCount, eventCount)));
+            panel.Add(secondRow);
 
             _overlay.Add(panel);
             _root.Add(_overlay);
@@ -80,6 +86,28 @@ namespace DeckBuilder
                 else
                 {
                     dist[cost] = 1;
+                }
+            }
+            return dist;
+        }
+
+        private Dictionary<CardAttribute, int> BuildAttributeDistribution(DeckModel deckModel)
+        {
+            Dictionary<CardAttribute, int> dist = new Dictionary<CardAttribute, int>();
+            foreach ((string id, int _) in deckModel.Entries)
+            {
+                if (!_cardDatabase.TryGet(id, out CardData data))
+                {
+                    continue;
+                }
+                CardAttribute attr = data.Attribute;
+                if (dist.TryGetValue(attr, out int current))
+                {
+                    dist[attr] = current + 1;
+                }
+                else
+                {
+                    dist[attr] = 1;
                 }
             }
             return dist;
@@ -151,6 +179,71 @@ namespace DeckBuilder
                 chart.Add(BuildBarColumn(cost.ToString(), count, ratio, "deck-analysis-bar--cost"));
             }
             return chart;
+        }
+
+        private static VisualElement BuildAttributeChart(Dictionary<CardAttribute, int> dist)
+        {
+            VisualElement chart = new VisualElement();
+            chart.AddToClassList("deck-analysis-chart");
+
+            if (dist.Count == 0)
+            {
+                Label empty = new Label("カードなし");
+                empty.AddToClassList("deck-analysis-empty");
+                chart.Add(empty);
+                return chart;
+            }
+
+            int maxCount = 0;
+            foreach (int count in dist.Values)
+            {
+                if (count > maxCount)
+                {
+                    maxCount = count;
+                }
+            }
+
+            // enum 定義順で、デッキに含まれる属性のみを表示する。
+            foreach (CardAttribute attr in System.Enum.GetValues(typeof(CardAttribute)))
+            {
+                if (!dist.TryGetValue(attr, out int count))
+                {
+                    continue;
+                }
+                float ratio = maxCount > 0 ? (float)count / maxCount : 0f;
+                chart.Add(BuildBarColumn(AttributeLabel(attr), count, ratio, AttributeBarClass(attr)));
+            }
+            return chart;
+        }
+
+        private static string AttributeLabel(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "赤",
+                CardAttribute.Blue => "青",
+                CardAttribute.Green => "緑",
+                CardAttribute.Yellow => "黄",
+                CardAttribute.Black => "黒",
+                CardAttribute.Purple => "紫",
+                CardAttribute.White => "白",
+                _ => attribute.ToString()
+            };
+        }
+
+        private static string AttributeBarClass(CardAttribute attribute)
+        {
+            return attribute switch
+            {
+                CardAttribute.Red => "deck-analysis-bar--attr-red",
+                CardAttribute.Blue => "deck-analysis-bar--attr-blue",
+                CardAttribute.Green => "deck-analysis-bar--attr-green",
+                CardAttribute.Yellow => "deck-analysis-bar--attr-yellow",
+                CardAttribute.Black => "deck-analysis-bar--attr-black",
+                CardAttribute.Purple => "deck-analysis-bar--attr-purple",
+                CardAttribute.White => "deck-analysis-bar--attr-white",
+                _ => "deck-analysis-bar--attr-white"
+            };
         }
 
         private static VisualElement BuildTypeChart(int charCount, int eventCount)
