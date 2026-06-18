@@ -148,6 +148,7 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 - 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
 - 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
+- 読み上げの話者は `CardData._voiceSpeaker`（VOICEVOX speaker ID。0＝生成ツールの既定話者）でカードごとに指定でき、声は生成時に WAV へ焼き込まれる（ランタイムは話者を意識しない）
 
 > `_bgmAudioSource.volume = v / 2` としているのは、
 > OptionModel の値 1.0 がデフォルトの AudioSource 最大音量の半分に相当するようにしているため。
@@ -323,7 +324,7 @@ Main シーンロード時、`DeckModel.Count > 0` なら `CardDatabase.BuildDec
 ### カードシステム
 
 ```
-CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite) / FlavorText（世界観テキスト。効果に影響せず詳細モーダル最下部に表示）
+CardData              抽象基底クラス。id / name / cost / Attack / Hp / Attribute / image(Sprite) / FlavorText（世界観テキスト。効果に影響せず詳細モーダル最下部に表示）/ VoiceSpeaker（フレーバー読み上げの VOICEVOX 話者。0＝共通設定）
   CharacterCardData   キャラカード。Attack / Hp / Attribute 値を保持。メインフェーズで表向きにフィールドへ配置
                       登場時効果として EffectTrigger / EffectType（EventType 流用）/ EffectValue / Description（説明テキスト）を保持
   EventCardData       イベントカード。EventType / EventValue / Attribute / Description を保持。メインフェーズで即時解決し墓地へ

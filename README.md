@@ -23,7 +23,9 @@ Multiplayer play mode を使用してオンライン対戦を行う
 ## カードのフレーバー音声生成（VOICEVOX）
 カードのフレーバーテキスト読み上げ音声は [VOICEVOX](https://voicevox.hiroshiba.jp/)（無料）で事前生成する。
 - VOICEVOX アプリ（またはエンジン）を起動した状態で、Unity メニュー `Card → フレーバー音声を一括生成` を実行
-- 全カードの FlavorText を WAV 化して `Assets/AddressableAssets/Voice/{CardId}.wav` に保存し、Addressables アドレス `Voice/{CardId}` に自動登録する（差分のみ生成。話者 ID は既定 3＝ずんだもん）
+- 全カードの FlavorText を WAV 化して `Assets/AddressableAssets/Voice/{CardId}.wav` に保存し、Addressables アドレス `Voice/{CardId}` に自動登録する（差分のみ生成）
+- 読み上げる声は `Card → カードエディタ` の「読み上げ話者」でカードごとに指定できる。未指定のカードは生成ツールの「既定の話者 ID」（既定 3＝ずんだもん）で生成する。話者を変えたカードを作り直すときは「既存をスキップ」を OFF にする
+- 話者一覧は `VoiceSpeakerCatalog.cs`（VOICEVOX 0.16.0 の `/speakers` を静的化）で管理。VOICEVOX 更新で ID が変わったら取り直して更新する
 - 生成した音声 WAV は Git 管理対象（Addressables の GUID 参照を壊さないため）。再生成が必要なのはカード追加・文言変更・話者変更のときのみ
 - 配布時は使用した話者分のクレジット表記（例 `VOICEVOX:ずんだもん`）が必要
 
