@@ -82,3 +82,20 @@ MonoBehaviour:
     _eventValue2: 0
     _description: 
     _attribute: 3
+  - _id: E4005
+    _cardName: 
+    _cost: 0
+    _image: {fileID: 21300000, guid: 31ee299044fab7446b99680238cf93ac, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 0
+    _eventValue: 0
+    _eventValue2: 0
+    _description: 
+    _attribute: 3
