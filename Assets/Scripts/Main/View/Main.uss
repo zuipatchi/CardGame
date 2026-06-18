@@ -31,7 +31,7 @@
 .main-deck-area {
     position: absolute;
     right: 32px;
-    bottom: 32px;
+    bottom: 8px;
     scale: 0.6 0.6;
     transform-origin: right bottom;
 }
@@ -106,13 +106,13 @@
 .main-graveyard-area {
     position: absolute;
     right: 148px;
-    bottom: 48px;
+    bottom: 24px;
 }
 
 .main-opponent-graveyard-area {
     position: absolute;
-    left: 200px;
-    top: 48px;
+    left: 185px;
+    top: 12px;
     transform-origin: center center;
 }
 
