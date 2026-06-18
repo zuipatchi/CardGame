@@ -63,7 +63,8 @@ namespace Main
         }
 
         // ─── MedalIcon フローティング（勝利点を得るカードの上に表示）──────
-        internal async UniTask PlayFloatingMedalAsync(VisualElement anchor, CancellationToken ct)
+        // amount は得る勝利点。1〜5 はそれぞれ Medal1〜Medal5Icon を表示し、0 や 6 以上は Medal1Icon を表示する。
+        internal async UniTask PlayFloatingMedalAsync(VisualElement anchor, int amount, CancellationToken ct)
         {
             const float IconSize = 140f;
             const float RiseDist = 80f;
@@ -81,6 +82,8 @@ namespace Main
 
             VisualElement icon = new VisualElement();
             icon.AddToClassList("medal-fly-icon");
+            int medalIndex = (amount >= 1 && amount <= 5) ? amount : 1;
+            icon.AddToClassList($"medal-fly-icon--{medalIndex}");
             icon.pickingMode = PickingMode.Ignore;
             container.Add(icon);
 

@@ -167,7 +167,7 @@ namespace Main
             {
                 return;
             }
-            await PlayFloatingMedalAsync(sourceCard, ct);
+            await PlayFloatingMedalAsync(sourceCard, bonus, ct);
             await AddVictoryPoints(bonus, toLocal: isLocal, ct);
         }
 
