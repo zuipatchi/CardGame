@@ -363,7 +363,7 @@ CardDatabase      ScriptableObject。属性別 SO の配列 _characterCardSets /
 CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
 
 TurnPhase         enum。Draw / Main
-WinRule           static クラス。共通の勝利条件の純ロジック（デッキ切れ=デッキ0 / 勝利点20 / キャラ8体）と定数
+WinRule           static クラス。共通の勝利条件の純ロジック（デッキ切れ＝オーバーリミット: 空デッキから引く/ミルで敗北 / 勝利点20 / キャラ8体）と定数
 WinReason         enum。勝因の種別（DeckOut / VictoryPoints / FieldChars）。勝敗演出の勝因表示に使う
 ```
 
@@ -563,7 +563,7 @@ CpuAgent.ChooseEventCardIndex(hand, canAfford)          使うイベントカー
 
 キャラ攻撃・デッキ攻撃の対象選択は守護・飛行を考慮するため `MainPresenter.CpuChooseMainAction()` 側で `CanAttackChar` / `CanAttackDeck` を使って解決する（合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATK）。
 
-優先順位: lethal デッキ攻撃（ATK ≥ 相手デッキ枚数で引き切らせられる） → キャラ攻撃（合法な対象があれば） → チップミル（デッキ攻撃。キャラ攻撃対象がない場合） → キャラ配置 → イベント使用 → パス
+優先順位: lethal デッキ攻撃（ATK > 相手デッキ枚数で空デッキからさらにミルさせて敗北させられる） → キャラ攻撃（合法な対象があれば） → チップミル（デッキ攻撃。キャラ攻撃対象がない場合） → キャラ配置 → イベント使用 → パス
 
 ### ゲームロジック（GameModel）
 

@@ -164,7 +164,7 @@ namespace Main.Card.Effects.Handlers
 - 墓地など盤面状態から加点値を動的に算出する効果（`GainVPPerGreenGraveHandler` は `p.CountGreenInGraveyard(...)` → `GraveyardView.CountByAttribute` の結果を `p.AddVictoryPoints` へ渡す。墓地は同期済みで決定的）。
 - 敵キャラを N 体選ぶ効果（`DamageEnemyHandler` / `BounceHandler` / `BanishCharHandler`）は対象選択を `ResolveEnemyCharTargetsAsync`（プレイヤー選択／CPU 自動／オンラインはインデックス同期。トースト文言は引数）で共用する MainPresenter 側メソッドを呼ぶ。
 - 2つの数値が必要な効果（SummonChar の「ID」と「体数」など）は `EventValue2` / `EffectValue2`（=`inv.Value2`）を使う（未使用は 0）。
-- デッキにダメージを与える（デッキ→墓地へミルする）効果（`DamageEnemyDeckHandler` / `DamageBothDecksHandler`）は `p.MillDeckAsync(deckOwnerIsLocal, count, ct)` を呼ぶ。デッキ攻撃と共通の building-block で、ミル・ダメージトリガー（`TriggerOnGrave`）起動・デッキ切れ判定をまとめて行う。発動側から見た相手デッキは `deckOwnerIsLocal: !inv.IsLocal`、自分のデッキは `inv.IsLocal`。デッキ順は同期済みのため追加同期不要。
+- デッキにダメージを与える（デッキ→墓地へミルする）効果（`DamageEnemyDeckHandler` / `DamageBothDecksHandler`）は `p.MillDeckAsync(deckOwnerIsLocal, count, ct)` を呼ぶ。デッキ攻撃と共通の building-block で、ミル・ダメージトリガー（`TriggerOnGrave`）起動・オーバーリミット判定（空デッキからさらにミルしようとした瞬間に持ち主が敗北）・リミットブレイク告知をまとめて行う。発動側から見た相手デッキは `deckOwnerIsLocal: !inv.IsLocal`、自分のデッキは `inv.IsLocal`。デッキ順は同期済みのため追加同期不要。
 - コスト支払いに作用する効果（`NextCardCostFreeHandler`）はプレイヤーごとの永続フラグを立て、`PayHandCostAsync` 側でコスト0化・消費する（[event.md](event.md)「効果ごとの注意点」参照）。
 - ターン進行に作用する効果（`ExtraTurnHandler`）はアクティブプレイヤーのフラグ（`_extraTurnPending`）を立て、`RunTurnAsync` 末尾で `GameModel.RepeatTurn()` を呼ぶ（オンラインは Pass 時の相手ドロー待ち登録をスキップして lockstep を維持）。
 - フィールドのキャラのステータスを永続変化させる効果（`BuffAttackByKeywordHandler` / `BuffHpByKeywordHandler`）は `CardView` の実行時バフ（`_attackBuff` / `_hpBuff` → `CurrentAttack` / `MaxHp`）を `ApplyBuffByKeywordAsync` で加算する。**攻撃力を実行時に変える効果を足すときは、戦闘ダメージ・CPU判断・対象選択の攻撃力参照を `Data.Attack` ではなく `CardView.CurrentAttack` に通すこと**。
