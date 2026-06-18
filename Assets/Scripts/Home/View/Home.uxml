@@ -32,7 +32,7 @@
                     <ui:Label text="制作スタッフ" class="home-credit-section"/>
                     <ui:Label text="企画・制作：深田 光晴" class="home-credit-entry"/>
                     <ui:Label text="プログラム：Claude Code" class="home-credit-entry"/>
-                    <ui:Label text="イラスト：Nano Banana" class="home-credit-entry"/>
+                    <ui:Label text="イラスト：Nano Banana 2" class="home-credit-entry"/>
                     <ui:Label text="テスター" class="home-credit-section"/>
                     <ui:Label text="テトラマックス、有馬、どえむ、ザニザニマン" class="home-credit-entry"/>
                     <ui:Label text="サウンド" class="home-credit-section"/>
