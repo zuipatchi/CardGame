@@ -76,16 +76,14 @@ namespace Common.SoundManagement
         }
 
         // フレーバーテキストの読み上げを再生する。
-        // 連続再生時は前の読み上げを止めてから鳴らす（重なって聞こえないようにするため）。
+        // 前の読み上げが終わる前でも止めずに重ねて鳴らす（一時的に複数同時に流れてもよい）。
         public void PlayVoice(AudioClip clip)
         {
             if (_voiceAudioSource == null || clip == null)
             {
                 return;
             }
-            _voiceAudioSource.Stop();
-            _voiceAudioSource.clip = clip;
-            _voiceAudioSource.Play();
+            _voiceAudioSource.PlayOneShot(clip);
         }
     }
 }
