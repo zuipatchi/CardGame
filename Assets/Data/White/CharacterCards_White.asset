@@ -62,7 +62,7 @@ MonoBehaviour:
     _description: 
   - _id: C1003
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
-    _cost: 2
+    _cost: 1
     _image: {fileID: 21300000, guid: 2e09ecb7c8227e841b69acfc10aff300, type: 3}
     _flavorText: "\u5352\u696D\u3057\u305F\u3071\u3061"
     _voiceSpeaker: 13
