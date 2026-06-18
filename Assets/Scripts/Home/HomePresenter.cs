@@ -35,9 +35,10 @@ namespace Home
         private VisualElement _darkOverlay;
         private CancellationTokenSource _toastCts;
 #if UNITY_EDITOR
-        // Editor 再生時のみ表示するデバッグ用トグル（同名カード3枚制限の ON/OFF）。
+        // Editor 再生時のみ表示するデバッグ用トグル（同名カード3枚制限・デッキ枚数制限の ON/OFF）。
         // ビルドには存在しないため、ビルドでは制限は常に有効。
         private Toggle _sameCardLimitToggle;
+        private Toggle _deckCountLimitToggle;
 #endif
 
         [Inject]
@@ -76,6 +77,13 @@ namespace Home
             _sameCardLimitToggle.value = _deckRuleModel.LimitSameCards;
             _sameCardLimitToggle.RegisterValueChangedCallback(OnSameCardLimitToggled);
             _uiDocument.rootVisualElement.Add(_sameCardLimitToggle);
+
+            _deckCountLimitToggle = new Toggle("デッキ枚数制限");
+            _deckCountLimitToggle.AddToClassList("home-debug-toggle");
+            _deckCountLimitToggle.AddToClassList("home-debug-toggle--deck-count");
+            _deckCountLimitToggle.value = _deckRuleModel.LimitDeckCount;
+            _deckCountLimitToggle.RegisterValueChangedCallback(OnDeckCountLimitToggled);
+            _uiDocument.rootVisualElement.Add(_deckCountLimitToggle);
 #endif
         }
 
@@ -161,6 +169,12 @@ namespace Home
                 _sameCardLimitToggle.RemoveFromHierarchy();
                 _sameCardLimitToggle = null;
             }
+            if (_deckCountLimitToggle != null)
+            {
+                _deckCountLimitToggle.UnregisterValueChangedCallback(OnDeckCountLimitToggled);
+                _deckCountLimitToggle.RemoveFromHierarchy();
+                _deckCountLimitToggle = null;
+            }
 #endif
         }
 
@@ -169,6 +183,12 @@ namespace Home
         {
             _deckRuleModel.LimitSameCards = evt.newValue;
             _deckRuleModel.SaveLimitSameCards();
+        }
+
+        private void OnDeckCountLimitToggled(ChangeEvent<bool> evt)
+        {
+            _deckRuleModel.LimitDeckCount = evt.newValue;
+            _deckRuleModel.SaveLimitDeckCount();
         }
 #endif
 
@@ -186,7 +206,7 @@ namespace Home
         private void OnBattleClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsValid)
+            if (!IsDeckPlayable())
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
@@ -203,7 +223,7 @@ namespace Home
         private void OnMatchingClicked()
         {
             PlayEnterSE();
-            if (!_deckModel.IsValid)
+            if (!IsDeckPlayable())
             {
                 ShowDeckToastAsync(GetDeckErrorMessage()).Forget();
                 return;
@@ -211,8 +231,23 @@ namespace Home
             _sceneTransitioner.Transit(Scenes.Matching).Forget();
         }
 
+        // 対戦を開始できるデッキかどうか。通常はちょうど DeckModel.MaxCards 枚（IsValid）が必要だが、
+        // Editor 再生時に「デッキ枚数制限」トグルを OFF にした場合は 1 枚以上であれば開始できる。
+        private bool IsDeckPlayable()
+        {
+            if (_deckRuleModel != null && !_deckRuleModel.LimitDeckCount)
+            {
+                return _deckModel.Count > 0;
+            }
+            return _deckModel.IsValid;
+        }
+
         private string GetDeckErrorMessage()
         {
+            if (_deckRuleModel != null && !_deckRuleModel.LimitDeckCount)
+            {
+                return "デッキが空です";
+            }
             if (_deckModel.IsOver)
             {
                 return $"デッキが{DeckModel.MaxCards}枚を超えています";
