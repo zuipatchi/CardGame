@@ -10,7 +10,6 @@ namespace Common.Option
         private readonly string _bgmVolumeKey = "bgmVolume";
         private readonly string _seVolumeKey = "seVolume";
         private readonly string _autoOkKey = "autoOk";
-        private readonly string _autoPassKey = "autoPass";
 
         private readonly ReactiveProperty<float> _bgmVolume = new();
         public ReadOnlyReactiveProperty<float> BGMVolume => _bgmVolume;
@@ -20,9 +19,6 @@ namespace Common.Option
 
         private readonly ReactiveProperty<bool> _autoOk = new();
         public ReadOnlyReactiveProperty<bool> AutoOk => _autoOk;
-
-        private readonly ReactiveProperty<bool> _autoPass = new();
-        public ReadOnlyReactiveProperty<bool> AutoPass => _autoPass;
 
         // セーブデータから読み込み
         public void Start()
@@ -34,8 +30,6 @@ namespace Common.Option
             _seVolume.Value = seVolume;
 
             _autoOk.Value = PlayerPrefs.GetInt(_autoOkKey, 1) == 1;
-
-            _autoPass.Value = PlayerPrefs.GetInt(_autoPassKey, 1) == 1;
         }
 
         public void SetBGMVolume(float value)
@@ -54,12 +48,6 @@ namespace Common.Option
         {
             _autoOk.Value = value;
             PlayerPrefs.SetInt(_autoOkKey, value ? 1 : 0);
-        }
-
-        public void SetAutoPass(bool value)
-        {
-            _autoPass.Value = value;
-            PlayerPrefs.SetInt(_autoPassKey, value ? 1 : 0);
         }
     }
 }

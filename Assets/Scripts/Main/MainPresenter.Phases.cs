@@ -29,6 +29,8 @@ namespace Main
 
         private async UniTask RunTurnAsync(CancellationToken ct)
         {
+            _turnCounter.SetTurn(_gameModel.TurnNumber);
+
             await PlayTurnStartAnnouncementAsync(_gameModel.IsLocalTurn, ct);
 
             // ターン開始時効果（ドロー前）：場のキャラ（OnTurnStart）と墓地の永続イベント（OnTurnStart）を発動

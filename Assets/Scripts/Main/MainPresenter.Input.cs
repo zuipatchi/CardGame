@@ -310,6 +310,17 @@ namespace Main
             }
         }
 
+        // カードがステージ済み（ドラッグして場に出した後、OK/Return の確定待ち）かどうか。
+        // この間は手札カードをクリックしても詳細モーダルを出さない。コスト支払いのための
+        // クリックで詳細が誤って開くのを防ぐ。Return（戻す）を押して手札に戻せば、再び
+        // クリックで詳細を表示できる。なお場のカードはコスト支払い中でも詳細を表示できる。
+        private bool IsStagingCard()
+        {
+            return _mainStagedCard != null
+                || _evolveInput._card != null
+                || _switchInput._card != null;
+        }
+
         // ─── ドラッグ可否判定 ────────────────────────────────────────────
 
         private bool CanPlayerDragCard()

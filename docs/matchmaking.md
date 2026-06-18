@@ -56,12 +56,21 @@ Title → Matching → Main
    → ルーム一覧を表示
 
 2a. クイックマッチ（推奨）
+   → ランダムジッター（0〜800ms）で同時押しの衝突頻度を下げる
    → QuerySessions で Name="QuickMatch" かつ AvailableSlots>0 かつ started!=1 を検索
    → 見つかった → JoinSessionByIdAsync → Main シーンへ遷移
    → 見つからない → CreateSessionAsync(Name="QuickMatch", MaxPlayers=2, started="0")
-     → PlayerJoined イベント待機（30秒タイムアウト）
+     → 【競合解決】同時に作られた別の QuickMatch ルームが無いか最大6秒ポーリングで再照会
+        （ReconcileQuickMatchAsync）
+        ・自分より小さい ID のルームを発見 → 自分のルームを離脱しそのルームへ Join → Main へ遷移
+        ・自分より大きい ID のルームだけ発見（=自分がホスト）→ 即座に待機へ移行
+        ・何も見つからない → ポーリング継続
+     → PlayerJoined イベント待機（30秒タイムアウト。イベント取りこぼしに備え AvailableSlots を併用ポーリング）
      → マッチ成立 → MarkRoomStartedAsync（started="1" に更新）→ Main シーンへ遷移
      → タイムアウト → セッション離脱（ルーム破棄）→「閉じる」ボタンを表示（押すと再認証・ルーム一覧へ）
+
+   ※ 同時押しで両者がルームを作ってしまった場合、ID の大小という決定論的な基準で
+     必ず片方だけが入り直すため、確実に 1 組のマッチへ収束する。
 
 2b. ルームを手動作成
    → CreateSessionAsync(MaxPlayers=2, started="0")
