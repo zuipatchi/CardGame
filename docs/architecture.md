@@ -202,7 +202,7 @@ Assets/Scripts/<Scene>/<Feature>/
 ```
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
-  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ・キャラ8体勝利の紋章用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、MedalIcon.png（勝利点表示・勝利点勝利の紋章用）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
+  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ・キャラ8体勝利の紋章用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、Medal1Icon.png〜Medal5Icon.png（勝利点表示・勝利点勝利の紋章用。勝利点獲得フロートは得点数 1〜5 に対応する画像を表示し、0 や 6 以上は Medal1Icon。カウンター・紋章など固定箇所は Medal1Icon）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
   ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButton.png（OKボタン画像）、returnButton.png（戻るボタン画像）、PassButton.png（パスボタン画像）、HomeBackground.png（Home 画面背景・晴れ）、HomeBackgroundRain.png（Home 画面背景・雨）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
@@ -419,7 +419,7 @@ GraveyardView        VisualElement サブクラス。80×80px のアイコンボ
                      AddCard(CardView) でカードを階層から切り離し、CardData を内部リストで管理
                      モーダルは mainRoot に追加してオーバーレイ表示。背景クリックで閉じる
                      茶色系の枠線（rgba(160,100,50)）と暗いベージュ背景
-VictoryPointsView    VisualElement サブクラス。勝利点表示（MedalIcon.png + 数字）。共通の勝利条件のため
+VictoryPointsView    VisualElement サブクラス。勝利点表示（Medal1Icon.png + 数字）。共通の勝利条件のため
                      ゲーム開始時から常時表示。相手用は OpponentFieldArea 右上・自分用は PlayerFieldArea 左下に絶対配置
                      AddPoints / SetDisplayedPoints で論理値と表示を分離（カウントアップ演出用）
 

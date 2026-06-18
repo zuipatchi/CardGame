@@ -125,7 +125,7 @@ namespace Main.Card.Effects.Handlers
 
 **勝利点付帯値（VictoryPointBonus）はハンドラに書かない**
 
-効果（EventType）とは独立した加点で、`ResolveEventCardEffectAsync` / `ResolveCharacterTriggeredEffectAsync` が効果解決後に `ApplyVictoryPointBonusAsync(bonus, isLocal, card, ct)`（MedalIcon 演出 ＋ `AddVictoryPoints`）をまとめて実行する（bonus が 0 なら何もしない）。「効果＋勝利点」も「勝利点を得るだけ」（`EventType=None` ＋ 付帯値）もこれで賄う。
+効果（EventType）とは独立した加点で、`ResolveEventCardEffectAsync` / `ResolveCharacterTriggeredEffectAsync` が効果解決後に `ApplyVictoryPointBonusAsync(bonus, isLocal, card, ct)`（メダル演出 ＋ `AddVictoryPoints`）をまとめて実行する（bonus が 0 なら何もしない）。メダルフロート `PlayFloatingMedalAsync(anchor, amount, ct)` は得点数 1〜5 に応じて Medal1〜Medal5Icon を出し分ける（0 や 6 以上は Medal1Icon）。「効果＋勝利点」も「勝利点を得るだけ」（`EventType=None` ＋ 付帯値）もこれで賄う。
 
 **演出ヘルパー**（ハンドラの `ApplyAsync` から呼ぶ）
 
