@@ -144,8 +144,10 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 
 - BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え
 - SE: `PlayOneShot()` で重ね再生
-- 音量は `OptionModel.BGMVolume / SEVolume` (0–1) を ReactiveProperty で管理
+- ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`。連続再生時は前の読み上げを `Stop()` してから鳴らす（重ならないように）
+- 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
+- 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
 
 > `_bgmAudioSource.volume = v / 2` としているのは、
 > OptionModel の値 1.0 がデフォルトの AudioSource 最大音量の半分に相当するようにしているため。

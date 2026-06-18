@@ -7,9 +7,13 @@
             <ui:Label text="BGM" name="BGM" style="color: rgb(180, 180, 210); font-size: 13px; margin-bottom: 4px;"/>
             <ui:Slider high-value="1" value="0.5" name="BGMSlider" style="flex-grow: 1;"/>
         </ui:VisualElement>
-        <ui:VisualElement style="margin-bottom: 20px;">
+        <ui:VisualElement style="margin-bottom: 18px;">
             <ui:Label text="SE" name="SE" style="color: rgb(180, 180, 210); font-size: 13px; margin-bottom: 4px;"/>
             <ui:Slider high-value="1" value="0.5" name="SESlider" style="flex-grow: 1;"/>
+        </ui:VisualElement>
+        <ui:VisualElement style="margin-bottom: 20px;">
+            <ui:Label text="ボイス" name="Voice" style="color: rgb(180, 180, 210); font-size: 13px; margin-bottom: 4px;"/>
+            <ui:Slider high-value="1" value="0.5" name="VoiceSlider" style="flex-grow: 1;"/>
         </ui:VisualElement>
         <ui:VisualElement style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 24px;">
             <ui:Label text="Auto OK" style="color: rgb(180, 180, 210); font-size: 13px;"/>

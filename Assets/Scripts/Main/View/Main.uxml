@@ -1,5 +1,8 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="Main.uss" />
+    <Style src="Main.Overlays.uss" />
+    <Style src="Main.FloatingLabels.uss" />
+    <Style src="Main.Highlights.uss" />
     <Style src="../../Common/View/CardDetail.uss" />
     <ui:VisualElement name="MainRoot" class="main-root">
         <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />
