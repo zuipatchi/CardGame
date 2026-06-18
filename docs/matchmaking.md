@@ -185,52 +185,7 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 
 ## ネットワークプロトコル（NetworkGameService）
 
-Main シーン遷移後、`MainPresenter.BuildAsync` から呼ばれる。NGO の `CustomMessagingManager` を使って JSON メッセージを送受信する。`_opponentClientId` は初期ハンドシェイク完了時に保存し、以降のフェーズ送信に使用する。
-
-### デッキ交換（PrepareDecksAsync）
-
-```
-ホスト側                                         クライアント側
-  ├─ k_ClientReady ハンドラ登録
-  ├─ k_DeckSubmit  ハンドラ登録                   ├─ k_InitialState ハンドラ登録
-  │                                               ├─ k_RequestDeck  ハンドラ登録
-  │                                               └─ NGS_ClientReady を 200ms 間隔でリトライ送信
-  │                                                   （NGS_RequestDeck 受信まで繰り返す）
-  ├─ NGS_ClientReady 受信 → NGS_RequestDeck 送信 →
-  │
-  ←──────────────────────────── NGS_DeckSubmit 受信（クライアントのデッキ ID 配列）
-  │
-  ├─ 先攻後攻を抽選 → 両デッキをシャッフル・初期手札(先攻3枚/後攻5枚)を決定・_opponentClientId 保存
-  └─ NGS_InitialState 送信（クライアントの手札/デッキ・先攻後攻）→ クライアント受信・_opponentClientId 保存
-```
-
-- リトライ送信はリレートランスポートの安定化前にメッセージが届かないケースへの対応
-- 先攻判定: ホストが `Random.value > 0.5f` でランダムに決定し、結果を `IsLocalFirst` に格納。クライアントへは反転値（`!hostGoesFirst`）を送信
-- 初期手札枚数は先攻後攻を先に決めてから配る。先攻=3枚・後攻=5枚（`MulliganRule`）で、ホスト/クライアントそれぞれの枚数を `NGS_InitialState` の手札配列長と `opponentHandCount` で双方に伝える
-
-### メインアクション同期（SendMainAction / WaitForOpponentMainActionAsync）
-
-```
-自分のターン  → SendMainAction(action)              // Pass / PlaceChar / PlayEvent / Attack
-相手のターン  → WaitForOpponentMainActionAsync       // MainActionData を受け取る
-```
-
-ペイロード: `{ int actionType, string cardId, string attackerId, string targetId, string[] costCardIds }`
-- `actionType` は `MainActionType` enum（Pass=0 / PlaceChar=1 / PlayEvent=2 / Attack=3）
-- `cardId`: PlaceChar / PlayEvent 時の配置カード ID
-- `attackerId` / `targetId`: Attack 時の攻撃キャラ・攻撃対象キャラ ID（デッキ直撃は `targetId = null`）
-- `costCardIds`: PlaceChar / PlayEvent 時に手札から払うコストカード ID 配列
-
-受信側はアクション種別に応じて演出を実行する。PlaceChar / PlayEvent 時は `cardId` で `CardDatabase` を引いてカードを生成しフィールドへ配置・コスト墓地送り。Attack 時は `attackerId` / `targetId` でキャラを特定して攻撃演出を実行。
-
-### ドローフェーズ同期（SendDrawNotification / WaitForOpponentDrawAsync）
-
-```
-自分のターン  → AddCardAnimatedAsync 完了後 → SendDrawNotification()  // ペイロードなし
-相手のターン  → WaitForOpponentDrawAsync → PlayCpuDrawAsync（裏向き飛翔）
-```
-
-ペイロードなし（相手のドローカードは常に裏向きのためデータ不要）。
+マッチ成立後、Main シーンでの NGO 通信（デッキ交換ハンドシェイク・メインアクション/ドローなど各フェーズの同期・メッセージ種別一覧・メッセージロスト対策）は [docs/networking.md](networking.md) に集約している。マッチング側で関係するのは「`MatchingService` がセッションを確立 → `MainPresenter.BuildAsync` が `NetworkGameService.PrepareDecksAsync` を呼んでデッキ交換を開始する」という接続点のみ。
 
 ---
 
