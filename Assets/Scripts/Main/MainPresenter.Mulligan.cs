@@ -17,7 +17,8 @@ namespace Main
         {
             await PlayReturnHandToDeckAsync(_opponentHandView, _opponentDeckView, ct);
 
-            _opponentDeckView.Rebuild(newDeck);
+            // 配る手札分（プレースホルダ）を上に積んで満杯から始め、配牌で減らす。引き切ると残りは newDeck と一致する。
+            _opponentDeckView.Rebuild(newDeck.Concat(Enumerable.Repeat(placeholder, handSize)).ToArray());
 
             await UniTask.NextFrame(ct);
 
@@ -25,7 +26,7 @@ namespace Main
             UniTask[] drawTasks = new UniTask[handSize];
             for (int i = 0; i < handSize; i++)
             {
-                drawTasks[i] = _opponentHandView.AddCardAnimatedAsync(placeholder, deckRect, i * DrawStagger, ct);
+                drawTasks[i] = DealCardFromDeckAsync(_opponentHandView, _opponentDeckView, placeholder, deckRect, i * DrawStagger, ct);
             }
             await UniTask.WhenAll(drawTasks);
         }
@@ -46,7 +47,8 @@ namespace Main
             CardData[] newHandCards = reshuffled.Take(handSize).ToArray();
             CardData[] newDeckCards = reshuffled.Skip(handSize).ToArray();
 
-            deck.Rebuild(newDeckCards);
+            // 配る手札分を上に積んで満杯から始め、配牌で減らす。引き切ると残りは newDeckCards と一致する（オンライン同期の並びも保持）。
+            deck.Rebuild(newDeckCards.Concat(newHandCards).ToArray());
 
             await UniTask.NextFrame(ct);
 
@@ -54,7 +56,7 @@ namespace Main
             UniTask[] drawTasks = new UniTask[handSize];
             for (int i = 0; i < handSize; i++)
             {
-                drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
+                drawTasks[i] = DealCardFromDeckAsync(hand, deck, newHandCards[i], deckRect, i * DrawStagger, ct);
             }
             await UniTask.WhenAll(drawTasks);
             return true;
@@ -141,7 +143,8 @@ namespace Main
             CardData[] newHandCards = reshuffled.Take(handSize).ToArray();
             CardData[] newDeckCards = reshuffled.Skip(handSize).ToArray();
 
-            deck.Rebuild(newDeckCards);
+            // 配る手札分を上に積んで満杯から始め、配牌で減らす。引き切ると残りは newDeckCards と一致する（オンライン同期の並びも保持）。
+            deck.Rebuild(newDeckCards.Concat(newHandCards).ToArray());
 
             await UniTask.NextFrame(ct);
 
@@ -149,7 +152,7 @@ namespace Main
             UniTask[] drawTasks = new UniTask[handSize];
             for (int i = 0; i < handSize; i++)
             {
-                drawTasks[i] = hand.AddCardAnimatedAsync(newHandCards[i], deckRect, i * DrawStagger, ct);
+                drawTasks[i] = DealCardFromDeckAsync(hand, deck, newHandCards[i], deckRect, i * DrawStagger, ct);
             }
             await UniTask.WhenAll(drawTasks);
         }
