@@ -37,8 +37,8 @@ namespace Main.Card.Effects.Handlers
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            // 自分 → 相手の順にミルする。自分のデッキを先に削り、その時点で0枚なら自分がデッキ切れで敗北
-            // （MillDeckAsync 末尾の CheckDeckOutWin で _isGameOver が立ち、続く相手のミルは早期 return される）
+            // 自分 → 相手の順にミルする。自分のデッキを先に削り、空デッキからミルしようとした瞬間に自分が敗北
+            // （MillDeckAsync 内のミル直前 CheckDeckOutWin で _isGameOver が立ち、続く相手のミルは早期 return される）
             await p.MillDeckAsync(deckOwnerIsLocal: inv.IsLocal, inv.Value1, ct);
             await p.MillDeckAsync(deckOwnerIsLocal: !inv.IsLocal, inv.Value1, ct);
         }
