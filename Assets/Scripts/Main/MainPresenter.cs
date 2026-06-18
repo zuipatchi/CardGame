@@ -6,11 +6,13 @@ using Common.Deck;
 using Common.GameSession;
 using Common.Option;
 using Common.SceneManagement;
+using Common.SoundManagement;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
 using Main.Network;
+using Main.Sound;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -45,6 +47,8 @@ namespace Main
         private NetworkGameService _networkGameService;
         private OptionPresenter _optionPresenter;
         private OptionModel _optionModel;
+        private SoundPlayer _soundPlayer;
+        private FlavorVoiceStore _flavorVoiceStore;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -215,6 +219,8 @@ namespace Main
             NetworkGameService networkGameService,
             OptionPresenter optionPresenter,
             OptionModel optionModel,
+            SoundPlayer soundPlayer,
+            FlavorVoiceStore flavorVoiceStore,
             UsernameRepository usernameRepository)
         {
             _cardStore = cardStore;
@@ -226,6 +232,8 @@ namespace Main
             _networkGameService = networkGameService;
             _optionPresenter = optionPresenter;
             _optionModel = optionModel;
+            _soundPlayer = soundPlayer;
+            _flavorVoiceStore = flavorVoiceStore;
             _localUsername = usernameRepository.Load() ?? string.Empty;
         }
 

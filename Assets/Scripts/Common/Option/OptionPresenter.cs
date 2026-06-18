@@ -100,6 +100,15 @@ namespace Common.Option
 
             seSlider.RegisterValueChangedCallback(OnSESliderChange);
 
+            Slider voiceSlider = modal.Q<Slider>("VoiceSlider");
+            voiceSlider.value = _optionModel.VoiceVolume.CurrentValue;
+
+            _optionModel.VoiceVolume
+                .Subscribe(v => voiceSlider.SetValueWithoutNotify(v))
+                .AddTo(_disposables);
+
+            voiceSlider.RegisterValueChangedCallback(OnVoiceSliderChange);
+
             Toggle autoOkToggle = modal.Q<Toggle>("AutoOkToggle");
             autoOkToggle.value = _optionModel.AutoOk.CurrentValue;
             _optionModel.AutoOk
@@ -306,6 +315,11 @@ namespace Common.Option
         private void OnSESliderChange(ChangeEvent<float> evt)
         {
             _optionModel.SetSEVolume(evt.newValue);
+        }
+
+        private void OnVoiceSliderChange(ChangeEvent<float> evt)
+        {
+            _optionModel.SetVoiceVolume(evt.newValue);
         }
     }
 }
