@@ -11,13 +11,9 @@
             <ui:Label text="SE" name="SE" style="color: rgb(180, 180, 210); font-size: 13px; margin-bottom: 4px;"/>
             <ui:Slider high-value="1" value="0.5" name="SESlider" style="flex-grow: 1;"/>
         </ui:VisualElement>
-        <ui:VisualElement style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <ui:VisualElement style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 24px;">
             <ui:Label text="Auto OK" style="color: rgb(180, 180, 210); font-size: 13px;"/>
             <ui:Toggle name="AutoOkToggle" />
-        </ui:VisualElement>
-        <ui:VisualElement style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-            <ui:Label text="Auto Pass" style="color: rgb(180, 180, 210); font-size: 13px;"/>
-            <ui:Toggle name="AutoPassToggle" />
         </ui:VisualElement>
         <ui:VisualElement style="flex-direction: row; justify-content: space-between;">
             <ui:Button text="タイトルに戻る" name="BackToTitleButton" class="modal-btn-ghost" style="flex-grow: 1; margin-right: 8px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; -unity-text-align: middle-center; font-size: 14px;"/>

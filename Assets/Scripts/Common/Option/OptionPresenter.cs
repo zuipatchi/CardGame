@@ -107,13 +107,6 @@ namespace Common.Option
                 .AddTo(_disposables);
             autoOkToggle.RegisterValueChangedCallback(evt => _optionModel.SetAutoOk(evt.newValue));
 
-            Toggle autoPassToggle = modal.Q<Toggle>("AutoPassToggle");
-            autoPassToggle.value = _optionModel.AutoPass.CurrentValue;
-            _optionModel.AutoPass
-                .Subscribe(v => autoPassToggle.SetValueWithoutNotify(v))
-                .AddTo(_disposables);
-            autoPassToggle.RegisterValueChangedCallback(evt => _optionModel.SetAutoPass(evt.newValue));
-
             _host.Add(modal);
 
             _surrenderConfirmOverlay = BuildSurrenderConfirmOverlay();

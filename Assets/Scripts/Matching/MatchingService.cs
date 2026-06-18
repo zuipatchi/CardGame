@@ -139,6 +139,75 @@ namespace Matching
             return null;
         }
 
+        /// <summary>
+        /// クイックマッチの同時作成を解消する。自分でルームを作成した直後に呼び、
+        /// 同時に作られた別のクイックマッチルームが無いか一定時間ポーリングで探す。
+        /// 見つかったルームの ID が自分のルーム ID より小さい場合だけそのルームを返す
+        /// （ID の小さい方をホストとする決定論的タイブレーク）。両者が同じ基準で判断するため、
+        /// 必ず片方だけが相手のルームへ入り直し、確実に 1 組へ収束する。
+        /// </summary>
+        public async UniTask<LobbyInfo?> ReconcileQuickMatchAsync(string myRoomId, TimeSpan duration, CancellationToken ct = default)
+        {
+            using CancellationTokenSource timeoutCts = new(duration);
+            using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
+            try
+            {
+                while (!linked.Token.IsCancellationRequested)
+                {
+                    (LobbyInfo? lowerRival, bool sawHigherRival) = await ScanQuickMatchRivalsAsync(myRoomId, ct);
+                    if (lowerRival.HasValue)
+                    {
+                        // ID が小さいルームが居る → 自分は入り直す側
+                        return lowerRival;
+                    }
+                    if (sawHigherRival)
+                    {
+                        // 自分が一番小さい ID = ホスト。早期に待機へ移り、相手の参加イベントを取りこぼさない
+                        return null;
+                    }
+                    await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: linked.Token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    throw;
+                }
+            }
+            return null;
+        }
+
+        private async UniTask<(LobbyInfo? lowerRival, bool sawHigherRival)> ScanQuickMatchRivalsAsync(string myRoomId, CancellationToken ct)
+        {
+            IReadOnlyList<LobbyInfo> rooms = await GetRoomsAsync(ct);
+            LobbyInfo? lower = null;
+            bool sawHigher = false;
+            foreach (LobbyInfo room in rooms)
+            {
+                if (room.Name != QuickMatchName || room.LobbyId == myRoomId)
+                {
+                    continue;
+                }
+                if (room.PlayerCount >= room.MaxPlayers)
+                {
+                    continue;
+                }
+                if (string.CompareOrdinal(room.LobbyId, myRoomId) < 0)
+                {
+                    if (!lower.HasValue || string.CompareOrdinal(room.LobbyId, lower.Value.LobbyId) < 0)
+                    {
+                        lower = room;
+                    }
+                }
+                else
+                {
+                    sawHigher = true;
+                }
+            }
+            return (lower, sawHigher);
+        }
+
         private static void DisableNgoSceneManagement()
         {
             NetworkManager nm = NetworkManager.Singleton;
@@ -150,12 +219,12 @@ namespace Matching
 
         public async UniTask<bool> WaitForPlayerAsync(ISession session, TimeSpan timeout, CancellationToken ct = default)
         {
-            UniTaskCompletionSource tcs = new();
+            bool joined = false;
 
             void OnPlayerJoined(string playerId)
             {
                 session.PlayerJoined -= OnPlayerJoined;
-                tcs.TrySetResult();
+                joined = true;
             }
 
             // ハンドラを先に登録してからセッション状態を確認（競合防止）
@@ -173,8 +242,18 @@ namespace Matching
 
             try
             {
-                await tcs.Task.AttachExternalCancellation(linked.Token);
-                return true;
+                // PlayerJoined イベントが主経路。ただし ReconcileQuickMatch でハンドラ登録前に
+                // 相手が参加したケースに備え、AvailableSlots も定期ポーリングで監視する。
+                while (true)
+                {
+                    linked.Token.ThrowIfCancellationRequested();
+                    if (joined || session.AvailableSlots == 0)
+                    {
+                        session.PlayerJoined -= OnPlayerJoined;
+                        return true;
+                    }
+                    await UniTask.Delay(TimeSpan.FromMilliseconds(500), cancellationToken: linked.Token);
+                }
             }
             catch (OperationCanceledException)
             {

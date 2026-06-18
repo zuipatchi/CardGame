@@ -18,6 +18,7 @@ namespace Matching
     {
         private static readonly TimeSpan _quickMatchTimeoutDuration = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan _createRoomTimeoutDuration = TimeSpan.FromSeconds(120);
+        private static readonly TimeSpan _quickMatchReconcileDuration = TimeSpan.FromSeconds(6);
 
         private MatchingModel _model;
         private MatchingService _matchingService;
@@ -198,6 +199,12 @@ namespace Matching
             try
             {
                 _model.State.Value = MatchingState.JoiningRoom;
+
+                // 同時押しの衝突頻度を下げ、照会の伝搬遅延を吸収するためのランダムジッター
+                await UniTask.Delay(
+                    TimeSpan.FromMilliseconds(UnityEngine.Random.Range(0, 800)),
+                    cancellationToken: destroyCancellationToken);
+
                 LobbyInfo? room = await _matchingService.FindQuickMatchRoomAsync(destroyCancellationToken);
 
                 if (room.HasValue)
@@ -210,6 +217,19 @@ namespace Matching
                 {
                     _model.State.Value = MatchingState.CreatingRoom;
                     IHostSession session = await _matchingService.CreateRoomAsync(MatchingService.QuickMatchName, destroyCancellationToken);
+
+                    // 同時に別のクイックマッチルームが作られていないか確認。
+                    // ID の大きい側が自分の部屋を捨てて、ID の小さい側のルームへ入り直す。
+                    LobbyInfo? rival = await _matchingService.ReconcileQuickMatchAsync(session.Id, _quickMatchReconcileDuration, destroyCancellationToken);
+                    if (rival.HasValue)
+                    {
+                        // JoinRoomAsync 内の LeaveCurrentSessionAsync で自分の部屋は破棄される
+                        await _matchingService.JoinRoomAsync(rival.Value.LobbyId);
+                        _model.State.Value = MatchingState.Starting;
+                        await TransitToMainAsync();
+                        return;
+                    }
+
                     _model.State.Value = MatchingState.WaitingForPlayer;
 
                     bool found = await _matchingService.WaitForPlayerAsync(session, _quickMatchTimeoutDuration, destroyCancellationToken);

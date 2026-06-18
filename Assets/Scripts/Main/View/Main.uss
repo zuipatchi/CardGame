@@ -31,7 +31,7 @@
 .main-deck-area {
     position: absolute;
     right: 32px;
-    bottom: 32px;
+    bottom: 8px;
     scale: 0.6 0.6;
     transform-origin: right bottom;
 }
@@ -106,13 +106,13 @@
 .main-graveyard-area {
     position: absolute;
     right: 148px;
-    bottom: 48px;
+    bottom: 24px;
 }
 
 .main-opponent-graveyard-area {
     position: absolute;
-    left: 200px;
-    top: 48px;
+    left: 185px;
+    top: 12px;
     transform-origin: center center;
 }
 
@@ -267,6 +267,16 @@
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.action-button:hover {
+    scale: 1.06 1.06;
+}
+
+.action-button:active {
+    scale: 0.94 0.94;
 }
 
 .action-button--pass {
@@ -284,7 +294,7 @@
 
 .action-button--ok {
     position: absolute;
-    right: 0;
+    right: 108px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/OKButton.png");
@@ -297,7 +307,7 @@
 
 .action-button--back {
     position: absolute;
-    right: 108px;
+    right: 0;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/returnButton.png");
@@ -1165,11 +1175,16 @@
 
 /* ─── コスト選択ハイライト ──────────────────────────────────────────── */
 
+/* コスト選択中のカードは opacity の変化を滑らかにアニメーションさせる（薄くなる演出）。 */
 .cost-selectable {
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
 }
 
+/* コストとして選択したカードは薄くする。 */
 .cost-selected {
-    opacity: 0.65;
+    opacity: 0.45;
 }
 
 /* ─── 攻撃優先権コイン ────────────────────────────────────────────────── */
@@ -1497,6 +1512,35 @@
     -unity-font-style: bold;
     color: rgb(120, 235, 130);
     -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.turn-counter {
+    position: absolute;
+    bottom: 76px;
+    left: 8px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 4px 14px 4px 14px;
+}
+
+.turn-counter-caption {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(180, 200, 230);
+    margin-right: 8px;
+}
+
+.turn-counter-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(240, 245, 255);
+    -unity-text-outline-width: 2px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
