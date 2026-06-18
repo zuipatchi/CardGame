@@ -470,7 +470,7 @@
 
 .turn-counter {
     position: absolute;
-    bottom: 76px;
+    bottom: 16px;
     left: 8px;
     flex-direction: row;
     align-items: center;
@@ -499,7 +499,7 @@
 
 .turn-timer {
     position: absolute;
-    bottom: 130px;
+    bottom: 70px;
     left: 8px;
     flex-direction: row;
     align-items: center;
