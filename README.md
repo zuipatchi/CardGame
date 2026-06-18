@@ -37,3 +37,27 @@ Windows MacOS
 
 ## gitignore
 - Asset Storeからダウンロードした物は AssetStore ディレクトリに入れるとGitに管理されない
+
+## クレジット
+ゲーム内クレジット（Home シーン右下「クレジット」ボタン）と同じ内容。表示元は [Assets/Scripts/Home/View/Home.uxml](Assets/Scripts/Home/View/Home.uxml) なので、変更時は両方を更新する。
+
+### 制作スタッフ
+- 企画・制作：深田 光晴
+- プログラム：Claude Code
+- イラスト：Nano Banana
+
+### テスター
+- テトラマックス、有馬、どえむ、ザニザニマン
+
+### サウンド
+- BGM：魔王魂、ぱっち
+- 効果音：効果音ラボ
+
+### 使用OSS / アセット
+- VOICEVOX（フレーバーテキスト読み上げ）
+- Live2D Cubism SDK / Live2D Inc.
+- DoTween / Demigiant
+- Noto Sans JP / Google Fonts
+- VContainer・R3・UniTask
+- Free Quick Effects Vol.1 / Gabriel Aguiar Productions（Asset Store）
+- Cartoon FX Remaster / Jean Moreno (JMO Assets)（Asset Store）
