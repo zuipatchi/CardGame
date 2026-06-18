@@ -24,5 +24,29 @@
         <ui:VisualElement name="DogSpeechBubble" class="home-speech-bubble" picking-mode="Ignore">
             <ui:Label name="DogSpeechLabel" class="home-speech-text" />
         </ui:VisualElement>
+        <ui:Button name="CreditButton" text="クレジット" class="home-credit-button"/>
+        <ui:VisualElement name="CreditOverlay" class="home-credit-overlay">
+            <ui:VisualElement name="CreditPanel" class="home-credit-panel">
+                <ui:Label text="クレジット" class="home-credit-title"/>
+                <ui:ScrollView name="CreditScroll" class="home-credit-scroll">
+                    <ui:Label text="制作スタッフ" class="home-credit-section"/>
+                    <ui:Label text="企画・制作：深田 光晴" class="home-credit-entry"/>
+                    <ui:Label text="プログラム：Claude Code" class="home-credit-entry"/>
+                    <ui:Label text="イラスト：Nano Banana" class="home-credit-entry"/>
+                    <ui:Label text="テスター" class="home-credit-section"/>
+                    <ui:Label text="テトラマックス、有馬、どえむ、ザニザニマン" class="home-credit-entry"/>
+                    <ui:Label text="使用OSS / アセット" class="home-credit-section"/>
+                    <ui:Label text="VOICEVOX（フレーバーテキスト読み上げ）" class="home-credit-entry"/>
+                    <ui:Label text="Live2D Cubism SDK / Live2D Inc." class="home-credit-entry"/>
+                    <ui:Label text="DoTween / Demigiant" class="home-credit-entry"/>
+                    <ui:Label text="Noto Sans JP / Google Fonts" class="home-credit-entry"/>
+                    <ui:Label text="VContainer・R3・UniTask" class="home-credit-entry"/>
+                    <ui:Label text="サウンド" class="home-credit-section"/>
+                    <ui:Label text="BGM：魔王魂、ぱっち" class="home-credit-entry"/>
+                    <ui:Label text="効果音：効果音ラボ" class="home-credit-entry"/>
+                </ui:ScrollView>
+                <ui:Button name="CreditCloseButton" text="閉じる" class="home-credit-close-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
