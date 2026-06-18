@@ -898,7 +898,7 @@ namespace Main
         // count が 0 以下なら1体扱い。手札・デッキは消費しない。召喚キャラの OnEnter も発動する。
         // フィールドが満杯（FieldView.MaxCharacters）になったら打ち切る。満杯で新キャラが出ないため
         // OnEnter 連鎖もここで自然に停止する（無限ループにならない）。
-        internal async UniTask ApplySummonCharAsync(int charNumber, int count, bool isLocal, Rect fromRect, CancellationToken ct)
+        internal async UniTask ApplySummonCharAsync(int charNumber, int count, bool isLocal, CancellationToken ct)
         {
             if (charNumber <= 0)
             {
@@ -920,26 +920,22 @@ namespace Main
                 {
                     break;
                 }
-                await SummonSingleCharAsync(data, field, isLocal, fromRect, ct);
+                await SummonSingleCharAsync(data, field, isLocal, ct);
             }
         }
 
-        // SummonChar の1体分：飛来 → 配置 → キャラ8体勝利判定（OnCardPlayed）→ 演出 → 登場時効果（OnEnter）。
+        // SummonChar の1体分：配置 → キャラ8体勝利判定（OnCardPlayed）→ 登場演出（その場で出現）→ 登場時効果（OnEnter）。
         // stateSource を渡すと、そのキャラのランタイム状態（バフ・現在HP）をコピーして生成する（CopyFieldChar 用）。
-        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, Rect fromRect, CancellationToken ct, CardView stateSource = null)
+        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, CancellationToken ct, CardView stateSource = null)
         {
             CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
             if (stateSource != null)
             {
                 newChar.CopyRuntimeStateFrom(stateSource);
             }
-            await FlyCardToDestAsync(newChar, fromRect, field, ct);
             field.PlaceCard(newChar);
             OnCardPlayed(data, playedByLocal: isLocal);
-            if (_evolveEffectPrefab != null)
-            {
-                await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
-            }
+            await PlaySummonAppearAsync(newChar, ct);
 
             await ResolveCharacterEnterEffectAsync(newChar, isLocal, ct);
         }
@@ -1059,6 +1055,9 @@ namespace Main
                     OnCardPlayed(cardData, playedByLocal: false);
                     if (_evolveEffectPrefab != null)
                     {
+                        // PlaceCard 直後はレイアウト未確定で worldBound が(0,0)を返すため、
+                        // 1フレーム待って確定させてからパーティクルを正しいカード位置に出す。
+                        await UniTask.NextFrame(ct);
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                     }
                 }
@@ -1077,6 +1076,9 @@ namespace Main
                     OnCardPlayed(newChar.Data, playedByLocal: false);
                     if (_evolveEffectPrefab != null)
                     {
+                        // PlaceCard 直後はレイアウト未確定で worldBound が(0,0)を返すため、
+                        // 1フレーム待って確定させてからパーティクルを正しいカード位置に出す。
+                        await UniTask.NextFrame(ct);
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                     }
                 }

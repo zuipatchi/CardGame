@@ -26,7 +26,7 @@ namespace Main.Card.Effects.Handlers
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            return p.ApplySummonCharAsync(inv.Value1, inv.Value2, inv.IsLocal, inv.SourceCard.worldBound, ct);
+            return p.ApplySummonCharAsync(inv.Value1, inv.Value2, inv.IsLocal, ct);
         }
     }
 

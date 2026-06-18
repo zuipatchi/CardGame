@@ -49,15 +49,14 @@ namespace Main
                 return;
             }
 
-            // デッキから抜いてフィールドへ飛ばす（デッキ位置を起点に SummonChar と同じ配置・OnEnter 経路を使う）
-            UnityEngine.Rect fromRect = deck.worldBound;
+            // デッキから抜いてフィールドへ（SummonChar と同じ配置・登場演出・OnEnter 経路を使う）
             CardData data = deck.RemoveCardAt(chosenIndex);
             deck.RefreshCount();
             if (data == null)
             {
                 return;
             }
-            await SummonSingleCharAsync(data, field, isLocal, fromRect, ct);
+            await SummonSingleCharAsync(data, field, isLocal, ct);
         }
 
         // 召喚するデッキカードのインデックスを決定する。

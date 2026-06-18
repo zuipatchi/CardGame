@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
-using UnityEngine;
 
 namespace Main
 {
@@ -30,7 +29,6 @@ namespace Main
             }
 
             int copyCount = copies <= 0 ? 1 : copies;
-            Rect fromRect = source.worldBound;
             for (int i = 0; i < copyCount; i++)
             {
                 // フィールドが満杯（キャラ8体勝利成立含む）になったら打ち切る
@@ -38,7 +36,7 @@ namespace Main
                 {
                     break;
                 }
-                await SummonSingleCharAsync(source.Data, field, isLocal, fromRect, ct, source);
+                await SummonSingleCharAsync(source.Data, field, isLocal, ct, source);
             }
         }
 
