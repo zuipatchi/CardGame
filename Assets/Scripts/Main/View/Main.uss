@@ -294,7 +294,7 @@
 
 .action-button--ok {
     position: absolute;
-    right: 0;
+    right: 108px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/OKButton.png");
@@ -307,7 +307,7 @@
 
 .action-button--back {
     position: absolute;
-    right: 108px;
+    right: 0;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/returnButton.png");

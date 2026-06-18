@@ -147,6 +147,7 @@ namespace Main
 
         private void ShowCostSelectionButtons()
         {
+            _endButton.style.display = DisplayStyle.None;
             _passButton.style.display = DisplayStyle.None;
             _backButton.style.display = DisplayStyle.None;
             _okButton.style.display = DisplayStyle.Flex;
@@ -178,6 +179,7 @@ namespace Main
             }
 
             bool autoOk = _optionModel.AutoOk.CurrentValue;
+            _endButton.style.display = DisplayStyle.None;
             _passButton.style.display = DisplayStyle.None;
             _backButton.style.display = DisplayStyle.Flex;
             _okButton.style.display = autoOk ? DisplayStyle.None : DisplayStyle.Flex;
