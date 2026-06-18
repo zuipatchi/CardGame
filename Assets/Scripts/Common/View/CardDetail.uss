@@ -253,10 +253,6 @@
     background-image: url("../../../AddressableAssets/Icon/SpeedIcon.png");
 }
 
-.card-detail-stat-icon--poison {
-    background-image: url("../../../AddressableAssets/Icon/PoisonIcon.png");
-}
-
 .card-detail-stat-icon--recover {
     background-image: url("../../../AddressableAssets/Icon/HeartIcon.png");
 }

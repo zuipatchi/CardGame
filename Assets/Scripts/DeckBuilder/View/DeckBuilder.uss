@@ -21,16 +21,6 @@
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.deckbuilder-title {
-    font-size: 48px;
-    color: rgb(230, 230, 255);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
-    margin-bottom: 16px;
-}
-
 .deckbuilder-content {
     flex-grow: 1;
     flex-direction: row;

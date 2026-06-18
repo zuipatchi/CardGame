@@ -287,42 +287,6 @@
     scale: 0.96 0.96;
 }
 
-/* ─── コイントス演出 ─────────────────────────────────────────────── */
-
-.coin-toss-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.coin-toss-coin {
-    width: 160px;
-    height: 160px;
-    -unity-background-scale-mode: stretch-to-fill;
-    margin-bottom: 32px;
-}
-
-.coin-toss-result-label {
-    font-size: 72px;
-    -unity-font-style: bold;
-    -unity-text-outline-width: 4px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
-    padding-left: 48px;
-    padding-right: 48px;
-    padding-top: 16px;
-    padding-bottom: 16px;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
-}
-
 /* ─── 待機オーバーレイ ───────────────────────────────────────────────── */
 
 .waiting-overlay {
@@ -645,13 +609,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 240px;
-}
-
-.vs-player-role {
-    font-size: 18px;
-    color: rgba(200, 220, 255, 0.8);
-    -unity-text-align: middle-center;
-    margin-top: 8px;
 }
 
 .vs-label {

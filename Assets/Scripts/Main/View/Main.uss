@@ -110,46 +110,6 @@
     transform-origin: center center;
 }
 
-.main-player-character-area {
-    position: absolute;
-    left: 32px;
-    top: 62%;
-    bottom: 0;
-    flex-direction: column;
-    justify-content: center;
-    overflow: visible;
-    scale: 0.9 0.9;
-    transform-origin: left center;
-}
-
-.main-opponent-character-area {
-    position: absolute;
-    right: 32px;
-    top: 0;
-    bottom: 50%;
-    flex-direction: column;
-    justify-content: center;
-    overflow: visible;
-    scale: 0.9 0.9;
-    transform-origin: center center;
-}
-
-.character-slot-view {
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-top-width: 3px;
-    border-bottom-width: 3px;
-    border-left-color: rgba(70, 130, 230, 0.7);
-    border-right-color: rgba(70, 130, 230, 0.7);
-    border-top-color: rgba(70, 130, 230, 0.7);
-    border-bottom-color: rgba(70, 130, 230, 0.7);
-    background-color: rgba(20, 40, 80, 0.45);
-}
-
 .main-drag-layer {
     position: absolute;
     left: 0;
@@ -183,22 +143,6 @@
     bottom: 0;
     background-image: url("project://database/Assets/AddressableAssets/Icon/GraveIcon.png");
     -unity-background-scale-mode: scale-to-fit;
-}
-
-.graveyard-count-label {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    padding: 0;
-    font-size: 36px;
-    color: white;
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    -unity-text-outline-width: 3px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.95);
 }
 
 .deck-count-icon {
@@ -338,16 +282,6 @@
     overflow: visible;
 }
 
-.atk-counter-icon-wrapper {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-}
-
 .shield-fly-icon {
     position: absolute;
     left: 0;
@@ -357,72 +291,6 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
     -unity-background-scale-mode: scale-to-fit;
     opacity: 0.8;
-}
-
-.char-slot-atk-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
-
-.char-slot-atk-icon {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-    opacity: 0.4;
-}
-
-.char-slot-atk-label {
-    font-size: 80px;
-    -unity-font-style: bold;
-    color: rgb(255, 220, 50);
-    -unity-text-outline-width: 5px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
-}
-
-.char-slot-def-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
-
-.char-slot-def-icon {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-    opacity: 0.4;
-}
-
-.char-slot-def-label {
-    font-size: 80px;
-    -unity-font-style: bold;
-    color: rgb(100, 200, 255);
-    -unity-text-outline-width: 5px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
 /* ─── 勝利点（共通の勝利条件・常時表示）───────────────────────────────── */

@@ -70,10 +70,6 @@ namespace Main
                 _costWarningLabel.text = _costBaseMessage;
                 _costWarningLabel.style.display = DisplayStyle.Flex;
 
-                foreach (CardView c in _handView.Cards)
-                {
-                    c.AddToClassList("cost-selectable");
-                }
                 ShowCostSelectionButtons();
             }
 
@@ -85,14 +81,9 @@ namespace Main
 
             foreach (CardView c in _handView.Cards)
             {
-                c.RemoveFromClassList("cost-selectable");
                 c.RemoveFromClassList("cost-selected");
             }
-            foreach (CardView c in _selectedCostCards)
-            {
-                c.RemoveFromClassList("cost-selectable");
-                c.RemoveFromClassList("cost-selected");
-            }
+            _handView.RestoreAllOrder();
 
             _costWarningLabel.text = "手札が足りません";
             _okButton.SetEnabled(true);
@@ -117,11 +108,13 @@ namespace Main
             {
                 _selectedCostCards.Remove(card);
                 card.RemoveFromClassList("cost-selected");
+                _handView.RestoreCardOrder(card);
             }
             else if (SelectedCostValue() < _requiredCost)
             {
                 _selectedCostCards.Add(card);
                 card.AddToClassList("cost-selected");
+                card.BringToFront();
             }
 
             bool countOk = SelectedCostValue() >= _requiredCost;
@@ -170,14 +163,6 @@ namespace Main
             _costWarningLabel.text = _costBaseMessage;
             _costWarningLabel.style.display = DisplayStyle.Flex;
 
-            foreach (CardView c in _handView.Cards)
-            {
-                if (c != staged)
-                {
-                    c.AddToClassList("cost-selectable");
-                }
-            }
-
             bool autoOk = _optionModel.AutoOk.CurrentValue;
             _endButton.style.display = DisplayStyle.None;
             _passButton.style.display = DisplayStyle.None;
@@ -202,14 +187,9 @@ namespace Main
 
             foreach (CardView c in _handView.Cards)
             {
-                c.RemoveFromClassList("cost-selectable");
                 c.RemoveFromClassList("cost-selected");
             }
-            foreach (CardView c in _selectedCostCards)
-            {
-                c.RemoveFromClassList("cost-selectable");
-                c.RemoveFromClassList("cost-selected");
-            }
+            _handView.RestoreAllOrder();
             _selectedCostCards.Clear();
             _costSelectionTcs = null;
             _requiredCost = 0;
