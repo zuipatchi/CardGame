@@ -482,11 +482,15 @@ namespace Main
 
             DeckView deck = isLocal ? _playerDeckView : _opponentDeckView;
 
+            // オーバーリミット：このドローでデッキが0枚へ落ちたら、生存を確認したうえで最後に1回告知する
+            bool limitBroke = false;
+
             for (int i = 0; i < count; i++)
             {
-                if (deck.Count == 0)
+                // オーバーリミット：1枚引く直前にデッキが空なら、その時点で敗北（カードを引き切った次の引きで負ける）。
+                if (_isGameOver || CheckDeckOutWin(isLocalDeck: isLocal))
                 {
-                    break;
+                    return;
                 }
 
                 Rect deckRect = deck.worldBound;
@@ -521,12 +525,19 @@ namespace Main
                         await PlayCpuDrawAsync(drawn, deckRect, ct);
                     }
                 }
+
+                // オーバーリミット：このドローでデッキが0枚になったら告知予約（直後の引きで敗北する場合は告知しない）
+                limitBroke |= UpdateLimitBreak(isLocalDeck: isLocal);
+            }
+
+            // オーバーリミット：一連のドローを生き残った場合のみ「リミットブレイク！」告知
+            if (!_isGameOver && limitBroke)
+            {
+                await PlayLimitBreakAnnouncementAsync(ct);
             }
 
             // ドロー演出完了後、次の処理へ進む前に少し待つ
             await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
-
-            CheckDeckOutWin(isLocalDeck: isLocal);
         }
     }
 }

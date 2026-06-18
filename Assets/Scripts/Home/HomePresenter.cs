@@ -101,6 +101,8 @@ namespace Home
             bool isRainy = _backgroundPresenter != null && _backgroundPresenter.IsRainy;
             if (isRainy)
             {
+                // 敗北で戻ってきたときは Main から鳴り続けている戦闘 BGM を止め、雨音の演出にする
+                _soundPlayer.StopBGM();
                 if (_rainEffectPrefab != null)
                 {
                     Instantiate(_rainEffectPrefab, new Vector3(0f, 15f, 0f), Quaternion.identity);

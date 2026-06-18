@@ -66,6 +66,15 @@ namespace Common.SoundManagement
             _bgmAudioSource.Play();
         }
 
+        public void StopBGM()
+        {
+            if (_bgmAudioSource == null)
+            {
+                return;
+            }
+            _bgmAudioSource.Stop();
+        }
+
         public void PlaySE(AudioClip clip)
         {
             if (_seAudioSource == null || clip == null)

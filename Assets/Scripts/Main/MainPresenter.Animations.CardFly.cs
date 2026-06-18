@@ -251,50 +251,123 @@ namespace Main
         // カードデータ・盤面は同期済みのため両クライアントで決定的に発動する（追加同期不要）。
         private async UniTask ResolveGraveTriggerFromDeckAsync(CardData data, bool ownerIsLocal, Rect fromRect, CancellationToken ct)
         {
+            // 共通カットイン：デッキから表向きのカードを持ち上げ、「ダメージトリガー」発動を見せてから解決へ移る
+            CardView cutIn = await PlayGraveTriggerCutInAsync(data, fromRect, ownerIsLocal, ct);
+
             if (data is CharacterCardData)
             {
-                // 持ち主の場へコストなしで召喚（OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
+                // カットインのカードを持ち主の場の空きスロットへ飛翔・着地させてからコストなしで召喚
+                // （OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
                 FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
-                await SummonSingleCharAsync(data, field, ownerIsLocal, ct);
+                await SummonGraveTriggerCharAsync(data, field, ownerIsLocal, cutIn, ct);
                 return;
             }
 
             if (data is EventCardData eventData)
             {
-                // デッキ → 場中央へせり出して効果を解決し、解決後に墓地へ送る
+                // カットインのカードをそのまま場中央へせり出して効果を解決し、解決後に墓地へ送る
                 GraveyardView graveyard = ownerIsLocal ? _playerGraveyardView : _opponentGraveyardView;
                 FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
                 Rect fieldRect = field.worldBound;
-
-                float fromLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
-                float fromTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
                 float displayLeft = fieldRect.center.x - CardScaleConstants.CardWidth / 2f;
                 float displayTop = fieldRect.center.y - CardScaleConstants.CardHeight / 2f;
 
-                CardView temp = new CardView(_cardStore.CardTemplate, eventData, _cardStore.CardBack, faceDown: false, isOpponent: !ownerIsLocal);
-                temp.style.position = Position.Absolute;
-                temp.style.left = fromLeft;
-                temp.style.top = fromTop;
-                temp.style.scale = new Scale(Vector3.zero);
-                temp.pickingMode = PickingMode.Ignore;
-                _dragLayer.Add(temp);
+                // 持ち上げ位置 → 場中央へせり出す
+                await TweenCardAbsoluteAsync(cutIn, displayLeft, displayTop, 1f, 0.3f, Ease.OutBack, ct);
 
-                // デッキ → 場中央へせり出す
-                await TweenCardAbsoluteAsync(temp, displayLeft, displayTop, 1f, 0.3f, Ease.OutBack, ct);
+                // 場中央のカード中心で閃光を出す
+                await PlayGraveTriggerBurstAsync(cutIn, ct);
 
-                // 効果発動（temp.worldBound が有効な状態で、種別ごとの演出込みで解決）
-                await ResolveEventCardEffectAsync(eventData, temp, ownerIsLocal, ct);
+                // 効果発動（cutIn.worldBound が有効な状態で、種別ごとの演出込みで解決）
+                await ResolveEventCardEffectAsync(eventData, cutIn, ownerIsLocal, ct);
 
                 // 場 → 墓地へ送る（AddCard が _dragLayer から取り除いて墓地データに加える）
-                if (temp.parent == _dragLayer)
+                if (cutIn.parent == _dragLayer)
                 {
                     Rect graveRect = graveyard.worldBound;
                     float graveLeft = graveRect.center.x - CardScaleConstants.CardWidth / 2f;
                     float graveTop = graveRect.center.y - CardScaleConstants.CardHeight / 2f;
-                    await TweenCardAbsoluteAsync(temp, graveLeft, graveTop, 0f, 0.25f, Ease.InQuad, ct);
-                    graveyard.AddCard(temp);
+                    await TweenCardAbsoluteAsync(cutIn, graveLeft, graveTop, 0f, 0.25f, Ease.InQuad, ct);
+                    graveyard.AddCard(cutIn);
                 }
             }
+        }
+
+        // ダメージトリガーのキャラ召喚：実カードを場へ隠して先に配置し、レイアウト確定後の空きスロット位置へ
+        // カットインのカードを飛翔・着地させてから、実カードへシームレスに差し替える。
+        // （閃光と被るため登場ポップは省略。OnCardPlayed＝キャラ8体勝利判定・OnEnter 効果込み）
+        private async UniTask SummonGraveTriggerCharAsync(CardData data, FieldView field, bool ownerIsLocal, CardView cutIn, CancellationToken ct)
+        {
+            // 実カードを場へ配置（着地まで visibility:Hidden で隠す。Hidden はレイアウトを占有するため worldBound は有効）。
+            CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !ownerIsLocal);
+            newChar.style.visibility = Visibility.Hidden;
+            field.PlaceCard(newChar);
+
+            // レイアウト確定を待ってスロットの実位置・着地スケール（フィールドスケール）を取得する。
+            await UniTask.NextFrame(ct);
+            Rect slotRect = newChar.worldBound;
+            float slotLeft = slotRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float slotTop = slotRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            // カットインを着地スケールでスロットへ飛翔させる。
+            await TweenCardAbsoluteAsync(cutIn, slotLeft, slotTop, field.CurrentCardScale, 0.3f, Ease.OutBack, ct);
+
+            // 着地点で閃光を出し、カットインを消して実カードを表示（位置・スケールが一致するためシームレスに差し替わる）。
+            await PlayGraveTriggerBurstAsync(cutIn, ct);
+            cutIn.RemoveFromHierarchy();
+            newChar.style.visibility = Visibility.Visible;
+
+            OnCardPlayed(data, playedByLocal: ownerIsLocal);
+            await ResolveCharacterEnterEffectAsync(newChar, ownerIsLocal, ct);
+        }
+
+        // 場中央へ移動したダメージトリガーカードの中心で閃光パーティクル（evolve の魔法陣）を再生する。
+        // 連続トリガー時に前の閃光と重ならないよう、呼び出し側で await して1個ずつ再生する。
+        private UniTask PlayGraveTriggerBurstAsync(CardView cutIn, CancellationToken ct)
+        {
+            if (_evolveEffectPrefab != null && cutIn.panel != null)
+            {
+                return PlayParticleAtCardAsync(cutIn, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
+            }
+            return UniTask.CompletedTask;
+        }
+
+        // ダメージトリガー発動カットイン：デッキ位置から表向きのカードをせり上げ、「DT」ラベルで発動を告知する。
+        // 戻り値の CardView は _dragLayer 上に絶対配置されたまま（持ち上げ位置・スケール CutInScale）残り、
+        // 呼び出し側が場中央へ送る／墓地へ送る等で引き続き利用する（閃光は移動後に PlayGraveTriggerBurstAsync で出す）。
+        // ラベルはテンポを保つため await せず並行再生（カード自体は短い間持ち上げて止める）。
+        private async UniTask<CardView> PlayGraveTriggerCutInAsync(CardData data, Rect fromRect, bool ownerIsLocal, CancellationToken ct)
+        {
+            const float RiseDist = 70f;
+            const float CutInScale = 1.12f;
+            const float RiseDuration = 0.3f;
+            const float HoldDuration = 0.35f;
+
+            float fromLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float fromTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+            float raisedTop = fromTop - RiseDist;
+
+            CardView cutIn = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !ownerIsLocal);
+            cutIn.style.position = Position.Absolute;
+            cutIn.style.left = fromLeft;
+            cutIn.style.top = fromTop;
+            cutIn.style.scale = new Scale(Vector3.zero);
+            cutIn.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(cutIn);
+
+            // デッキから表向きのまませり上げる
+            await TweenCardAbsoluteAsync(cutIn, fromLeft, raisedTop, CutInScale, RiseDuration, Ease.OutBack, ct);
+
+            // 発動告知のラベルを並行再生（閃光は場中央へ移動した後に出す）
+            PlayFloatingLabelAsync("DT", "grave-trigger-label", cutIn, ct).Forget();
+
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(HoldDuration), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
+
+            return cutIn;
         }
 
         // _dragLayer 上の絶対配置カードの left / top / scale を同時にトゥイーンする（カードは layer に残す）

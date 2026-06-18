@@ -139,6 +139,18 @@
     height: 60px;
 }
 
+/* ─── ダメージトリガー発動カットインラベル ─────────────────────────────────── */
+.grave-trigger-label {
+    font-size: 40px;
+    -unity-font-style: bold;
+    color: rgb(255, 120, 40);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 200px;
+    height: 60px;
+}
+
 /* ─── 攻撃優先権コイン ────────────────────────────────────────────────── */
 .priority-coin {
     width: 72px;
