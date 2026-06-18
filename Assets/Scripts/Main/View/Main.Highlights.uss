@@ -1,0 +1,115 @@
+/* 選択・攻撃ハイライト（attackable / attack-target / selectable / selected / cost 選択 / デッキ攻撃対象）。Main.uxml から読み込む。 */
+
+/* 自分のターンに直接攻撃できる相手デッキのハイライト（赤〜オレンジ系で強調・少し拡大） */
+.deck-view--attack-target {
+    scale: 1.08 1.08;
+    -unity-background-image-tint-color: rgb(255, 150, 100);
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+/* このターン攻撃できる（未攻撃かつ召喚酔いでない）自キャラのハイライト */
+.attackable-char {
+    /* 拡大倍率は CardView.SetAttackHighlighted がインライン scale で適用する
+       （フィールド枚数による基準スケールと合成するため）。ここでは滑らかに
+       拡大させるためのトランジションのみ定義する。 */
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.attackable-char .game-card {
+    border-left-color: rgb(120, 230, 255);
+    border-right-color: rgb(120, 230, 255);
+    border-top-color: rgb(120, 230, 255);
+    border-bottom-color: rgb(120, 230, 255);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.attackable-char .game-card:hover {
+    border-left-color: rgb(180, 245, 255);
+    border-right-color: rgb(180, 245, 255);
+    border-top-color: rgb(180, 245, 255);
+    border-bottom-color: rgb(180, 245, 255);
+}
+
+/* 自分のターンに攻撃できる相手キャラのハイライト（攻撃側のシアンと区別する赤〜オレンジ系の枠） */
+.attack-target-char {
+    /* 拡大倍率は CardView.SetAttackHighlighted がインライン scale で適用する
+       （フィールド枚数による基準スケールと合成するため）。ここでは滑らかに
+       拡大させるためのトランジションのみ定義する。 */
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.attack-target-char .game-card {
+    border-left-color: rgb(255, 120, 70);
+    border-right-color: rgb(255, 120, 70);
+    border-top-color: rgb(255, 120, 70);
+    border-bottom-color: rgb(255, 120, 70);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.attack-target-char .game-card:hover {
+    border-left-color: rgb(255, 170, 120);
+    border-right-color: rgb(255, 170, 120);
+    border-top-color: rgb(255, 170, 120);
+    border-bottom-color: rgb(255, 170, 120);
+}
+
+/* ─── コスト選択ハイライト ──────────────────────────────────────────── */
+
+/* コスト選択中のカードは opacity の変化を滑らかにアニメーションさせる（薄くなる演出）。 */
+.cost-selectable {
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+
+/* コストとして選択したカードは薄くする。 */
+.cost-selected {
+    opacity: 0.45;
+}
+
+/* 効果の対象として選択可能なキャラのハイライト（DamageEnemy / Switch / Evolve など） */
+.selectable-char {
+    scale: 1.06 1.06;
+    transition-property: scale;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.selectable-char .game-card {
+    border-left-color: rgb(255, 216, 80);
+    border-right-color: rgb(255, 216, 80);
+    border-top-color: rgb(255, 216, 80);
+    border-bottom-color: rgb(255, 216, 80);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.selectable-char .game-card:hover {
+    border-left-color: rgb(255, 238, 150);
+    border-right-color: rgb(255, 238, 150);
+    border-top-color: rgb(255, 238, 150);
+    border-bottom-color: rgb(255, 238, 150);
+}
+
+/* 複数対象ダメージで「選択済み」のキャラ（赤枠でダメージ対象を示す） */
+.selected-char .game-card,
+.selected-char .game-card:hover {
+    border-left-color: rgb(255, 80, 80);
+    border-right-color: rgb(255, 80, 80);
+    border-top-color: rgb(255, 80, 80);
+    border-bottom-color: rgb(255, 80, 80);
+}

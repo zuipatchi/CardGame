@@ -1,0 +1,664 @@
+/* 全画面オーバーレイ・モーダル演出（ターン告知 / resolve / 墓地 / ゲーム終了 / コイントス / 待機 / タイムアウト / マリガン / デッキ選択 / VS）。Main.uxml から読み込む。 */
+
+.turn-announcement-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.turn-announcement-label {
+    font-size: 80px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.turn-announcement-label--player {
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
+}
+
+.turn-announcement-label--enemy {
+    color: rgb(230, 80, 80);
+    background-color: rgba(50, 0, 0, 0.65);
+}
+
+.turn-announcement-label--character {
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.turn-announcement-label--event {
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.turn-announcement-label--skill {
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.turn-announcement-label--fight {
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.turn-announcement-label--mulligan {
+    color: rgb(255, 200, 50);
+    background-color: rgba(60, 45, 0, 0.65);
+}
+
+.turn-announcement-label--draw {
+    color: rgb(180, 230, 255);
+    background-color: rgba(0, 20, 40, 0.65);
+}
+
+.turn-announcement-label--cost {
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
+}
+
+.turn-announcement-label--cost-opponent {
+    color: rgb(230, 80, 80);
+    background-color: rgba(50, 0, 0, 0.65);
+}
+
+.turn-announcement-label--set {
+    color: rgb(80, 210, 240);
+    background-color: rgba(0, 30, 50, 0.65);
+}
+
+.turn-announcement-label--main {
+    color: rgb(255, 220, 100);
+    background-color: rgba(50, 35, 0, 0.65);
+}
+
+.turn-announcement-label--pass {
+    color: rgb(160, 160, 160);
+    background-color: rgba(30, 30, 30, 0.65);
+}
+
+.resolve-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.resolve-label {
+    font-size: 100px;
+    -unity-font-style: bold;
+    color: rgba(0, 0, 0, 1);
+    -unity-text-outline-width: 5px;
+    -unity-text-outline-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 0, 0, 0.55);
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.graveyard-modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.graveyard-modal-panel {
+    background-color: rgb(18, 18, 28);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(160, 100, 50, 0.8);
+    border-right-color: rgba(160, 100, 50, 0.8);
+    border-top-color: rgba(160, 100, 50, 0.8);
+    border-bottom-color: rgba(160, 100, 50, 0.8);
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 20px;
+    padding-bottom: 24px;
+    min-width: 240px;
+}
+
+.graveyard-modal-title {
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(200, 160, 90);
+    -unity-text-align: middle-center;
+    margin-bottom: 16px;
+}
+
+.graveyard-modal-scroll {
+    height: 300px;
+    max-width: 920px;
+}
+
+.graveyard-modal-card-wrapper {
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.graveyard-modal-card-label {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(200, 160, 90);
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+}
+
+.game-end-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.game-end-emblem {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* デッキ切れ勝利 */
+.game-end-emblem--deckout {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/GraveIcon.png");
+}
+
+/* 勝利点勝利 */
+.game-end-emblem--victorypoints {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
+}
+
+/* キャラ8体（制圧）勝利 */
+.game-end-emblem--fieldchars {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
+}
+
+.game-end-label {
+    font-size: 96px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 48px;
+}
+
+.game-end-label--win {
+    color: rgb(255, 210, 50);
+}
+
+.game-end-label--lose {
+    color: rgb(220, 60, 60);
+}
+
+.game-end-label--draw {
+    color: rgb(160, 160, 180);
+}
+
+.game-end-sub-label {
+    font-size: 24px;
+    color: rgb(210, 210, 210);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 32px;
+}
+
+.game-end-button-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-end-button-row .game-end-button {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.game-end-button {
+    height: 64px;
+    min-width: 200px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    background-color: rgba(60, 60, 100, 0.9);
+    color: rgb(200, 200, 240);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin: 0;
+}
+
+.game-end-button:hover {
+    background-color: rgba(80, 80, 130, 0.9);
+}
+
+.game-end-button:active {
+    background-color: rgba(45, 45, 80, 0.9);
+    scale: 0.96 0.96;
+}
+
+/* ─── コイントス演出 ─────────────────────────────────────────────── */
+
+.coin-toss-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.coin-toss-coin {
+    width: 160px;
+    height: 160px;
+    -unity-background-scale-mode: stretch-to-fill;
+    margin-bottom: 32px;
+}
+
+.coin-toss-result-label {
+    font-size: 72px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+/* ─── 待機オーバーレイ ───────────────────────────────────────────────── */
+
+.waiting-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+}
+
+.waiting-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 220);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+}
+
+/* ─── マッチタイムアウトモーダル ─────────────────────────────────────────── */
+
+.match-timeout-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.match-timeout-panel {
+    background-color: rgb(25, 25, 45);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-top: 48px;
+    padding-bottom: 48px;
+    padding-left: 64px;
+    padding-right: 64px;
+    align-items: center;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(100, 100, 160, 0.5);
+    border-right-color: rgba(100, 100, 160, 0.5);
+    border-top-color: rgba(100, 100, 160, 0.5);
+    border-bottom-color: rgba(100, 100, 160, 0.5);
+}
+
+.match-timeout-title {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(220, 220, 240);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 40px;
+}
+
+.match-timeout-close-button {
+    font-size: 22px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(70, 70, 140);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 48px;
+    padding-right: 48px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    -unity-font-style: bold;
+}
+
+.match-timeout-close-button:hover {
+    background-color: rgb(90, 90, 170);
+}
+
+/* ─── マリガン選択モーダル ──────────────────────────────────────────── */
+
+.mulligan-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.mulligan-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(230, 230, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 24px;
+}
+
+.mulligan-button-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.mulligan-button {
+    width: 110px;
+    height: 110px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-left: 32px;
+    margin-right: 32px;
+    -unity-background-scale-mode: stretch-to-fill;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.mulligan-button:hover {
+    scale: 1.06 1.06;
+}
+
+.mulligan-button:active {
+    scale: 0.94 0.94;
+}
+
+/* ─── デッキから召喚するキャラの選択（SummonFromDeckByKeyword）────────────── */
+
+.deck-pick-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.78);
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-pick-panel {
+    height: 84%;
+    min-height: 460px;
+    max-width: 92%;
+    background-color: rgb(22, 22, 35);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 4px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.15);
+    border-right-color: rgba(255, 255, 255, 0.15);
+    border-top-color: rgb(70, 90, 180);
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+    padding-top: 26px;
+    padding-bottom: 22px;
+    padding-left: 40px;
+    padding-right: 40px;
+    align-items: center;
+}
+
+.deck-pick-header {
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.deck-pick-title {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 255);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+}
+
+.deck-pick-subtitle {
+    font-size: 17px;
+    color: rgb(150, 160, 205);
+    margin-top: 8px;
+}
+
+.deck-pick-divider {
+    height: 1px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.12);
+    margin-top: 18px;
+    margin-bottom: 4px;
+}
+
+/* カードを並べる縦長ステージ。残りの高さを占有し、候補カードを中央に置く */
+.deck-pick-stage {
+    flex-grow: 1;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.04);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    margin-top: 12px;
+    margin-bottom: 14px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.deck-pick-scroll {
+    flex-grow: 0;
+    max-width: 100%;
+}
+
+.deck-pick-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+}
+
+.deck-pick-card {
+    scale: 1.18 1.18;
+    margin-left: 36px;
+    margin-right: 36px;
+    transition-property: scale;
+    transition-duration: 0.12s;
+}
+
+.deck-pick-card:hover {
+    scale: 1.28 1.28;
+}
+
+.deck-pick-card:active {
+    scale: 1.12 1.12;
+}
+
+.deck-pick-hint {
+    font-size: 15px;
+    color: rgb(120, 130, 170);
+    margin-top: 2px;
+}
+
+/* ─── VS 演出 ─────────────────────────────────────────────────────── */
+
+.vs-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-panel {
+    width: 280px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    padding-left: 24px;
+    padding-right: 24px;
+    align-items: center;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.vs-panel--local {
+    background-color: rgba(20, 60, 120, 0.85);
+    border-left-color: rgba(80, 160, 255, 0.8);
+    border-right-color: rgba(80, 160, 255, 0.8);
+    border-top-color: rgba(80, 160, 255, 0.8);
+    border-bottom-color: rgba(80, 160, 255, 0.8);
+}
+
+.vs-panel--opponent {
+    background-color: rgba(120, 30, 30, 0.85);
+    border-left-color: rgba(255, 100, 100, 0.8);
+    border-right-color: rgba(255, 100, 100, 0.8);
+    border-top-color: rgba(255, 100, 100, 0.8);
+    border-bottom-color: rgba(255, 100, 100, 0.8);
+}
+
+.vs-player-name {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+}
+
+.vs-player-role {
+    font-size: 18px;
+    color: rgba(200, 220, 255, 0.8);
+    -unity-text-align: middle-center;
+    margin-top: 8px;
+}
+
+.vs-label {
+    font-size: 80px;
+    color: rgb(255, 210, 50);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-left: 48px;
+    margin-right: 48px;
+}

@@ -51,9 +51,7 @@ namespace Main.Card.Effects.Handlers
             "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=各対象の攻撃力を永続的に上げる量。");
 
         public override string BuildBody(EffectTextContext ctx) =>
-            ctx.Value1 <= 0
-                ? $"自分のキャラ全体の攻撃力を{ctx.Value2}上げる"
-                : $"自分のキャラ{ctx.Value1}体の攻撃力を{ctx.Value2}上げる";
+            $"{AlliesTargetPrefix(ctx.Value1)}の攻撃力を{ctx.Value2}上げる";
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
@@ -73,9 +71,7 @@ namespace Main.Card.Effects.Handlers
             "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=各対象のHP（現在・最大）を永続的に上げる量。");
 
         public override string BuildBody(EffectTextContext ctx) =>
-            ctx.Value1 <= 0
-                ? $"自分のキャラ全体のHPを{ctx.Value2}上げる"
-                : $"自分のキャラ{ctx.Value1}体のHPを{ctx.Value2}上げる";
+            $"{AlliesTargetPrefix(ctx.Value1)}のHPを{ctx.Value2}上げる";
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
@@ -101,9 +97,7 @@ namespace Main.Card.Effects.Handlers
             {
                 return "";
             }
-            return ctx.Value1 <= 0
-                ? $"自分のキャラ全体に{keyword}を付与する"
-                : $"自分のキャラ{ctx.Value1}体に{keyword}を付与する";
+            return $"{AlliesTargetPrefix(ctx.Value1)}に{keyword}を付与する";
         }
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
