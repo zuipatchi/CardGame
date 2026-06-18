@@ -267,6 +267,16 @@
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.action-button:hover {
+    scale: 1.06 1.06;
+}
+
+.action-button:active {
+    scale: 0.94 0.94;
 }
 
 .action-button--pass {
