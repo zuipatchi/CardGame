@@ -10,6 +10,10 @@ namespace Main.Card
         [SerializeField] protected Sprite _image;
         // フレーバーテキスト（世界観・雰囲気用。ゲーム効果には影響せず、カード詳細表示の最下部に表示される）
         [SerializeField, TextArea] protected string _flavorText;
+        // フレーバー読み上げ音声の話者（VOICEVOX speaker ID）。0＝生成ツールの既定話者を使う（共通設定）。
+        // カードごとに声を変えたいときだけカードエディタで指定する。値の意味は生成ツール側でのみ使い、対戦の挙動には影響しない。
+        // 既定値 0（既存アセットは未設定でも 0 になるため移行不要）。
+        [SerializeField] protected int _voiceSpeaker;
         // 特徴（キーワード）。種族シナジー等の判定に使う任意の文字列（空＝特徴なし）。
         // 登録候補は CardKeywordSO（マスターリスト）で管理し、カードエディタのドロップダウンから選ぶ。
         // マッチング（同じ特徴か）は文字列一致で行うため、実行時に CardKeywordSO をロードする必要はない。
@@ -37,6 +41,8 @@ namespace Main.Card
         public int Cost => _cost;
         public Sprite Image => _image;
         public string FlavorText => _flavorText;
+        // フレーバー読み上げ音声の話者（VOICEVOX speaker ID）。0＝生成ツールの既定話者を使う。
+        public int VoiceSpeaker => _voiceSpeaker;
         // 特徴（キーワード）。空＝特徴なし。BuffAttackByKeyword / BuffHpByKeyword の対象判定（同じ特徴か）に使う。
         public string Keyword => _keyword;
         // 勝利点付帯値は全属性のカードで設定できる（属性による制限なし）。

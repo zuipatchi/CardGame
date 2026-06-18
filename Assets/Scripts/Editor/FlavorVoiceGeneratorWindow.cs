@@ -21,7 +21,8 @@ namespace GameEditor
 
         // VOICEVOX エンジンのエンドポイント。既定はローカル起動時のポート。
         private string _host = "http://localhost:50021";
-        // 話者（スピーカー）ID。既定 3＝ずんだもん（ノーマル）。全カード共通で使う。
+        // 既定の話者（スピーカー）ID。既定 3＝ずんだもん（ノーマル）。
+        // カードエディタで個別に話者を指定していない（_voiceSpeaker == 0）カードはこの話者で生成する。
         private int _speaker = 3;
         // 既に音声がある（WAV が存在する）カードを再生成せずスキップするか。
         private bool _skipExisting = true;
@@ -39,12 +40,14 @@ namespace GameEditor
             EditorGUILayout.LabelField("VOICEVOX フレーバー音声 一括生成", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
                 "VOICEVOX アプリ（またはエンジン）を起動した状態で実行してください。\n" +
-                "全カードの FlavorText を音声化し、Addressables アドレス \"Voice/{ID}\" に登録します。",
+                "全カードの FlavorText を音声化し、Addressables アドレス \"Voice/{ID}\" に登録します。\n" +
+                "話者はカードエディタの「読み上げ話者」で個別指定したものを優先し、未指定（共通設定）のカードは下の既定話者で生成します。\n" +
+                "カードの話者を変えて作り直すときは「既存をスキップ」を OFF にしてください。",
                 MessageType.Info);
 
             EditorGUILayout.Space();
             _host = EditorGUILayout.TextField("エンジン URL", _host);
-            _speaker = EditorGUILayout.IntField("話者 ID（speaker）", _speaker);
+            _speaker = EditorGUILayout.IntField("既定の話者 ID（共通設定カード用）", _speaker);
             _skipExisting = EditorGUILayout.Toggle("既存をスキップ（差分のみ生成）", _skipExisting);
 
             EditorGUILayout.Space();
@@ -108,7 +111,9 @@ namespace GameEditor
                         continue;
                     }
 
-                    byte[] wav = Synthesize(card.FlavorText, out string error);
+                    // カードで個別指定があればそれを、未指定（0）なら既定話者を使う。
+                    int speaker = card.VoiceSpeaker > 0 ? card.VoiceSpeaker : _speaker;
+                    byte[] wav = Synthesize(card.FlavorText, speaker, out string error);
                     if (wav == null || wav.Length == 0)
                     {
                         Debug.LogError($"フレーバー音声生成に失敗 [{id}]: {error}");
@@ -204,16 +209,16 @@ namespace GameEditor
         }
 
         // VOICEVOX の audio_query → synthesis を順に呼び、WAV バイト列を返す。失敗時は null。
-        private byte[] Synthesize(string text, out string error)
+        private byte[] Synthesize(string text, int speaker, out string error)
         {
-            string queryUrl = $"{_host}/audio_query?text={System.Uri.EscapeDataString(text)}&speaker={_speaker}";
+            string queryUrl = $"{_host}/audio_query?text={System.Uri.EscapeDataString(text)}&speaker={speaker}";
             byte[] query = Post(queryUrl, null, null, out error);
             if (query == null)
             {
                 return null;
             }
 
-            string synthUrl = $"{_host}/synthesis?speaker={_speaker}";
+            string synthUrl = $"{_host}/synthesis?speaker={speaker}";
             return Post(synthUrl, query, "application/json", out error);
         }
 

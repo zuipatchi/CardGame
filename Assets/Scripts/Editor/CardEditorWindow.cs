@@ -643,7 +643,22 @@ namespace GameEditor
             SerializedProperty flavor = element.FindPropertyRelative("_flavorText");
             flavor.stringValue = EditorGUILayout.TextField("フレーバー", flavor.stringValue);
 
+            DrawVoiceSpeakerField(element);
+
             DrawKeywordField(element);
+        }
+
+        // フレーバー読み上げ音声の話者（VOICEVOX speaker）をドロップダウンで選ぶ。
+        // 「（共通設定を使う）」＝ID 0 のときは、フレーバー音声生成ツールの既定話者で生成される。
+        private void DrawVoiceSpeakerField(SerializedProperty element)
+        {
+            SerializedProperty speaker = element.FindPropertyRelative("_voiceSpeaker");
+            int currentIndex = VoiceSpeakerCatalog.IndexOf(speaker.intValue);
+            int nextIndex = EditorGUILayout.Popup("読み上げ話者", currentIndex, VoiceSpeakerCatalog.Labels);
+            if (nextIndex != currentIndex)
+            {
+                speaker.intValue = VoiceSpeakerCatalog.IdAt(nextIndex);
+            }
         }
 
         // 特徴（キーワード）をマスター SO の一覧からドロップダウンで選ぶ。「管理」ボタンで SO を作成／表示する。
