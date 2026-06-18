@@ -53,6 +53,9 @@ namespace Main
                 return;
             }
 
+            // ターン終了時：守護/防人を自動でタップ（横向き）にする（毎ターン終了時）
+            await AutoTapGuardiansAndSakimoriAsync(_gameModel.IsLocalTurn, ct);
+
             // ExtraTurn 効果が発動していれば相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
             if (_extraTurnPending)
             {

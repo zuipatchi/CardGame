@@ -29,6 +29,9 @@ namespace Main
 
             await PlayCardChargeAsync(attacker, target, ct);
 
+            // 攻撃したらタップ（突進後に横向きへ倒れる）
+            await TapAttackerAsync(attacker, isLocal, ct);
+
             int atk = attacker.CurrentAttack;
             int damage = atk;
 
@@ -92,6 +95,21 @@ namespace Main
             }
         }
 
+        // 攻撃を宣言した攻撃側キャラをタップ（横向き）にする。「攻撃したらタップ」ルール。
+        // 既にタップ済み、または攻撃前効果で場を離れた場合は何もしない。
+        private async UniTask TapAttackerAsync(CardView attacker, bool isLocal, CancellationToken ct)
+        {
+            if (attacker == null || attacker.IsTapped)
+            {
+                return;
+            }
+            FieldView attackerField = isLocal ? _playerFieldView : _opponentFieldView;
+            if (attackerField.Contains(attacker))
+            {
+                await attacker.SetTappedAsync(true, ct);
+            }
+        }
+
         private async UniTask FlyToGraveyardAsync(CardView card, Rect fromRect, GraveyardView graveyard, CancellationToken ct, float delay = 0f, float duration = CpuCardFlyDuration)
         {
             await FlyCardToDestAsync(card, fromRect, graveyard, ct, delay, duration);
@@ -112,6 +130,9 @@ namespace Main
             await ResolveCharacterAttackEffectAsync(attacker, isLocal, ct);
 
             await PlayCardChargeAsync(attacker, targetDeck, ct);
+
+            // デッキ攻撃も攻撃したらタップ（突進後に横向きへ倒れる）
+            await TapAttackerAsync(attacker, isLocal, ct);
 
             int atk = attacker.CurrentAttack;
             if (atk <= 0)

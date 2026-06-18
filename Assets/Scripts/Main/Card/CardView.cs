@@ -140,6 +140,57 @@ namespace Main.Card
             ApplyFieldScale();
         }
 
+        // ─── タップ（攻撃・ターン終了時に横向き） ───────────────────────────
+        // タップ＝カードを 90° 横に倒した状態。攻撃を宣言したキャラと、ターン終了時の
+        // 守護/防人が横向きになる。「タップ状態のキャラにしか攻撃できない」攻撃ルールの
+        // 対象判定はこの IsTapped を参照する。回転は内側の _cardRoot にかける
+        // （外側の style.rotate は手札の扇・フィールド配置で使われるため不干渉）。
+        private const float TappedAngle = 90f;
+        public bool IsTapped { get; private set; }
+
+        // 即時にタップ/アンタップへ切り替える（演出なし）。ターン開始時の一括アンタップや
+        // バウンスでの状態リセットに使う。
+        public void SetTapped(bool tapped)
+        {
+            IsTapped = tapped;
+            _cardRoot.style.rotate = new Rotate(tapped ? TappedAngle : 0f);
+            // タップ時はネームラベル・アイコンを逆回転して読める向きに再配置する（USS 側で対応）
+            _cardRoot.EnableInClassList("game-card--tapped", tapped);
+        }
+
+        // 回転アニメーション付きでタップ/アンタップする（攻撃時・ターン終了時の自動タップ）。
+        // 既に同じ状態なら何もしない。
+        public async UniTask SetTappedAsync(bool tapped, CancellationToken ct)
+        {
+            if (IsTapped == tapped)
+            {
+                return;
+            }
+            IsTapped = tapped;
+            // タップ時はネームラベル・アイコンを逆回転して読める向きに再配置する（USS 側で対応）
+            _cardRoot.EnableInClassList("game-card--tapped", tapped);
+            float target = tapped ? TappedAngle : 0f;
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Tween tween = DOTween.To(
+                () => _cardRoot.style.rotate.value.angle.value,
+                a => _cardRoot.style.rotate = new Rotate(a),
+                target,
+                0.18f
+            ).SetEase(Ease.OutBack).OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() =>
+            {
+                tween.Kill();
+                tcs.TrySetCanceled();
+            });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            _cardRoot.style.rotate = new Rotate(target);
+        }
+
         private void ApplyFieldScale()
         {
             float scale = _fieldScale * (_attackHighlighted ? AttackHighlightScale : 1f);
@@ -333,6 +384,8 @@ namespace Main.Card
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = _currentHp.ToString();
             RefreshKeywordIcons();
+            // タップ状態（横向き）も解除して縦に戻す
+            SetTapped(false);
         }
 
         // 別キャラのランタイム状態（攻撃力バフ・HPバフ・現在HP）をこのカードへ複製する（演出なしで即時反映）。

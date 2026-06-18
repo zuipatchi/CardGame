@@ -181,6 +181,58 @@
 }
 
 
+/* ─── タップ（横向き）表示 ─────────────────────────────────────────
+   カードルートを +90°（時計回り）回転して横倒しにしたとき、ネームラベルとアイコンを
+   -90° 逆回転して読める向きに保ち、ネームを（横向きカードの）上辺、アイコンを底辺の
+   横並びに再配置する。カードルートの回転は CardView がインラインで付与し、ここでは
+   中身の再配置だけを担う。
+   座標：ルート +90°CW では「ローカル左辺→画面上辺」「ローカル右辺→画面下辺」
+   「ローカル縦軸(y)→画面横軸」に写る。よってネームはローカル左の縦帯、アイコンは
+   ローカル右に縦積み（column-reverse で画面では左→右）にする。 */
+.game-card--tapped .game-card__info {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* ネーム：横長(200x24)のまま -90° で正立させ、ローカル左辺中央に置く。
+   ルート +90° と -90° の合成は純粋な平行移動になるため、横長のまま画面上辺へ運ばれる。
+   画面の上下位置はネーム中央のローカル x で決まり、left を増やす（負を小さく）ほど下へ下がる。
+   left=-80 でローカル中央 x=20 → 画面上辺から約20px下げて表示する。top は縦中央(y=102)合わせ。 */
+.game-card--tapped .game-card__name {
+    position: absolute;
+    left: -80px;
+    top: 90px;
+    width: 200px;
+    height: 24px;
+    margin: 0;
+    rotate: -90deg;
+}
+
+/* アイコン群：ローカル右辺に縦積み → 画面底辺の横並び。
+   column-reverse で先頭（コスト）が画面左に来て左→右に並ぶ */
+.game-card--tapped .game-card__icons {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 44px;
+    max-height: none;
+    flex-direction: column-reverse;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 各アイコンを -90° で正立させる（コスト/攻撃/体力の数字ラベルも正立する） */
+.game-card--tapped .game-card__icons > * {
+    rotate: -90deg;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 .game-card--resolve {
     border-left-color: rgb(255, 255, 100);
     border-right-color: rgb(255, 255, 100);

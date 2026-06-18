@@ -26,18 +26,21 @@ namespace Main
 
             if (isLocalTurn)
             {
-                // ターン開始時に場にいるキャラは召喚酔いが明ける
+                // ターン開始時に場にいるキャラは召喚酔いが明け、自分の全キャラがアンタップする
                 ReseasonChars(_playerFieldView, _playerSeasonedChars);
+                UntapField(_playerFieldView);
                 await RunLocalMainLoopAsync(ct);
             }
             else if (_isOnline)
             {
                 ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+                UntapField(_opponentFieldView);
                 await RunOnlineOpponentMainLoopAsync(ct);
             }
             else
             {
                 ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+                UntapField(_opponentFieldView);
                 await RunCpuMainLoopAsync(ct);
             }
         }
@@ -162,6 +165,37 @@ namespace Main
             }
         }
 
+        // ─── タップ／アンタップ ───────────────────────────────────────────
+
+        // ターン開始時：アクティブプレイヤーの場の全キャラをアンタップ（縦に戻す）する。
+        private static void UntapField(FieldView field)
+        {
+            foreach (CardView card in field.Characters)
+            {
+                card.SetTapped(false);
+            }
+        }
+
+        // ターン終了時：アクティブプレイヤーの場の守護/防人を自動でタップ（横向き）にする。
+        // 守護・防人は毎ターン終了時に横向きになり、アンタップは自分のターン開始時のため、
+        // 相手ターン中は常にタップ済み＝常に攻撃対象になる。既にタップ済みなら演出をスキップ。
+        private async UniTask AutoTapGuardiansAndSakimoriAsync(bool isLocalTurn, CancellationToken ct)
+        {
+            FieldView field = isLocalTurn ? _playerFieldView : _opponentFieldView;
+            List<UniTask> taps = new List<UniTask>();
+            foreach (CardView card in field.Characters)
+            {
+                if (!card.IsTapped && (IsGuardian(card) || IsSakimori(card)))
+                {
+                    taps.Add(card.SetTappedAsync(true, ct));
+                }
+            }
+            if (taps.Count > 0)
+            {
+                await UniTask.WhenAll(taps);
+            }
+        }
+
         // キャラが攻撃可能か：このターン未攻撃 かつ（召喚酔いしていない または 速攻持ち）
         private bool CanCharAttack(CardView card, FieldView ownerField)
         {
@@ -241,6 +275,11 @@ namespace Main
         private bool CanAttackChar(CardView attacker, CardView target, FieldView defenderField)
         {
             if (target == null || target.IsFaceDown || target.Data is not CharacterCardData)
+            {
+                return false;
+            }
+            // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）
+            if (!target.IsTapped)
             {
                 return false;
             }
@@ -701,6 +740,12 @@ namespace Main
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
+                        // タップ状態のキャラにしか攻撃できない
+                        if (!targetChar.IsTapped)
+                        {
+                            ShowToast("タップ状態のキャラにしか攻撃できません");
+                            return false;
+                        }
                         // 飛行を持つキャラは飛行か防人を持つキャラからしか攻撃されない
                         if (IsFlying(targetChar) && !IsFlying(capturedChar) && !IsSakimori(capturedChar))
                         {
