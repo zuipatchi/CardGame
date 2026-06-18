@@ -447,7 +447,7 @@
 .victory-points-icon {
     width: 56px;
     height: 56px;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 
@@ -503,7 +503,27 @@
     right: 0;
     top: 0;
     bottom: 0;
-    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
     -unity-background-scale-mode: scale-to-fit;
     opacity: 0.8;
+}
+
+/* 得る勝利点に応じたメダル画像（1〜5。0 や 6 以上は Medal1Icon） */
+.medal-fly-icon--1 {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
+}
+
+.medal-fly-icon--2 {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal2Icon.png");
+}
+
+.medal-fly-icon--3 {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal3Icon.png");
+}
+
+.medal-fly-icon--4 {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal4Icon.png");
+}
+
+.medal-fly-icon--5 {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal5Icon.png");
 }

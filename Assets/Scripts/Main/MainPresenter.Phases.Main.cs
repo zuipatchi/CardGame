@@ -424,6 +424,24 @@ namespace Main
         private void OnCardPlayed(CardData playedCard, bool playedByLocal)
         {
             CheckFieldCharsWin(playedByLocal);
+            PlayFlavorVoiceAsync(playedCard).Forget();
+        }
+
+        // プレイされたカードのフレーバーテキスト読み上げ音声を再生する（自分・相手どちらのカードでも鳴らす）。
+        // 音声は事前生成した WAV を Addressables からオンデマンドでロードする。
+        // フレーバーが空、または音声が未生成のカードは無音（ロードは null を返す）。
+        private async UniTaskVoid PlayFlavorVoiceAsync(CardData playedCard)
+        {
+            if (playedCard == null || string.IsNullOrEmpty(playedCard.FlavorText))
+            {
+                return;
+            }
+
+            AudioClip clip = await _flavorVoiceStore.LoadAsync(playedCard.Id);
+            if (clip != null)
+            {
+                _soundPlayer.PlayVoice(clip);
+            }
         }
 
         // フィールドのキャラ数勝利条件：自フィールドにキャラを規定数（WinRule.FieldCharsToWin）

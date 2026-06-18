@@ -6,11 +6,13 @@ using Common.Deck;
 using Common.GameSession;
 using Common.Option;
 using Common.SceneManagement;
+using Common.SoundManagement;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
 using Main.Network;
+using Main.Sound;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -45,6 +47,8 @@ namespace Main
         private NetworkGameService _networkGameService;
         private OptionPresenter _optionPresenter;
         private OptionModel _optionModel;
+        private SoundPlayer _soundPlayer;
+        private FlavorVoiceStore _flavorVoiceStore;
 
         private HandView _handView;
         private HandView _opponentHandView;
@@ -215,6 +219,8 @@ namespace Main
             NetworkGameService networkGameService,
             OptionPresenter optionPresenter,
             OptionModel optionModel,
+            SoundPlayer soundPlayer,
+            FlavorVoiceStore flavorVoiceStore,
             UsernameRepository usernameRepository)
         {
             _cardStore = cardStore;
@@ -226,6 +232,8 @@ namespace Main
             _networkGameService = networkGameService;
             _optionPresenter = optionPresenter;
             _optionModel = optionModel;
+            _soundPlayer = soundPlayer;
+            _flavorVoiceStore = flavorVoiceStore;
             _localUsername = usernameRepository.Load() ?? string.Empty;
         }
 
@@ -514,10 +522,12 @@ namespace Main
                 _gameEndOverlay.Add(_gameEndButtonRow);
                 mainRoot.Add(_gameEndOverlay);
 
-                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards, _cardStore.CardBack);
+                // デッキは配る初期手札分を上に積んで構築し、枚数バッジを満杯から始める。
+                // 配牌アニメで DealCardFromDeckAsync が手札分を引き切ると、残りは playerDeckCards / cpuDeckCards と一致する。
+                _playerDeckView = new DeckView(_cardStore.CardTemplate, playerDeckCards.Concat(playerHandCards).ToArray(), _cardStore.CardBack);
                 deckArea.Add(_playerDeckView);
 
-                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards, _cardStore.CardBack, isOpponent: true);
+                _opponentDeckView = new DeckView(_cardStore.CardTemplate, cpuDeckCards.Concat(cpuHandCards).ToArray(), _cardStore.CardBack, isOpponent: true);
                 opponentDeckArea.Add(_opponentDeckView);
 
                 // プレイヤー墓地エリア：コインを左・墓地を右でrow配置
@@ -573,11 +583,11 @@ namespace Main
                 int drawTaskIndex = 0;
                 for (int i = 0; i < playerHandSize; i++)
                 {
-                    drawTasks[drawTaskIndex++] = _handView.AddCardAnimatedAsync(playerHandCards[i], deckWorldRect, i * DrawStagger, ct);
+                    drawTasks[drawTaskIndex++] = DealCardFromDeckAsync(_handView, _playerDeckView, playerHandCards[i], deckWorldRect, i * DrawStagger, ct);
                 }
                 for (int i = 0; i < cpuHandSize; i++)
                 {
-                    drawTasks[drawTaskIndex++] = _opponentHandView.AddCardAnimatedAsync(cpuHandCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
+                    drawTasks[drawTaskIndex++] = DealCardFromDeckAsync(_opponentHandView, _opponentDeckView, cpuHandCards[i], opponentDeckWorldRect, i * DrawStagger, ct);
                 }
                 await UniTask.WhenAll(drawTasks);
 

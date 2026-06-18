@@ -17,6 +17,7 @@ namespace Main.Injector
             builder.RegisterInstance(_cardDatabase);
             builder.RegisterEntryPoint<CardStore>().AsSelf();
             builder.RegisterEntryPoint<MainAudioManager>();
+            builder.Register<FlavorVoiceStore>(Lifetime.Scoped);
             builder.Register<GameModel>(Lifetime.Scoped);
             builder.Register<NetworkGameService>(Lifetime.Scoped);
             builder.RegisterComponentInHierarchy<MainPresenter>().AsSelf().AsImplementedInterfaces();

@@ -104,9 +104,15 @@ namespace Common.SceneManagement
             if (!await _gate.WaitAsync(0)) return;
 
             bool gateReleased = false;
+            // 対象シーンを一旦アンロードしてから再ロードするため、その間カメラが 0 個になる。
+            // Common シーンにカメラが無いと「No Cameras Rendering」が一瞬表示されるので、
+            // 黒フェードで覆っている間だけ画面を黒く塗る一時カメラを立てて隙間を埋める。
+            GameObject fallbackCameraGo = null;
             try
             {
                 await _transitionPresenter.CoverAsync();
+
+                fallbackCameraGo = CreateFallbackCamera();
 
                 // アクティブシーンをアンロードできないため、対象がアクティブなら一旦 Common に移す
                 Scene current = SceneManager.GetSceneByBuildIndex((int)target);
@@ -126,6 +132,13 @@ namespace Common.SceneManagement
                 await SceneManager.LoadSceneAsync((int)target, LoadSceneMode.Additive)
                     .WithCancellation(_ct);
                 Scene nextScene = SceneManager.GetSceneByBuildIndex((int)target);
+
+                // 新シーンのカメラがロードされたので一時カメラは不要
+                if (fallbackCameraGo != null)
+                {
+                    Destroy(fallbackCameraGo);
+                    fallbackCameraGo = null;
+                }
 
                 nextScene.BuildLifetimeScopes();
 
@@ -152,11 +165,32 @@ namespace Common.SceneManagement
             catch (OperationCanceledException) { }
             finally
             {
+                if (fallbackCameraGo != null)
+                {
+                    Destroy(fallbackCameraGo);
+                }
                 if (!gateReleased)
                 {
                     _gate.Release();
                 }
             }
+        }
+
+        // Reload 中にカメラが 0 個になる瞬間の「No Cameras Rendering」を防ぐため、
+        // 画面全体を黒で塗るだけの一時カメラを生成する。黒フェード中にしか存在しないため
+        // depth は最背面（他シーンのカメラが現れたらその下に隠れる）でよい。
+        private static GameObject CreateFallbackCamera()
+        {
+            GameObject go = new GameObject("ReloadFallbackCamera");
+            // 生成時のアクティブシーンは再ロード対象（target）なので、そのままだと
+            // UnloadSceneAsync で一緒に破棄されてしまう。DontDestroyOnLoad でアンロード対象から外す。
+            DontDestroyOnLoad(go);
+            Camera camera = go.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Color.black;
+            camera.cullingMask = 0;
+            camera.depth = -100f;
+            return go;
         }
 
         private async UniTask UnloadOldScenesAsync(int keepBuildIndex)

@@ -53,6 +53,22 @@ namespace Main
             _opponentHandView.AcceptCard(card);
         }
 
+        // ─── 配牌・マリガン時の1枚配り ──────────────────────────────────────
+        // カードが飛び立つ瞬間にデッキを1枚減らして枚数バッジを更新する。
+        // デッキは配る手札分を上に積んだ状態で構築されているため、DrawTop で配った分だけ正しく減り、
+        // 残りは元のデッキ（手札を除いた並び）と一致する。
+        private async UniTask DealCardFromDeckAsync(
+            HandView hand, DeckView deck, CardData data, Rect deckRect, float startDelay, CancellationToken ct)
+        {
+            if (startDelay > 0f)
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: ct);
+            }
+            deck.DrawTop();
+            deck.RefreshCount();
+            await hand.AddCardAnimatedAsync(data, deckRect, 0f, ct);
+        }
+
         // ─── 手札上限バーン（満杯時に手札へ入るはずだったカードを墓地へ送る）──────
 
         // 既存の CardView を fromRect から墓地へ飛ばし、表向きにして墓地へ追加する。

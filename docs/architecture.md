@@ -31,7 +31,7 @@ Title (アディティブ)   →   Home (アディティブ)   →   DeckBuilder
 - `Common` シーンは起動時にロードされ、以降アンロードされない
 - 他シーンは `Common` の上にアディティブでロード・アンロードされる
 - シーン遷移は `SceneTransitioner.Transit(Scenes next)` を呼ぶだけでよい
-- 同じシーンを初期状態から作り直したい場合は `SceneTransitioner.Reload(Scenes target)` を使う（対象シーンをアンロード→再ロード。オンライン再戦で利用。NGO セッションは Common 常駐の NetworkManager が保持するため切断されない）
+- 同じシーンを初期状態から作り直したい場合は `SceneTransitioner.Reload(Scenes target)` を使う（対象シーンをアンロード→再ロード。オンライン再戦で利用。NGO セッションは Common 常駐の NetworkManager が保持するため切断されない）。`Transit` は新シーンをロードしてから旧シーンをアンロードするためカメラが途切れないが、`Reload` はアンロード→ロードの順でカメラが 0 個になる瞬間がある（Common にカメラが無いため「No Cameras Rendering」が一瞬出る）。これを防ぐため、黒フェード中だけ画面を黒く塗る一時カメラ（`DontDestroyOnLoad`・`cullingMask=0`・最背面）を立てて隙間を埋める
 - 遷移時は `TransitionPresenter` が画面をフェードアウト→ロード→フェードインの演出を行う
 
 ### なぜアディティブか
@@ -144,8 +144,10 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 
 - BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え
 - SE: `PlayOneShot()` で重ね再生
-- 音量は `OptionModel.BGMVolume / SEVolume` (0–1) を ReactiveProperty で管理
+- ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`。連続再生時は前の読み上げを `Stop()` してから鳴らす（重ならないように）
+- 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
+- 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
 
 > `_bgmAudioSource.volume = v / 2` としているのは、
 > OptionModel の値 1.0 がデフォルトの AudioSource 最大音量の半分に相当するようにしているため。
@@ -201,7 +203,7 @@ Assets/Scripts/<Scene>/<Feature>/
 ```
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
-  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ・キャラ8体勝利の紋章用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、MedalIcon.png（勝利点表示・勝利点勝利の紋章用）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
+  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ・キャラ8体勝利の紋章用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、Medal1Icon.png〜Medal5Icon.png（勝利点表示・勝利点勝利の紋章用。勝利点獲得フロートは得点数 1〜5 に対応する画像を表示し、0 や 6 以上は Medal1Icon。カウンター・紋章など固定箇所は Medal1Icon）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
   ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButton.png（OKボタン画像）、returnButton.png（戻るボタン画像）、PassButton.png（パスボタン画像）、HomeBackground.png（Home 画面背景・晴れ）、HomeBackgroundRain.png（Home 画面背景・雨）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
@@ -418,7 +420,7 @@ GraveyardView        VisualElement サブクラス。80×80px のアイコンボ
                      AddCard(CardView) でカードを階層から切り離し、CardData を内部リストで管理
                      モーダルは mainRoot に追加してオーバーレイ表示。背景クリックで閉じる
                      茶色系の枠線（rgba(160,100,50)）と暗いベージュ背景
-VictoryPointsView    VisualElement サブクラス。勝利点表示（MedalIcon.png + 数字）。共通の勝利条件のため
+VictoryPointsView    VisualElement サブクラス。勝利点表示（Medal1Icon.png + 数字）。共通の勝利条件のため
                      ゲーム開始時から常時表示。相手用は OpponentFieldArea 右上・自分用は PlayerFieldArea 左下に絶対配置
                      AddPoints / SetDisplayedPoints で論理値と表示を分離（カウントアップ演出用）
 TurnCounterView      VisualElement サブクラス。経過ターン表示（「TURN」+ GameModel.TurnNumber=通算ターン）。

@@ -17,8 +17,9 @@ namespace Main.Card.Effects.Handlers
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            await p.PlayFloatingMedalAsync(inv.SourceCard, ct);
-            await p.AddVictoryPoints(p.CountGreenInGraveyard(inv.IsLocal), toLocal: inv.IsLocal, ct);
+            int vp = p.CountGreenInGraveyard(inv.IsLocal);
+            await p.PlayFloatingMedalAsync(inv.SourceCard, vp, ct);
+            await p.AddVictoryPoints(vp, toLocal: inv.IsLocal, ct);
         }
     }
 

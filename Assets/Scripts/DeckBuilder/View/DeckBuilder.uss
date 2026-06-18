@@ -877,7 +877,7 @@
 }
 
 .deckbuilder-filter-attr-icon--green {
-    background-image: url("../../../AddressableAssets/Icon/MedalIcon.png");
+    background-image: url("../../../AddressableAssets/Icon/Medal1Icon.png");
 }
 
 .deckbuilder-filter-attr-icon--yellow {

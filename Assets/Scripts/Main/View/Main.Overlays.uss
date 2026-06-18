@@ -211,7 +211,7 @@
 
 /* 勝利点勝利 */
 .game-end-emblem--victorypoints {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/MedalIcon.png");
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
 }
 
 /* キャラ8体（制圧）勝利 */
