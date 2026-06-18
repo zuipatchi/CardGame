@@ -1500,6 +1500,35 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
+.turn-counter {
+    position: absolute;
+    bottom: 76px;
+    left: 8px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 4px 14px 4px 14px;
+}
+
+.turn-counter-caption {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(180, 200, 230);
+    margin-right: 8px;
+}
+
+.turn-counter-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(240, 245, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
 .medal-fly-icon {
     position: absolute;
     left: 0;

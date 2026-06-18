@@ -56,6 +56,7 @@ namespace Main
         private GraveyardView _opponentGraveyardView;
         private VictoryPointsView _playerVictoryPoints;    // 自分の勝利点（自分フィールド左下・常時表示）
         private VictoryPointsView _opponentVictoryPoints;  // 相手の勝利点（相手フィールド右上・常時表示）
+        private TurnCounterView _turnCounter;              // 経過ターン表示（画面左下・自分の勝利点の上・常時表示）
         private VisualElement _actionButtonsArea;
         private Button _okButton;
         private Button _backButton;
@@ -370,6 +371,11 @@ namespace Main
 
                 _playerVictoryPoints = new VictoryPointsView(isOpponent: false);
                 playerFieldArea.Add(_playerVictoryPoints);
+
+                // 経過ターン表示は両者共通の情報のため、画面左下（自分の勝利点の上）に常時表示する
+                _turnCounter = new TurnCounterView();
+                _turnCounter.SetTurn(_gameModel.TurnNumber);
+                mainRoot.Add(_turnCounter);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
