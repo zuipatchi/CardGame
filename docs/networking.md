@@ -381,6 +381,27 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 
 ---
 
+### 13. 全ゲームプレイメッセージの永続登録＋キュー化（セクション 7・9・10・11 の恒久対策）
+
+**背景**: セクション 7・9・10・11 はすべて同一クラスのバグ ——「受信側がアニメーション後にハンドラを遅延登録する間に、送信側の名前付きメッセージが NGO に破棄され、受信側が永久待機する」。個別に事前登録（`_preDrawReceiveTask` 等）でしのいできたが、メッセージ種別を追加するたびに同じ罠を踏むリスクが残っていた。
+
+**対処**: セクション 11 の「永続ハンドラ＋キュー」を **全ゲームプレイメッセージに一般化** した。`NetworkGameService.PrepareDecksAsync` で `RegisterGameplayChannels` を呼び、`k_GameplayChannels`（Draw / MainAction / Mulligan / Switch / Evolve / RecoverDeck / DamageTarget / Surrender / Rematch）のハンドラを対戦開始時に**一度だけ永続登録**する。各チャンネルは `MessageChannel`（per-channel の受信バッファ）を持ち、
+
+- 受信ハンドラ: 待機中の `WaitAsync` があれば即解決、なければ JSON をキューに積む
+- `WaitAsync`: キューにあれば即返す、なければ新しい waiter を作って待つ
+
+これにより**送受信の前後関係に依存せず取りこぼさない**。「待つ直前に登録 → 1回受信して解除」という従来の遅延登録パターンは撤廃された。
+
+**公開 API は不変**: `Send*` / `WaitFor*` のシグネチャは変えていないため `MainPresenter` 側は無改修。`SendJson(messageName, json)` / `WaitJsonAsync(messageName, ct)` を共通ヘルパーとして全メッセージが利用する。ペイロードなしのメッセージ（Draw / Surrender / Rematch）は空文字列を送ることで、受信ハンドラを「一律に string を読む」形に統一している。
+
+**新メッセージ追加時の指針**: 種別定数を足し、`k_GameplayChannels` 配列に追加し、`SendJson` / `WaitJsonAsync` を使う。これだけでタイミング非依存になる。手動でのハンドラ登録・解除は不要・禁止。
+
+> MainPresenter 側の事前登録（`_preDrawReceiveTask` / `_preMainActionReceiveTask`、セクション 9・10）はこの一般化により本質的には不要になったが、害もないため残置している（早めに `WaitAsync` を呼んでもキュー化で安全）。
+
+> ハンドシェイク（`k_ClientReady` / `k_RequestDeck` / `k_DeckSubmit` / `k_InitialState`）は一度きりで明示的に順序付けされており、ClientReady のリトライで受信を保証しているため、この一般化の対象外。従来どおり都度登録・解除する。
+
+---
+
 ## メッセージ種別一覧
 
 | 定数 | 方向 | 内容 |
@@ -393,11 +414,13 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
 | `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsDeck / costCardIds[]）。targetsDeck=true は相手デッキへの直接攻撃（ATK 枚をミル。デッキ順が両クライアントで同期済みのため決定的）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
-| `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信。**対戦開始時に永続登録 + キューでバッファ**（セクション 11） |
-| `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId）。アニメーション前に事前登録 |
-| `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId）。アニメーション前に事前登録 |
+| `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信 |
+| `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
+| `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
 | `NGS_Rematch` | Both | 再戦希望通知（ペイロードなし）。双方が送信し合うと両者が Main シーンを再ロードして新規対戦を開始 |
+
+`Both` 方向のメッセージ（Draw 以降）はすべて対戦開始時に永続登録され、受信値が per-channel のキューにバッファされる（セクション 13）。送受信のタイミングに依存せず取りこぼさないため、各行に個別の登録タイミング注記は不要。
 
 `NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は YOU LOSE + 「降参しました」を表示し、受信者は YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
 

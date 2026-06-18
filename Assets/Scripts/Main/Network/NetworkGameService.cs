@@ -29,16 +29,32 @@ namespace Main.Network
         private const string k_DamageTarget = "NGS_DamageTarget";
         private const string k_MainAction = "NGS_MainAction";
 
+        // 対戦中に双方向でやり取りするゲームプレイメッセージ。これらはすべて対戦開始時
+        // （PrepareDecksAsync）にハンドラを永続登録し、受信値を per-channel のキューに
+        // バッファする。受信側がアニメーション中などでハンドラ登録が遅れても NGO に
+        // 破棄されず取りこぼさないため、送受信のタイミングに依存せず同期ずれ・ハングを防ぐ。
+        // （ハンドシェイク用の k_ClientReady / k_RequestDeck / k_DeckSubmit / k_InitialState は
+        //  一度きりで明示的に順序付けされているため、ここには含めず従来の登録方式を維持する）
+        private static readonly string[] k_GameplayChannels =
+        {
+            k_Draw,
+            k_MainAction,
+            k_Mulligan,
+            k_Switch,
+            k_Evolve,
+            k_RecoverDeck,
+            k_DamageTarget,
+            k_Surrender,
+            k_Rematch,
+        };
+
         private readonly GameSessionModel _gameSessionModel;
         private readonly CardDatabase _cardDatabase;
         private readonly string _localUsername;
         private ulong _opponentClientId;
 
-        // DamageEnemy / Bounce の対象同期は、受信側がハンドラを登録する前に送信側が送ると
-        // NGO に未登録メッセージとして破棄され、受信側が永久待機してゲームが停止する。
-        // これを防ぐため k_DamageTarget はゲーム開始時に永続登録し、受信値をキューにバッファする。
-        private readonly Queue<int[]> _damageTargetQueue = new Queue<int[]>();
-        private UniTaskCompletionSource<int[]> _damageTargetWaiter;
+        // メッセージ名 → 受信バッファ。RegisterGameplayChannels で対戦開始時に生成する。
+        private readonly Dictionary<string, MessageChannel> _channels = new Dictionary<string, MessageChannel>();
 
         public enum MainActionType
         {
@@ -100,8 +116,8 @@ namespace Main.Network
 
             CustomMessagingManager messaging = nm.CustomMessagingManager;
 
-            // 対象同期メッセージは取りこぼし防止のため、対戦開始時にハンドラを永続登録しておく
-            RegisterDamageTargetHandler(messaging);
+            // 全ゲームプレイメッセージは取りこぼし防止のため、対戦開始時にハンドラを永続登録しておく
+            RegisterGameplayChannels(messaging);
 
             return isHost
                 ? await PrepareAsHostAsync(localDeckIds, messaging, ct)
@@ -285,40 +301,59 @@ namespace Main.Network
             return nm.CustomMessagingManager;
         }
 
-        public void SendMulliganDecision(bool mulliganed, string[] newDeckIds = null)
+        // 全ゲームプレイチャンネルのハンドラを永続登録する。各ハンドラは受信した JSON を
+        // 対応する MessageChannel に渡し、待機中なら即解決・そうでなければキューに積む。
+        // これにより「受信側のハンドラ登録が送信側より遅れてメッセージがロストする」種類の
+        // バグ（docs/networking.md セクション 7・9・10・11）を構造的に排除する。
+        private void RegisterGameplayChannels(CustomMessagingManager messaging)
+        {
+            foreach (string name in k_GameplayChannels)
+            {
+                MessageChannel channel = new MessageChannel();
+                _channels[name] = channel;
+                messaging.RegisterNamedMessageHandler(name, (ulong senderId, FastBufferReader reader) =>
+                {
+                    reader.ReadValueSafe(out string json);
+                    channel.Receive(json);
+                });
+            }
+        }
+
+        // ペイロードなしメッセージは空文字列を送る。受信ハンドラが一律に string を読むため、
+        // チャンネル処理をメッセージ種別によらず統一できる。
+        private void SendJson(string messageName, string json)
         {
             CustomMessagingManager messaging = GetMessagingManager();
             if (messaging == null)
             {
                 return;
             }
-            MulliganPayload payload = new MulliganPayload { mulliganed = mulliganed, newDeckIds = newDeckIds };
-            string json = JsonUtility.ToJson(payload);
             using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
             {
                 writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_Mulligan, _opponentClientId, writer);
+                messaging.SendNamedMessage(messageName, _opponentClientId, writer);
             }
+        }
+
+        private UniTask<string> WaitJsonAsync(string messageName, CancellationToken ct)
+        {
+            return _channels[messageName].WaitAsync(ct);
+        }
+
+        public void SendMulliganDecision(bool mulliganed, string[] newDeckIds = null)
+        {
+            MulliganPayload payload = new MulliganPayload { mulliganed = mulliganed, newDeckIds = newDeckIds };
+            SendJson(k_Mulligan, JsonUtility.ToJson(payload));
         }
 
         public async UniTask<MulliganResult> WaitForOpponentMulliganDecisionAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<MulliganResult> tcs = new UniTaskCompletionSource<MulliganResult>();
-
-            void OnMulligan(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_Mulligan);
-                reader.ReadValueSafe(out string json);
-                MulliganPayload payload = JsonUtility.FromJson<MulliganPayload>(json);
-                CardData[] newDeck = payload.mulliganed && payload.newDeckIds != null
-                    ? _cardDatabase.BuildDeck(payload.newDeckIds)
-                    : null;
-                tcs.TrySetResult(new MulliganResult(payload.mulliganed, newDeck));
-            }
-
-            messaging.RegisterNamedMessageHandler(k_Mulligan, OnMulligan);
-            return await tcs.Task.AttachExternalCancellation(ct);
+            string json = await WaitJsonAsync(k_Mulligan, ct);
+            MulliganPayload payload = JsonUtility.FromJson<MulliganPayload>(json);
+            CardData[] newDeck = payload.mulliganed && payload.newDeckIds != null
+                ? _cardDatabase.BuildDeck(payload.newDeckIds)
+                : null;
+            return new MulliganResult(payload.mulliganed, newDeck);
         }
 
         public readonly struct MulliganResult
@@ -342,11 +377,6 @@ namespace Main.Network
 
         public void SendMainAction(MainActionData action)
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
             MainActionPayload payload = new MainActionPayload
             {
                 actionType = (int)action.ActionType,
@@ -356,72 +386,34 @@ namespace Main.Network
                 targetsDeck = action.TargetsDeck,
                 costCardIds = action.CostCardIds
             };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_MainAction, _opponentClientId, writer);
-            }
+            SendJson(k_MainAction, JsonUtility.ToJson(payload));
         }
 
-        public UniTask<MainActionData> WaitForOpponentMainActionAsync(CancellationToken ct)
+        public async UniTask<MainActionData> WaitForOpponentMainActionAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<MainActionData> tcs = new UniTaskCompletionSource<MainActionData>();
-
-            void OnMainAction(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_MainAction);
-                reader.ReadValueSafe(out string json);
-                MainActionPayload payload = JsonUtility.FromJson<MainActionPayload>(json);
-                tcs.TrySetResult(new MainActionData(
-                    (MainActionType)payload.actionType,
-                    string.IsNullOrEmpty(payload.cardId) ? null : payload.cardId,
-                    string.IsNullOrEmpty(payload.attackerId) ? null : payload.attackerId,
-                    string.IsNullOrEmpty(payload.targetId) ? null : payload.targetId,
-                    payload.targetsDeck,
-                    payload.costCardIds));
-            }
-
-            messaging.RegisterNamedMessageHandler(k_MainAction, OnMainAction);
-            return tcs.Task.AttachExternalCancellation(ct);
+            string json = await WaitJsonAsync(k_MainAction, ct);
+            MainActionPayload payload = JsonUtility.FromJson<MainActionPayload>(json);
+            return new MainActionData(
+                (MainActionType)payload.actionType,
+                string.IsNullOrEmpty(payload.cardId) ? null : payload.cardId,
+                string.IsNullOrEmpty(payload.attackerId) ? null : payload.attackerId,
+                string.IsNullOrEmpty(payload.targetId) ? null : payload.targetId,
+                payload.targetsDeck,
+                payload.costCardIds);
         }
 
         public void SendDrawNotification()
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
-            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
-            {
-                messaging.SendNamedMessage(k_Draw, _opponentClientId, writer);
-            }
+            SendJson(k_Draw, string.Empty);
         }
 
         public async UniTask WaitForOpponentDrawAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-
-            void OnDraw(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_Draw);
-                tcs.TrySetResult();
-            }
-
-            messaging.RegisterNamedMessageHandler(k_Draw, OnDraw);
-            await tcs.Task.AttachExternalCancellation(ct);
+            await WaitJsonAsync(k_Draw, ct);
         }
 
         public void SendSwitchAction(string sacrificedCharId, string newCardId)
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
             bool passed = string.IsNullOrEmpty(newCardId);
             SwitchPayload payload = new SwitchPayload
             {
@@ -429,237 +421,89 @@ namespace Main.Network
                 sacrificedCharId = sacrificedCharId ?? string.Empty,
                 newCardId = newCardId ?? string.Empty
             };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_Switch, _opponentClientId, writer);
-            }
+            SendJson(k_Switch, JsonUtility.ToJson(payload));
         }
 
         public async UniTask<(string sacrificedCharId, string newCardId)> WaitForOpponentSwitchAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<(string, string)> tcs = new UniTaskCompletionSource<(string, string)>();
-
-            void OnSwitch(ulong senderId, FastBufferReader reader)
+            string json = await WaitJsonAsync(k_Switch, ct);
+            SwitchPayload payload = JsonUtility.FromJson<SwitchPayload>(json);
+            if (payload.passed)
             {
-                messaging.UnregisterNamedMessageHandler(k_Switch);
-                reader.ReadValueSafe(out string json);
-                SwitchPayload payload = JsonUtility.FromJson<SwitchPayload>(json);
-                if (payload.passed)
-                {
-                    tcs.TrySetResult((null, null));
-                }
-                else
-                {
-                    tcs.TrySetResult((payload.sacrificedCharId, payload.newCardId));
-                }
+                return (null, null);
             }
-
-            messaging.RegisterNamedMessageHandler(k_Switch, OnSwitch);
-            return await tcs.Task.AttachExternalCancellation(ct);
+            return (payload.sacrificedCharId, payload.newCardId);
         }
 
         public void SendEvolveAction(string cardId)
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
             EvolvePayload payload = new EvolvePayload
             {
                 passed = string.IsNullOrEmpty(cardId),
                 cardId = cardId ?? string.Empty
             };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_Evolve, _opponentClientId, writer);
-            }
+            SendJson(k_Evolve, JsonUtility.ToJson(payload));
         }
 
         public async UniTask<string> WaitForOpponentEvolveAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<string> tcs = new UniTaskCompletionSource<string>();
-
-            void OnEvolve(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_Evolve);
-                reader.ReadValueSafe(out string json);
-                EvolvePayload payload = JsonUtility.FromJson<EvolvePayload>(json);
-                tcs.TrySetResult(payload.passed ? null : payload.cardId);
-            }
-
-            messaging.RegisterNamedMessageHandler(k_Evolve, OnEvolve);
-            return await tcs.Task.AttachExternalCancellation(ct);
+            string json = await WaitJsonAsync(k_Evolve, ct);
+            EvolvePayload payload = JsonUtility.FromJson<EvolvePayload>(json);
+            return payload.passed ? null : payload.cardId;
         }
 
         // DamageEnemy 効果の対象を相手クライアントへ伝える。対象は敵フィールド上のインデックスの配列で送る
         // （同名カードが複数いても曖昧にならない）。複数体ダメージにも対応。
         public void SendDamageTargets(int[] indices)
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
             DamageTargetPayload payload = new DamageTargetPayload
             {
                 indices = indices ?? Array.Empty<int>()
             };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(k_DamageTarget, _opponentClientId, writer);
-            }
+            SendJson(k_DamageTarget, JsonUtility.ToJson(payload));
         }
 
         // 対象インデックスの配列を受信する。対象なしの場合は空配列を返す。
-        // ハンドラは RegisterDamageTargetHandler で永続登録済みのため、待機開始前に届いた
+        // ハンドラは RegisterGameplayChannels で永続登録済みのため、待機開始前に届いた
         // メッセージもキューにバッファされており取りこぼさない。
         public async UniTask<int[]> WaitForOpponentDamageTargetsAsync(CancellationToken ct)
         {
-            if (_damageTargetQueue.Count > 0)
-            {
-                return _damageTargetQueue.Dequeue();
-            }
-
-            _damageTargetWaiter = new UniTaskCompletionSource<int[]>();
-            try
-            {
-                return await _damageTargetWaiter.Task.AttachExternalCancellation(ct);
-            }
-            finally
-            {
-                _damageTargetWaiter = null;
-            }
-        }
-
-        // k_DamageTarget の永続ハンドラ。待機中なら即解決し、そうでなければキューに積む。
-        private void RegisterDamageTargetHandler(CustomMessagingManager messaging)
-        {
-            void OnDamageTarget(ulong senderId, FastBufferReader reader)
-            {
-                reader.ReadValueSafe(out string json);
-                DamageTargetPayload payload = JsonUtility.FromJson<DamageTargetPayload>(json);
-                int[] indices = payload.indices ?? Array.Empty<int>();
-
-                // 待機中なら即解決。短時間に複数届いても取りこぼさないよう、waiter を先に
-                // 取り出して null 化し、解決できなければキューへ積む。
-                UniTaskCompletionSource<int[]> waiter = _damageTargetWaiter;
-                _damageTargetWaiter = null;
-                if (waiter != null && waiter.TrySetResult(indices))
-                {
-                    return;
-                }
-                _damageTargetQueue.Enqueue(indices);
-            }
-
-            messaging.RegisterNamedMessageHandler(k_DamageTarget, OnDamageTarget);
+            string json = await WaitJsonAsync(k_DamageTarget, ct);
+            DamageTargetPayload payload = JsonUtility.FromJson<DamageTargetPayload>(json);
+            return payload.indices ?? Array.Empty<int>();
         }
 
         public void SendRecoverDeckOrder(string[] deckIds)
         {
-            SendDeckOrder(k_RecoverDeck, deckIds);
-        }
-
-        public UniTask<CardData[]> WaitForOpponentRecoverDeckOrderAsync(CancellationToken ct)
-        {
-            return WaitForDeckOrderAsync(k_RecoverDeck, ct);
-        }
-
-        private void SendDeckOrder(string messageName, string[] deckIds)
-        {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
             DeckOrderPayload payload = new DeckOrderPayload { deckIds = deckIds };
-            string json = JsonUtility.ToJson(payload);
-            using (FastBufferWriter writer = new FastBufferWriter(json.Length * 2 + 8, Allocator.Temp))
-            {
-                writer.WriteValueSafe(json);
-                messaging.SendNamedMessage(messageName, _opponentClientId, writer);
-            }
+            SendJson(k_RecoverDeck, JsonUtility.ToJson(payload));
         }
 
-        private UniTask<CardData[]> WaitForDeckOrderAsync(string messageName, CancellationToken ct)
+        public async UniTask<CardData[]> WaitForOpponentRecoverDeckOrderAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource<CardData[]> tcs = new UniTaskCompletionSource<CardData[]>();
-
-            void OnReceive(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(messageName);
-                reader.ReadValueSafe(out string json);
-                DeckOrderPayload payload = JsonUtility.FromJson<DeckOrderPayload>(json);
-                tcs.TrySetResult(_cardDatabase.BuildDeck(payload.deckIds));
-            }
-
-            messaging.RegisterNamedMessageHandler(messageName, OnReceive);
-            return tcs.Task.AttachExternalCancellation(ct);
+            string json = await WaitJsonAsync(k_RecoverDeck, ct);
+            DeckOrderPayload payload = JsonUtility.FromJson<DeckOrderPayload>(json);
+            return _cardDatabase.BuildDeck(payload.deckIds);
         }
 
         public void SendSurrenderNotification()
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
-            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
-            {
-                messaging.SendNamedMessage(k_Surrender, _opponentClientId, writer);
-            }
+            SendJson(k_Surrender, string.Empty);
         }
 
         public async UniTask WaitForOpponentSurrenderAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-
-            void OnSurrender(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_Surrender);
-                tcs.TrySetResult();
-            }
-
-            messaging.RegisterNamedMessageHandler(k_Surrender, OnSurrender);
-            await tcs.Task.AttachExternalCancellation(ct);
+            await WaitJsonAsync(k_Surrender, ct);
         }
 
         public void SendRematchRequest()
         {
-            CustomMessagingManager messaging = GetMessagingManager();
-            if (messaging == null)
-            {
-                return;
-            }
-            using (FastBufferWriter writer = new FastBufferWriter(4, Allocator.Temp))
-            {
-                messaging.SendNamedMessage(k_Rematch, _opponentClientId, writer);
-            }
+            SendJson(k_Rematch, string.Empty);
         }
 
         public async UniTask WaitForOpponentRematchAsync(CancellationToken ct)
         {
-            CustomMessagingManager messaging = NetworkManager.Singleton.CustomMessagingManager;
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-
-            void OnRematch(ulong senderId, FastBufferReader reader)
-            {
-                messaging.UnregisterNamedMessageHandler(k_Rematch);
-                tcs.TrySetResult();
-            }
-
-            messaging.RegisterNamedMessageHandler(k_Rematch, OnRematch);
-            await tcs.Task.AttachExternalCancellation(ct);
+            await WaitJsonAsync(k_Rematch, ct);
         }
 
         public void Dispose()
@@ -678,15 +522,43 @@ namespace Main.Network
             m.UnregisterNamedMessageHandler(k_RequestDeck);
             m.UnregisterNamedMessageHandler(k_DeckSubmit);
             m.UnregisterNamedMessageHandler(k_InitialState);
-            m.UnregisterNamedMessageHandler(k_MainAction);
-            m.UnregisterNamedMessageHandler(k_Draw);
-            m.UnregisterNamedMessageHandler(k_Surrender);
-            m.UnregisterNamedMessageHandler(k_Rematch);
-            m.UnregisterNamedMessageHandler(k_Mulligan);
-            m.UnregisterNamedMessageHandler(k_RecoverDeck);
-            m.UnregisterNamedMessageHandler(k_Switch);
-            m.UnregisterNamedMessageHandler(k_Evolve);
-            m.UnregisterNamedMessageHandler(k_DamageTarget);
+            foreach (string name in k_GameplayChannels)
+            {
+                m.UnregisterNamedMessageHandler(name);
+            }
+            _channels.Clear();
+        }
+
+        // 1メッセージ種別ぶんの受信バッファ。NGO のハンドラは受信時に呼ばれるが、待機側
+        // （WaitAsync）はそれより前後どちらにも来うる。待機中なら即解決し、そうでなければ
+        // キューに積むことで、送受信のタイミングに関係なく取りこぼさない。
+        private sealed class MessageChannel
+        {
+            private readonly Queue<string> _queue = new Queue<string>();
+            private UniTaskCompletionSource<string> _waiter;
+
+            public void Receive(string json)
+            {
+                // 待機中なら即解決。短時間に複数届いても取りこぼさないよう、waiter を先に
+                // 取り出して null 化し、解決できなければキューへ積む。
+                UniTaskCompletionSource<string> waiter = _waiter;
+                _waiter = null;
+                if (waiter != null && waiter.TrySetResult(json))
+                {
+                    return;
+                }
+                _queue.Enqueue(json);
+            }
+
+            public UniTask<string> WaitAsync(CancellationToken ct)
+            {
+                if (_queue.Count > 0)
+                {
+                    return UniTask.FromResult(_queue.Dequeue());
+                }
+                _waiter = new UniTaskCompletionSource<string>();
+                return _waiter.Task.AttachExternalCancellation(ct);
+            }
         }
 
         [Serializable]
