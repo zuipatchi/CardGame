@@ -154,7 +154,7 @@ while (!requestReceived)
 
 **原因**: `CreateRoomAsync` が返った直後にクライアントが参加した場合、`session.PlayerJoined` への登録前にイベントが発火して失われる。
 
-**対処**: ハンドラを先に登録してから `AvailableSlots` で既に埋まっていないかを確認する。
+**対処**: ハンドラを先に登録してから `AvailableSlots` で既に埋まっていないかを確認する。さらに、待機ループ中も `AvailableSlots` を定期ポーリング（500ms 間隔）してイベント取りこぼしの保険にする。
 
 ```csharp
 session.PlayerJoined += OnPlayerJoined;  // 先に登録
@@ -165,10 +165,20 @@ if (session.AvailableSlots == 0)          // 後から確認
     return true;  // 既に参加済み
 }
 
-// 以降でタイムアウト付き待機
+// 待機ループ: イベント発火フラグ or AvailableSlots==0 のどちらかで成立
+while (true)
+{
+    linked.Token.ThrowIfCancellationRequested();
+    if (joined || session.AvailableSlots == 0)
+    {
+        session.PlayerJoined -= OnPlayerJoined;
+        return true;
+    }
+    await UniTask.Delay(TimeSpan.FromMilliseconds(500), cancellationToken: linked.Token);
+}
 ```
 
-「登録 → 状態確認」の順を守ることで競合ウィンドウをゼロにできる。
+「登録 → 状態確認」の順に加えて定期ポーリングを併用する。クイックマッチの競合解決（セクション12）では `ReconcileQuickMatch` のポーリング中に相手が参加し得るため、ハンドラ登録前にイベントが発火する窓が広がる。一度きりの `AvailableSlots` チェックでは取りこぼすため、待機ループ内でも継続的に監視する。
 
 ---
 
@@ -347,6 +357,27 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 ```
 
 **教訓**: 「受信側がアニメーションの後にハンドラを登録する」コードは、相手の送信タイミング次第で必ずメッセージロストの危険がある。新しいリクエスト/レスポンス型メッセージを追加するときは、**ハンドラ登録を受信側の最初のアニメーションより前**に置くか、**永続登録 + キュー**にすること。
+
+---
+
+### 12. クイックマッチ同時押しで両者がホストになりマッチしない
+
+**症状**: 2人がほぼ同時にクイックマッチを押すと、両者ともルームを建てて相手を待ち続け、永遠にマッチしない。
+
+**原因**: クイックマッチは「`QuerySessions` で検索 → 無ければ作成」の2ステップだが非アトミック。ほぼ同時に押すと、相手のルームがまだ `QuerySessions` のインデックスに載る前に両者が「0件」と判断し、各自ルームを作成してしまう。UGS の `QuerySessions` は作成直後のルームを即座にはインデックスしない（数秒の伝搬遅延）ため、わずかなズレでも発生する。
+
+**対処**: クライアント側で共有ロックは持てない（「誰かが建て始めた」シグナルが無い）ため、**作成後の再照会 + 決定論的タイブレーク**で解決する（`MatchingService.ReconcileQuickMatchAsync`）。
+
+1. ルーム作成直後、待機に入る前に最大6秒・1秒間隔で `QuerySessions` を再照会する
+2. 自分以外の QuickMatch ルームを見つけたら **セッション ID を `string.CompareOrdinal` で比較**
+   - 自分より小さい ID のルーム → 自分のルームを離脱しそのルームへ Join（自分は入り直す側）
+   - 自分より大きい ID のルームだけ → 自分が最小 ID = ホスト。即座に待機へ移行して相手の参加を待つ
+   - 何も見つからない → ポーリング継続
+3. 両者が「ID の小さい方をホスト」という同じ基準で判断するため、必ず片方だけが入り直し、確実に1組へ収束する
+
+**合わせて**: 開始時に 0〜800ms のランダムジッターを入れて衝突頻度自体を下げ、照会の伝搬遅延も吸収する。また、ホスト側はハンドラ登録前に相手が Join し得るため、`WaitForPlayerAsync` で `AvailableSlots` を定期ポーリングして取りこぼしを防ぐ（セクション6）。
+
+> 「正攻法」は UGS Matchmaker（サーバー側チケットマッチング）の導入だが、Session ベース構成からの作り直しになるため見送っている。
 
 ---
 
