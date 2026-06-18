@@ -149,8 +149,7 @@ namespace Main
 
         // SummonChar の1体分：配置 → キャラ8体勝利判定（OnCardPlayed）→ 登場演出（その場で出現）→ 登場時効果（OnEnter）。
         // stateSource を渡すと、そのキャラのランタイム状態（バフ・現在HP）をコピーして生成する（CopyFieldChar 用）。
-        // playAppear=false で登場演出をスキップする（ダメージトリガーのように直前に別の演出を見せた場合に重複を防ぐ）。
-        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, CancellationToken ct, CardView stateSource = null, bool playAppear = true)
+        private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, CancellationToken ct, CardView stateSource = null)
         {
             CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !isLocal);
             if (stateSource != null)
@@ -159,10 +158,7 @@ namespace Main
             }
             field.PlaceCard(newChar);
             OnCardPlayed(data, playedByLocal: isLocal);
-            if (playAppear)
-            {
-                await PlaySummonAppearAsync(newChar, ct);
-            }
+            await PlaySummonAppearAsync(newChar, ct);
 
             await ResolveCharacterEnterEffectAsync(newChar, isLocal, ct);
         }

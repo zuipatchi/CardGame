@@ -256,19 +256,10 @@ namespace Main
 
             if (data is CharacterCardData)
             {
-                // カットインのカードを場中央へ送り込んでから、持ち主の場へコストなしで召喚
+                // カットインのカードを持ち主の場の空きスロットへ飛翔・着地させてからコストなしで召喚
                 // （OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
                 FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
-                Rect fieldRect = field.worldBound;
-                float fieldLeft = fieldRect.center.x - CardScaleConstants.CardWidth / 2f;
-                float fieldTop = fieldRect.center.y - CardScaleConstants.CardHeight / 2f;
-                await TweenCardAbsoluteAsync(cutIn, fieldLeft, fieldTop, 1f, 0.25f, Ease.OutBack, ct);
-                // 場中央のカード中心で閃光を出してから、カードを消してコストなし召喚
-                // （閃光と被るため召喚の登場演出はスキップ）
-                await PlayGraveTriggerBurstAsync(cutIn, ct);
-                cutIn.RemoveFromHierarchy();
-
-                await SummonSingleCharAsync(data, field, ownerIsLocal, ct, playAppear: false);
+                await SummonGraveTriggerCharAsync(data, field, ownerIsLocal, cutIn, ct);
                 return;
             }
 
@@ -300,6 +291,34 @@ namespace Main
                     graveyard.AddCard(cutIn);
                 }
             }
+        }
+
+        // ダメージトリガーのキャラ召喚：実カードを場へ隠して先に配置し、レイアウト確定後の空きスロット位置へ
+        // カットインのカードを飛翔・着地させてから、実カードへシームレスに差し替える。
+        // （閃光と被るため登場ポップは省略。OnCardPlayed＝キャラ8体勝利判定・OnEnter 効果込み）
+        private async UniTask SummonGraveTriggerCharAsync(CardData data, FieldView field, bool ownerIsLocal, CardView cutIn, CancellationToken ct)
+        {
+            // 実カードを場へ配置（着地まで visibility:Hidden で隠す。Hidden はレイアウトを占有するため worldBound は有効）。
+            CardView newChar = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: !ownerIsLocal);
+            newChar.style.visibility = Visibility.Hidden;
+            field.PlaceCard(newChar);
+
+            // レイアウト確定を待ってスロットの実位置・着地スケール（フィールドスケール）を取得する。
+            await UniTask.NextFrame(ct);
+            Rect slotRect = newChar.worldBound;
+            float slotLeft = slotRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float slotTop = slotRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            // カットインを着地スケールでスロットへ飛翔させる。
+            await TweenCardAbsoluteAsync(cutIn, slotLeft, slotTop, field.CurrentCardScale, 0.3f, Ease.OutBack, ct);
+
+            // 着地点で閃光を出し、カットインを消して実カードを表示（位置・スケールが一致するためシームレスに差し替わる）。
+            await PlayGraveTriggerBurstAsync(cutIn, ct);
+            cutIn.RemoveFromHierarchy();
+            newChar.style.visibility = Visibility.Visible;
+
+            OnCardPlayed(data, playedByLocal: ownerIsLocal);
+            await ResolveCharacterEnterEffectAsync(newChar, ownerIsLocal, ct);
         }
 
         // 場中央へ移動したダメージトリガーカードの中心で閃光パーティクル（evolve の魔法陣）を再生する。
