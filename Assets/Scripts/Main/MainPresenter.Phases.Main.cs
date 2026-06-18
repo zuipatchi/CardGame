@@ -45,39 +45,57 @@ namespace Main
         // ─── メインフェーズ ループ（ローカル） ─────────────────────────────
         private async UniTask RunLocalMainLoopAsync(CancellationToken ct)
         {
-            while (!_isGameOver)
+            // 手番の制限時間カウントダウンを開始する（ターン終了時に finally で停止）
+            using CancellationTokenSource timerCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            StartTurnTimer(timerCts.Token);
+
+            try
             {
-                MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
-                if (action._actionType == MainPhaseActionType.Pass)
+                while (!_isGameOver)
                 {
-                    // ターン終了。オンラインは Pass を終了の合図として相手へ送る
+                    MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
+                    if (action._actionType == MainPhaseActionType.Pass)
+                    {
+                        // 時間切れによるパスは「時間切れ！」を告知してから終了する
+                        if (_turnTimedOut)
+                        {
+                            await PlayAnnouncementAsync("時間切れ！", "turn-announcement-label--enemy", ct);
+                        }
+
+                        // ターン終了。オンラインは Pass を終了の合図として相手へ送る
+                        if (_isOnline)
+                        {
+                            // 相手ターンのドロー通知をロストしないよう送信前に登録。
+                            // ただし ExtraTurn 発動時は次も自分のターンが続き相手のドローを待たないため登録しない。
+                            if (!_extraTurnPending)
+                            {
+                                _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                                _hasPreDrawTask = true;
+                            }
+                            _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
+                        }
+                        break;
+                    }
+
+                    string[] costCardIds = await ExecuteLocalMainCostAsync(action, ct);
+
                     if (_isOnline)
                     {
-                        // 相手ターンのドロー通知をロストしないよう送信前に登録。
-                        // ただし ExtraTurn 発動時は次も自分のターンが続き相手のドローを待たないため登録しない。
-                        if (!_extraTurnPending)
-                        {
-                            _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-                            _hasPreDrawTask = true;
-                        }
-                        _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
+                        _networkGameService.SendMainAction(ToNetworkAction(action, costCardIds));
                     }
-                    break;
+
+                    if (action._actionType == MainPhaseActionType.Attack && action._attacker != null)
+                    {
+                        _attackedThisTurn.Add(action._attacker);
+                    }
+
+                    await ExecuteLocalMainResolveAsync(action, ct);
                 }
-
-                string[] costCardIds = await ExecuteLocalMainCostAsync(action, ct);
-
-                if (_isOnline)
-                {
-                    _networkGameService.SendMainAction(ToNetworkAction(action, costCardIds));
-                }
-
-                if (action._actionType == MainPhaseActionType.Attack && action._attacker != null)
-                {
-                    _attackedThisTurn.Add(action._attacker);
-                }
-
-                await ExecuteLocalMainResolveAsync(action, ct);
+            }
+            finally
+            {
+                timerCts.Cancel();
+                _turnTimerView.Hide();
             }
         }
 
@@ -651,6 +669,12 @@ namespace Main
 
         private async UniTask<MainPhaseAction> WaitForPlayerMainActionAsync(CancellationToken ct)
         {
+            // 解決アニメーション中に時間切れになっていた場合は、入力を待たず即パスする
+            if (_turnTimedOut)
+            {
+                return new MainPhaseAction { _actionType = MainPhaseActionType.Pass };
+            }
+
             _mainActionTcs = new UniTaskCompletionSource<MainPhaseAction>();
             _mainStagedCard = null;
             _mainStagedType = MainPhaseActionType.None;

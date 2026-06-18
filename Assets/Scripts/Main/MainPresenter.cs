@@ -7,6 +7,7 @@ using Common.GameSession;
 using Common.Option;
 using Common.SceneManagement;
 using Common.SoundManagement;
+using Common.Store;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -48,6 +49,7 @@ namespace Main
         private OptionPresenter _optionPresenter;
         private OptionModel _optionModel;
         private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
         private FlavorVoiceStore _flavorVoiceStore;
 
         private HandView _handView;
@@ -61,6 +63,8 @@ namespace Main
         private VictoryPointsView _playerVictoryPoints;    // 自分の勝利点（自分フィールド左下・常時表示）
         private VictoryPointsView _opponentVictoryPoints;  // 相手の勝利点（相手フィールド右上・常時表示）
         private TurnCounterView _turnCounter;              // 経過ターン表示（画面左下・自分の勝利点の上・常時表示）
+        private TurnTimerView _turnTimerView;              // 自分の手番の残り時間表示（メインフェーズ中のみ表示）
+        private bool _turnTimedOut;                        // このターンが時間切れになったか（時間切れ→自動パス用）
         private VisualElement _actionButtonsArea;
         private Button _okButton;
         private Button _backButton;
@@ -220,6 +224,7 @@ namespace Main
             OptionPresenter optionPresenter,
             OptionModel optionModel,
             SoundPlayer soundPlayer,
+            SoundStore soundStore,
             FlavorVoiceStore flavorVoiceStore,
             UsernameRepository usernameRepository)
         {
@@ -233,6 +238,7 @@ namespace Main
             _optionPresenter = optionPresenter;
             _optionModel = optionModel;
             _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
             _flavorVoiceStore = flavorVoiceStore;
             _localUsername = usernameRepository.Load() ?? string.Empty;
         }
@@ -384,6 +390,10 @@ namespace Main
                 _turnCounter = new TurnCounterView();
                 _turnCounter.SetTurn(_gameModel.TurnNumber);
                 mainRoot.Add(_turnCounter);
+
+                // 自分の手番の残り時間表示（ターン表示の上）。メインフェーズ中のみ表示する
+                _turnTimerView = new TurnTimerView();
+                mainRoot.Add(_turnTimerView);
 
                 _opponentHandView = new HandView(
                     _cardStore.CardTemplate, new CardData[0],
