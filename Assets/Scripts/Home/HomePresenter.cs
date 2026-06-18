@@ -31,6 +31,9 @@ namespace Home
         private Button _deckBuilderButton;
         private Button _battleButton;
         private Button _matchingButton;
+        private Button _creditButton;
+        private Button _creditCloseButton;
+        private VisualElement _creditOverlay;
         private Label _costOverToastLabel;
         private Label _usernameLabel;
         private VisualElement _darkOverlay;
@@ -134,9 +137,14 @@ namespace Home
             _deckToast = new ToastController(_costOverToastLabel);
             _usernameLabel = root.Q<Label>("UsernameLabel");
             _darkOverlay = root.Q<VisualElement>("DarkOverlay");
+            _creditButton = root.Q<Button>("CreditButton");
+            _creditCloseButton = root.Q<Button>("CreditCloseButton");
+            _creditOverlay = root.Q<VisualElement>("CreditOverlay");
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
             _matchingButton.clicked += OnMatchingClicked;
+            _creditButton.clicked += OnCreditClicked;
+            _creditCloseButton.clicked += OnCreditCloseClicked;
         }
 
         private void OnDisable()
@@ -153,9 +161,20 @@ namespace Home
             {
                 _matchingButton.clicked -= OnMatchingClicked;
             }
+            if (_creditButton != null)
+            {
+                _creditButton.clicked -= OnCreditClicked;
+            }
+            if (_creditCloseButton != null)
+            {
+                _creditCloseButton.clicked -= OnCreditCloseClicked;
+            }
             _deckBuilderButton = null;
             _battleButton = null;
             _matchingButton = null;
+            _creditButton = null;
+            _creditCloseButton = null;
+            _creditOverlay = null;
             _deckToast?.Dispose();
             _deckToast = null;
             _costOverToastLabel = null;
@@ -232,6 +251,18 @@ namespace Home
                 return;
             }
             _sceneTransitioner.Transit(Scenes.Matching).Forget();
+        }
+
+        private void OnCreditClicked()
+        {
+            PlayEnterSE();
+            _creditOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        private void OnCreditCloseClicked()
+        {
+            PlayEnterSE();
+            _creditOverlay.style.display = DisplayStyle.None;
         }
 
         // 対戦を開始できるデッキかどうか。通常はちょうど DeckModel.MaxCards 枚（IsValid）が必要だが、

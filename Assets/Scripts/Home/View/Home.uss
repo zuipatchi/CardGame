@@ -233,3 +233,143 @@
     padding-bottom: 20px;
     display: none;
 }
+
+.home-credit-button {
+    position: absolute;
+    right: 32px;
+    bottom: 28px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(230, 235, 255);
+    background-color: rgba(8, 8, 25, 0.85);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(150, 170, 230, 0.5);
+    border-right-color: rgba(150, 170, 230, 0.5);
+    border-top-color: rgba(150, 170, 230, 0.5);
+    border-bottom-color: rgba(150, 170, 230, 0.5);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-credit-button:hover {
+    scale: 1.05 1.05;
+    background-color: rgba(20, 30, 70, 0.95);
+    border-left-color: rgb(150, 180, 255);
+    border-right-color: rgb(150, 180, 255);
+    border-top-color: rgb(150, 180, 255);
+    border-bottom-color: rgb(150, 180, 255);
+}
+
+.home-credit-button:active {
+    scale: 0.97 0.97;
+}
+
+.home-credit-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.home-credit-panel {
+    width: 600px;
+    max-height: 70%;
+    background-color: rgba(8, 8, 25, 0.98);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.6);
+    border-right-color: rgba(150, 170, 230, 0.6);
+    border-top-color: rgba(150, 170, 230, 0.6);
+    border-bottom-color: rgba(150, 170, 230, 0.6);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-left: 36px;
+    padding-right: 36px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    align-items: stretch;
+}
+
+.home-credit-title {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgb(255, 230, 100);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+    margin-bottom: 18px;
+}
+
+.home-credit-scroll {
+    flex-grow: 1;
+}
+
+.home-credit-section {
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(140, 180, 255);
+    margin-top: 18px;
+    margin-bottom: 8px;
+}
+
+.home-credit-entry {
+    font-size: 20px;
+    color: rgb(230, 235, 255);
+    white-space: normal;
+    margin-bottom: 4px;
+    padding-left: 12px;
+}
+
+.home-credit-close-button {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 255);
+    background-color: rgba(20, 30, 70, 1);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(60, 120, 255, 0.75);
+    border-right-color: rgba(60, 120, 255, 0.75);
+    border-top-color: rgba(60, 120, 255, 0.75);
+    border-bottom-color: rgba(60, 120, 255, 0.75);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    height: 56px;
+    margin-top: 20px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-credit-close-button:hover {
+    scale: 1.02 1.02;
+    background-color: rgba(30, 45, 95, 1);
+}
+
+.home-credit-close-button:active {
+    scale: 0.98 0.98;
+}
