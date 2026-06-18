@@ -67,16 +67,16 @@
 
 /* ─── コスト選択ハイライト ──────────────────────────────────────────── */
 
-/* コスト選択中のカードは opacity の変化を滑らかにアニメーションさせる（薄くなる演出）。 */
-.cost-selectable {
-    transition-property: opacity;
-    transition-duration: 0.15s;
-    transition-timing-function: ease-out;
+/* 手札カードのホバー拡大（scale）とコスト選択の持ち上げ（translate）を滑らかにアニメーションさせる。 */
+.hand-card {
+    transition-property: scale, translate;
+    transition-duration: 0.1s, 0.15s;
+    transition-timing-function: ease-out, ease-out;
 }
 
-/* コストとして選択したカードは薄くする。 */
+/* コストとして選択したカードは手札の扇から上に持ち上げて前面に出す（重なりから抜く）。 */
 .cost-selected {
-    opacity: 0.45;
+    translate: 0 -50px;
 }
 
 /* 効果の対象として選択可能なキャラのハイライト（DamageEnemy / Switch / Evolve など） */

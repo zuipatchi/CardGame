@@ -18,6 +18,7 @@ namespace Main.Card
         private const float ArcLiftMax = 20f;
         private const float RelayoutDuration = 0.2f;
         private const float FlyDuration = 0.3f;
+        private const float HoverScale = 1.05f;
 
         private struct HandCardEntry
         {
@@ -205,7 +206,16 @@ namespace Main.Card
 
             if (_interactive)
             {
-                ReattachDragManipulator(card);
+                // 場で生成されたカード（バウンス効果で手札に戻ったキャラ）はホバー登録が無いので付与する。
+                // 「戻る」ボタンで戻った手札カードは登録済み（hand-card クラスが残る）ためドラッグだけ付け直す。
+                if (card.ClassListContains("hand-card"))
+                {
+                    ReattachDragManipulator(card);
+                }
+                else
+                {
+                    RegisterCardCallbacks(card);
+                }
             }
 
             OnCardAddedBack?.Invoke(card);
@@ -276,6 +286,9 @@ namespace Main.Card
         {
             CardView capturedCard = card;
 
+            // 手札カードはホバーで前面化＋わずかに拡大する。scale / translate のアニメは hand-card クラスで定義。
+            capturedCard.AddToClassList("hand-card");
+
             capturedCard.RegisterCallback<PointerEnterEvent>(_ =>
             {
                 if (capturedCard.parent != this)
@@ -284,11 +297,20 @@ namespace Main.Card
                 }
 
                 capturedCard.BringToFront();
+                capturedCard.style.scale = new Scale(new Vector3(HoverScale, HoverScale, 1f));
             });
 
             capturedCard.RegisterCallback<PointerLeaveEvent>(_ =>
             {
                 if (capturedCard.parent != this)
+                {
+                    return;
+                }
+
+                capturedCard.style.scale = new Scale(Vector3.one);
+
+                // コスト選択で持ち上げ中のカードは前面に留める（ホバーを外しても重なりへ戻さない）。
+                if (capturedCard.ClassListContains("cost-selected"))
                 {
                     return;
                 }
@@ -338,6 +360,32 @@ namespace Main.Card
             };
             manipulator.OnClick = () => OnCardClicked?.Invoke(capturedCard);
             capturedCard.AttachDragManipulator(manipulator);
+        }
+
+        // 持ち上げ解除したカードを、本来の手札の重なり順（左のカードが下）へ戻す。
+        public void RestoreCardOrder(CardView card)
+        {
+            if (card.parent != this)
+            {
+                return;
+            }
+
+            int idx = IndexOf(card);
+            if (idx < 0)
+            {
+                return;
+            }
+
+            Insert(Math.Min(idx, childCount - 1), card);
+        }
+
+        // 手札全体を本来の重なり順（左のカードが下）へ戻す。コスト選択の終了時に z 順をリセットする。
+        public void RestoreAllOrder()
+        {
+            for (int i = 0; i < _entries.Count; i++)
+            {
+                Insert(Math.Min(i, childCount - 1), _entries[i].Card);
+            }
         }
 
         private int IndexOf(CardView card)
