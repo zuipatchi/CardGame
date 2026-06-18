@@ -164,6 +164,21 @@ private static void AddButtonHoverEffect(Button button, Color baseColor)
 USS クラスの `:hover` / `:active` ルールは上書きできない（インラインスタイルが優先される）。
 解決策は上記 PointerEvent か、インラインスタイルを除去して USS クラスのみで管理する。
 
+**背景画像ボタンの押下フィードバック（scale 変化）**
+
+背景が PNG 画像のボタン（背景色変化が見えないボタン）には、`scale` の transition で
+ホバー拡大・押下縮小のフィードバックを付ける。Main フィールドの Action ボタン
+（Pass/End/Back/OK）・Mulligan ボタン・Game End ボタンで採用。
+
+```css
+.action-button {
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+.action-button:hover  { scale: 1.06 1.06; }
+.action-button:active { scale: 0.94 0.94; }
+```
+
 ### リスト項目（`.room-item`）
 
 ```css
