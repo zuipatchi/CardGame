@@ -246,6 +246,23 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasFlying;
         }
 
+        // ─── 強襲 ─────────────────────────────────────────────────────────
+
+        // 表向きの強襲持ちキャラかどうか：アンタップ状態のキャラにも攻撃できる（タップ済み要件を無視する）
+        private static bool IsAssault(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasAssault;
+        }
+
+        // ─── デッキ攻撃× ───────────────────────────────────────────────────
+
+        // 表向きの「デッキ攻撃×」持ちキャラかどうか：このキャラ自身は相手デッキを直接攻撃（ミル）できない。
+        // 制限を受けるのはこの能力を持つキャラだけで、他の味方キャラのデッキ攻撃には影響しない。
+        private static bool IsNoDeckAttack(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
+        }
+
         // ─── 防人（対空ガード＋守護）─────────────────────────────────────
 
         // 表向きの防人持ちキャラかどうか。防人は守護も兼ねる：飛行はこのキャラを優先して攻撃せねばならず、
@@ -278,8 +295,9 @@ namespace Main
             {
                 return false;
             }
-            // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）
-            if (!target.IsTapped)
+            // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）。
+            // ただし強襲を持つ攻撃者はこの制限を無視し、アンタップのキャラにも攻撃できる。
+            if (!target.IsTapped && !IsAssault(attacker))
             {
                 return false;
             }
@@ -300,10 +318,15 @@ namespace Main
         }
 
         // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。
+        // ・「デッキ攻撃×」を持つ attacker 自身はデッキを直接攻撃できない（このキャラだけの制限）
         // ・飛行を持つ attacker は守護を無視できるが、相手フィールドに防人がいる間はデッキを直接狙えない
         // ・飛行を持たない attacker は守護か防人がいるとデッキを狙えない
         private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
+            if (IsNoDeckAttack(attacker))
+            {
+                return false;
+            }
             if (IsFlying(attacker))
             {
                 return !HasSakimori(defenderField);
@@ -326,6 +349,17 @@ namespace Main
                 return "守護か防人を持つキャラを攻撃してください";
             }
             return hasSakimori ? "防人を持つキャラを攻撃してください" : "守護を持つキャラを攻撃してください";
+        }
+
+        // デッキ攻撃が拒否されたときの案内トースト文言。
+        // 攻撃者が「デッキ攻撃×」を持つ場合はその旨を、それ以外（守護・防人による対象強制）は対象強制メッセージを返す。
+        private string DeckAttackBlockedMessage(CardView attacker, FieldView defenderField)
+        {
+            if (IsNoDeckAttack(attacker))
+            {
+                return "このキャラはデッキを攻撃できません";
+            }
+            return ForcedTargetMessage(attacker, defenderField);
         }
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
@@ -784,8 +818,8 @@ namespace Main
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
-                        // タップ状態のキャラにしか攻撃できない
-                        if (!targetChar.IsTapped)
+                        // タップ状態のキャラにしか攻撃できない（強襲を持つ攻撃者はこの制限を無視できる）
+                        if (!targetChar.IsTapped && !IsAssault(capturedChar))
                         {
                             ShowToast("タップ状態のキャラにしか攻撃できません");
                             return false;
@@ -815,7 +849,7 @@ namespace Main
                     {
                         if (!CanAttackDeck(capturedChar, _opponentFieldView))
                         {
-                            ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));
+                            ShowToast(DeckAttackBlockedMessage(capturedChar, _opponentFieldView));
                             return false;
                         }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction

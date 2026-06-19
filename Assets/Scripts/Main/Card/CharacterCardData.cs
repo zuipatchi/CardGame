@@ -22,12 +22,16 @@ namespace Main.Card
         [SerializeField] private bool _flying;
         // 防人：飛行への対空ガード。飛行はこのキャラを優先して攻撃しなければならず、このキャラは飛行に攻撃できる
         [SerializeField] private bool _sakimori;
+        // 強襲：アンタップ状態のキャラにも攻撃できる（通常はタップ済みキャラにしか攻撃できない制限を無視する）
+        [SerializeField] private bool _assault;
+        // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない。制限を受けるのはこの能力を持つキャラだけ
+        [SerializeField] private bool _noDeckAttack;
         [SerializeField] private string _description;
 
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -41,6 +45,8 @@ namespace Main.Card
             _haste = haste;
             _flying = flying;
             _sakimori = sakimori;
+            _assault = assault;
+            _noDeckAttack = noDeckAttack;
             _description = description;
         }
 
@@ -60,6 +66,10 @@ namespace Main.Card
         public bool Flying => _flying;
         // 防人：飛行はこのキャラを優先して攻撃しなければならず、このキャラは飛行に攻撃できる
         public bool Sakimori => _sakimori;
+        // 強襲：アンタップ状態のキャラにも攻撃できる（タップ済み要件を無視する）
+        public bool Assault => _assault;
+        // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない
+        public bool NoDeckAttack => _noDeckAttack;
         public string Description => _description;
 
         // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性のとき EffectValue 分（最低1）として数える。

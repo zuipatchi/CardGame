@@ -23,6 +23,8 @@ namespace Main.Card
         private readonly VisualElement _hasteIcon;
         private readonly VisualElement _flyingIcon;
         private readonly VisualElement _sakimoriIcon;
+        private readonly VisualElement _assaultIcon;
+        private readonly VisualElement _noDeckAttackIcon;
         private readonly VisualElement _triggerOnGraveIcon;
         private int _currentHp;
         // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
@@ -33,6 +35,8 @@ namespace Main.Card
         private bool _grantedHaste;
         private bool _grantedFlying;
         private bool _grantedSakimori;
+        private bool _grantedAssault;
+        private bool _grantedNoDeckAttack;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
@@ -49,6 +53,8 @@ namespace Main.Card
         public bool HasHaste => (Data is CharacterCardData hasteData && hasteData.Haste) || _grantedHaste;
         public bool HasFlying => (Data is CharacterCardData flyingData && flyingData.Flying) || _grantedFlying;
         public bool HasSakimori => (Data is CharacterCardData sakimoriData && sakimoriData.Sakimori) || _grantedSakimori;
+        public bool HasAssault => (Data is CharacterCardData assaultData && assaultData.Assault) || _grantedAssault;
+        public bool HasNoDeckAttack => (Data is CharacterCardData noDeckAttackData && noDeckAttackData.NoDeckAttack) || _grantedNoDeckAttack;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -69,6 +75,8 @@ namespace Main.Card
             _hasteIcon = this.Q<VisualElement>("HasteIcon");
             _flyingIcon = this.Q<VisualElement>("FlyingIcon");
             _sakimoriIcon = this.Q<VisualElement>("SakimoriIcon");
+            _assaultIcon = this.Q<VisualElement>("AssaultIcon");
+            _noDeckAttackIcon = this.Q<VisualElement>("NoDeckAttackIcon");
             _triggerOnGraveIcon = this.Q<VisualElement>("TriggerOnGraveIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
@@ -381,6 +389,8 @@ namespace Main.Card
             _grantedHaste = false;
             _grantedFlying = false;
             _grantedSakimori = false;
+            _grantedAssault = false;
+            _grantedNoDeckAttack = false;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = _currentHp.ToString();
             RefreshKeywordIcons();
@@ -399,6 +409,8 @@ namespace Main.Card
             _grantedHaste = source._grantedHaste;
             _grantedFlying = source._grantedFlying;
             _grantedSakimori = source._grantedSakimori;
+            _grantedAssault = source._grantedAssault;
+            _grantedNoDeckAttack = source._grantedNoDeckAttack;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
             RefreshKeywordIcons();
@@ -412,6 +424,8 @@ namespace Main.Card
             _hasteIcon.style.display = HasHaste ? DisplayStyle.Flex : DisplayStyle.None;
             _flyingIcon.style.display = HasFlying ? DisplayStyle.Flex : DisplayStyle.None;
             _sakimoriIcon.style.display = HasSakimori ? DisplayStyle.Flex : DisplayStyle.None;
+            _assaultIcon.style.display = HasAssault ? DisplayStyle.Flex : DisplayStyle.None;
+            _noDeckAttackIcon.style.display = HasNoDeckAttack ? DisplayStyle.Flex : DisplayStyle.None;
             _triggerOnGraveIcon.style.display = Data.TriggerOnGrave ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -437,6 +451,14 @@ namespace Main.Card
                 case GrantableKeyword.Sakimori:
                     _grantedSakimori = true;
                     icon = _sakimoriIcon;
+                    break;
+                case GrantableKeyword.Assault:
+                    _grantedAssault = true;
+                    icon = _assaultIcon;
+                    break;
+                case GrantableKeyword.NoDeckAttack:
+                    _grantedNoDeckAttack = true;
+                    icon = _noDeckAttackIcon;
                     break;
                 default:
                     return;
