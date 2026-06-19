@@ -22,6 +22,11 @@ namespace Common.Store
         private readonly string _resultSEAddressable = "Sound/SE/Result";
         private readonly string _winSEAddressable = "Sound/SE/Win";
         private readonly string _loseSEAddressable = "Sound/SE/Lose";
+        private readonly string _readySEAddressable = "Sound/SE/Ready";
+        private readonly string _battleSEAddressable = "Sound/SE/Battle";
+        private readonly string _cardSEAddressable = "Sound/SE/Card";
+        private readonly string _downSEAddressable = "Sound/SE/Down";
+        private readonly string _attackSEAddressable = "Sound/SE/Attack";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
@@ -34,6 +39,11 @@ namespace Common.Store
         public AudioClip ResultSE => _resultSE;
         public AudioClip WinSE => _winSE;
         public AudioClip LoseSE => _loseSE;
+        public AudioClip ReadySE => _readySE;
+        public AudioClip BattleSE => _battleSE;
+        public AudioClip CardSE => _cardSE;
+        public AudioClip DownSE => _downSE;
+        public AudioClip AttackSE => _attackSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
@@ -46,6 +56,11 @@ namespace Common.Store
         private AudioClip _resultSE = null;
         private AudioClip _winSE = null;
         private AudioClip _loseSE = null;
+        private AudioClip _readySE = null;
+        private AudioClip _battleSE = null;
+        private AudioClip _cardSE = null;
+        private AudioClip _downSE = null;
+        private AudioClip _attackSE = null;
 
         public void Start()
         {
@@ -66,6 +81,11 @@ namespace Common.Store
                 _resultSE = await Addressables.LoadAssetAsync<AudioClip>(_resultSEAddressable).ToUniTask();
                 _winSE = await Addressables.LoadAssetAsync<AudioClip>(_winSEAddressable).ToUniTask();
                 _loseSE = await Addressables.LoadAssetAsync<AudioClip>(_loseSEAddressable).ToUniTask();
+                _readySE = await Addressables.LoadAssetAsync<AudioClip>(_readySEAddressable).ToUniTask();
+                _battleSE = await Addressables.LoadAssetAsync<AudioClip>(_battleSEAddressable).ToUniTask();
+                _cardSE = await Addressables.LoadAssetAsync<AudioClip>(_cardSEAddressable).ToUniTask();
+                _downSE = await Addressables.LoadAssetAsync<AudioClip>(_downSEAddressable).ToUniTask();
+                _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)

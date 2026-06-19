@@ -267,6 +267,11 @@ namespace Main
             {
                 return;
             }
+            // キャラ破壊時の SE（パーティクル prefab の有無に関わらず鳴らす）
+            if (_soundStore.DownSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.DownSE);
+            }
             GameObject prefab = _charDestroyEffectPrefab;
             if (prefab == null)
             {

@@ -13,6 +13,12 @@ namespace Main
 
         private async UniTask PlayCardChargeAsync(CardView attacker, VisualElement defender, CancellationToken ct)
         {
+            // キャラの攻撃（突撃）開始に合わせて Attack SE を鳴らす
+            if (_soundStore.AttackSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.AttackSE);
+            }
+
             Rect fromRect = attacker.worldBound;
             float w = CardScaleConstants.CardWidth;
             float h = CardScaleConstants.CardHeight;
