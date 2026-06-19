@@ -37,6 +37,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3002
     _cardName: "\u30E2\u30CA\u30C3\u30AF\u30DE\u30C8\u30FC\u30AF\u30F3"
@@ -61,6 +62,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3003
     _cardName: "\u5408\u6210\u866B"
@@ -85,6 +87,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3004
     _cardName: "\u76D7\u4EBA\u30B4\u30D6\u30EA\u30F3"
@@ -109,6 +112,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3005
     _cardName: "\u6BD2\u866B"
@@ -133,6 +137,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
   - _id: C3006
     _cardName: "\u5927\u6A39\u306E\u3071\u3063\u3061"
@@ -157,6 +162,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u7DD1\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C3007
     _cardName: "\u30E2\u30CA\u30C3\u30AF\u30DE"
@@ -181,6 +187,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C3008
     _cardName: "\u5927\u86C7\u30E2\u30CA\u30FC\u30AF"
@@ -205,6 +212,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 1
+    _noDeckAttack: 1
     _description: "\u76F8\u624B\u30AD\u30E3\u30E9\u3092\u6483\u7834\u3057\u305F\u6642\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
   - _id: C3009
     _cardName: "\u68EE\u306E\u756A\u4EBA\u30E2\u30CA\u30FC\u30B7\u30E3"
@@ -229,6 +237,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 1
     _assault: 0
+    _noDeckAttack: 0
     _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C3010
     _cardName: "\u30B4\u30EA\u30E9\u30B4\u30EA\u30E9\u30E2\u30CA\u30AB"
@@ -253,6 +262,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3011
     _cardName: "\u767E\u7363\u306E\u738B"
@@ -277,6 +287,7 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 
   - _id: C3012
     _cardName: "\u75AB\u75C5\u306E\u5A92\u4ECB\u8005"
@@ -301,4 +312,5 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _assault: 0
+    _noDeckAttack: 0
     _description: 

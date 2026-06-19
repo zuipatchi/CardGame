@@ -357,7 +357,7 @@ namespace Main
         {
             if (IsNoDeckAttack(attacker))
             {
-                return "このキャラはデッキ攻撃できません";
+                return "このキャラはデッキを攻撃できません";
             }
             return ForcedTargetMessage(attacker, defenderField);
         }
