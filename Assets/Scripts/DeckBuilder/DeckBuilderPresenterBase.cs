@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Deck;
 using Common.SceneManagement;
+using Common.SoundManagement;
+using Common.Store;
 using Common.View;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 using VContainer.Unity;
 
 namespace DeckBuilder
@@ -20,6 +23,17 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
         protected DeckRuleModel _deckRuleModel;
+        private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
+
+        // SoundPlayer / SoundStore は Common の常駐シングルトン。派生クラスの Construct とは別に
+        // 基底クラスでまとめて受け取る（VContainer は基底クラスの [Inject] メソッドも呼び出す）。
+        [Inject]
+        public void InjectSound(SoundPlayer soundPlayer, SoundStore soundStore)
+        {
+            _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
+        }
 
         private sealed class CardListItem
         {
@@ -133,7 +147,11 @@ namespace DeckBuilder
                 _deckAnalysisModal = new DeckAnalysisModal(_deckBuilderRoot, _cardDatabase);
 
                 Button analyzeButton = root.Q<Button>("AnalyzeButton");
-                analyzeButton.clicked += () => _deckAnalysisModal.Show(_deckModel);
+                analyzeButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.AnalysisSE);
+                    _deckAnalysisModal.Show(_deckModel);
+                };
 
                 VisualElement topLeftButtons = root.Q<VisualElement>(className: "deckbuilder-top-left-buttons");
                 _filterCharacterButton = CreateTypeFilterButton("キャラ", isCharacter: true);
