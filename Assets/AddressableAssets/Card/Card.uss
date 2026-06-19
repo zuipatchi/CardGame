@@ -332,6 +332,16 @@
     display: none;
 }
 
+/* デッキ攻撃×アイコン（強襲アイコンの下に表示。デッキ攻撃×持ちキャラのみ CardView で display を切替） */
+.game-card__no-deck-attack-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/NoDeckAttackIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 /* ダメージトリガーアイコン（守護などと同じ枠。TriggerOnGrave のカードのみ CardView で display を切替。キャラ・イベント共通） */
 .game-card__trigger-on-grave-icon {
     width: 36px;

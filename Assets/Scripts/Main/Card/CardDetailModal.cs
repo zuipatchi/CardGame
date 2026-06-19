@@ -96,6 +96,10 @@ namespace Main.Card
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--assault", string.Empty, "強襲"));
                 }
+                if (charData.NoDeckAttack)
+                {
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--no-deck-attack", string.Empty, "デッキ攻撃×"));
+                }
                 if (charData.TriggerOnGrave)
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));

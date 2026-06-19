@@ -24,6 +24,7 @@
                     <ui:VisualElement name="FlyingIcon" class="game-card__flying-icon" />
                     <ui:VisualElement name="SakimoriIcon" class="game-card__sakimori-icon" />
                     <ui:VisualElement name="AssaultIcon" class="game-card__assault-icon" />
+                    <ui:VisualElement name="NoDeckAttackIcon" class="game-card__no-deck-attack-icon" />
                     <ui:VisualElement name="TriggerOnGraveIcon" class="game-card__trigger-on-grave-icon" />
                 </ui:VisualElement>
             </ui:VisualElement>

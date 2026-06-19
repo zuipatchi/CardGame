@@ -254,6 +254,27 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasAssault;
         }
 
+        // ─── デッキ攻撃× ───────────────────────────────────────────────────
+
+        // 表向きの「デッキ攻撃×」持ちキャラかどうか：場にいる間、相手はこのプレイヤーのデッキを直接攻撃できない
+        private static bool IsNoDeckAttack(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
+        }
+
+        // フィールドに「デッキ攻撃×」持ちキャラがいるか。いる場合、相手はこのプレイヤーのデッキを直接攻撃（ミル）できない
+        private static bool HasNoDeckAttack(FieldView field)
+        {
+            foreach (CardView card in field.Characters)
+            {
+                if (IsNoDeckAttack(card))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // ─── 防人（対空ガード＋守護）─────────────────────────────────────
 
         // 表向きの防人持ちキャラかどうか。防人は守護も兼ねる：飛行はこのキャラを優先して攻撃せねばならず、
@@ -309,10 +330,15 @@ namespace Main
         }
 
         // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。
+        // ・防御側に「デッキ攻撃×」持ちがいる間は、飛行を含めて誰もデッキを直接狙えない（デッキ専用の壁）
         // ・飛行を持つ attacker は守護を無視できるが、相手フィールドに防人がいる間はデッキを直接狙えない
         // ・飛行を持たない attacker は守護か防人がいるとデッキを狙えない
         private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
+            if (HasNoDeckAttack(defenderField))
+            {
+                return false;
+            }
             if (IsFlying(attacker))
             {
                 return !HasSakimori(defenderField);
@@ -335,6 +361,17 @@ namespace Main
                 return "守護か防人を持つキャラを攻撃してください";
             }
             return hasSakimori ? "防人を持つキャラを攻撃してください" : "守護を持つキャラを攻撃してください";
+        }
+
+        // デッキ攻撃が拒否されたときの案内トースト文言。
+        // 「デッキ攻撃×」で封じられている場合はその旨を、それ以外（守護・防人による対象強制）は対象強制メッセージを返す。
+        private string DeckAttackBlockedMessage(CardView attacker, FieldView defenderField)
+        {
+            if (HasNoDeckAttack(defenderField))
+            {
+                return "デッキ攻撃を封じられています";
+            }
+            return ForcedTargetMessage(attacker, defenderField);
         }
 
         // ─── アクション実行（ローカル） ──────────────────────────────────
@@ -824,7 +861,7 @@ namespace Main
                     {
                         if (!CanAttackDeck(capturedChar, _opponentFieldView))
                         {
-                            ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));
+                            ShowToast(DeckAttackBlockedMessage(capturedChar, _opponentFieldView));
                             return false;
                         }
                         _mainActionTcs?.TrySetResult(new MainPhaseAction
