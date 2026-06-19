@@ -62,7 +62,7 @@ MonoBehaviour:
     _description: 
   - _id: C3003
     _cardName: "\u5408\u6210\u866B"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: cfb5881bb4f483540a12300090a15ddb, type: 3}
     _flavorText: "\u3069\u3053\u3068\u306A\u304F\u9CF4\u304D\u58F0\u304C\u300C\u30E2\u30CA\u30A2\u30A1\u30A1\u30A1\u300D\u306B\u805E\u3053\u3048\u308B"
     _voiceSpeaker: 42
@@ -93,7 +93,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 1
+    _triggerOnGrave: 0
     _attack: 2
     _hp: 4
     _attribute: 2
@@ -118,7 +118,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 1
-    _hp: 1
+    _hp: 3
     _attribute: 2
     _effectTrigger: 3
     _effectType: 0
@@ -141,7 +141,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 1
-    _hp: 2
+    _hp: 1
     _attribute: 2
     _effectTrigger: 4
     _effectType: 9
@@ -210,7 +210,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 3
-    _hp: 8
+    _hp: 9
     _attribute: 2
     _effectTrigger: 6
     _effectType: 0
@@ -257,6 +257,29 @@ MonoBehaviour:
     _triggerOnGrave: 0
     _attack: 5
     _hp: 8
+    _attribute: 2
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _description: 
+  - _id: C3012
+    _cardName: "\u75AB\u75C5\u306E\u5A92\u4ECB\u8005"
+    _cost: 1
+    _image: {fileID: 21300000, guid: ee1ea3d715259384fa11adddc997937d, type: 3}
+    _flavorText: "\u30D6\u30FC\u30FC\u30FC\u30F3"
+    _voiceSpeaker: 89
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _attack: 1
+    _hp: 2
     _attribute: 2
     _effectTrigger: 0
     _effectType: 0

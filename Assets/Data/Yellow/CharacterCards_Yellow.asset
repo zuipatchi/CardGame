@@ -25,8 +25,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
-    _attack: 2
-    _hp: 3
+    _attack: 1
+    _hp: 1
     _attribute: 3
     _effectTrigger: 4
     _effectType: 9

@@ -24,7 +24,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 1
+    _triggerOnGrave: 0
     _attack: 2
     _hp: 4
     _attribute: 6
@@ -62,7 +62,7 @@ MonoBehaviour:
     _description: 
   - _id: C1003
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: 2e09ecb7c8227e841b69acfc10aff300, type: 3}
     _flavorText: "\u5352\u696D\u3057\u305F\u3071\u3061"
     _voiceSpeaker: 13
@@ -95,7 +95,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 1
-    _hp: 2
+    _hp: 1
     _attribute: 6
     _effectTrigger: 4
     _effectType: 9
@@ -118,7 +118,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _attack: 0
-    _hp: 1
+    _hp: 3
     _attribute: 6
     _effectTrigger: 1
     _effectType: 2
@@ -189,7 +189,7 @@ MonoBehaviour:
     _attack: 1
     _hp: 1
     _attribute: 6
-    _effectTrigger: 1
+    _effectTrigger: 5
     _effectType: 14
     _effectValue: 1009
     _effectValue2: 1
@@ -197,7 +197,7 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u300C1/1\u306E\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3\u300D\u30921\u4F53\u53EC\u559A\u3059\u308B"
+    _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u3001\u300C1/1\u306E\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3\u300D\u30921\u4F53\u53EC\u559A\u3059\u308B"
   - _id: C1009
     _cardName: "\u9B54\u6CD5\u4F7F\u3044\u3071\u3063\u3061\u30C8\u30FC\u30AF\u30F3"
     _cost: 0
@@ -244,3 +244,26 @@ MonoBehaviour:
     _flying: 0
     _sakimori: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u30AD\u30E3\u30E92\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0A\u3052\u308B"
+  - _id: C1011
+    _cardName: "\u30E2\u30D6\u3071\u3063\u3061"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 1267689b1f3dc9040b91ef5107bc5f64, type: 3}
+    _flavorText: "\u3084\u3042\uFF01"
+    _voiceSpeaker: 21
+    _keyword: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _attack: 1
+    _hp: 2
+    _attribute: 6
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _description: 
