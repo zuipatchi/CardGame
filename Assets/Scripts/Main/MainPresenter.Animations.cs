@@ -28,6 +28,7 @@ namespace Main
         // オーバーリミット告知：デッキが初めて0枚になった瞬間（リミットブレイク）に「リミットブレイク！」を表示する。
         private async UniTask PlayLimitBreakAnnouncementAsync(CancellationToken ct)
         {
+            _soundPlayer.PlaySE(_soundStore.LimitBreakSE);
             await PlayAnnouncementAsync("リミットブレイク！", "turn-announcement-label--limit-break", ct);
         }
 
