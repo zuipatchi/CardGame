@@ -20,6 +20,8 @@ namespace Common.Store
         private readonly string _enter2SEAddressable = "Sound/SE/Enter2";
         private readonly string _cancel1SEAddressable = "Sound/SE/Cancel1";
         private readonly string _resultSEAddressable = "Sound/SE/Result";
+        private readonly string _winSEAddressable = "Sound/SE/Win";
+        private readonly string _loseSEAddressable = "Sound/SE/Lose";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
@@ -30,6 +32,8 @@ namespace Common.Store
         public AudioClip Enter2SE => _enter2SE;
         public AudioClip Cancel1SE => _cancel1SE;
         public AudioClip ResultSE => _resultSE;
+        public AudioClip WinSE => _winSE;
+        public AudioClip LoseSE => _loseSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
@@ -40,6 +44,8 @@ namespace Common.Store
         private AudioClip _enter2SE = null;
         private AudioClip _cancel1SE = null;
         private AudioClip _resultSE = null;
+        private AudioClip _winSE = null;
+        private AudioClip _loseSE = null;
 
         public void Start()
         {
@@ -58,6 +64,8 @@ namespace Common.Store
                 _enter2SE = await Addressables.LoadAssetAsync<AudioClip>(_enter2SEAddressable).ToUniTask();
                 _cancel1SE = await Addressables.LoadAssetAsync<AudioClip>(_cancel1SEAddressable).ToUniTask();
                 _resultSE = await Addressables.LoadAssetAsync<AudioClip>(_resultSEAddressable).ToUniTask();
+                _winSE = await Addressables.LoadAssetAsync<AudioClip>(_winSEAddressable).ToUniTask();
+                _loseSE = await Addressables.LoadAssetAsync<AudioClip>(_loseSEAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)

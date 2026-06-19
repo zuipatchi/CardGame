@@ -510,6 +510,16 @@ namespace Main
                 _gameEndSubLabel.style.display = DisplayStyle.None;
             }
 
+            // 勝敗 SE をオーバーレイの登場に合わせて再生する（引き分けは鳴らさない）
+            if (playerWins == true && _soundStore.WinSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.WinSE);
+            }
+            else if (playerWins == false && _soundStore.LoseSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.LoseSE);
+            }
+
             _gameEndButtonRow.style.opacity = 0f;
             _gameEndOverlay.style.display = DisplayStyle.Flex;
             _gameEndOverlay.style.opacity = 0f;

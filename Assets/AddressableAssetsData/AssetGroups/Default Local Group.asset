@@ -305,6 +305,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c167c7c1e56fe6e4bbd9cbc1e6a6547e
+    m_Address: Sound/SE/Lose
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c3f2df3e1af35084e844d2d4d9af305d
     m_Address: Icon/align-justify-solid
     m_ReadOnly: 0
@@ -386,6 +391,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f2019e4317650654d926da085d83e0ae
     m_Address: Voice/C1009
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f2ef62c80ff2ac14b833f04603aca053
+    m_Address: Sound/SE/Win
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
