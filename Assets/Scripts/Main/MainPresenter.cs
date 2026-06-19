@@ -480,10 +480,22 @@ namespace Main
                 _backButton = root.Q<Button>("BackButton");
                 _passButton = root.Q<Button>("PassButton");
                 _endButton = root.Q<Button>("EndButton");
-                _okButton.clicked += OnOkClicked;
-                _backButton.clicked += OnBackClicked;
+                _okButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                    OnOkClicked();
+                };
+                _backButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                    OnBackClicked();
+                };
                 _passButton.clicked += OnPassClicked;
-                _endButton.clicked += OnEndTurnClicked;
+                _endButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                    OnEndTurnClicked();
+                };
 
                 _costWarningLabel = new Label("手札が足りません");
                 _costWarningLabel.AddToClassList("main-cost-warning-label");

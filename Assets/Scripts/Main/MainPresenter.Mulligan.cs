@@ -95,8 +95,16 @@ namespace Main
             _mulliganOverlay = overlay;
 
             UniTaskCompletionSource<bool> tcs = new UniTaskCompletionSource<bool>();
-            yesButton.clicked += () => tcs.TrySetResult(true);
-            noButton.clicked += () => tcs.TrySetResult(false);
+            yesButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                tcs.TrySetResult(true);
+            };
+            noButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                tcs.TrySetResult(false);
+            };
             ct.Register(() => tcs.TrySetCanceled());
 
             bool result;

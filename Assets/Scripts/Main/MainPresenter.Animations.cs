@@ -22,12 +22,17 @@ namespace Main
         {
             string text = isLocalTurn ? "YOUR TURN" : "ENEMY TURN";
             string labelClass = isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            if (isLocalTurn)
+            {
+                _soundPlayer.PlaySE(_soundStore.PlayerTurnSE);
+            }
             await PlayAnnouncementAsync(text, labelClass, ct);
         }
 
         // オーバーリミット告知：デッキが初めて0枚になった瞬間（リミットブレイク）に「リミットブレイク！」を表示する。
         private async UniTask PlayLimitBreakAnnouncementAsync(CancellationToken ct)
         {
+            _soundPlayer.PlaySE(_soundStore.LimitBreakSE);
             await PlayAnnouncementAsync("リミットブレイク！", "turn-announcement-label--limit-break", ct);
         }
 
