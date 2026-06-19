@@ -256,23 +256,11 @@ namespace Main
 
         // ─── デッキ攻撃× ───────────────────────────────────────────────────
 
-        // 表向きの「デッキ攻撃×」持ちキャラかどうか：場にいる間、相手はこのプレイヤーのデッキを直接攻撃できない
+        // 表向きの「デッキ攻撃×」持ちキャラかどうか：このキャラ自身は相手デッキを直接攻撃（ミル）できない。
+        // 制限を受けるのはこの能力を持つキャラだけで、他の味方キャラのデッキ攻撃には影響しない。
         private static bool IsNoDeckAttack(CardView card)
         {
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
-        }
-
-        // フィールドに「デッキ攻撃×」持ちキャラがいるか。いる場合、相手はこのプレイヤーのデッキを直接攻撃（ミル）できない
-        private static bool HasNoDeckAttack(FieldView field)
-        {
-            foreach (CardView card in field.Characters)
-            {
-                if (IsNoDeckAttack(card))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         // ─── 防人（対空ガード＋守護）─────────────────────────────────────
@@ -330,12 +318,12 @@ namespace Main
         }
 
         // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。
-        // ・防御側に「デッキ攻撃×」持ちがいる間は、飛行を含めて誰もデッキを直接狙えない（デッキ専用の壁）
+        // ・「デッキ攻撃×」を持つ attacker 自身はデッキを直接攻撃できない（このキャラだけの制限）
         // ・飛行を持つ attacker は守護を無視できるが、相手フィールドに防人がいる間はデッキを直接狙えない
         // ・飛行を持たない attacker は守護か防人がいるとデッキを狙えない
         private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
-            if (HasNoDeckAttack(defenderField))
+            if (IsNoDeckAttack(attacker))
             {
                 return false;
             }
@@ -364,12 +352,12 @@ namespace Main
         }
 
         // デッキ攻撃が拒否されたときの案内トースト文言。
-        // 「デッキ攻撃×」で封じられている場合はその旨を、それ以外（守護・防人による対象強制）は対象強制メッセージを返す。
+        // 攻撃者が「デッキ攻撃×」を持つ場合はその旨を、それ以外（守護・防人による対象強制）は対象強制メッセージを返す。
         private string DeckAttackBlockedMessage(CardView attacker, FieldView defenderField)
         {
-            if (HasNoDeckAttack(defenderField))
+            if (IsNoDeckAttack(attacker))
             {
-                return "デッキ攻撃を封じられています";
+                return "このキャラはデッキ攻撃できません";
             }
             return ForcedTargetMessage(attacker, defenderField);
         }

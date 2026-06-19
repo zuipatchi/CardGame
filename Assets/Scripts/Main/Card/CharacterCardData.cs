@@ -24,7 +24,7 @@ namespace Main.Card
         [SerializeField] private bool _sakimori;
         // 強襲：アンタップ状態のキャラにも攻撃できる（通常はタップ済みキャラにしか攻撃できない制限を無視する）
         [SerializeField] private bool _assault;
-        // デッキ攻撃×：このキャラが場にいる間、相手はこのプレイヤーのデッキを直接攻撃（ミル）できない（守護のデッキ版）
+        // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない。制限を受けるのはこの能力を持つキャラだけ
         [SerializeField] private bool _noDeckAttack;
         [SerializeField] private string _description;
 
@@ -68,7 +68,7 @@ namespace Main.Card
         public bool Sakimori => _sakimori;
         // 強襲：アンタップ状態のキャラにも攻撃できる（タップ済み要件を無視する）
         public bool Assault => _assault;
-        // デッキ攻撃×：場にいる間、相手はこのプレイヤーのデッキを直接攻撃（ミル）できない
+        // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない
         public bool NoDeckAttack => _noDeckAttack;
         public string Description => _description;
 
