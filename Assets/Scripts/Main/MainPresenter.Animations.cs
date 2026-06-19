@@ -22,6 +22,10 @@ namespace Main
         {
             string text = isLocalTurn ? "YOUR TURN" : "ENEMY TURN";
             string labelClass = isLocalTurn ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
+            if (isLocalTurn)
+            {
+                _soundPlayer.PlaySE(_soundStore.PlayerTurnSE);
+            }
             await PlayAnnouncementAsync(text, labelClass, ct);
         }
 

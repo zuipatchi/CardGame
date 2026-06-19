@@ -30,6 +30,7 @@ namespace Common.Store
         private readonly string _downSEAddressable = "Sound/SE/Down";
         private readonly string _attackSEAddressable = "Sound/SE/Attack";
         private readonly string _limitBreakSEAddressable = "Sound/SE/LimitBreak";
+        private readonly string _playerTurnSEAddressable = "Sound/SE/PlayerTurn";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
@@ -50,6 +51,7 @@ namespace Common.Store
         public AudioClip DownSE => _downSE;
         public AudioClip AttackSE => _attackSE;
         public AudioClip LimitBreakSE => _limitBreakSE;
+        public AudioClip PlayerTurnSE => _playerTurnSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
@@ -70,6 +72,7 @@ namespace Common.Store
         private AudioClip _downSE = null;
         private AudioClip _attackSE = null;
         private AudioClip _limitBreakSE = null;
+        private AudioClip _playerTurnSE = null;
 
         public void Start()
         {
@@ -98,6 +101,7 @@ namespace Common.Store
                 _downSE = await Addressables.LoadAssetAsync<AudioClip>(_downSEAddressable).ToUniTask();
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
                 _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();
+                _playerTurnSE = await Addressables.LoadAssetAsync<AudioClip>(_playerTurnSEAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)
