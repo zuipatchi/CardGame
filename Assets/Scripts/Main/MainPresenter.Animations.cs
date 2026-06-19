@@ -176,6 +176,12 @@ namespace Main
 
             _mainRoot.Add(overlay);
 
+            // VS 演出の登場に合わせて Battle SE を鳴らす
+            if (_soundStore.BattleSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.BattleSE);
+            }
+
             float overlayOpacity = 0f;
             float leftX = -600f;
             float rightX = 600f;

@@ -502,6 +502,8 @@ namespace Main
                     break;
                 }
 
+                PlayDrawSe();
+
                 if (isLocal)
                 {
                     if (_handView.IsFull)

@@ -111,6 +111,14 @@ namespace Main
 
             // settle 完了後 0.5 秒待ってから結果テキストをスケールイン
             seq.AppendInterval(0.5f);
+            // 結果ラベル（先攻！/後攻！）の登場に合わせて Ready SE を鳴らす
+            seq.AppendCallback(() =>
+            {
+                if (_soundStore.ReadySE != null)
+                {
+                    _soundPlayer.PlaySE(_soundStore.ReadySE);
+                }
+            });
             seq.Append(DOTween.To(
                 () => resultLabel.style.opacity.value,
                 v => resultLabel.style.opacity = v,

@@ -74,6 +74,7 @@ namespace Main
                     _playerDeckView.RefreshCount();
                     if (drawn != null)
                     {
+                        PlayDrawSe();
                         Rect deckRect = _playerDeckView.worldBound;
                         if (_handView.IsFull)
                         {
@@ -129,6 +130,7 @@ namespace Main
                     _opponentDeckView.RefreshCount();
                     if (drawn != null)
                     {
+                        PlayDrawSe();
                         Rect deckRect = _opponentDeckView.worldBound;
                         if (_opponentHandView.IsFull)
                         {
