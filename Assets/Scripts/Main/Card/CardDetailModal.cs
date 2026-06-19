@@ -92,6 +92,10 @@ namespace Main.Card
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--sakimori", string.Empty, "防人"));
                 }
+                if (charData.Assault)
+                {
+                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--assault", string.Empty, "強襲"));
+                }
                 if (charData.TriggerOnGrave)
                 {
                     statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));

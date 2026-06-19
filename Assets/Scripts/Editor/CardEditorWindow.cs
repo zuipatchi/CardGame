@@ -715,6 +715,7 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_haste"), new GUIContent("速攻"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_flying"), new GUIContent("飛行"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_sakimori"), new GUIContent("防人"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_assault"), new GUIContent("強襲"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
         }
 
@@ -817,6 +818,7 @@ namespace GameEditor
                 element.FindPropertyRelative("_haste").boolValue = false;
                 element.FindPropertyRelative("_flying").boolValue = false;
                 element.FindPropertyRelative("_sakimori").boolValue = false;
+                element.FindPropertyRelative("_assault").boolValue = false;
             }
             else
             {

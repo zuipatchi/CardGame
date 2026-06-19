@@ -243,6 +243,12 @@
     height: 53px;
 }
 
+.card-detail-stat-icon--assault {
+    background-image: url("../../../AddressableAssets/Icon/AssaultIcon.png");
+    width: 53px;
+    height: 53px;
+}
+
 .card-detail-stat-icon--trigger-on-grave {
     background-image: url("../../../AddressableAssets/Icon/GraveIcon.png");
     width: 53px;

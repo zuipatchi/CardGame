@@ -246,6 +246,14 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasFlying;
         }
 
+        // ─── 強襲 ─────────────────────────────────────────────────────────
+
+        // 表向きの強襲持ちキャラかどうか：アンタップ状態のキャラにも攻撃できる（タップ済み要件を無視する）
+        private static bool IsAssault(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasAssault;
+        }
+
         // ─── 防人（対空ガード＋守護）─────────────────────────────────────
 
         // 表向きの防人持ちキャラかどうか。防人は守護も兼ねる：飛行はこのキャラを優先して攻撃せねばならず、
@@ -278,8 +286,9 @@ namespace Main
             {
                 return false;
             }
-            // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）
-            if (!target.IsTapped)
+            // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）。
+            // ただし強襲を持つ攻撃者はこの制限を無視し、アンタップのキャラにも攻撃できる。
+            if (!target.IsTapped && !IsAssault(attacker))
             {
                 return false;
             }
@@ -784,8 +793,8 @@ namespace Main
                     CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
                     if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
                     {
-                        // タップ状態のキャラにしか攻撃できない
-                        if (!targetChar.IsTapped)
+                        // タップ状態のキャラにしか攻撃できない（強襲を持つ攻撃者はこの制限を無視できる）
+                        if (!targetChar.IsTapped && !IsAssault(capturedChar))
                         {
                             ShowToast("タップ状態のキャラにしか攻撃できません");
                             return false;

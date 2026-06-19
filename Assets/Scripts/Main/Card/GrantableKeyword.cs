@@ -10,6 +10,7 @@ namespace Main.Card
         Haste = 2,
         Flying = 3,
         Sakimori = 4,
+        Assault = 5,
     }
 
     public static class GrantableKeywordExtensions
@@ -27,12 +28,14 @@ namespace Main.Card
                     return GrantableKeyword.Flying;
                 case 4:
                     return GrantableKeyword.Sakimori;
+                case 5:
+                    return GrantableKeyword.Assault;
                 default:
                     return GrantableKeyword.None;
             }
         }
 
-        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人）。None は空文字。
+        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人 / 強襲）。None は空文字。
         public static string DisplayName(this GrantableKeyword keyword)
         {
             switch (keyword)
@@ -45,6 +48,8 @@ namespace Main.Card
                     return "飛行";
                 case GrantableKeyword.Sakimori:
                     return "防人";
+                case GrantableKeyword.Assault:
+                    return "強襲";
                 default:
                     return "";
             }
