@@ -1,3 +1,4 @@
+using DeckBuilder.Sound;
 using Main.Card;
 using UnityEngine;
 using VContainer;
@@ -13,6 +14,7 @@ namespace DeckBuilder.Injector
         {
             builder.RegisterInstance(_cardDatabase);
             builder.RegisterEntryPoint<CardStore>().AsSelf();
+            builder.RegisterEntryPoint<DeckBuilderAudioManager>().AsSelf();
             builder.RegisterComponentInHierarchy<DeckBuilderPresenter>().AsSelf().AsImplementedInterfaces();
         }
     }

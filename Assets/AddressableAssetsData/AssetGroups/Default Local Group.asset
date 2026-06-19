@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 2296e1af91e62c84eb2f51cf913da5c3
   m_SerializeEntries:
+  - m_GUID: 044415eec72ed124980c4124cb47acba
+    m_Address: Sound/BGM/MaouAcoustic
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0a1d6a2dda0d8ea47b930184b5bc4d64
     m_Address: Voice/C3001
     m_ReadOnly: 0
