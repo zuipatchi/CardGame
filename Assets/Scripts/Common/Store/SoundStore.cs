@@ -18,6 +18,7 @@ namespace Common.Store
         private readonly string _koharuIzmAddressable = "Sound/BGM/KoharuIzm";
         private readonly string _enterSEAddressable = "Sound/SE/Enter1";
         private readonly string _enter2SEAddressable = "Sound/SE/Enter2";
+        private readonly string _enter3SEAddressable = "Sound/SE/Enter3";
         private readonly string _cancel1SEAddressable = "Sound/SE/Cancel1";
         private readonly string _resultSEAddressable = "Sound/SE/Result";
         private readonly string _analysisSEAddressable = "Sound/SE/Analysis";
@@ -28,6 +29,8 @@ namespace Common.Store
         private readonly string _cardSEAddressable = "Sound/SE/Card";
         private readonly string _downSEAddressable = "Sound/SE/Down";
         private readonly string _attackSEAddressable = "Sound/SE/Attack";
+        private readonly string _limitBreakSEAddressable = "Sound/SE/LimitBreak";
+        private readonly string _playerTurnSEAddressable = "Sound/SE/PlayerTurn";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
@@ -36,6 +39,7 @@ namespace Common.Store
         public AudioClip KoharuIzm => _koharuIzm;
         public AudioClip EnterSE => _enterSE;
         public AudioClip Enter2SE => _enter2SE;
+        public AudioClip Enter3SE => _enter3SE;
         public AudioClip Cancel1SE => _cancel1SE;
         public AudioClip ResultSE => _resultSE;
         public AudioClip AnalysisSE => _analysisSE;
@@ -46,6 +50,8 @@ namespace Common.Store
         public AudioClip CardSE => _cardSE;
         public AudioClip DownSE => _downSE;
         public AudioClip AttackSE => _attackSE;
+        public AudioClip LimitBreakSE => _limitBreakSE;
+        public AudioClip PlayerTurnSE => _playerTurnSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
@@ -54,6 +60,7 @@ namespace Common.Store
         private AudioClip _koharuIzm = null;
         private AudioClip _enterSE = null;
         private AudioClip _enter2SE = null;
+        private AudioClip _enter3SE = null;
         private AudioClip _cancel1SE = null;
         private AudioClip _resultSE = null;
         private AudioClip _analysisSE = null;
@@ -64,6 +71,8 @@ namespace Common.Store
         private AudioClip _cardSE = null;
         private AudioClip _downSE = null;
         private AudioClip _attackSE = null;
+        private AudioClip _limitBreakSE = null;
+        private AudioClip _playerTurnSE = null;
 
         public void Start()
         {
@@ -80,6 +89,7 @@ namespace Common.Store
                 _koharuIzm = await Addressables.LoadAssetAsync<AudioClip>(_koharuIzmAddressable).ToUniTask();
                 _enterSE = await Addressables.LoadAssetAsync<AudioClip>(_enterSEAddressable).ToUniTask();
                 _enter2SE = await Addressables.LoadAssetAsync<AudioClip>(_enter2SEAddressable).ToUniTask();
+                _enter3SE = await Addressables.LoadAssetAsync<AudioClip>(_enter3SEAddressable).ToUniTask();
                 _cancel1SE = await Addressables.LoadAssetAsync<AudioClip>(_cancel1SEAddressable).ToUniTask();
                 _resultSE = await Addressables.LoadAssetAsync<AudioClip>(_resultSEAddressable).ToUniTask();
                 _analysisSE = await Addressables.LoadAssetAsync<AudioClip>(_analysisSEAddressable).ToUniTask();
@@ -90,6 +100,8 @@ namespace Common.Store
                 _cardSE = await Addressables.LoadAssetAsync<AudioClip>(_cardSEAddressable).ToUniTask();
                 _downSE = await Addressables.LoadAssetAsync<AudioClip>(_downSEAddressable).ToUniTask();
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
+                _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();
+                _playerTurnSE = await Addressables.LoadAssetAsync<AudioClip>(_playerTurnSEAddressable).ToUniTask();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)

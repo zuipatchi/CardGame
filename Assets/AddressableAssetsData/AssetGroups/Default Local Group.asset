@@ -123,6 +123,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 248f449357934af419b8d914fc4610ac
+    m_Address: Sound/SE/Enter3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 479954efd34fbc64e8bb98e885a09c86
+    m_Address: Sound/SE/PlayerTurn
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f868f529e77e37489911b96f08d7542
     m_Address: Sound/SE/Ready
     m_ReadOnly: 0
@@ -172,6 +182,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 50da16e8c4e01ba4b9fed8bdb92f6bc7
     m_Address: Sound/SE/Down
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55ccb55b543cd5a408fb8aeaba48b92a
+    m_Address: Sound/SE/LimitBreak
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

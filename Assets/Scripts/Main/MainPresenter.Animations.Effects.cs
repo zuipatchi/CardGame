@@ -515,6 +515,9 @@ namespace Main
                 _gameEndSubLabel.style.display = DisplayStyle.None;
             }
 
+            // 勝敗オーバーレイ（YOU WIN / YOU LOSE / DRAW）の登場に合わせて BGM を止める
+            _soundPlayer.StopBGM();
+
             // 勝敗 SE をオーバーレイの登場に合わせて再生する（引き分けは鳴らさない）
             if (playerWins == true && _soundStore.WinSE != null)
             {
