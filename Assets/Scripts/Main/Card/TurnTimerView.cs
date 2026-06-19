@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine.UIElements;
 
 namespace Main.Card
@@ -7,6 +8,7 @@ namespace Main.Card
     public sealed class TurnTimerView : VisualElement
     {
         private readonly Label _label;
+        private Tween _shakeTween;
 
         public TurnTimerView()
         {
@@ -42,6 +44,29 @@ namespace Main.Card
             }
         }
 
+        // 残り時間が減ったときに数字を左右に揺らす（残り少の警告中、毎秒呼ぶ）。
+        // 拡大（warning の scale）とは独立した translate で表現する。
+        public void Shake()
+        {
+            _shakeTween?.Kill();
+            float offset = 0f;
+            _shakeTween = DOTween.Sequence()
+                .Append(ShakeStep(7f))
+                .Append(ShakeStep(-6f))
+                .Append(ShakeStep(3f))
+                .Append(ShakeStep(0f))
+                .OnComplete(() => _label.style.translate = new StyleTranslate(new Translate(0f, 0f)));
+
+            Tween ShakeStep(float target)
+            {
+                return DOTween.To(() => offset, v =>
+                {
+                    offset = v;
+                    _label.style.translate = new StyleTranslate(new Translate(v, 0f));
+                }, target, 0.05f).SetEase(Ease.InOutSine);
+            }
+        }
+
         public void Show()
         {
             style.display = DisplayStyle.Flex;
@@ -49,6 +74,8 @@ namespace Main.Card
 
         public void Hide()
         {
+            _shakeTween?.Kill();
+            _label.style.translate = new StyleTranslate(new Translate(0f, 0f));
             style.display = DisplayStyle.None;
         }
     }

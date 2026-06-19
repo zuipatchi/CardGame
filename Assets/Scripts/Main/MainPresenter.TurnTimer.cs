@@ -45,6 +45,8 @@ namespace Main
                     if (remaining <= TurnTimeWarningSeconds)
                     {
                         _turnTimerView.SetWarning(true);
+                        // 残り少は数字が減るたびに左右に揺らす
+                        _turnTimerView.Shake();
                         // 残り少の毎秒チクタク（既存の短い SE を流用）
                         if (remaining > 0 && _soundStore.Cancel1SE != null)
                         {

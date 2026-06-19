@@ -367,7 +367,7 @@
 
 .turn-timer {
     position: absolute;
-    bottom: 70px;
+    bottom: 80px;
     left: 8px;
     flex-direction: row;
     align-items: center;
