@@ -19,7 +19,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: a88d226b180bb03439df641071e0fb4b, type: 3}
     _flavorText: "\u706B\u306E\u7C89\u304C\u3071\u3061\u3071\u3061\u5F3E\u3051\u3066\u308B"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 53
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 8bb63c7698aa5c74da9c01dc6efc8db5, type: 3}
     _flavorText: "\u304A\u3046\u3061\u5E30\u308A\u305F\u3044"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 52
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: f76ddac6321231c42bbcbd8b1a8c7d86, type: 3}
     _flavorText: "\u6210\u9F8D\u306B\u306A\u308B\u307E\u306788\u5E74\u304B\u304B\u308B\u3089\u3057\u3044"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 42
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -111,7 +111,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: 3e8217777fabf5d42ba2a5d2093f1cb6, type: 3}
     _flavorText: "\u5730\u7403\u6E29\u6696\u5316\u306E\u539F\u56E0\u3068\u3057\u3066\u99C6\u9664\u3055\u308C\u7D9A\u3051\u3066\u3044\u308B"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 42
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: 9504da2ecccf4b942adc689996cdea8f, type: 3}
     _flavorText: "\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u30C9\u30A8\u3001\u30C9\u30A8\u30A7\u30A7\u30A7\u30A7\u30A7!"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 81
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
@@ -180,7 +180,7 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: ac77328f33e81ee409970264975725b9, type: 3}
     _flavorText: "\u3071\u3063\u3061\u306F\u3069\u3053\u3060\u30FC"
-    _voiceSpeaker: 0
+    _voiceSpeaker: 85
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 0

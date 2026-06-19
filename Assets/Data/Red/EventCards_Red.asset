@@ -19,6 +19,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 16e198de48695204e8e8cf17814eada1, type: 3}
     _flavorText: "\u3071\u3061\u3071\u3061\u3071\u3061\uFF5E"
+    _voiceSpeaker: 43
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -35,6 +36,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: ff06cbfa28d1cc64c82c11c4386fc2f1, type: 3}
     _flavorText: "\u30B4\u30D6\u30EA\u30F3\u304C\u51FA\u3061\u3083\u3063\u305F\u306E\u3088"
+    _voiceSpeaker: 0
     _keyword: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
@@ -51,6 +53,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: b0d6276a3bce3a34b977f412778860df, type: 3}
     _flavorText: "\u708E\u9B5A\u3001\u304B\u3048\u3093\u307B\u3046\u3057\u3083\u3060"
+    _voiceSpeaker: 48
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -66,7 +69,8 @@ MonoBehaviour:
     _cardName: "\u30C9\u30E9\u30F3\u30B4\u306E\u9006\u9C57\u306B\u89E6\u308C\u305F"
     _cost: 3
     _image: {fileID: 21300000, guid: 078ed8177cfbaf543a6cd997f8ae8e27, type: 3}
-    _flavorText: "\u3093\u307B\u304A\u304A\u304A\u304A"
+    _flavorText: "\u3093\u307B\u304A\u304A\u304A\u304A\u304A"
+    _voiceSpeaker: 82
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -83,6 +87,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: f0cbb35b219981449a342cbc0b3c7f96, type: 3}
     _flavorText: "\u3071\u3063\u3061\u304C\u58CA\u308C\u3061\u3083\u3063\u305F"
+    _voiceSpeaker: 54
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
@@ -99,6 +104,7 @@ MonoBehaviour:
     _cost: 0
     _image: {fileID: 21300000, guid: 0c17767b8c71ba6409f41d6729220cc4, type: 3}
     _flavorText: "\u3071\u3063\u3061\u3092\u6367\u3052\u3088"
+    _voiceSpeaker: 101
     _keyword: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
