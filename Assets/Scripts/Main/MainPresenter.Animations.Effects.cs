@@ -267,6 +267,11 @@ namespace Main
             {
                 return;
             }
+            // キャラ破壊時の SE（パーティクル prefab の有無に関わらず鳴らす）
+            if (_soundStore.DownSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.DownSE);
+            }
             GameObject prefab = _charDestroyEffectPrefab;
             if (prefab == null)
             {
@@ -508,6 +513,16 @@ namespace Main
             else
             {
                 _gameEndSubLabel.style.display = DisplayStyle.None;
+            }
+
+            // 勝敗 SE をオーバーレイの登場に合わせて再生する（引き分けは鳴らさない）
+            if (playerWins == true && _soundStore.WinSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.WinSE);
+            }
+            else if (playerWins == false && _soundStore.LoseSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.LoseSE);
             }
 
             _gameEndButtonRow.style.opacity = 0f;

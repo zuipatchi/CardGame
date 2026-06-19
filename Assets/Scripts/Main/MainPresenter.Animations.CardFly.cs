@@ -12,6 +12,15 @@ namespace Main
 {
     public sealed partial class MainPresenter
     {
+        // ドローでデッキから1枚抜くたびに鳴らす SE（手札行き・満杯バーンの両方）。
+        private void PlayDrawSe()
+        {
+            if (_soundStore.CardSE != null)
+            {
+                _soundPlayer.PlaySE(_soundStore.CardSE);
+            }
+        }
+
         // ─── CPU ドロー演出 ──────────────────────────────────────────────
 
         private async UniTask PlayCpuDrawAsync(CardData data, Rect deckRect, CancellationToken ct)
