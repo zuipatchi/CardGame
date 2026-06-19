@@ -210,7 +210,7 @@ Assets/AddressableAssets/
   └── Sound/       AudioClip
 ```
 
-- `SoundStore` が BGM・SE クリップをロード（`MaouOrchestra`, `MainBGM`, `KoharuIzm`, `EnterSE`, `Enter2SE`, `Cancel1SE`）
+- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Cancel1SE`, `ResultSE`）
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
