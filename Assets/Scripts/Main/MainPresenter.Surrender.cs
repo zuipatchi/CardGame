@@ -34,6 +34,10 @@ namespace Main
 
         private async UniTaskVoid LeaveSessionAndGoHomeAsync()
         {
+            // 自分でセッションを離脱すると自分の切断で OnClientDisconnectCallback が発火する。
+            // 先にコールバックを解除しておかないと、相手の退出と誤判定して
+            // ShowOpponentLeft() がゲーム終了ボタン行を再表示してしまう。
+            UnregisterRematchCallbacks();
             await _gameSessionModel.LeaveCurrentSessionAsync();
             await _sceneTransitioner.Transit(Scenes.Home);
         }
