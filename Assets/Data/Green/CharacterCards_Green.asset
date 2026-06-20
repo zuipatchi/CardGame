@@ -232,7 +232,7 @@ MonoBehaviour:
     _effectType: 0
     _effectValue: 0
     _effectValue2: 0
-    _guardian: 0
+    _guardian: 1
     _haste: 0
     _flying: 0
     _sakimori: 1

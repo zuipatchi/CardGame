@@ -183,14 +183,6 @@
     border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-left-color: rgba(255, 255, 255, 0.12);
-    border-right-color: rgba(255, 255, 255, 0.12);
-    border-top-color: rgba(255, 255, 255, 0.12);
-    border-bottom-color: rgba(255, 255, 255, 0.12);
     padding-left: 6px;
     padding-right: 6px;
     padding-top: 2px;
@@ -200,10 +192,6 @@
 
 .card-detail-stat-block--active {
     background-color: rgba(120, 180, 255, 0.18);
-    border-left-color: rgba(120, 180, 255, 0.6);
-    border-right-color: rgba(120, 180, 255, 0.6);
-    border-top-color: rgba(120, 180, 255, 0.6);
-    border-bottom-color: rgba(120, 180, 255, 0.6);
 }
 
 .card-detail-keyword-desc {
