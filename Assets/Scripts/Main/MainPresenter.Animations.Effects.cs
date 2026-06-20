@@ -228,19 +228,19 @@ namespace Main
             plus.RemoveFromHierarchy();
         }
 
-        // ─── Switch エフェクト（イベントカードとキャラ位置にラベル表示）───────────────
+        // ─── Switch エフェクト（手札に戻す対象キャラ位置にパーティクル + SWITCH! ラベル）───────────────
 
-        internal async UniTask PlaySwitchEffectAsync(CardView eventCard, CardView sacrificedChar, CancellationToken ct)
+        internal async UniTask PlaySwitchEffectAsync(CardView sacrificedChar, CancellationToken ct)
         {
-            if (_switchEffectPrefab != null)
-            {
-                PlayParticleAtCardAsync(eventCard, _switchEffectPrefab, ct).Forget();
-            }
-            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             if (sacrificedChar == null)
             {
                 return;
             }
+            if (_switchEffectPrefab != null)
+            {
+                PlayParticleAtCardAsync(sacrificedChar, _switchEffectPrefab, ct).Forget();
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
             await PlayFloatingLabelAsync("SWITCH!", "switch-label", sacrificedChar, ct);
         }
 

@@ -349,6 +349,8 @@ namespace Main
                     return;
                 }
 
+                await PlaySwitchEffectAsync(existingChar, ct);
+
                 int targetCost = existingChar.Data.Cost;
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);
@@ -384,6 +386,7 @@ namespace Main
 
                 if (sacrificedChar != null)
                 {
+                    await PlaySwitchEffectAsync(sacrificedChar, ct);
                     Rect sacrificedRect = sacrificedChar.worldBound;
                     _opponentFieldView.RemoveCard(sacrificedChar);
                     await ReturnCardToHandOrBurnAsync(sacrificedChar, _opponentHandView, ownGraveyard, sacrificedRect, toOpponentHand: true, ct);
@@ -406,6 +409,7 @@ namespace Main
             else
             {
                 CardView existingChar = ownField.Characters[0];
+                await PlaySwitchEffectAsync(existingChar, ct);
                 int targetCost = existingChar.Data.Cost;
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);

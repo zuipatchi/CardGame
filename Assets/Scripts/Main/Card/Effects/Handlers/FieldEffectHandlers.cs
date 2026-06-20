@@ -16,15 +16,12 @@ namespace Main.Card.Effects.Handlers
 
         public override string BuildBody(EffectTextContext ctx) => "自分のキャラ1体を手札に戻し、そのキャラと同じコストのキャラを手札からコストなしで配置する";
 
-        public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            FieldView field = p.FieldFor(inv.IsLocal);
-            CardView switchChar = field.Characters.Count > 0 ? field.Characters[0] : null;
-            if (switchChar != null)
-            {
-                await p.PlaySwitchEffectAsync(inv.SourceCard, switchChar, ct);
-            }
-            await p.ApplySwitchEffectAsync(inv.IsLocal, ct);
+            // 演出（パーティクル＋SWITCH! ラベル）は手札に戻すキャラを確定したあとに、
+            // 対象キャラの上で再生する。複数候補があるときに選択前へ演出が出ないよう
+            // ApplySwitchEffectAsync 内で行う。
+            return p.ApplySwitchEffectAsync(inv.IsLocal, ct);
         }
     }
 
