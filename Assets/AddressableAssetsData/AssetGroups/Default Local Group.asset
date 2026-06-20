@@ -20,23 +20,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9ca6cc3b14ef8a640b424fd1653da157
-    m_Address: Sound/SE/CardUse
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8ed074612b92f9a41a7e88c7976b9f63
-    m_Address: Sound/SE/DeckDamage
+  - m_GUID: 044415eec72ed124980c4124cb47acba
+    m_Address: Sound/BGM/MaouAcoustic
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 09341ac6ff63e624390baf3f8aea468a
     m_Address: Sound/SE/VictoryPoint
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 044415eec72ed124980c4124cb47acba
-    m_Address: Sound/BGM/MaouAcoustic
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -97,6 +87,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 248f449357934af419b8d914fc4610ac
+    m_Address: Sound/SE/Enter3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 27e51cfd44d654e418eb4e8d107e64b3
     m_Address: Voice/C2004
     m_ReadOnly: 0
@@ -128,6 +123,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3873f2b4bb7eba74a8c273d6770ed7c2
+    m_Address: Voice/E4005
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3a8add812454f644d929f459616a10f0
     m_Address: Voice/C3007
     m_ReadOnly: 0
@@ -138,16 +138,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 248f449357934af419b8d914fc4610ac
-    m_Address: Sound/SE/Enter3
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 479954efd34fbc64e8bb98e885a09c86
-    m_Address: Sound/SE/PlayerTurn
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f868f529e77e37489911b96f08d7542
     m_Address: Sound/SE/Ready
     m_ReadOnly: 0
@@ -155,6 +145,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4482662f3ea55934d96adbfa65c99bdf
     m_Address: Voice/E5005
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 479954efd34fbc64e8bb98e885a09c86
+    m_Address: Sound/SE/PlayerTurn
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -307,6 +302,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ed074612b92f9a41a7e88c7976b9f63
+    m_Address: Sound/SE/DeckDamage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8f2da9cfc4c7e5e4b9059722ebbd8e38
     m_Address: Voice/C3005
     m_ReadOnly: 0
@@ -323,6 +323,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 93e8cf837f683b342b34ad681bd53a9a
+    m_Address: Voice/E2008
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98211a83dcb5b034898429878d6537c7
     m_Address: Voice/E2003
     m_ReadOnly: 0
@@ -330,6 +335,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9979c0ebba8b3a643adcb020384c00c8
     m_Address: Voice/C1007
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9ca6cc3b14ef8a640b424fd1653da157
+    m_Address: Sound/SE/CardUse
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -466,6 +476,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2d78aca2b0be7b4bad3b459f5760d22
+    m_Address: Voice/E4006
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e5d36d0e1ccf9d242ab44ec7e23f651c
     m_Address: Card/CardTemplate

@@ -349,11 +349,12 @@ namespace Main
                     return;
                 }
 
+                int targetCost = existingChar.Data.Cost;
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);
                 await ReturnCardToHandOrBurnAsync(existingChar, _handView, ownGraveyard, charRect, toOpponentHand: false, ct);
 
-                CardView newChar = await WaitForPlayerSwitchInputAsync(ct);
+                CardView newChar = await WaitForPlayerSwitchInputAsync(targetCost, ct);
                 if (_isOnline)
                 {
                     _networkGameService.SendSwitchAction(existingChar.Data.Id, newChar?.Data.Id);
@@ -361,7 +362,6 @@ namespace Main
                 if (newChar != null)
                 {
                     OnCardPlayed(newChar.Data, playedByLocal: true);
-                    await PayHandCostAsync(newChar, _handView, _playerGraveyardView, isLocalPlayer: true, ct);
                 }
             }
             else if (_isOnline)
@@ -401,19 +401,19 @@ namespace Main
                     await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(newChar);
                     OnCardPlayed(cardData, playedByLocal: false);
-                    await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
             }
             else
             {
                 CardView existingChar = ownField.Characters[0];
+                int targetCost = existingChar.Data.Cost;
                 Rect charRect = existingChar.worldBound;
                 ownField.RemoveCard(existingChar);
                 await ReturnCardToHandOrBurnAsync(existingChar, _opponentHandView, ownGraveyard, charRect, toOpponentHand: true, ct);
 
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
                 List<CardData> cpuHandData = cpuHand.Select(c => c.Data).ToList();
-                int idx = CpuAgent.ChooseCharacterSetCardIndex(cpuHandData, i => CpuCanAffordCost(cpuHandData, i));
+                int idx = CpuAgent.ChooseSwitchCardIndex(cpuHandData, targetCost);
                 if (idx >= 0)
                 {
                     CardView newChar = cpuHand[idx];
@@ -423,7 +423,6 @@ namespace Main
                     ownField.PlaceCard(newChar);
                     OnCardPlayed(newChar.Data, playedByLocal: false);
                     await newChar.FlipAsync(ct);
-                    await PayHandCostAsync(newChar, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct);
                 }
             }
         }
@@ -455,8 +454,9 @@ namespace Main
             }
         }
 
-        private async UniTask<CardView> WaitForPlayerSwitchInputAsync(CancellationToken ct)
+        private async UniTask<CardView> WaitForPlayerSwitchInputAsync(int targetCost, CancellationToken ct)
         {
+            _switchTargetCost = targetCost;
             _switchInput._tcs = new UniTaskCompletionSource<CardView>();
             _switchInput._card = null;
             ShowActionButtons();
@@ -469,6 +469,7 @@ namespace Main
             finally
             {
                 _switchInput._tcs = null;
+                _switchTargetCost = 0;
                 HideActionButtons();
             }
         }

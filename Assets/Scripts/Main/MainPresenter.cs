@@ -131,6 +131,7 @@ namespace Main
         private readonly StagedInput _switchInput = new StagedInput();
         private readonly StagedInput _evolveInput = new StagedInput();
         private int _evolveMinCost;
+        private int _switchTargetCost;
 
         private UniTaskCompletionSource<CardView> _fieldCharSelectionTcs;
         // SummonFromDeckByKeyword のデッキカード選択：選んだカードのデッキ内インデックスを返す

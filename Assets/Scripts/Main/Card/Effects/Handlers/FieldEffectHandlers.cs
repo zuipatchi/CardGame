@@ -4,7 +4,7 @@ using UnityEngine.Scripting;
 
 namespace Main.Card.Effects.Handlers
 {
-    // 自分のキャラ1体を手札に戻し、手札からキャラを1体配置する。イベント専用。
+    // 自分のキャラ1体を手札に戻し、そのキャラと同じコストのキャラを手札からコストなしで配置する。イベント専用。
     [Preserve]
     public sealed class SwitchHandler : EffectHandler
     {
@@ -14,7 +14,7 @@ namespace Main.Card.Effects.Handlers
         public override EffectValueInfo Values => new EffectValueInfo(
             false, "値1（未使用）", false, "値2（未使用）", "この効果は値を使用しません（0 のままで可）。");
 
-        public override string BuildBody(EffectTextContext ctx) => "自分のキャラ1体を手札に戻し、手札からキャラを1体配置する";
+        public override string BuildBody(EffectTextContext ctx) => "自分のキャラ1体を手札に戻し、そのキャラと同じコストのキャラを手札からコストなしで配置する";
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {

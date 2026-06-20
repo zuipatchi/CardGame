@@ -64,7 +64,7 @@ namespace Main.Card
         GainVPPerGreenGrave = 12,
         // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。0=場の味方全員）選び、
         // EventValue2 / EffectValue2（値2）で指定したキーワード能力を永続付与する。
-        // 値2: 1=守護 / 2=速攻 / 3=飛行 / 4=防人（それ以外は空振り）。AtkBoost と同じ対象選択。
+        // 値2: 1=守護 / 2=速攻 / 3=飛行 / 4=防人 / 5=強襲 / 6=デッキ攻撃×（それ以外は空振り）。AtkBoost と同じ対象選択。
         GrantKeyword = 26,
         // 発動側の自フィールドのキャラ全員の HP を EventValue / EffectValue 分回復する（最大HPでクランプ）。
         // EventValue / EffectValue = 0 のときは最大HPまで全回復する。自キャラがいなければ空振り。

@@ -20,6 +20,19 @@ namespace Main.Game
             return FindFirst<EventCardData>(hand, canAfford);
         }
 
+        // スイッチ効果：targetCost と同じコストのキャラカードの最初のインデックスを返す。なければ -1（出さない）。
+        public static int ChooseSwitchCardIndex(IReadOnlyList<CardData> hand, int targetCost)
+        {
+            for (int i = 0; i < hand.Count; i++)
+            {
+                if (hand[i] is CharacterCardData && hand[i].Cost == targetCost)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         // 進化効果：sacrificedCost より高コストのキャラカードの中で最高コストのインデックスを返す
         public static int ChooseEvolveCardIndex(IReadOnlyList<CardData> hand, int sacrificedCost)
         {

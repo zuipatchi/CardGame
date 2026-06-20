@@ -67,23 +67,16 @@ namespace Main
                     return false;
                 }
 
-                if (card.Data.Cost > 0 && card.Data.Cost > CostCapacityExcluding(card, card.Data.Attribute))
+                if (card.Data.Cost != _switchTargetCost)
                 {
-                    ShowToast("コストが払えません");
+                    ShowToast($"コスト{_switchTargetCost}のキャラを選んでください");
                     return false;
                 }
 
                 _playerFieldView.PlaceCard(card);
                 _switchInput._card = card;
-                if (card.Data.Cost > 0)
-                {
-                    BeginStagedCostSelection(card);
-                }
-                else
-                {
-                    UpdateStagedButtons(true);
-                    if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
-                }
+                UpdateStagedButtons(true);
+                if (_optionModel.AutoOk.CurrentValue) { AutoOkAsync().Forget(); }
                 return true;
             }
 
@@ -256,7 +249,6 @@ namespace Main
                 {
                     CardView card = _switchInput._card;
                     _switchInput._card = null;
-                    CancelStagedCostSelection();
                     ReturnStagedCardToHand(card, card.worldBound, () => _playerFieldView.RemoveCard(card), flipCard: false);
                 }
                 return;
@@ -388,7 +380,7 @@ namespace Main
 
             if (_switchInput._tcs != null && _switchInput._card == null)
             {
-                return card.Data is CharacterCardData;
+                return card.Data is CharacterCardData && card.Data.Cost == _switchTargetCost;
             }
 
             if (_gameModel.Phase == TurnPhase.Main && _gameModel.IsLocalTurn
