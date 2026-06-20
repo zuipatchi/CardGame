@@ -143,10 +143,13 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 ## サウンド設計
 
 - BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え・`StopBGM()` で停止（シーン間で BGM を引き継ぐ／止め分けるために使う）
-- SE: `PlayOneShot()` で重ね再生
+- SE: `PlayOneShot(clip, volumeScale)` で重ね再生。`volumeScale` には SE ごとのラウドネス正規化倍率（下記）を渡す
 - ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`（`PlayOneShot()`）。前の読み上げが終わる前でも止めずに重ねて鳴らす（一時的に複数同時に流れてもよい）
 - 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
+- **SE ラウドネス正規化**: SE クリップごとに収録音量がバラバラなので、`SoundStore` がロード完了時に各 SE の体感音量（約100msブロックごとの最大 RMS）とピークを解析し、全 SE の中央値を目標に「同じ聞こえ方になる音量倍率」を算出する（`NormalizeSeVolumes`）。ピークが 1.0 を超えないようヘッドルームで上限を制限し、最後に倍率を `[0.1, 4.0]` でクランプ。`SoundPlayer.PlaySE` が `SoundStore.GetSeVolumeScale(clip)` で倍率を取得して `PlayOneShot` の `volumeScale` に渡すため、SE スライダー（`SEVolume`）とは独立して乗算され、スライダー位置に関わらず SE 同士のバランスは保たれる
+  - クリップの Load Type が `Decompress On Load` 以外（`Compressed In Memory` 等）だと `AudioClip.GetData` で波形を読めず、そのクリップは等倍（1.0）にフォールバックする（その場合は警告ログを出す）
+  - 自動補正で合わない尖った単発音などは `SoundStore.ManualSeAdjust`（クリップ名 → 追加倍率）で耳に合わせて微調整する
 - 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
 - 読み上げの話者は `CardData._voiceSpeaker`（VOICEVOX speaker ID。0＝生成ツールの既定話者）でカードごとに指定でき、声は生成時に WAV へ焼き込まれる（ランタイムは話者を意識しない）
 
@@ -210,7 +213,7 @@ Assets/AddressableAssets/
   └── Sound/       AudioClip
 ```
 
-- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CardSE`（ドロー時）, `AttackSE`（攻撃時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時））
+- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン・勝敗画面の再戦/ホームに戻るボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CardSE`（ドロー時）, `CardUseSE`（カード使用時。コストエフェクトと同タイミング）, `AttackSE`（攻撃時）, `DeckDamageSE`（デッキダメージのミル時）, `VictoryPointSE`（勝利点獲得時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時）。各 SE はロード時にラウドネス正規化される（上記「サウンド設計」）)
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知

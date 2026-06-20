@@ -95,6 +95,9 @@ namespace Main
             container.style.top = top;
             _dragLayer.Add(container);
 
+            // 勝利点のメダルアイコンが浮かび上がるタイミングで VictoryPoint を再生
+            _soundPlayer.PlaySE(_soundStore.VictoryPointSE);
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))
@@ -320,6 +323,8 @@ namespace Main
             // PlaceCard 直後はレイアウトパスが未実行で worldBound が不正値になるため
             // 1フレーム待って座標を確定させる
             await UniTask.Yield(cancellationToken: ct);
+            // カード使用 SE はコストエフェクトと同じタイミングで鳴らす
+            _soundPlayer.PlaySE(_soundStore.CardUseSE);
             await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
         }
 

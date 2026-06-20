@@ -196,6 +196,7 @@ namespace Main
                     continue;
                 }
                 CardView milledCard = new CardView(_cardStore.CardTemplate, milled, _cardStore.CardBack, faceDown: false, isOpponent: !deckOwnerIsLocal);
+                _soundPlayer.PlaySE(_soundStore.DeckDamageSE);
                 await FlyToGraveyardAsync(milledCard, deckRect, graveyard, ct);
                 // オーバーリミット：このミルでデッキが0枚になったら告知予約（直後のミルで敗北する場合は告知しない）
                 limitBroke |= UpdateLimitBreak(isLocalDeck: deckOwnerIsLocal);

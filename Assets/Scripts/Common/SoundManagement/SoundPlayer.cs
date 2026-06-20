@@ -1,4 +1,5 @@
 using Common.Option;
+using Common.Store;
 using R3;
 using UnityEngine;
 using VContainer;
@@ -16,12 +17,14 @@ namespace Common.SoundManagement
         // フレーバーテキスト読み上げ専用。SE と分けることで、新しい読み上げ時に前の読み上げだけを止められる。
         private AudioSource _voiceAudioSource;
         private OptionModel _optionModel;
+        private SoundStore _soundStore;
         private readonly CompositeDisposable _disposables = new();
 
         [Inject]
-        public void Construct(OptionModel optionModel)
+        public void Construct(OptionModel optionModel, SoundStore soundStore)
         {
             _optionModel = optionModel;
+            _soundStore = soundStore;
         }
 
         private void Start()
@@ -81,7 +84,9 @@ namespace Common.SoundManagement
             {
                 return;
             }
-            _seAudioSource.PlayOneShot(clip);
+            // SE ごとの収録音量差を打ち消す倍率を掛けて、どの音源でも同じ聞こえ方にする
+            float volumeScale = _soundStore != null ? _soundStore.GetSeVolumeScale(clip) : 1f;
+            _seAudioSource.PlayOneShot(clip, volumeScale);
         }
 
         // フレーバーテキストの読み上げを再生する。
