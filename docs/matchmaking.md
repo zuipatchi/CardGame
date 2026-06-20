@@ -164,13 +164,13 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 
 `TimedOut` 状態時に待機オーバーレイ内で表示が切り替わる:
 - **メッセージ**: 「タイムアウトしました」
-- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）
+- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）。クリック時に Cancel1 SE
 
 ### ErrorOverlay UI
 
 `Error` 状態時に表示:
 - **メッセージ**: 「ネットワークエラー」（赤色テキスト）
-- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）
+- **閉じるボタン**: `InitializeAsync` を呼び出し（再認証 → ルーム一覧取得 → `BrowsingRooms` に戻る）。クリック時に Cancel1 SE
 
 ---
 

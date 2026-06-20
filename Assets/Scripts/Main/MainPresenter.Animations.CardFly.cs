@@ -263,6 +263,9 @@ namespace Main
             // 共通カットイン：デッキから表向きのカードを持ち上げ、「ダメージトリガー」発動を見せてから解決へ移る
             CardView cutIn = await PlayGraveTriggerCutInAsync(data, fromRect, ownerIsLocal, ct);
 
+            // ダメージトリガーでカードを使用するため CardUse を再生（通常のカード使用と同じ扱い）
+            _soundPlayer.PlaySE(_soundStore.CardUseSE);
+
             if (data is CharacterCardData)
             {
                 // カットインのカードを持ち主の場の空きスロットへ飛翔・着地させてからコストなしで召喚

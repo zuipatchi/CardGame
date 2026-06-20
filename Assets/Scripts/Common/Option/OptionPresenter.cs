@@ -173,7 +173,11 @@ namespace Common.Option
             row.Add(yesButton);
 
             Color noBaseColor = new Color(0.25f, 0.25f, 0.4f, 1f);
-            Button noButton = new Button(HideSurrenderConfirm);
+            Button noButton = new Button(() =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                HideSurrenderConfirm();
+            });
             noButton.text = "いいえ";
             StyleSurrenderConfirmButton(noButton, noBaseColor);
             AddButtonHoverEffect(noButton, noBaseColor);
@@ -230,8 +234,9 @@ namespace Common.Option
 
         private void OnSurrenderConfirmed()
         {
+            _soundPlayer.PlaySE(_soundStore.Enter3SE);
             HideSurrenderConfirm();
-            CloseModal();
+            CloseModal(false);
             _surrenderAction?.Invoke();
         }
 
@@ -246,7 +251,14 @@ namespace Common.Option
 
         private void CloseModal()
         {
-            if (_soundStore.Cancel1SE != null)
+            CloseModal(true);
+        }
+
+        // playSound: モーダルを閉じる Cancel1SE を鳴らすか。降参確定のように別の確定 SE を
+        // 先に鳴らす経路では false にして二重再生を避ける。
+        private void CloseModal(bool playSound)
+        {
+            if (playSound && _soundStore.Cancel1SE != null)
             {
                 _soundPlayer.PlaySE(_soundStore.Cancel1SE);
             }
@@ -298,6 +310,7 @@ namespace Common.Option
                 return;
             }
 
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
             _surrenderConfirmOverlay.style.display = DisplayStyle.Flex;
         }
 

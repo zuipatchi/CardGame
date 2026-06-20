@@ -1,3 +1,5 @@
+using Common.SoundManagement;
+using Common.Store;
 using Common.Username;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,6 +11,8 @@ namespace Title.Username
     public sealed class UsernameModalPresenter : MonoBehaviour
     {
         private UsernameRepository _usernameRepository;
+        private SoundPlayer _soundPlayer;
+        private SoundStore _soundStore;
 
         private UIDocument _uiDocument;
         private VisualElement _overlay;
@@ -17,9 +21,11 @@ namespace Title.Username
         private Label _errorLabel;
 
         [Inject]
-        public void Construct(UsernameRepository usernameRepository)
+        public void Construct(UsernameRepository usernameRepository, SoundPlayer soundPlayer, SoundStore soundStore)
         {
             _usernameRepository = usernameRepository;
+            _soundPlayer = soundPlayer;
+            _soundStore = soundStore;
         }
 
         private void Awake()
@@ -71,6 +77,7 @@ namespace Title.Username
             {
                 return;
             }
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
             _usernameRepository.Save(name);
             _overlay.style.display = DisplayStyle.None;
         }

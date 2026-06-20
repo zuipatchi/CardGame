@@ -490,7 +490,11 @@ namespace Main
                     _soundPlayer.PlaySE(_soundStore.Cancel1SE);
                     OnBackClicked();
                 };
-                _passButton.clicked += OnPassClicked;
+                _passButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                    OnPassClicked();
+                };
                 _endButton.clicked += () =>
                 {
                     _soundPlayer.PlaySE(_soundStore.Enter3SE);
@@ -537,13 +541,21 @@ namespace Main
                 _gameEndRematchButton = new Button();
                 _gameEndRematchButton.text = "再戦する";
                 _gameEndRematchButton.AddToClassList("game-end-button");
-                _gameEndRematchButton.clicked += OnRematchClicked;
+                _gameEndRematchButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                    OnRematchClicked();
+                };
                 _gameEndButtonRow.Add(_gameEndRematchButton);
 
                 _gameEndTitleButton = new Button();
                 _gameEndTitleButton.text = "ホームに戻る";
                 _gameEndTitleButton.AddToClassList("game-end-button");
-                _gameEndTitleButton.clicked += () => LeaveSessionAndGoHomeAsync().Forget();
+                _gameEndTitleButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                    LeaveSessionAndGoHomeAsync().Forget();
+                };
                 _gameEndButtonRow.Add(_gameEndTitleButton);
 
                 _gameEndOverlay.Add(_gameEndButtonRow);

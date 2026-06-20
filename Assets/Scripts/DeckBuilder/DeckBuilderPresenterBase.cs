@@ -135,10 +135,22 @@ namespace DeckBuilder
                 Button sortDeckButton = root.Q<Button>("SortDeckButton");
                 Button costSortDeckButton = root.Q<Button>("CostSortDeckButton");
 
-                backButton.clicked += NavigateBack;
+                backButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                    NavigateBack();
+                };
                 _clearDeckButton.clicked += OnClearDeckClicked;
-                sortDeckButton.clicked += OnSortDeckClicked;
-                costSortDeckButton.clicked += OnCostSortDeckClicked;
+                sortDeckButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.EnterSE);
+                    OnSortDeckClicked();
+                };
+                costSortDeckButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.EnterSE);
+                    OnCostSortDeckClicked();
+                };
 
                 _cardListDragLayer = new VisualElement();
                 _cardListDragLayer.AddToClassList("deckbuilder-drag-layer");
@@ -276,6 +288,7 @@ namespace DeckBuilder
             btn.AddToClassList("deckbuilder-button--filter");
             btn.clicked += () =>
             {
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
                 if (isCharacter)
                 {
                     _showCharacterCards = !_showCharacterCards;
@@ -303,6 +316,7 @@ namespace DeckBuilder
             CardAttribute captured = attribute;
             btn.clicked += () =>
             {
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
                 if (_attributeFilter.Contains(captured))
                 {
                     _attributeFilter.Remove(captured);
@@ -506,6 +520,7 @@ namespace DeckBuilder
                 return false;
             }
             _deckModel.Add(id, cost);
+            _soundPlayer.PlaySE(_soundStore.CardSE);
             RefreshDeckPanel();
             SaveDeck();
             return true;
@@ -519,6 +534,7 @@ namespace DeckBuilder
         private void OnRemoveClicked(string id)
         {
             _deckModel.Remove(id);
+            _soundPlayer.PlaySE(_soundStore.CardSE);
             RefreshDeckPanel();
             SaveDeck();
         }
@@ -568,6 +584,7 @@ namespace DeckBuilder
 
         private void OnClearDeckClicked()
         {
+            _soundPlayer.PlaySE(_soundStore.Enter2SE);
             VisualElement overlay = new VisualElement();
             overlay.AddToClassList("deckbuilder-confirm-overlay");
 
@@ -586,6 +603,7 @@ namespace DeckBuilder
             yesButton.AddToClassList("deckbuilder-confirm-button--yes");
             yesButton.clicked += () =>
             {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
                 overlay.RemoveFromHierarchy();
                 _deckModel.Clear();
                 RefreshDeckPanel();
@@ -595,7 +613,11 @@ namespace DeckBuilder
             Button noButton = new Button();
             noButton.text = "いいえ";
             noButton.AddToClassList("deckbuilder-confirm-button--no");
-            noButton.clicked += () => overlay.RemoveFromHierarchy();
+            noButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                overlay.RemoveFromHierarchy();
+            };
 
             overlay.RegisterCallback<ClickEvent>(_ => overlay.RemoveFromHierarchy());
 
