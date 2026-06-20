@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -10,6 +12,25 @@ namespace Common.Store
     {
         private readonly UniTaskCompletionSource _loadedTcs = new();
         public UniTask Loaded => _loadedTcs.Task;
+
+        // SE ごとに収録音量がバラバラなので、ロード時に RMS を測って同じ聞こえ方になる音量倍率を求める
+        private readonly Dictionary<AudioClip, float> _seVolumeScales = new();
+
+        // 自動正規化のあとに耳で微調整したい SE だけ、クリップ名 -> 追加倍率 で上書きする。
+        // 尖った単発音など自動補正が合わないものをここで微調整する（1.0 = 自動のまま、>1 で大きく、<1 で小さく）。
+        private static readonly Dictionary<string, float> ManualSeAdjust = new()
+        {
+            // 例: { "Card", 1.3f },
+            { "Battle", 2.2f },
+            { "Enter3", 2.8f },
+            { "Down", 2.4f },
+            { "PlayerTurn", 0.8f },
+            { "Card", 0.8f },
+            { "CardUse", 0.8f },
+            { "Attack", 0.8f },
+            { "VictoryPoint", 0.7f },
+            { "Cancel1", 0.7f },
+        };
 
         // アドレス
         private readonly string _mainBgmAddressable = "Sound/BGM/CatInPalmBeach";
@@ -114,6 +135,7 @@ namespace Common.Store
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
                 _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();
                 _playerTurnSE = await Addressables.LoadAssetAsync<AudioClip>(_playerTurnSEAddressable).ToUniTask();
+                NormalizeSeVolumes();
                 _loadedTcs.TrySetResult();
             }
             catch (Exception e)
@@ -121,6 +143,132 @@ namespace Common.Store
                 Debug.LogError($"サウンドアセットのロードに失敗: {e}");
                 _loadedTcs.TrySetResult();
             }
+        }
+
+        /// <summary>
+        /// SE を再生するときに掛ける音量倍率（ロード時の正規化＋手動微調整の結果）を返す。
+        /// 正規化できなかった（解析不能な）クリップや未登録のクリップは 1.0（等倍）。
+        /// </summary>
+        public float GetSeVolumeScale(AudioClip clip)
+        {
+            if (clip != null && _seVolumeScales.TryGetValue(clip, out float scale))
+            {
+                return scale;
+            }
+            return 1f;
+        }
+
+        // 各 SE の RMS（実効音量）を測り、全 SE の中央値を目標にして同じ聞こえ方になる倍率を算出する。
+        private void NormalizeSeVolumes()
+        {
+            AudioClip[] seClips =
+            {
+                _enterSE, _enter2SE, _enter3SE, _cancel1SE, _resultSE, _analysisSE,
+                _winSE, _loseSE, _readySE, _battleSE, _cardSE, _cardUseSE,
+                _deckDamageSE, _victoryPointSE, _downSE, _attackSE, _limitBreakSE, _playerTurnSE,
+            };
+
+            List<(AudioClip Clip, float Loudness, float Peak)> analyses = new();
+            List<string> unreadable = new();
+            foreach (AudioClip clip in seClips)
+            {
+                if (clip == null)
+                {
+                    continue;
+                }
+                (float loudness, float peak) = AnalyzeClip(clip);
+                if (loudness > 0f)
+                {
+                    analyses.Add((clip, loudness, peak));
+                }
+                else
+                {
+                    // GetData で読めなかった = Load Type が Decompress On Load 以外の可能性が高い
+                    unreadable.Add(clip.name);
+                }
+            }
+
+            if (unreadable.Count > 0)
+            {
+                Debug.LogWarning($"[SoundStore] SE 音量正規化: 解析できず等倍のままのクリップ（Load Type を Decompress On Load にしてください）: {string.Join(", ", unreadable)}");
+            }
+
+            if (analyses.Count == 0)
+            {
+                return;
+            }
+
+            // 平均だと極端に大きい/小さいクリップに引っ張られるので中央値を目標ラウドネスにする
+            List<float> sorted = analyses.Select(a => a.Loudness).OrderBy(v => v).ToList();
+            float target = sorted[sorted.Count / 2];
+
+            foreach ((AudioClip clip, float loudness, float peak) in analyses)
+            {
+                float gain = target / loudness;
+                // ピークが 1.0 を超えると音割れ（クリッピング）するので、ヘッドルームで上限を制限する
+                if (peak > 0f)
+                {
+                    gain = Mathf.Min(gain, 0.99f / peak);
+                }
+                gain = Mathf.Clamp(gain, 0.1f, 4f);
+                if (ManualSeAdjust.TryGetValue(clip.name, out float manual))
+                {
+                    gain *= manual;
+                }
+                _seVolumeScales[clip] = gain;
+            }
+        }
+
+        // クリップの体感音量（約100msブロックごとの最大RMS）とピーク（最大振幅）を返す。
+        // ブロック最大にすることで、短い効果音や末尾の無音による平均の薄まりに左右されにくくする。
+        // 解析できない場合は (0, 0)。
+        private static (float Loudness, float Peak) AnalyzeClip(AudioClip clip)
+        {
+            int sampleCount = clip.samples * clip.channels;
+            if (sampleCount <= 0)
+            {
+                return (0f, 0f);
+            }
+
+            float[] data = new float[sampleCount];
+            try
+            {
+                // Load Type が Compressed In Memory などだと取得できない。その場合は等倍にフォールバック。
+                if (!clip.GetData(data, 0))
+                {
+                    return (0f, 0f);
+                }
+            }
+            catch (Exception)
+            {
+                return (0f, 0f);
+            }
+
+            int blockSize = Mathf.Max(1, (int)(clip.frequency * 0.1f) * clip.channels);
+            float maxBlockRms = 0f;
+            float peak = 0f;
+            for (int start = 0; start < sampleCount; start += blockSize)
+            {
+                int end = Mathf.Min(start + blockSize, sampleCount);
+                double sumSquares = 0.0;
+                for (int i = start; i < end; i++)
+                {
+                    float sample = data[i];
+                    sumSquares += (double)sample * sample;
+                    float abs = sample < 0f ? -sample : sample;
+                    if (abs > peak)
+                    {
+                        peak = abs;
+                    }
+                }
+                float blockRms = (float)Math.Sqrt(sumSquares / (end - start));
+                if (blockRms > maxBlockRms)
+                {
+                    maxBlockRms = blockRms;
+                }
+            }
+
+            return (maxBlockRms, peak);
         }
     }
 }

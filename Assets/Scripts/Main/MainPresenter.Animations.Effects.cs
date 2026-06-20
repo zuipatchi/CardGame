@@ -323,6 +323,8 @@ namespace Main
             // PlaceCard 直後はレイアウトパスが未実行で worldBound が不正値になるため
             // 1フレーム待って座標を確定させる
             await UniTask.Yield(cancellationToken: ct);
+            // カード使用 SE はコストエフェクトと同じタイミングで鳴らす
+            _soundPlayer.PlaySE(_soundStore.CardUseSE);
             await PlayParticleAtCardAsync(card, _costEffectPrefab, ct);
         }
 

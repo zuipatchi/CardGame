@@ -381,7 +381,6 @@ namespace Main
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlayEvent:
-                    _soundPlayer.PlaySE(_soundStore.CardUseSE);
                     OnCardPlayed(action._card.Data, playedByLocal: true);
                     await ResolveSingleCardAsync(action._card, ct);
                     break;
@@ -396,7 +395,6 @@ namespace Main
                     }
                     break;
                 case MainPhaseActionType.PlaceChar:
-                    _soundPlayer.PlaySE(_soundStore.CardUseSE);
                     OnCardPlayed(action._card.Data, playedByLocal: true);
                     await ResolveCharacterEnterEffectAsync(action._card, isLocal: true, ct);
                     break;
@@ -493,7 +491,6 @@ namespace Main
             CardView playedCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
             await FlyCardToDestAsync(playedCard, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(playedCard);
-            _soundPlayer.PlaySE(_soundStore.CardUseSE);
             OnCardPlayed(cardData, playedByLocal: false);
             await PayHandCostAsync(playedCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: costCardIds);
             if (isEvent)
