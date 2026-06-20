@@ -40,10 +40,16 @@ namespace Common.SceneManagement
         // 各プレイヤーが自分自身のスコープを確実にビルドする
         public async UniTask Transit(Scenes next)
         {
-            if (next == Scenes.Common) return;
+            if (next == Scenes.Common)
+            {
+                return;
+            }
 
             // 遷移中なら無視（ゲートをすぐ取れない = 別の遷移が実行中）
-            if (!await _gate.WaitAsync(0)) return;
+            if (!await _gate.WaitAsync(0))
+            {
+                return;
+            }
 
             bool gateReleased = false;
             try
@@ -98,10 +104,16 @@ namespace Common.SceneManagement
         // NGO セッションは Common 常駐の NetworkManager が保持するため、シーン再ロードでは切断されない。
         public async UniTask Reload(Scenes target)
         {
-            if (target == Scenes.Common) return;
+            if (target == Scenes.Common)
+            {
+                return;
+            }
 
             // 遷移中なら無視（ゲートをすぐ取れない = 別の遷移が実行中）
-            if (!await _gate.WaitAsync(0)) return;
+            if (!await _gate.WaitAsync(0))
+            {
+                return;
+            }
 
             bool gateReleased = false;
             // 対象シーンを一旦アンロードしてから再ロードするため、その間カメラが 0 個になる。

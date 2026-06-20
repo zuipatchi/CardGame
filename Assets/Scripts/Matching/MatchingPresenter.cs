@@ -183,7 +183,10 @@ namespace Matching
         private void HandleMatchingError(string operation, Exception e)
         {
             Debug.LogError($"{operation}に失敗: {e}");
-            if (this == null) return;
+            if (this == null)
+            {
+                return;
+            }
             _model.State.Value = MatchingState.Error;
         }
 

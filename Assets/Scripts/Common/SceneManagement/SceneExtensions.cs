@@ -13,7 +13,10 @@ namespace Common.SceneManagement
             {
                 foreach (LifetimeScope scope in root.GetComponentsInChildren<LifetimeScope>(true))
                 {
-                    if (scope.Container != null) continue;
+                    if (scope.Container != null)
+                    {
+                        continue;
+                    }
                     ResolveParentReference(scope);
                     scope.Build();
                 }
@@ -24,8 +27,14 @@ namespace Common.SceneManagement
         // MPM では per-player の親スコープを確実に見つけるため
         private static void ResolveParentReference(LifetimeScope scope)
         {
-            if (scope.parentReference.Object != null) return;
-            if (scope.parentReference.Type == null) return;
+            if (scope.parentReference.Object != null)
+            {
+                return;
+            }
+            if (scope.parentReference.Type == null)
+            {
+                return;
+            }
 
             Type parentType = scope.parentReference.Type;
             for (int i = 0; i < SceneManager.sceneCount; i++)

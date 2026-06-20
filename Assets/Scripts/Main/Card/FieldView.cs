@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,12 +15,34 @@ namespace Main.Card
         private const float BaseMargin = 4f;
 
         private readonly List<CardView> _cards = new List<CardView>();
+
+        // Characters のキャッシュ。_cards が変化したときだけ作り直す（呼び出しごとの ToList アロケーションを避ける）。
+        private readonly List<CardView> _characters = new List<CardView>();
+        private bool _charactersDirty = true;
+
         private readonly bool _isOpponent;
 
         public IReadOnlyList<CardView> Cards => _cards;
 
-        public IReadOnlyList<CardView> Characters =>
-            _cards.Where(c => c.Data is CharacterCardData).ToList();
+        public IReadOnlyList<CardView> Characters
+        {
+            get
+            {
+                if (_charactersDirty)
+                {
+                    _characters.Clear();
+                    foreach (CardView card in _cards)
+                    {
+                        if (card.Data is CharacterCardData)
+                        {
+                            _characters.Add(card);
+                        }
+                    }
+                    _charactersDirty = false;
+                }
+                return _characters;
+            }
+        }
 
         // キャラ数が上限に達しているか（イベントカードは墓地行きのため対象外）
         public bool IsCharactersFull => Characters.Count >= MaxCharacters;
@@ -55,6 +76,7 @@ namespace Main.Card
         public void RemoveCard(CardView card)
         {
             _cards.Remove(card);
+            _charactersDirty = true;
             card.RemoveFromHierarchy();
             UpdateCardScales();
         }
@@ -81,6 +103,7 @@ namespace Main.Card
             card.style.rotate = new Rotate(0);
             card.style.transformOrigin = StyleKeyword.Null;
             _cards.Add(card);
+            _charactersDirty = true;
             Add(card);
 
             CardView capturedCard = card;

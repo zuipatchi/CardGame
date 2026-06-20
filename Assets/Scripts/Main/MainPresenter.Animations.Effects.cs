@@ -644,7 +644,10 @@ namespace Main
             float[] xPositions = { -2.5f, 2.5f, -1f, 2f, 0f, -2f, 1.5f };
             foreach (float x in xPositions)
             {
-                if (ct.IsCancellationRequested) break;
+                if (ct.IsCancellationRequested)
+                {
+                    break;
+                }
                 GameObject fw = Instantiate(_fireworkPrefab, new Vector3(x, -7f, 0f), Quaternion.identity);
                 SetLayerRecursive(fw, FireworkLayer);
                 try { await UniTask.Delay(400, cancellationToken: ct); }

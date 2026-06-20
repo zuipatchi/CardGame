@@ -13,7 +13,10 @@ namespace Common.SceneManagement
         private async void Awake()
         {
             // 2重起動させない
-            if (_loaded) return;
+            if (_loaded)
+            {
+                return;
+            }
             _loaded = true;
 
             Scene commonScene = SceneManager.GetSceneByBuildIndex(0);
