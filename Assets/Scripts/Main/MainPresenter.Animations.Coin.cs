@@ -140,6 +140,95 @@ namespace Main
             overlay.RemoveFromHierarchy();
         }
 
+        // ─── コインドロー用の軽量コイン演出（カード付近で素早く1回振る）───────
+        // コインドロー（Draw 値2フラグ）で1トスごとに呼ぶ。isHeads=true で表（＝ドロー継続）、
+        // false で裏（＝終了）に着地する。全画面の PlayCoinTossAsync と違い、アンカーの上で
+        // 短時間に回るため連続トスでもテンポを損なわない。
+        internal async UniTask PlayCoinFlipAsync(VisualElement anchor, bool isHeads, CancellationToken ct)
+        {
+            const float CoinSize = 96f;
+            const float RiseOffset = 96f;
+
+            Sprite coinFront = _cardStore.CoinFront;
+            Sprite coinBack = _cardStore.CoinBack;
+
+            VisualElement coin = new VisualElement();
+            coin.pickingMode = PickingMode.Ignore;
+            coin.style.position = Position.Absolute;
+            coin.style.width = CoinSize;
+            coin.style.height = CoinSize;
+            coin.style.opacity = 0f;
+            if (coinFront != null)
+            {
+                coin.style.backgroundImage = Background.FromSprite(coinFront);
+            }
+
+            Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
+            coin.style.left = anchorLocal.x - CoinSize / 2f;
+            coin.style.top = anchorLocal.y - CoinSize / 2f - RiseOffset;
+            _dragLayer.Add(coin);
+
+            float scaleX = 1f;
+            bool showFront = true;
+
+            // 各半周期（横向きで表裏を入れ替えながら回転）。奇数個でループ終了時 scaleX=0 → 着地面へ settle。
+            float[] halfPeriods = { 0.06f, 0.06f, 0.06f, 0.08f, 0.10f };
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => coin.style.opacity.value, v => coin.style.opacity = v, 1f, 0.1f).SetEase(Ease.OutQuad));
+
+            for (int i = 0; i < halfPeriods.Length; i++)
+            {
+                float target = (i % 2 == 0) ? 0f : 1f;
+                seq.Append(DOTween.To(() => scaleX, v =>
+                {
+                    scaleX = v;
+                    coin.style.scale = new Scale(new Vector3(v, 1f, 1f));
+                }, target, halfPeriods[i]).SetEase(Ease.Linear));
+
+                // scaleX が 0 になったタイミング（横向き）で表裏を入れ替える
+                if (i % 2 == 0)
+                {
+                    seq.AppendCallback(() =>
+                    {
+                        showFront = !showFront;
+                        Sprite next = showFront ? coinFront : coinBack;
+                        if (next != null)
+                        {
+                            coin.style.backgroundImage = Background.FromSprite(next);
+                        }
+                    });
+                }
+            }
+
+            // settle 直前に着地面（表／裏）を確定してから scaleX を 1 へ戻す
+            seq.AppendCallback(() =>
+            {
+                Sprite settle = isHeads ? coinFront : coinBack;
+                if (settle != null)
+                {
+                    coin.style.backgroundImage = Background.FromSprite(settle);
+                }
+            });
+            seq.Append(DOTween.To(() => scaleX, v =>
+            {
+                scaleX = v;
+                coin.style.scale = new Scale(new Vector3(v, 1f, 1f));
+            }, 1f, 0.14f).SetEase(Ease.OutBack));
+
+            seq.AppendInterval(0.3f);
+            seq.Append(DOTween.To(() => coin.style.opacity.value, v => coin.style.opacity = v, 0f, 0.2f).SetEase(Ease.InQuad));
+            seq.OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            coin.RemoveFromHierarchy();
+        }
+
         // ─── 攻撃優先権行使演出（コイン飛翔） ────────────────────────────────
 
         private async UniTask PlayPriorityCoinTransferAsync(bool localUsedPriority, CancellationToken ct)

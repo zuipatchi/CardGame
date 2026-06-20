@@ -541,5 +541,53 @@ namespace Main
             // ドロー演出完了後、次の処理へ進む前に少し待つ
             await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: ct);
         }
+
+        // コインドロー（Draw の値2フラグ）：コインを振り、表が出るたびに1枚引き、裏が出たら終了する。
+        // 引く枚数は乱数で決まるため、オンラインでは発動側が回数を確定して送信し、ミラー側は受信した回数を使う。
+        // デッキ順は両クライアントで同期済みのため、同じ枚数引けば同じカードになる（追加同期は回数のみで足りる）。
+        // 表の回数＋最後の裏を両クライアントで同じ順に再生して、見た目も対称にする。
+        internal async UniTask ApplyCoinDrawEffectAsync(CardView source, bool isLocal, CancellationToken ct)
+        {
+            DeckView deck = isLocal ? _playerDeckView : _opponentDeckView;
+            int cap = deck.Count;
+
+            int headsCount;
+            if (_isOnline && !isLocal)
+            {
+                // ミラー側：発動側が確定した表（＝ドロー）の回数を受信する。デッキ枚数を超えないようクランプ。
+                headsCount = Mathf.Min(await _networkGameService.WaitForOpponentCoinDrawCountAsync(ct), cap);
+            }
+            else
+            {
+                // 発動側／オフライン：裏が出るまで（またはデッキ切れまで）コインを振り、表の連続回数を数える。
+                headsCount = 0;
+                while (headsCount < cap && UnityEngine.Random.value < 0.5f)
+                {
+                    headsCount++;
+                }
+                if (_isOnline && isLocal)
+                {
+                    _networkGameService.SendCoinDrawCount(headsCount);
+                }
+            }
+
+            // 表の回数がデッキ枚数未満なら、最後に裏が出て終了したことを意味する（デッキ切れで止まった場合は裏演出なし）。
+            bool endedWithTails = headsCount < cap;
+
+            for (int i = 0; i < headsCount; i++)
+            {
+                if (_isGameOver)
+                {
+                    return;
+                }
+                await PlayCoinFlipAsync(source, true, ct);
+                await ApplyDrawEffectAsync(1, isLocal, ct);
+            }
+
+            if (!_isGameOver && endedWithTails)
+            {
+                await PlayCoinFlipAsync(source, false, ct);
+            }
+        }
     }
 }

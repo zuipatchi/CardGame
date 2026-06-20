@@ -24,6 +24,7 @@ namespace Main.Network
         private const string k_Rematch = "NGS_Rematch";
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
+        private const string k_CoinDraw = "NGS_CoinDraw";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
         private const string k_DamageTarget = "NGS_DamageTarget";
@@ -43,6 +44,7 @@ namespace Main.Network
             k_Switch,
             k_Evolve,
             k_RecoverDeck,
+            k_CoinDraw,
             k_DamageTarget,
             k_Surrender,
             k_Rematch,
@@ -486,6 +488,21 @@ namespace Main.Network
             return _cardDatabase.BuildDeck(payload.deckIds);
         }
 
+        // コインドロー（Draw 値2フラグ）の発動側が確定した「表＝ドロー」の回数を相手クライアントへ伝える。
+        // 乱数で決まる回数だけを送り、ミラー側は同期済みデッキの上から同じ枚数を引く。
+        public void SendCoinDrawCount(int count)
+        {
+            CoinDrawPayload payload = new CoinDrawPayload { count = count };
+            SendJson(k_CoinDraw, JsonUtility.ToJson(payload));
+        }
+
+        public async UniTask<int> WaitForOpponentCoinDrawCountAsync(CancellationToken ct)
+        {
+            string json = await WaitJsonAsync(k_CoinDraw, ct);
+            CoinDrawPayload payload = JsonUtility.FromJson<CoinDrawPayload>(json);
+            return payload.count;
+        }
+
         public void SendSurrenderNotification()
         {
             SendJson(k_Surrender, string.Empty);
@@ -590,6 +607,12 @@ namespace Main.Network
         private sealed class DeckOrderPayload
         {
             public string[] deckIds;
+        }
+
+        [Serializable]
+        private sealed class CoinDrawPayload
+        {
+            public int count;
         }
 
         [Serializable]

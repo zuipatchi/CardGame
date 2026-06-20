@@ -103,16 +103,16 @@ MonoBehaviour:
     _cardName: "TE\u3007GA\u3092\u898B\u3064\u3051\u305F"
     _cost: 0
     _image: {fileID: 21300000, guid: f8080adbdfe5f064c9e4936097e887f9, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
+    _flavorText: "\u3042\u3042\u3001\u6C17\u6301\u3061\u3044"
+    _voiceSpeaker: 17
     _keyword: 
     _victoryPointBonus: 0
-    _excludeFromGame: 1
+    _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 0
-    _eventValue: 0
-    _eventValue2: 0
+    _eventType: 3
+    _eventValue: 1
+    _eventValue2: 1
     _description: 
     _attribute: 3
