@@ -109,8 +109,16 @@ namespace Matching
                 _soundPlayer.PlaySE(_soundStore.Cancel1SE);
                 CancelWaitAsync().Forget();
             };
-            _timeoutCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
-            _errorCloseButton.clicked += () => InitializeAsync(destroyCancellationToken).Forget();
+            _timeoutCloseButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                InitializeAsync(destroyCancellationToken).Forget();
+            };
+            _errorCloseButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                InitializeAsync(destroyCancellationToken).Forget();
+            };
 
             _model.State
                 .Subscribe(ApplyState)

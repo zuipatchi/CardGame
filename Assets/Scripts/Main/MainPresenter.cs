@@ -490,7 +490,11 @@ namespace Main
                     _soundPlayer.PlaySE(_soundStore.Cancel1SE);
                     OnBackClicked();
                 };
-                _passButton.clicked += OnPassClicked;
+                _passButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                    OnPassClicked();
+                };
                 _endButton.clicked += () =>
                 {
                     _soundPlayer.PlaySE(_soundStore.Enter3SE);
