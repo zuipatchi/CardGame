@@ -263,10 +263,10 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
         }
 
-        // ─── 防人（対空ガード＋守護）─────────────────────────────────────
+        // ─── 防人（対空ガード）───────────────────────────────────────────
 
-        // 表向きの防人持ちキャラかどうか。防人は守護も兼ねる：飛行はこのキャラを優先して攻撃せねばならず、
-        // 非飛行も守護同様このキャラを優先する。さらにこのキャラ自身は飛行に攻撃できる
+        // 表向きの防人持ちキャラかどうか。防人は対空ガード：飛行を持つ攻撃者はこのキャラを優先して攻撃せねばならない。
+        // 非飛行の攻撃者は防人だけでは強制されない（地上の壁にはならない）。さらにこのキャラ自身は飛行に攻撃できる
         private static bool IsSakimori(CardView card)
         {
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasSakimori;
@@ -288,7 +288,8 @@ namespace Main
         // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人を考慮）。
         // ・飛行を持つ target は、飛行か防人を持つ attacker からしか攻撃されない
         // ・飛行を持つ attacker は、相手フィールドに防人がいる間は防人を優先して攻撃しなければならない（守護は無視）
-        // ・飛行を持たない attacker は、相手フィールドに守護か防人がいる間はそのいずれかを優先して攻撃しなければならない
+        // ・飛行を持たない attacker は、相手フィールドに守護がいる間は守護を優先して攻撃しなければならない
+        //   （防人だけでは地上攻撃者を縛らない。守護がいるときも狙えるのは守護のみで、防人は対象に取れない）
         private bool CanAttackChar(CardView attacker, CardView target, FieldView defenderField)
         {
             if (target == null || target.IsFaceDown || target.Data is not CharacterCardData)
@@ -309,8 +310,8 @@ namespace Main
             {
                 return false;
             }
-            if (!IsFlying(attacker) && (HasGuardian(defenderField) || HasSakimori(defenderField))
-                && !IsGuardian(target) && !IsSakimori(target))
+            if (!IsFlying(attacker) && HasGuardian(defenderField)
+                && !IsGuardian(target))
             {
                 return false;
             }
@@ -320,7 +321,7 @@ namespace Main
         // 攻撃者 attacker が防御側のデッキを直接攻撃できるか。
         // ・「デッキ攻撃×」を持つ attacker 自身はデッキを直接攻撃できない（このキャラだけの制限）
         // ・飛行を持つ attacker は守護を無視できるが、相手フィールドに防人がいる間はデッキを直接狙えない
-        // ・飛行を持たない attacker は守護か防人がいるとデッキを狙えない
+        // ・飛行を持たない attacker は守護がいるとデッキを狙えない（防人だけでは縛られない）
         private bool CanAttackDeck(CardView attacker, FieldView defenderField)
         {
             if (IsNoDeckAttack(attacker))
@@ -331,7 +332,7 @@ namespace Main
             {
                 return !HasSakimori(defenderField);
             }
-            return !HasGuardian(defenderField) && !HasSakimori(defenderField);
+            return !HasGuardian(defenderField);
         }
 
         // 守護/防人によって攻撃対象が強制されたときの案内トースト文言を、攻撃者種別と相手フィールドの状況から決める
@@ -342,13 +343,8 @@ namespace Main
             {
                 return "防人を持つキャラを攻撃してください";
             }
-            bool hasGuardian = HasGuardian(defenderField);
-            bool hasSakimori = HasSakimori(defenderField);
-            if (hasGuardian && hasSakimori)
-            {
-                return "守護か防人を持つキャラを攻撃してください";
-            }
-            return hasSakimori ? "防人を持つキャラを攻撃してください" : "守護を持つキャラを攻撃してください";
+            // 非飛行は守護のみに縛られ、狙えるのも守護のみ（防人は対象に取れない）。
+            return "守護を持つキャラを攻撃してください";
         }
 
         // デッキ攻撃が拒否されたときの案内トースト文言。
@@ -830,7 +826,7 @@ namespace Main
                             ShowToast("飛行を持つキャラには飛行か防人でしか攻撃できません");
                             return false;
                         }
-                        // 守護・防人による対象強制：飛行は防人を、非飛行は守護か防人を優先して攻撃しなければならない
+                        // 守護・防人による対象強制：飛行は防人を、非飛行は守護を優先して攻撃しなければならない（非飛行は防人を対象に取れない）
                         if (!CanAttackChar(capturedChar, targetChar, _opponentFieldView))
                         {
                             ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));

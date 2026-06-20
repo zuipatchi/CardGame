@@ -6,8 +6,13 @@ namespace Main.Card
 {
     public sealed class CardDetailModal
     {
+        // キーワード能力の効果説明文（タップで展開）。ダメージトリガーはキャラ/イベント両方で使うため定数化する。
+        private const string TriggerOnGraveDesc = "デッキから墓地へ送られると、コストを払わず即発動する";
+
         private readonly VisualElement _root;
         private VisualElement _overlay;
+        private Label _keywordDescLabel;
+        private VisualElement _activeKeywordBlock;
 
         public CardDetailModal(VisualElement root)
         {
@@ -17,6 +22,7 @@ namespace Main.Card
         public void Show(CardData data)
         {
             Hide();
+            _activeKeywordBlock = null;
 
             _overlay = new VisualElement();
             _overlay.AddToClassList("card-detail-overlay");
@@ -78,31 +84,38 @@ namespace Main.Card
                 statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--hp", charData.Hp.ToString(), "体力"));
                 if (charData.Guardian)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--guardian", string.Empty, "守護"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--guardian", "守護",
+                        "守護を持つキャラを優先して攻撃しなければならない"));
                 }
                 if (charData.Haste)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--haste", string.Empty, "速攻"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--haste", "速攻",
+                        "場に出たターンから攻撃できる（召喚酔いしない）"));
                 }
                 if (charData.Flying)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--flying", string.Empty, "飛行"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--flying", "飛行",
+                        "飛行・防人からしか攻撃されず、守護を無視して攻撃できる"));
                 }
                 if (charData.Sakimori)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--sakimori", string.Empty, "防人"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--sakimori", "防人",
+                        "飛行を持つキャラは防人を優先して攻撃しなければならない。防人は飛行を持つキャラに攻撃できる"));
                 }
                 if (charData.Assault)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--assault", string.Empty, "強襲"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--assault", "強襲",
+                        "タップしていない相手キャラにも攻撃できる"));
                 }
                 if (charData.NoDeckAttack)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--no-deck-attack", string.Empty, "デッキ攻撃×"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--no-deck-attack", "デッキ攻撃×",
+                        "相手デッキを直接攻撃できない"));
                 }
                 if (charData.TriggerOnGrave)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--trigger-on-grave", "ダメージトリガー",
+                        TriggerOnGraveDesc));
                 }
                 if (!string.IsNullOrEmpty(charData.Description))
                 {
@@ -115,7 +128,8 @@ namespace Main.Card
             {
                 if (eventData.TriggerOnGrave)
                 {
-                    statBlocks.Add(CreateIconStatBlock("card-detail-stat-icon--trigger-on-grave", string.Empty, "ダメージトリガー"));
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--trigger-on-grave", "ダメージトリガー",
+                        TriggerOnGraveDesc));
                 }
                 if (!string.IsNullOrEmpty(eventData.Description))
                 {
@@ -141,6 +155,12 @@ namespace Main.Card
                 statsGrid.Add(gridRow);
             }
             stats.Add(statsGrid);
+
+            // キーワードアイコンをタップしたときに効果説明を表示する共有ラベル（初期は非表示）。
+            _keywordDescLabel = new Label();
+            _keywordDescLabel.AddToClassList("card-detail-keyword-desc");
+            _keywordDescLabel.AddToClassList("card-detail-keyword-desc--hidden");
+            stats.Add(_keywordDescLabel);
 
             if (!string.IsNullOrEmpty(data.FlavorText))
             {
@@ -201,6 +221,41 @@ namespace Main.Card
                 CardAttribute.White => "card-detail-image--attr-white",
                 _ => "card-detail-image--attr-white"
             };
+        }
+
+        // タップで効果説明を展開できるキーワード能力用のスタットブロックを作る。
+        private VisualElement CreateKeywordStatBlock(string iconClass, string labelText, string description)
+        {
+            VisualElement block = CreateIconStatBlock(iconClass, string.Empty, labelText);
+            block.AddToClassList("card-detail-stat-block--keyword");
+            block.RegisterCallback<ClickEvent>(evt =>
+            {
+                evt.StopPropagation();
+                ToggleKeywordDesc(block, description);
+            });
+            return block;
+        }
+
+        // キーワードアイコンのタップに応じて説明を開閉する。同じ枠を再タップで閉じ、別の枠をタップで切り替える。
+        private void ToggleKeywordDesc(VisualElement block, string description)
+        {
+            if (_activeKeywordBlock == block)
+            {
+                block.RemoveFromClassList("card-detail-stat-block--active");
+                _activeKeywordBlock = null;
+                _keywordDescLabel.AddToClassList("card-detail-keyword-desc--hidden");
+                return;
+            }
+
+            if (_activeKeywordBlock != null)
+            {
+                _activeKeywordBlock.RemoveFromClassList("card-detail-stat-block--active");
+            }
+
+            _activeKeywordBlock = block;
+            block.AddToClassList("card-detail-stat-block--active");
+            _keywordDescLabel.text = description;
+            _keywordDescLabel.RemoveFromClassList("card-detail-keyword-desc--hidden");
         }
 
         private static VisualElement CreateIconStatBlock(string iconClass, string valueText, string labelText)
