@@ -163,7 +163,8 @@ namespace Main.Card.Effects.Handlers
 ハンドラ実装の指針（既存ハンドラが参考例）:
 - 墓地など盤面状態から加点値を動的に算出する効果（`GainVPPerGreenGraveHandler` は `p.CountGreenInGraveyard(...)` → `GraveyardView.CountByAttribute` の結果を `p.AddVictoryPoints` へ渡す。墓地は同期済みで決定的）。
 - 敵キャラを N 体選ぶ効果（`DamageEnemyHandler` / `BounceHandler` / `BanishCharHandler`）は対象選択を `ResolveEnemyCharTargetsAsync`（プレイヤー選択／CPU 自動／オンラインはインデックス同期。トースト文言は引数）で共用する MainPresenter 側メソッドを呼ぶ。
-- 2つの数値が必要な効果（SummonChar の「ID」と「体数」など）は `EventValue2` / `EffectValue2`（=`inv.Value2`）を使う（未使用は 0）。
+- 2つの数値が必要な効果（SummonChar の「ID」と「体数」など）は `EventValue2` / `EffectValue2`（=`inv.Value2`）を使う（未使用は 0）。`inv.Value2` を**モード切替フラグ**として既存効果を分岐させることもできる（`DrawHandler` は `Value2 >= 1` でコインドローに切り替え、`Values` の `Value2Used` を `true` に、`BuildBody` も分岐させる）。
+- **乱数で結果が変わる効果はネットワーク同期が必要**。効果は通常カードデータ＋同期済み盤面から両クライアントで決定的に解決されるが、乱数を使うとクライアント間でズレる。発動側（`isLocal=true`／オフライン）だけが乱数で結果を確定して相手へ送信し、ミラー側（オンライン `!isLocal`）は受信値を使う（`SendJson` / `WaitJsonAsync` で専用チャンネルを追加。[networking.md](networking.md)「メッセージ一覧」）。コインドロー（`ApplyCoinDrawEffectAsync`）は「表＝ドロー」の回数だけを `NGS_CoinDraw` で送り、デッキ順が同期済みのため両者が同じカードを引く。シャッフル結果を送る Recover（`NGS_RecoverDeck`）と同じ考え方。
 - デッキにダメージを与える（デッキ→墓地へミルする）効果（`DamageEnemyDeckHandler` / `DamageBothDecksHandler`）は `p.MillDeckAsync(deckOwnerIsLocal, count, ct)` を呼ぶ。デッキ攻撃と共通の building-block で、ミル・ダメージトリガー（`TriggerOnGrave`）起動・オーバーリミット判定（空デッキからさらにミルしようとした瞬間に持ち主が敗北）・リミットブレイク告知をまとめて行う。発動側から見た相手デッキは `deckOwnerIsLocal: !inv.IsLocal`、自分のデッキは `inv.IsLocal`。デッキ順は同期済みのため追加同期不要。
 - コスト支払いに作用する効果（`NextCardCostFreeHandler`）はプレイヤーごとの永続フラグを立て、`PayHandCostAsync` 側でコスト0化・消費する（[event.md](event.md)「効果ごとの注意点」参照）。
 - ターン進行に作用する効果（`ExtraTurnHandler`）はアクティブプレイヤーのフラグ（`_extraTurnPending`）を立て、`RunTurnAsync` 末尾で `GameModel.RepeatTurn()` を呼ぶ（オンラインは Pass 時の相手ドロー待ち登録をスキップして lockstep を維持）。
