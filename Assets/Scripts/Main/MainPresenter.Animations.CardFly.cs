@@ -75,6 +75,7 @@ namespace Main
             }
             deck.DrawTop();
             deck.RefreshCount();
+            PlayDrawSe();
             await hand.AddCardAnimatedAsync(data, deckRect, 0f, ct);
         }
 
