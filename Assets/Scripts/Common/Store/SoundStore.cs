@@ -27,6 +27,9 @@ namespace Common.Store
         private readonly string _readySEAddressable = "Sound/SE/Ready";
         private readonly string _battleSEAddressable = "Sound/SE/Battle";
         private readonly string _cardSEAddressable = "Sound/SE/Card";
+        private readonly string _cardUseSEAddressable = "Sound/SE/CardUse";
+        private readonly string _deckDamageSEAddressable = "Sound/SE/DeckDamage";
+        private readonly string _victoryPointSEAddressable = "Sound/SE/VictoryPoint";
         private readonly string _downSEAddressable = "Sound/SE/Down";
         private readonly string _attackSEAddressable = "Sound/SE/Attack";
         private readonly string _limitBreakSEAddressable = "Sound/SE/LimitBreak";
@@ -48,6 +51,9 @@ namespace Common.Store
         public AudioClip ReadySE => _readySE;
         public AudioClip BattleSE => _battleSE;
         public AudioClip CardSE => _cardSE;
+        public AudioClip CardUseSE => _cardUseSE;
+        public AudioClip DeckDamageSE => _deckDamageSE;
+        public AudioClip VictoryPointSE => _victoryPointSE;
         public AudioClip DownSE => _downSE;
         public AudioClip AttackSE => _attackSE;
         public AudioClip LimitBreakSE => _limitBreakSE;
@@ -69,6 +75,9 @@ namespace Common.Store
         private AudioClip _readySE = null;
         private AudioClip _battleSE = null;
         private AudioClip _cardSE = null;
+        private AudioClip _cardUseSE = null;
+        private AudioClip _deckDamageSE = null;
+        private AudioClip _victoryPointSE = null;
         private AudioClip _downSE = null;
         private AudioClip _attackSE = null;
         private AudioClip _limitBreakSE = null;
@@ -98,6 +107,9 @@ namespace Common.Store
                 _readySE = await Addressables.LoadAssetAsync<AudioClip>(_readySEAddressable).ToUniTask();
                 _battleSE = await Addressables.LoadAssetAsync<AudioClip>(_battleSEAddressable).ToUniTask();
                 _cardSE = await Addressables.LoadAssetAsync<AudioClip>(_cardSEAddressable).ToUniTask();
+                _cardUseSE = await Addressables.LoadAssetAsync<AudioClip>(_cardUseSEAddressable).ToUniTask();
+                _deckDamageSE = await Addressables.LoadAssetAsync<AudioClip>(_deckDamageSEAddressable).ToUniTask();
+                _victoryPointSE = await Addressables.LoadAssetAsync<AudioClip>(_victoryPointSEAddressable).ToUniTask();
                 _downSE = await Addressables.LoadAssetAsync<AudioClip>(_downSEAddressable).ToUniTask();
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
                 _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();

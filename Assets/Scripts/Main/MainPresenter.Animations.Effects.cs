@@ -95,6 +95,9 @@ namespace Main
             container.style.top = top;
             _dragLayer.Add(container);
 
+            // 勝利点のメダルアイコンが浮かび上がるタイミングで VictoryPoint を再生
+            _soundPlayer.PlaySE(_soundStore.VictoryPointSE);
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             Sequence seq = DOTween.Sequence()
                 .Join(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, AppearDuration).SetEase(Ease.OutQuad))

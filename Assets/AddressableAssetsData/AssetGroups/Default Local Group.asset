@@ -20,6 +20,21 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9ca6cc3b14ef8a640b424fd1653da157
+    m_Address: Sound/SE/CardUse
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ed074612b92f9a41a7e88c7976b9f63
+    m_Address: Sound/SE/DeckDamage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 09341ac6ff63e624390baf3f8aea468a
+    m_Address: Sound/SE/VictoryPoint
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 044415eec72ed124980c4124cb47acba
     m_Address: Sound/BGM/MaouAcoustic
     m_ReadOnly: 0
