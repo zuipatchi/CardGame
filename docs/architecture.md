@@ -401,7 +401,7 @@ HandView          VisualElement サブクラス。手札を扇状に表示（60%
                   AddCardBackAsync() でフィールドから手札へ戻す飛翔アニメーション（戻るボタン用）
                   interactive: false のときフリップをスキップ（相手手札は裏向きのまま）
                   内部状態は HandCardEntry { Card } の単一リストで管理（並列リスト廃止）
-FieldView         VisualElement サブクラス。横長フィールドエリア（最大 5 枚、中央寄せ）
+FieldView         VisualElement サブクラス。横長フィールドエリア（中央寄せ。基準 5 枚は全幅、6 枚以上は自動縮小、上限 9 体＝MaxCharacters）
                   キャラカード・イベントカードを直接配置する。1ターンに1枚まで出せる（CharacterSlotView は廃止）
                   Characters プロパティで CharacterCardData のカードのみを抽出可能
                   PlaceCard(CardView) で配置（ドラッグ不可に設定・CurrentHp をリセット）、RemoveCard(CardView) で除去
