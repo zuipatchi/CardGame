@@ -145,6 +145,7 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 - BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え・`StopBGM()` で停止（シーン間で BGM を引き継ぐ／止め分けるために使う）
 - SE: `PlayOneShot(clip, volumeScale)` で重ね再生。`volumeScale` には SE ごとのラウドネス正規化倍率（下記）を渡す
 - ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`（`PlayOneShot()`）。前の読み上げが終わる前でも止めずに重ねて鳴らす（一時的に複数同時に流れてもよい）
+- 持続 SE（途中で止めたい効果音）: 専用 AudioSource（`loop = true`）で `PlayLoopSE()` 再生・`StopLoopSE()` 停止。`PlayOneShot` は途中停止できないため、演出の長さに合わせて鳴らし切る用途に使う（例: コイントス・コインドローの回転音を回転開始から回転終了まで鳴らす）。SE ラウドネス正規化倍率は再生時に AudioSource の音量へ畳み込む
 - 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
 - **SE ラウドネス正規化**: SE クリップごとに収録音量がバラバラなので、`SoundStore` がロード完了時に各 SE の体感音量（約100msブロックごとの最大 RMS）とピークを解析し、全 SE の中央値を目標に「同じ聞こえ方になる音量倍率」を算出する（`NormalizeSeVolumes`）。ピークが 1.0 を超えないようヘッドルームで上限を制限し、最後に倍率を `[0.1, 4.0]` でクランプ。`SoundPlayer.PlaySE` が `SoundStore.GetSeVolumeScale(clip)` で倍率を取得して `PlayOneShot` の `volumeScale` に渡すため、SE スライダー（`SEVolume`）とは独立して乗算され、スライダー位置に関わらず SE 同士のバランスは保たれる
@@ -213,7 +214,7 @@ Assets/AddressableAssets/
   └── Sound/       AudioClip
 ```
 
-- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン・勝敗画面の再戦/ホームに戻るボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CardSE`（ドロー時）, `CardUseSE`（カード使用時。コストエフェクトと同タイミング）, `AttackSE`（攻撃時）, `DeckDamageSE`（デッキダメージのミル時）, `VictoryPointSE`（勝利点獲得時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時）。各 SE はロード時にラウドネス正規化される（上記「サウンド設計」）)
+- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン・勝敗画面の再戦/ホームに戻るボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CoinSE`（コイントス・コインドローの回転中にループ再生し、回転終了で停止。`SoundPlayer.PlayLoopSE`/`StopLoopSE` で制御）, `CardSE`（ドロー時）, `CardUseSE`（カード使用時。コストエフェクトと同タイミング）, `AttackSE`（攻撃時）, `DeckDamageSE`（デッキダメージのミル時）, `VictoryPointSE`（勝利点獲得時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時）。各 SE はロード時にラウドネス正規化される（上記「サウンド設計」）)
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
@@ -225,6 +226,13 @@ Assets/AddressableAssets/
 ### 概要
 
 Title → Home の遷移後に表示されるメインハブ画面。デッキ構築・バトル・マッチングへの導線を提供する。
+
+### クレジット・あそびかた（ルール）モーダル（HomePresenter）
+
+画面右下に「あそびかた」「クレジット」の2ボタンを並べ、それぞれ全画面オーバーレイのモーダルを開閉する（開閉は `HomePresenter`、SE は `EnterSE` を共用）。いずれもクリックを透過しない暗幕の上にパネルを重ね、「閉じる」ボタンで `DisplayStyle.None` に戻す。2つのオーバーレイはボタンより後ろの兄弟要素として配置し、開くと下部のボタンを覆うため同時には開かない。
+
+- **クレジット**：制作スタッフ・テスター・サウンド・使用OSS/アセットを `ScrollView` に列挙（内容は UXML 直書き）。
+- **あそびかた**：新規ユーザー向けのルール解説。`RulesTab*` の6ボタン（目的／流れ／カード／バトル／能力／デッキ）でタブを切り替え、対応する `RulesPage*` のみ `home-rules-page--active` で表示する。各ページの内容は UXML に直書き（追加アセット・Addressables 不要）。タブ選択時に `RulesScroll.scrollOffset = Vector2.zero` でスクロール位置を先頭へ戻す。タブのクリックハンドラはラムダを配列に保持して `OnDisable` で確実に購読解除する。
 
 ### Live2D キャラクター（Dog-kid）
 

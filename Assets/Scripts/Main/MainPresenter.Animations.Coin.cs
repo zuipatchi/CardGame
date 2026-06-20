@@ -54,6 +54,9 @@ namespace Main
             overlay.Add(resultLabel);
             _dragLayer.Add(overlay);
 
+            // コイントス中はコイン回転音を鳴らし続け、回転終了と同時に止める。
+            _soundPlayer.PlayLoopSE(_soundStore.CoinSE);
+
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
             float scaleX = 1f;
             bool showFront = true;
@@ -109,6 +112,8 @@ namespace Main
                 }, 1f, 0.18f).SetEase(Ease.OutBack));
             }
 
+            // 回転（settle）が終わった瞬間にコイン回転音を止める。
+            seq.AppendCallback(() => _soundPlayer.StopLoopSE());
             // settle 完了後 0.5 秒待ってから結果テキストをスケールイン
             seq.AppendInterval(0.5f);
             // 結果ラベル（先攻！/後攻！）の登場に合わせて Ready SE を鳴らす
@@ -137,6 +142,8 @@ namespace Main
             try { await tcs.Task; }
             catch (System.OperationCanceledException) { }
 
+            // キャンセルで回転途中に抜けた場合の保険（通常は回転終了時に停止済み）。
+            _soundPlayer.StopLoopSE();
             overlay.RemoveFromHierarchy();
         }
 
@@ -167,6 +174,9 @@ namespace Main
             coin.style.left = anchorLocal.x - CoinSize / 2f;
             coin.style.top = anchorLocal.y - CoinSize / 2f - RiseOffset;
             _dragLayer.Add(coin);
+
+            // コインドローの回転中もコイン回転音を鳴らし、回転終了で止める。
+            _soundPlayer.PlayLoopSE(_soundStore.CoinSE);
 
             float scaleX = 1f;
             bool showFront = true;
@@ -217,6 +227,8 @@ namespace Main
                 coin.style.scale = new Scale(new Vector3(v, 1f, 1f));
             }, 1f, 0.14f).SetEase(Ease.OutBack));
 
+            // 回転（settle）が終わった瞬間にコイン回転音を止める。
+            seq.AppendCallback(() => _soundPlayer.StopLoopSE());
             seq.AppendInterval(0.3f);
             seq.Append(DOTween.To(() => coin.style.opacity.value, v => coin.style.opacity = v, 0f, 0.2f).SetEase(Ease.InQuad));
             seq.OnComplete(() => tcs.TrySetResult());
@@ -226,6 +238,8 @@ namespace Main
             try { await tcs.Task; }
             catch (System.OperationCanceledException) { }
 
+            // キャンセルで回転途中に抜けた場合の保険（通常は回転終了時に停止済み）。
+            _soundPlayer.StopLoopSE();
             coin.RemoveFromHierarchy();
         }
 
