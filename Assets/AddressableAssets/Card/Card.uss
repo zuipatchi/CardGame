@@ -36,12 +36,15 @@
 
 /* アイコン群（コスト・攻撃・体力＋守護/速攻/飛行）。縦に並べ、4つを超えたら右隣の列へ折り返す。
    max-height はアイコン4つ分（約40px×4=160px に余裕を持たせて170px）。表示中（display 切替後）の
-   アイコンのみが flex に数えられるため、表示数に応じて自動で2列目へ送られる。 */
+   アイコンのみが flex に数えられるため、表示数に応じて自動で2列目へ送られる。
+   justify-content: flex-end で各列を下詰めにし、アイコン数の少ない2列目を下から並べる。
+   各アイコンは margin-top で間隔を揃えるため、列の先頭が同じ高さから始まり1列目と2列目が揃う。 */
 .game-card__icons {
     flex-direction: column;
     flex-wrap: wrap;
     align-items: flex-start;
     align-content: flex-start;
+    justify-content: flex-end;
     max-height: 170px;
 }
 
@@ -49,7 +52,7 @@
     position: relative;
     width: 36px;
     height: 36px;
-    margin-bottom: 4px;
+    margin-top: 4px;
 }
 
 .game-card__heart-icon {
@@ -248,7 +251,7 @@
     position: relative;
     width: 36px;
     height: 36px;
-    margin-bottom: 4px;
+    margin-top: 4px;
 }
 
 .game-card__attack-icon {
@@ -284,8 +287,8 @@
 
 /* 守護アイコン（HP の HeartIcon の下に表示。守護持ちキャラのみ CardView で display を切替） */
 .game-card__guardian-icon {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     margin-top: 4px;
     background-image: url("../Icon/ShieldIcon.png");
     -unity-background-scale-mode: scale-to-fit;
@@ -380,7 +383,7 @@
     display: none;
     width: 36px;
     height: 36px;
-    margin-bottom: 4px;
+    margin-top: 4px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
