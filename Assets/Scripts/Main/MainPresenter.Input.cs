@@ -164,7 +164,7 @@ namespace Main
             OnOkClicked();
         }
 
-        private async void OnOkClicked()
+        private void OnOkClicked()
         {
             if (_costSelectionTcs != null)
             {
@@ -195,19 +195,13 @@ namespace Main
                 return;
             }
 
-            // Switch の確定は SET! アナウンスを出さない（入れ替えなので新規配置の演出は不要）
-            bool isSwitch = _switchInput._tcs != null && _switchInput._card != null;
-
             if (!TryTakeStagedInput(out UniTaskCompletionSource<CardView> tcs, out CardView card))
             {
                 return;
             }
 
+            // Switch / Evolve の確定では SET! アナウンスを出さない（入れ替え・進化なので新規配置の演出は不要）
             HideActionButtons();
-            if (!isSwitch)
-            {
-                await PlayOkFlashAsync(true, destroyCancellationToken);
-            }
             tcs.TrySetResult(card);
         }
 

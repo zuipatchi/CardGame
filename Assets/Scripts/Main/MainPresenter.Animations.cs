@@ -101,54 +101,6 @@ namespace Main
             _resolveOverlay.style.display = DisplayStyle.None;
         }
 
-        // ─── OK フラッシュ演出 ──────────────────────────────────────────
-
-        private async UniTask PlayOkFlashAsync(bool isLocal, CancellationToken ct)
-        {
-            VisualElement wrapper = new VisualElement();
-            wrapper.style.position = Position.Absolute;
-            wrapper.style.left = 0;
-            wrapper.style.right = 0;
-            wrapper.style.top = 0;
-            wrapper.style.bottom = 0;
-            wrapper.style.alignItems = Align.Center;
-            wrapper.style.justifyContent = Justify.Center;
-            wrapper.pickingMode = PickingMode.Ignore;
-
-            Label label = new Label("SET!");
-            label.AddToClassList("turn-announcement-label");
-            label.AddToClassList(isLocal ? "turn-announcement-label--set" : "turn-announcement-label--enemy");
-            label.pickingMode = PickingMode.Ignore;
-            label.style.scale = new Scale(new Vector3(0.5f, 0.5f, 1f));
-            wrapper.Add(label);
-            wrapper.style.opacity = 0f;
-            _dragLayer.Add(wrapper);
-
-            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Join(DOTween.To(
-                    () => wrapper.style.opacity.value,
-                    v => wrapper.style.opacity = v,
-                    1f, 0.25f).SetEase(Ease.OutQuad))
-                .Join(DOTween.To(
-                    () => label.style.scale.value.value.x,
-                    v => label.style.scale = new Scale(new Vector3(v, v, 1f)),
-                    1f, 0.25f).SetEase(Ease.OutBack))
-                .AppendInterval(0.5f)
-                .Append(DOTween.To(
-                    () => wrapper.style.opacity.value,
-                    v => wrapper.style.opacity = v,
-                    0f, 0.3f).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
-
-            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
-
-            try { await tcs.Task; }
-            catch (OperationCanceledException) { }
-
-            wrapper.RemoveFromHierarchy();
-        }
-
         // ─── VS 演出 ──────────────────────────────────────────────────────
 
         private async UniTask PlayVsAnnouncementAsync(
