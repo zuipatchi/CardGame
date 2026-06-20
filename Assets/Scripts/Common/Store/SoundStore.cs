@@ -55,6 +55,7 @@ namespace Common.Store
         private readonly string _attackSEAddressable = "Sound/SE/Attack";
         private readonly string _limitBreakSEAddressable = "Sound/SE/LimitBreak";
         private readonly string _playerTurnSEAddressable = "Sound/SE/PlayerTurn";
+        private readonly string _coinSEAddressable = "Sound/SE/Coin";
 
         // プロパティ
         public AudioClip MainBGM => _mainBGM;
@@ -79,6 +80,7 @@ namespace Common.Store
         public AudioClip AttackSE => _attackSE;
         public AudioClip LimitBreakSE => _limitBreakSE;
         public AudioClip PlayerTurnSE => _playerTurnSE;
+        public AudioClip CoinSE => _coinSE;
 
         // メンバー
         private AudioClip _mainBGM = null;
@@ -103,6 +105,7 @@ namespace Common.Store
         private AudioClip _attackSE = null;
         private AudioClip _limitBreakSE = null;
         private AudioClip _playerTurnSE = null;
+        private AudioClip _coinSE = null;
 
         public void Start()
         {
@@ -135,6 +138,7 @@ namespace Common.Store
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
                 _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();
                 _playerTurnSE = await Addressables.LoadAssetAsync<AudioClip>(_playerTurnSEAddressable).ToUniTask();
+                _coinSE = await Addressables.LoadAssetAsync<AudioClip>(_coinSEAddressable).ToUniTask();
                 NormalizeSeVolumes();
                 _loadedTcs.TrySetResult();
             }
@@ -166,6 +170,7 @@ namespace Common.Store
                 _enterSE, _enter2SE, _enter3SE, _cancel1SE, _resultSE, _analysisSE,
                 _winSE, _loseSE, _readySE, _battleSE, _cardSE, _cardUseSE,
                 _deckDamageSE, _victoryPointSE, _downSE, _attackSE, _limitBreakSE, _playerTurnSE,
+                _coinSE,
             };
 
             List<(AudioClip Clip, float Loudness, float Peak)> analyses = new();

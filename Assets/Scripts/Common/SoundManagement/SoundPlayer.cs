@@ -16,6 +16,10 @@ namespace Common.SoundManagement
         private AudioSource _seAudioSource;
         // フレーバーテキスト読み上げ専用。SE と分けることで、新しい読み上げ時に前の読み上げだけを止められる。
         private AudioSource _voiceAudioSource;
+        // 途中で止められる持続 SE 専用（コイントスなど。演出終了に合わせて StopLoopSE で停止する）。
+        private AudioSource _loopSeAudioSource;
+        // 現在ループ再生中のクリップに掛ける音量倍率（SEVolume 変更時に再計算するため保持）。
+        private float _loopSeVolumeScale = 1f;
         private OptionModel _optionModel;
         private SoundStore _soundStore;
         private readonly CompositeDisposable _disposables = new();
@@ -52,6 +56,15 @@ namespace Common.SoundManagement
             _optionModel.VoiceVolume
                 .Subscribe(v => _voiceAudioSource.volume = v / 2)
                 .AddTo(_disposables);
+
+            _loopSeAudioSource = gameObject.AddComponent<AudioSource>();
+            _loopSeAudioSource.playOnAwake = false;
+            _loopSeAudioSource.loop = true;
+
+            // 持続 SE も SE 音量に連動させる（再生中に音量を変えても追従する）。
+            _optionModel.SEVolume
+                .Subscribe(v => _loopSeAudioSource.volume = v / 2 * _loopSeVolumeScale)
+                .AddTo(_disposables);
         }
 
         private void OnDestroy()
@@ -87,6 +100,31 @@ namespace Common.SoundManagement
             // SE ごとの収録音量差を打ち消す倍率を掛けて、どの音源でも同じ聞こえ方にする
             float volumeScale = _soundStore != null ? _soundStore.GetSeVolumeScale(clip) : 1f;
             _seAudioSource.PlayOneShot(clip, volumeScale);
+        }
+
+        // 途中で止められる持続 SE を再生する（コイントスの回転音など）。StopLoopSE で停止するまでループする。
+        public void PlayLoopSE(AudioClip clip)
+        {
+            if (_loopSeAudioSource == null || clip == null)
+            {
+                return;
+            }
+            _loopSeVolumeScale = _soundStore != null ? _soundStore.GetSeVolumeScale(clip) : 1f;
+            _loopSeAudioSource.clip = clip;
+            _loopSeAudioSource.volume = _optionModel.SEVolume.CurrentValue / 2 * _loopSeVolumeScale;
+            _loopSeAudioSource.Play();
+        }
+
+        // PlayLoopSE で再生中の持続 SE を停止する。
+        public void StopLoopSE()
+        {
+            if (_loopSeAudioSource == null)
+            {
+                return;
+            }
+            _loopSeAudioSource.Stop();
+            _loopSeAudioSource.clip = null;
+            _loopSeVolumeScale = 1f;
         }
 
         // フレーバーテキストの読み上げを再生する。

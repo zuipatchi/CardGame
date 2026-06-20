@@ -348,6 +348,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a472c35eb5f2315458088d4581325d64
+    m_Address: Sound/SE/Coin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a60f8c08b18e9244f83cb77e155a9e42
     m_Address: Image/YesButton
     m_ReadOnly: 0
