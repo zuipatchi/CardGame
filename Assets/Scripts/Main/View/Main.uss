@@ -432,3 +432,23 @@
 .medal-fly-icon--5 {
     background-image: url("project://database/Assets/AddressableAssets/Icon/Medal5Icon.png");
 }
+
+/* サイコロドロー（Draw 値2=2）の出目演出。DiceIcon を本体に、出た目の数字を重ねる */
+.dice-roll-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("project://database/Assets/AddressableAssets/Icon/DiceIcon.png");
+}
+
+.dice-roll-number {
+    -unity-text-align: middle-center;
+    font-size: 64px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(30, 30, 40);
+}

@@ -4,25 +4,33 @@ using UnityEngine.Scripting;
 
 namespace Main.Card.Effects.Handlers
 {
-    // カードを EventValue 枚引く。値2に1以上を設定するとコインドロー（表の間1枚ずつ引き裏が出たら終了）になる。
+    // カードを EventValue 枚引く。値2でドロー方式を切り替える（0=通常 / 1=コインドロー / 2=サイコロドロー）。
     [Preserve]
     public sealed class DrawHandler : EffectHandler
     {
         public override EventType Type => EventType.Draw;
 
         public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1（ドロー枚数）", true, "値2（1=コインドロー）",
-            "値1=デッキ上から手札に加える枚数。値2に1以上を設定するとコインドロー：コインを振り、表が出るたびにカードを1枚引き、裏が出たら終了する（値1は無視）。");
+            true, "値1（ドロー枚数）", true, "値2（0=通常/1=コイン/2=サイコロ）",
+            "値1=デッキ上から手札に加える枚数。値2=1でコインドロー（表の間1枚ずつ引き裏で終了）、値2=2でサイコロドロー（6面を振り出た目だけ引く）。コイン／サイコロ時は値1は無視。");
 
-        public override string BuildBody(EffectTextContext ctx) => ctx.Value2 >= 1
-            ? "コインを振り、表が出るたびにカードを1枚引く（裏が出たら終了）"
-            : $"カードを{ctx.Value1}枚引く";
+        public override string BuildBody(EffectTextContext ctx) => ctx.Value2 switch
+        {
+            1 => "コインを振り、表が出るたびにカードを1枚引く（裏が出たら終了）",
+            2 => "サイコロを振り、出た目の数だけカードを引く",
+            _ => $"カードを{ctx.Value1}枚引く",
+        };
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            if (inv.Value2 >= 1)
+            if (inv.Value2 == 1)
             {
                 await p.ApplyCoinDrawEffectAsync(inv.SourceCard, inv.IsLocal, ct);
+                return;
+            }
+            if (inv.Value2 == 2)
+            {
+                await p.ApplyDiceDrawEffectAsync(inv.SourceCard, inv.IsLocal, ct);
                 return;
             }
             await p.PlayDrawEffectAsync(inv.SourceCard, inv.Value1, ct);

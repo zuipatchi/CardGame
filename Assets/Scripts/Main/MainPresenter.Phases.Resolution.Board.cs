@@ -589,5 +589,35 @@ namespace Main
                 await PlayCoinFlipAsync(source, false, ct);
             }
         }
+
+        // サイコロドロー（Draw の値2=2）：6面サイコロを振り、出た目の数だけドローする。
+        // 出目は乱数で決まるため、オンラインでは発動側が出目を確定して送信し、ミラー側は受信した出目を使う。
+        // デッキ順は両クライアントで同期済みのため、同じ枚数引けば同じカードになる（追加同期は出目のみ）。
+        // 引く枚数は確定値なので通常 Draw と同じ扱い（出目がデッキ残りを超えればオーバーリミット敗北あり）。
+        internal async UniTask ApplyDiceDrawEffectAsync(CardView source, bool isLocal, CancellationToken ct)
+        {
+            int roll;
+            if (_isOnline && !isLocal)
+            {
+                // ミラー側：発動側が確定した出目を受信する。
+                roll = await _networkGameService.WaitForOpponentDiceDrawAsync(ct);
+            }
+            else
+            {
+                // 発動側／オフライン：1〜6 を振る（Range の上限は排他なので 7）。
+                roll = UnityEngine.Random.Range(1, 7);
+                if (_isOnline && isLocal)
+                {
+                    _networkGameService.SendDiceDrawResult(roll);
+                }
+            }
+
+            await PlayDiceRollAsync(source, roll, ct);
+            if (_isGameOver)
+            {
+                return;
+            }
+            await ApplyDrawEffectAsync(roll, isLocal, ct);
+        }
     }
 }

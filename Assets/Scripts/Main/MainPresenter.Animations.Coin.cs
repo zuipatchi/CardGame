@@ -229,6 +229,91 @@ namespace Main
             coin.RemoveFromHierarchy();
         }
 
+        // ─── サイコロドロー用のダイス演出（カード付近で転がして出目に着地）───────
+        // サイコロドロー（Draw 値2=2）で呼ぶ。result（1〜6）の出目に着地する。転がし中の見せ数字は
+        // 演出のみで出目とは無関係（クライアント間でズレても問題ない）。出目 result は同期済み。
+        internal async UniTask PlayDiceRollAsync(VisualElement anchor, int result, CancellationToken ct)
+        {
+            const float DiceSize = 120f;
+            const float RiseOffset = 110f;
+
+            VisualElement container = new VisualElement();
+            container.pickingMode = PickingMode.Ignore;
+            container.style.position = Position.Absolute;
+            container.style.width = DiceSize;
+            container.style.height = DiceSize;
+            container.style.opacity = 0f;
+            container.style.alignItems = Align.Center;
+            container.style.justifyContent = Justify.Center;
+
+            VisualElement dice = new VisualElement();
+            dice.AddToClassList("dice-roll-icon");
+            dice.pickingMode = PickingMode.Ignore;
+            container.Add(dice);
+
+            Label number = new Label("1");
+            number.AddToClassList("dice-roll-number");
+            number.pickingMode = PickingMode.Ignore;
+            container.Add(number);
+
+            Vector2 anchorLocal = _dragLayer.WorldToLocal(anchor.worldBound.center);
+            container.style.left = anchorLocal.x - DiceSize / 2f;
+            container.style.top = anchorLocal.y - DiceSize / 2f - RiseOffset;
+            _dragLayer.Add(container);
+
+            float rotation = 0f;
+            int tick = 0;
+
+            // 転がし：ダイス本体を回転させながら見せ数字を高速に入れ替え、だんだん遅くする
+            float[] tickDurations = { 0.05f, 0.05f, 0.05f, 0.06f, 0.08f, 0.11f, 0.14f };
+
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                .Append(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 1f, 0.1f).SetEase(Ease.OutQuad));
+
+            float buildRotation = 0f;
+            foreach (float dur in tickDurations)
+            {
+                seq.AppendCallback(() =>
+                {
+                    tick++;
+                    // 見せ数字（演出のみ）。5 と 6 が互いに素なので 1〜6 全面を巡回する。
+                    number.text = (((tick * 5) % 6) + 1).ToString();
+                });
+                buildRotation += 90f;
+                float end = buildRotation;
+                seq.Append(DOTween.To(() => rotation, v =>
+                {
+                    rotation = v;
+                    dice.style.rotate = new Rotate(new Angle(v));
+                }, end, dur).SetEase(Ease.Linear));
+            }
+
+            // settle：出目を確定し、次の 360 度の倍数まで回して直立で止める（軽くバウンド）
+            float settleRotation = Mathf.Ceil(buildRotation / 360f) * 360f;
+            if (settleRotation <= buildRotation)
+            {
+                settleRotation += 360f;
+            }
+            seq.AppendCallback(() => number.text = result.ToString());
+            seq.Append(DOTween.To(() => rotation, v =>
+            {
+                rotation = v;
+                dice.style.rotate = new Rotate(new Angle(v));
+            }, settleRotation, 0.22f).SetEase(Ease.OutBack));
+
+            seq.AppendInterval(0.5f);
+            seq.Append(DOTween.To(() => container.style.opacity.value, v => container.style.opacity = v, 0f, 0.25f).SetEase(Ease.InQuad));
+            seq.OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (System.OperationCanceledException) { }
+
+            container.RemoveFromHierarchy();
+        }
+
         // ─── 攻撃優先権行使演出（コイン飛翔） ────────────────────────────────
 
         private async UniTask PlayPriorityCoinTransferAsync(bool localUsedPriority, CancellationToken ct)

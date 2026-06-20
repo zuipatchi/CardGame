@@ -25,6 +25,7 @@ namespace Main.Network
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
         private const string k_CoinDraw = "NGS_CoinDraw";
+        private const string k_DiceDraw = "NGS_DiceDraw";
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
         private const string k_DamageTarget = "NGS_DamageTarget";
@@ -45,6 +46,7 @@ namespace Main.Network
             k_Evolve,
             k_RecoverDeck,
             k_CoinDraw,
+            k_DiceDraw,
             k_DamageTarget,
             k_Surrender,
             k_Rematch,
@@ -503,6 +505,21 @@ namespace Main.Network
             return payload.count;
         }
 
+        // サイコロドロー（Draw 値2=2）の発動側が振った出目（1〜6）を相手クライアントへ伝える。
+        // 乱数で決まる出目だけを送り、ミラー側は同期済みデッキの上から同じ枚数を引く。
+        public void SendDiceDrawResult(int roll)
+        {
+            DiceDrawPayload payload = new DiceDrawPayload { roll = roll };
+            SendJson(k_DiceDraw, JsonUtility.ToJson(payload));
+        }
+
+        public async UniTask<int> WaitForOpponentDiceDrawAsync(CancellationToken ct)
+        {
+            string json = await WaitJsonAsync(k_DiceDraw, ct);
+            DiceDrawPayload payload = JsonUtility.FromJson<DiceDrawPayload>(json);
+            return payload.roll;
+        }
+
         public void SendSurrenderNotification()
         {
             SendJson(k_Surrender, string.Empty);
@@ -613,6 +630,12 @@ namespace Main.Network
         private sealed class CoinDrawPayload
         {
             public int count;
+        }
+
+        [Serializable]
+        private sealed class DiceDrawPayload
+        {
+            public int roll;
         }
 
         [Serializable]
