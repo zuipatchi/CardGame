@@ -342,7 +342,7 @@ EventType         enum（EffectType.cs）。
                   Draw（EventValue 枚ドロー）
                   BanishChar（相手キャラをフィールドから墓地へ）
                   Recover（自分の墓地の上から EventValue 枚を取り出し自デッキに加えてシャッフル）
-                  Switch（自分のキャラを手札に戻して別キャラを配置）
+                  Switch（自分のキャラを手札に戻し同コストのキャラをコストなしで配置）
                   Evolve（自分のキャラを墓地に送り上位キャラと交換）
                   CostBoost（コスト支払い時に倍化・属性連動）/ DamageAllEnemies（敵全体にダメージ）
                   DamageEnemy（敵を値1体選び値2ダメージ）/ SummonChar（指定キャラを召喚）
