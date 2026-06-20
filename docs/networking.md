@@ -430,6 +430,8 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 
 ゲーム終了オーバーレイの「再戦する」ボタンで使う。`OnGameEnd`（オンライン時）で `WatchForOpponentRematchAsync` と `NetworkManager.OnClientDisconnectCallback` の監視を開始する。「再戦する」を押すと `NGS_Rematch` を送信して「対戦相手を待っています...」を表示し、**自分の希望と相手の希望の2フラグが揃ったら** 両者が `SceneTransitioner.Reload(Scenes.Main)` で Main シーンを再ロードして新規対戦を開始する。`Reload` は対象シーンをアンロードしてから再ロードするため `BuildAsync` → `PrepareDecksAsync` の再ハンドシェイクで再配牌される（NGO セッションは Common 常駐の `NetworkManager` が保持するため切断されない）。デッキは `DeckModel`（Common）から再取得するので同一、先攻後攻はホストが再抽選する。CPU 戦は相手待ちなしで即再ロードする。再戦フェーズ中に相手が退出（`OnClientDisconnectCallback` 発火）したら「対戦相手が退出しました」を表示し再戦ボタンを消す。
 
+**ハマりポイント**: 「ホームに戻る」ボタンで自分がセッションを離脱（`LeaveCurrentSessionAsync`）すると、**自分自身の切断**でも `OnClientDisconnectCallback` が発火する。これを相手の退出と誤判定すると `ShowOpponentLeft()` がいったん消したゲーム終了ボタン行を再表示してしまう（ホームへ遷移する直前に「ホームに戻る」ボタンが再び現れる）。対策として `LeaveSessionAndGoHomeAsync` ではセッション離脱の前に `UnregisterRematchCallbacks()` を呼んでコールバックを解除しておく。
+
 ---
 
 ## デッキ交換プロトコルの設計メモ
