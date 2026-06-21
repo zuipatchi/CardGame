@@ -3,6 +3,7 @@
     <Style src="Main.Overlays.uss" />
     <Style src="Main.FloatingLabels.uss" />
     <Style src="Main.Highlights.uss" />
+    <Style src="Main.Tutorial.uss" />
     <Style src="../../Common/View/CardDetail.uss" />
     <ui:VisualElement name="MainRoot" class="main-root">
         <ui:VisualElement name="OpponentHandArea" class="main-opponent-hand-area" />

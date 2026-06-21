@@ -8,6 +8,7 @@ using Cysharp.Threading.Tasks;
 using R3;
 using Unity.Services.Multiplayer;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 using VContainer;
 using VContainer.Unity;
@@ -28,6 +29,7 @@ namespace Matching
         private SoundStore _soundStore;
         private string _username;
 
+        private VisualElement _matchingRoot;
         private Button _backButton;
         private ScrollView _roomList;
         private Button _quickMatchButton;
@@ -66,6 +68,7 @@ namespace Matching
             UIDocument uiDocument = GetComponent<UIDocument>();
             VisualElement root = uiDocument.rootVisualElement;
 
+            _matchingRoot = root.Q<VisualElement>("MatchingRoot");
             _backButton = root.Q<Button>("BackButton");
             _roomList = root.Q<ScrollView>("RoomList");
             _quickMatchButton = root.Q<Button>("QuickMatchButton");
@@ -89,6 +92,8 @@ namespace Matching
 
         void IStartable.Start()
         {
+            LoadBackgroundAsync(destroyCancellationToken).Forget();
+
             _backButton.clicked += () =>
             {
                 _soundPlayer.PlaySE(_soundStore.Enter2SE);
@@ -125,6 +130,39 @@ namespace Matching
                 .AddTo(destroyCancellationToken);
 
             InitializeAsync(destroyCancellationToken).Forget();
+        }
+
+        // マッチングシーンの背景画像（Addressables: Image/MatchingBackground）をルート要素に設定する。
+        // スケールモード（scale-and-crop）は USS の .matching-root で指定する。
+        private async UniTaskVoid LoadBackgroundAsync(System.Threading.CancellationToken ct)
+        {
+            if (_matchingRoot == null)
+            {
+                return;
+            }
+
+            Texture2D texture;
+            try
+            {
+                texture = await Addressables.LoadAssetAsync<Texture2D>("Image/MatchingBackground")
+                    .ToUniTask(cancellationToken: ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"MatchingBackground ロード失敗: {e.Message}");
+                return;
+            }
+
+            if (this == null)
+            {
+                return;
+            }
+
+            _matchingRoot.style.backgroundImage = new StyleBackground(texture);
         }
 
         private void ApplyState(MatchingState state)

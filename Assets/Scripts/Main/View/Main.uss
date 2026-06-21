@@ -185,7 +185,7 @@
 }
 
 .action-button {
-    width: 192px;
+    width: 88px;
     height: 88px;
     flex-grow: 0;
     flex-shrink: 0;
@@ -219,7 +219,7 @@
 
 .action-button--pass {
     position: absolute;
-    right: 0;
+    right: 52px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/PassButton.png");
@@ -232,7 +232,7 @@
 
 .action-button--ok {
     position: absolute;
-    right: 108px;
+    right: 160px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/OKButton.png");
@@ -245,7 +245,7 @@
 
 .action-button--back {
     position: absolute;
-    right: 0;
+    right: 52px;
     top: 0;
     background-color: rgba(0, 0, 0, 0);
     background-image: url("project://database/Assets/AddressableAssets/Image/returnButton.png");
@@ -258,7 +258,7 @@
 
 .action-button--end {
     position: absolute;
-    right: 0;
+    right: 52px;
     top: 0;
     display: none;
     background-color: rgba(0, 0, 0, 0);

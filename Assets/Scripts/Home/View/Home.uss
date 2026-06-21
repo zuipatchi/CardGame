@@ -241,7 +241,7 @@
     font-size: 18px;
     -unity-font-style: bold;
     color: rgb(230, 235, 255);
-    background-color: rgba(8, 8, 25, 0.85);
+    background-color: rgba(8, 8, 25, 0.97);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
@@ -256,8 +256,8 @@
     border-bottom-right-radius: 10px;
     padding-left: 18px;
     padding-right: 18px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 13px;
+    padding-bottom: 13px;
     transition-property: scale, background-color;
     transition-duration: 0.12s, 0.12s;
     transition-timing-function: ease-out, ease-out;
@@ -374,15 +374,155 @@
     scale: 0.98 0.98;
 }
 
+/* チュートリアル選択モーダルはクレジットより大きく表示する */
+.home-tutorial-panel {
+    width: 70%;
+    max-width: 1100px;
+    height: 86%;
+    max-height: 86%;
+}
+
+/* チュートリアル選択モーダルの各エントリ（クレジットモーダルの見た目を流用） */
+.home-tutorial-entry {
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: rgba(14, 22, 40, 0.9);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(110, 205, 255, 0.5);
+    border-right-color: rgba(110, 205, 255, 0.5);
+    border-top-color: rgba(110, 205, 255, 0.5);
+    border-bottom-color: rgba(110, 205, 255, 0.5);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    padding-left: 26px;
+    padding-right: 26px;
+    padding-top: 22px;
+    padding-bottom: 22px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-tutorial-entry:hover {
+    scale: 1.01 1.01;
+    background-color: rgba(20, 34, 58, 0.95);
+    border-left-color: rgb(140, 220, 255);
+    border-right-color: rgb(140, 220, 255);
+    border-top-color: rgb(140, 220, 255);
+    border-bottom-color: rgb(140, 220, 255);
+}
+
+.home-tutorial-entry:active {
+    scale: 0.99 0.99;
+}
+
+.home-tutorial-entry-title {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(235, 245, 255);
+    margin-bottom: 10px;
+}
+
+.home-tutorial-entry-desc {
+    font-size: 20px;
+    color: rgb(200, 212, 235);
+    white-space: normal;
+    margin-right: 64px;
+}
+
+/* キーワード能力エントリのアイコン（右上に絶対配置。背景画像で表示） */
+.home-tutorial-entry-icon {
+    position: absolute;
+    right: 24px;
+    top: 22px;
+    width: 52px;
+    height: 52px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.home-tutorial-entry-icon--guardian {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ShieldIcon.png");
+}
+
+.home-tutorial-entry-icon--haste {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/SpeedIcon.png");
+}
+
+.home-tutorial-entry-icon--flying {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/FlyIcon.png");
+}
+
+.home-tutorial-entry-icon--sakimori {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ProtectorIcon.png");
+}
+
+.home-tutorial-entry-icon--assault {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/AssaultIcon.png");
+}
+
+.home-tutorial-entry-icon--nodeckattack {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/NoDeckAttackIcon.png");
+}
+
+/* チュートリアルボタン: あそびかたボタンの左に並べる */
+.home-tutorial-button {
+    position: absolute;
+    right: 342px;
+    bottom: 28px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(230, 240, 255);
+    background-color: rgba(8, 18, 28, 0.97);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(110, 205, 255, 0.55);
+    border-right-color: rgba(110, 205, 255, 0.55);
+    border-top-color: rgba(110, 205, 255, 0.55);
+    border-bottom-color: rgba(110, 205, 255, 0.55);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-tutorial-button:hover {
+    scale: 1.05 1.05;
+    background-color: rgba(14, 34, 52, 0.95);
+    border-left-color: rgb(140, 220, 255);
+    border-right-color: rgb(140, 220, 255);
+    border-top-color: rgb(140, 220, 255);
+    border-bottom-color: rgb(140, 220, 255);
+}
+
+.home-tutorial-button:active {
+    scale: 0.97 0.97;
+}
+
 /* あそびかた（ルール）ボタン: クレジットボタンの左に並べる */
 .home-rules-button {
     position: absolute;
-    right: 210px;
+    right: 180px;
     bottom: 28px;
     font-size: 18px;
     -unity-font-style: bold;
     color: rgb(230, 235, 255);
-    background-color: rgba(8, 8, 25, 0.85);
+    background-color: rgba(8, 8, 25, 0.97);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
@@ -397,8 +537,8 @@
     border-bottom-right-radius: 10px;
     padding-left: 18px;
     padding-right: 18px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 13px;
+    padding-bottom: 13px;
     transition-property: scale, background-color;
     transition-duration: 0.12s, 0.12s;
     transition-timing-function: ease-out, ease-out;

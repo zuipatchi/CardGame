@@ -74,6 +74,12 @@ namespace Main
         {
             _gameModel.SetInitialTurn(isLocalFirst);
 
+            // チュートリアルはコイントス演出をスキップ（先攻固定。内部の先攻後攻設定は上で済ませている）。
+            if (_isTutorial)
+            {
+                return;
+            }
+
             string resultText = isLocalFirst ? "先攻！" : "後攻！";
             string resultClass = isLocalFirst ? "turn-announcement-label--player" : "turn-announcement-label--enemy";
             await PlayCoinTossAsync(isLocalFirst, resultText, resultClass, ct);
@@ -86,6 +92,10 @@ namespace Main
         private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false, WinReason? winReason = null)
         {
             _optionPresenter.ClearSurrenderHandler();
+            if (_isTutorial)
+            {
+                TutorialHideCoach();
+            }
             _gameSessionModel.ShouldRainOnNextHome = playerWins == false;
             if (_isOnline)
             {

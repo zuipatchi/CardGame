@@ -216,6 +216,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57f3f8109b55379468616ed6e3b85e95
+    m_Address: Image/MatchingBackground
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 61442b5362560e94c99a887dea11ea25
     m_Address: Voice/E3001
     m_ReadOnly: 0

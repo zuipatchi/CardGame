@@ -8,6 +8,7 @@ using Common.Option;
 using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
+using Common.Tutorial;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using Main.Card;
@@ -111,6 +112,10 @@ namespace Main
         private CardDetailModal _cardDetailModal;
         private bool _isGameOver;
         private bool _isOnline;
+        // チュートリアル（誘導つきスクリプト対戦）モードか。Construct で TutorialModel から消費して確定する。
+        private bool _isTutorial;
+        // どのチュートリアルか（_isTutorial が true のときのみ有効）。
+        private TutorialId _tutorialId;
         private bool _mulliganChoicePending;
         private VisualElement _mulliganOverlay;
         private VisualElement _waitingOverlay;
@@ -232,8 +237,14 @@ namespace Main
             SoundPlayer soundPlayer,
             SoundStore soundStore,
             FlavorVoiceStore flavorVoiceStore,
+            TutorialModel tutorialModel,
             UsernameRepository usernameRepository)
         {
+            // チュートリアルフラグは消費型：起動時に読み取って即 false に戻し、
+            // 中断しても次の通常 CPU 戦・オンライン戦に持ち越さないようにする。
+            _isTutorial = tutorialModel.IsActive;
+            _tutorialId = tutorialModel.Id;
+            tutorialModel.IsActive = false;
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
@@ -308,7 +319,8 @@ namespace Main
                 mainRoot.Add(_toastContainer);
 
                 CardData[] allCards = _cardDatabase.AllCards.ToArray();
-                bool isOnline = _gameSessionModel.HasSession;
+                // チュートリアルは必ずオフライン（固定デッキのスクリプト対戦）。
+                bool isOnline = _gameSessionModel.HasSession && !_isTutorial;
                 _isOnline = isOnline;
 
                 CardData[] playerDeckFull = null;
@@ -352,6 +364,22 @@ namespace Main
                     _opponentUsername = string.IsNullOrEmpty(state.OpponentUsername) ? "ゲスト" : state.OpponentUsername;
                     WatchForOpponentSurrenderAsync(destroyCt).Forget();
                     WatchForOpponentSpecialWinAsync(destroyCt).Forget();
+                }
+                else if (_isTutorial)
+                {
+                    _opponentUsername = "CPU";
+                    // チュートリアルは決定的セットアップ：先攻プレイヤー固定・固定デッキ・シャッフルなし。
+                    isLocalFirst = true;
+                    CardData[] playerOrdered = _cardDatabase.BuildDeck(TutorialPlayerDeckIds());
+                    playerDeckFull = playerOrdered;
+                    playerHandSize = Mathf.Min(MulliganRule.InitialHandSize(true), playerOrdered.Length);
+                    playerHandCards = playerOrdered.Take(playerHandSize).ToArray();
+                    playerDeckCards = playerOrdered.Skip(playerHandSize).ToArray();
+
+                    CardData[] cpuOrdered = _cardDatabase.BuildDeck(TutorialCpuDeckIds());
+                    cpuHandSize = Mathf.Min(MulliganRule.InitialHandSize(false), cpuOrdered.Length);
+                    cpuHandCards = cpuOrdered.Take(cpuHandSize).ToArray();
+                    cpuDeckCards = cpuOrdered.Skip(cpuHandSize).ToArray();
                 }
                 else
                 {
@@ -612,10 +640,15 @@ namespace Main
 
                 _waitingOverlay.style.display = DisplayStyle.None;
 
-                string localDisplayName = string.IsNullOrEmpty(_localUsername) ? "ゲスト" : _localUsername;
-                await PlayVsAnnouncementAsync(localDisplayName, _opponentUsername, ct);
+                // チュートリアルでは VS 告知の演出をスキップする（先攻固定・誘導に集中させるため）。
+                if (!_isTutorial)
+                {
+                    string localDisplayName = string.IsNullOrEmpty(_localUsername) ? "ゲスト" : _localUsername;
+                    await PlayVsAnnouncementAsync(localDisplayName, _opponentUsername, ct);
+                }
 
                 // 先攻後攻を配牌前にコイントスで確定する（手札枚数が先攻3枚・後攻5枚で変わるため）。
+                // チュートリアルではコイントス演出をスキップし、内部の先攻後攻設定だけ行う（InitializeFirstTurnAsync 内で分岐）。
                 await InitializeFirstTurnAsync(isLocalFirst, ct);
 
                 Rect deckWorldRect = _playerDeckView.worldBound;
@@ -652,6 +685,11 @@ namespace Main
                     {
                         await RunOpponentMulliganAnimationAsync(opponentPlaceholder, cpuHandSize, opponentResult.NewDeck, ct);
                     }
+                }
+                else if (_isTutorial)
+                {
+                    // チュートリアルはマリガンを行わない（固定の初期手札のまま進める）。
+                    SetupTutorial(mainRoot);
                 }
                 else
                 {

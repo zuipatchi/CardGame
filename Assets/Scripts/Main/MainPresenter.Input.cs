@@ -115,6 +115,10 @@ namespace Main
                     if (effectiveCost > 0)
                     {
                         BeginStagedCostSelection(card);
+                        if (_isTutorial)
+                        {
+                            TutorialOnLocalStagedCost();
+                        }
                     }
                     else
                     {
