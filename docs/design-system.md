@@ -181,21 +181,33 @@ USS クラスの `:hover` / `:active` ルールは上書きできない（イン
 
 ### リスト項目（`.room-item`）
 
+ルーム名（左・太字）と人数バッジ（右・ピル表示）を横並びにした行。子要素は `.room-item__name` / `.room-item__count`（`MatchingPresenter.RebuildRoomList` が Label を2つ生成して付与）。
+
 ```css
 .room-item {
+    flex-direction: row; align-items: center; justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.05);
     border-top-left-radius: 8px; /* 他3角も同じ */
     border-left-width: 1px; /* 他3辺も同じ */
     border-left-color: rgba(255, 255, 255, 0.1); /* 他3辺も同じ */
-    padding-top: 14px; padding-right: 16px; padding-bottom: 14px; padding-left: 16px;
+    padding-top: 10px; padding-right: 14px; padding-bottom: 10px; padding-left: 16px;
     margin-bottom: 8px;
-    color: rgb(180, 180, 210);
-    font-size: 14px;
-    -unity-text-align: middle-left;
 }
 .room-item:hover {
     background-color: rgba(70, 90, 180, 0.2);
     border-left-color: rgba(70, 90, 180, 0.5); /* 他3辺も同じ */
+}
+.room-item__name { /* ルーム名：左寄せ・太字、余白を占有 */
+    flex-grow: 1; flex-shrink: 1;
+    color: rgb(225, 225, 245); font-size: 16px; -unity-font-style: bold; -unity-text-align: middle-left;
+}
+.room-item__count { /* 人数バッジ：青系ピル・右端 */
+    flex-shrink: 0; margin-left: 12px;
+    color: rgb(200, 210, 240); font-size: 13px;
+    background-color: rgba(70, 90, 180, 0.28);
+    border-top-left-radius: 6px; /* 他3角も同じ */
+    padding-top: 3px; padding-right: 10px; padding-bottom: 3px; padding-left: 10px;
+    -unity-text-align: middle-center;
 }
 ```
 

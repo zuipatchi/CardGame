@@ -21,6 +21,7 @@ namespace Main.Network
         private const string k_ClientReady = "NGS_ClientReady";
         private const string k_Draw = "NGS_Draw";
         private const string k_Surrender = "NGS_Surrender";
+        private const string k_SpecialWin = "NGS_SpecialWin";
         private const string k_Rematch = "NGS_Rematch";
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
@@ -49,6 +50,7 @@ namespace Main.Network
             k_DiceDraw,
             k_DamageTarget,
             k_Surrender,
+            k_SpecialWin,
             k_Rematch,
         };
 
@@ -528,6 +530,19 @@ namespace Main.Network
         public async UniTask WaitForOpponentSurrenderAsync(CancellationToken ct)
         {
             await WaitJsonAsync(k_Surrender, ct);
+        }
+
+        // HandCollectionWin（太郎勝利）の発動側が、自分の手札で勝利条件を満たしたことを相手へ伝える。
+        // 受信した相手は敗北として扱う（WatchForOpponentSpecialWinAsync）。相手の手札は同期されないため、
+        // 投了と同じく「発動側が判定して通知する」一方向の確定メッセージにする。
+        public void SendSpecialWinNotification()
+        {
+            SendJson(k_SpecialWin, string.Empty);
+        }
+
+        public async UniTask WaitForOpponentSpecialWinAsync(CancellationToken ct)
+        {
+            await WaitJsonAsync(k_SpecialWin, ct);
         }
 
         public void SendRematchRequest()

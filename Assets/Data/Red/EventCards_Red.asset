@@ -21,6 +21,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3061\u3071\u3061\u3071\u3061\uFF5E"
     _voiceSpeaker: 43
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -38,6 +39,7 @@ MonoBehaviour:
     _flavorText: "\u30B4\u30D6\u30EA\u30F3\u304C\u51FA\u3061\u3083\u3063\u305F\u306E\u3088"
     _voiceSpeaker: 0
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -46,7 +48,7 @@ MonoBehaviour:
     _eventType: 14
     _eventValue: 5001
     _eventValue2: 2
-    _description: "\u300C1/2\u306E\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
+    _description: "1/2\u306E\u300C\u30B4\u30D6\u30EA\u30F3\u306E\u653E\u706B\u9B54\u300D\u30922\u4F53\u53EC\u559A\u3059\u308B"
     _attribute: 0
   - _id: E5003
     _cardName: "\u706B\u708E\u653E\u5C04"
@@ -55,6 +57,7 @@ MonoBehaviour:
     _flavorText: "\u708E\u9B5A\u3001\u304B\u3048\u3093\u307B\u3046\u3057\u3083\u3060"
     _voiceSpeaker: 48
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -72,6 +75,7 @@ MonoBehaviour:
     _flavorText: "\u3093\u307B\u304A\u304A\u304A\u304A\u304A"
     _voiceSpeaker: 82
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -89,6 +93,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u304C\u58CA\u308C\u3061\u3083\u3063\u305F"
     _voiceSpeaker: 54
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -106,6 +111,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u3092\u6367\u3052\u3088"
     _voiceSpeaker: 101
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0

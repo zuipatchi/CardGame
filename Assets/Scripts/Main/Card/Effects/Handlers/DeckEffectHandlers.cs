@@ -23,6 +23,30 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // デッキから発動カード自身の特徴を持つカード（キャラ・イベント問わず）を値1枚選んで手札に加える。
+    [Preserve]
+    public sealed class AddToHandFromDeckByKeywordHandler : EffectHandler
+    {
+        public override EventType Type => EventType.AddToHandFromDeckByKeyword;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（加える枚数）", false, "値2（未使用）",
+            "値1=デッキから自身の特徴を持つカードを手札に加える枚数。候補が値1より多いときはプレイヤーが選ぶ。発動カードに特徴の設定が必要。");
+
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            int count = ctx.Value1 <= 0 ? 1 : ctx.Value1;
+            return string.IsNullOrEmpty(ctx.Keyword)
+                ? $"デッキからカードを{count}枚選んで手札に加える"
+                : $"デッキから特徴「{ctx.Keyword}」を持つカードを{count}枚選んで手札に加える";
+        }
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyAddToHandFromDeckByKeywordAsync(inv.Keyword, inv.Value1, inv.IsLocal, ct);
+        }
+    }
+
     // お互いのデッキの上から値1枚ずつを墓地へ送る（デッキへのダメージ＝ミル）。自分 → 相手の順にミルする。
     // ミルされたカードが「ダメージトリガー」なら持ち主がコストなしで使用する。自分のデッキも削れるため両刃。
     [Preserve]

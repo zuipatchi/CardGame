@@ -8,6 +8,11 @@ namespace Main.Card
     public enum EventType
     {
         None = 0,
+        // 発動側のデッキから、発動カード自身の特徴（CardData.Keyword）を持つカード（キャラ・イベント問わず）を
+        // EventValue / EffectValue 枚（値1）選んで手札に加える。候補が値1以下なら全部・特徴未設定／一致カードなしなら空振り。
+        // 候補が値1より多いときはプレイヤーがピッカーで選ぶ（CPU は高コスト順・オンラインはデッキ内インデックスで同期）。
+        // 手札が上限（8枚）に達したら超過分は墓地へ送る（Draw と同じバーン）。EventValue2 / EffectValue2 は不使用。
+        AddToHandFromDeckByKeyword = 30,
         // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
         // それぞれの攻撃力を EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
         // 対象数が味方の数以上なら全員。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
@@ -66,6 +71,10 @@ namespace Main.Card
         // EventValue2 / EffectValue2（値2）で指定したキーワード能力を永続付与する。
         // 値2: 1=守護 / 2=速攻 / 3=飛行 / 4=防人 / 5=強襲 / 6=デッキ攻撃×（それ以外は空振り）。AtkBoost と同じ対象選択。
         GrantKeyword = 26,
+        // 太郎勝利（特殊勝利）。EffectParam（値1のテキスト）にカンマ区切りで書いた完全ID（例 "C1001,E2003"）の
+        // カードが、効果発動時に発動側プレイヤーの手札にすべて（重複指定は枚数分）そろっていれば、その場で勝利する。
+        // そろっていなければ空振り。EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（値はテキストの EffectParam を使う）。
+        HandCollectionWin = 29,
         // 発動側の自フィールドのキャラ全員の HP を EventValue / EffectValue 分回復する（最大HPでクランプ）。
         // EventValue / EffectValue = 0 のときは最大HPまで全回復する。自キャラがいなければ空振り。
         HealAllAllies = 19,

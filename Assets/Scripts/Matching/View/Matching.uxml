@@ -1,12 +1,12 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="Matching.uss" />
-    <ui:VisualElement name="MatchingRoot" class="matching-root" style="flex-grow: 1; align-items: center; justify-content: center; padding-top: 100px; padding-right: 100px;">
+    <ui:VisualElement name="MatchingRoot" class="matching-root" style="flex-grow: 1; align-items: center; justify-content: center; padding-top: 40px; padding-bottom: 40px;">
 
         <!-- メインカード -->
-        <ui:VisualElement class="card" style="width: 640px; flex-direction: column;">
+        <ui:VisualElement class="card" style="width: 520px; flex-direction: column;">
             <ui:Label text="ルーム選択" class="card__title" />
             <ui:VisualElement class="divider" />
-            <ui:ScrollView name="RoomList" style="flex-grow: 1; min-height: 300px; margin-bottom: 20px;" />
+            <ui:ScrollView name="RoomList" style="flex-grow: 1; min-height: 420px; margin-bottom: 20px;" />
             <ui:VisualElement style="flex-direction: row; justify-content: space-between;">
                 <ui:Button name="BackButton" text="ホームへ" class="btn-secondary" style="width: 100px;" />
                 <ui:VisualElement style="flex-direction: row;">

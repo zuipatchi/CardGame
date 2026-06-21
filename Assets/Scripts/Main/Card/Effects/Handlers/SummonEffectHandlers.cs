@@ -19,9 +19,11 @@ namespace Main.Card.Effects.Handlers
             string id = $"C{ctx.Value1}";
             string name = ctx.ResolveCardName(id);
             string stats = ctx.ResolveCardStats?.Invoke(id);
-            // 召喚先のカードを参照して「ATK/HPのカード名」と表示する。数値が引けないときは名前のみ。
-            string label = string.IsNullOrEmpty(stats) ? name : $"{stats}の{name}";
-            return $"「{label}」を{(ctx.Value2 <= 0 ? 1 : ctx.Value2)}体召喚する";
+            int count = ctx.Value2 <= 0 ? 1 : ctx.Value2;
+            // 召喚先のカードを参照して「ATK/HPの「カード名」」と表示する。数値が引けないときは名前のみ。
+            return string.IsNullOrEmpty(stats)
+                ? $"「{name}」を{count}体召喚する"
+                : $"{stats}の「{name}」を{count}体召喚する";
         }
 
         public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)

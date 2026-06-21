@@ -18,6 +18,11 @@ namespace Main.Card
         // 登録候補は CardKeywordSO（マスターリスト）で管理し、カードエディタのドロップダウンから選ぶ。
         // マッチング（同じ特徴か）は文字列一致で行うため、実行時に CardKeywordSO をロードする必要はない。
         [SerializeField] protected string _keyword;
+        // 効果の文字列パラメータ（値1/値2 の int では表せない効果用）。空＝未設定。
+        // 現在は HandCollectionWin（特殊勝利）の勝利条件カードID（カンマ区切り・完全ID 例 "C1001,E2003"）に使う。
+        // カードエディタは、その効果が文字列値1を使う（EffectValueInfo.Value1IsText）とき値1欄をテキスト入力にする。
+        // 既定値 空（既存アセットは未設定でも空になるため移行不要）。
+        [SerializeField] protected string _effectParam;
         // 勝利点付帯値（勝利点の勝利条件への加点）。EventType の効果とは独立して、効果解決時に発動側へ加算する。
         // キャラはトリガー（OnEnter 等）のタイミング、イベントはプレイ／OnTurnStart のタイミングで加算。
         // 0 のときは加算なし（演出も出ない）。「勝利点を得るだけ」のカードは EventType=None + この値で表現する。
@@ -45,6 +50,8 @@ namespace Main.Card
         public int VoiceSpeaker => _voiceSpeaker;
         // 特徴（キーワード）。空＝特徴なし。BuffAttackByKeyword / BuffHpByKeyword の対象判定（同じ特徴か）に使う。
         public string Keyword => _keyword;
+        // 効果の文字列パラメータ（空＝未設定）。HandCollectionWin の勝利条件カードID（カンマ区切り）など。
+        public string EffectParam => _effectParam;
         // 勝利点付帯値は全属性のカードで設定できる（属性による制限なし）。
         public int VictoryPointBonus => _victoryPointBonus;
         // 対戦で使用するか（対戦の ID 参照テーブルへの登録対象か）。トークンも含む。

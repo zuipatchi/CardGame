@@ -385,14 +385,14 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 
 **背景**: セクション 7・9・10・11 はすべて同一クラスのバグ ——「受信側がアニメーション後にハンドラを遅延登録する間に、送信側の名前付きメッセージが NGO に破棄され、受信側が永久待機する」。個別に事前登録（`_preDrawReceiveTask` 等）でしのいできたが、メッセージ種別を追加するたびに同じ罠を踏むリスクが残っていた。
 
-**対処**: セクション 11 の「永続ハンドラ＋キュー」を **全ゲームプレイメッセージに一般化** した。`NetworkGameService.PrepareDecksAsync` で `RegisterGameplayChannels` を呼び、`k_GameplayChannels`（Draw / MainAction / Mulligan / Switch / Evolve / RecoverDeck / DamageTarget / Surrender / Rematch）のハンドラを対戦開始時に**一度だけ永続登録**する。各チャンネルは `MessageChannel`（per-channel の受信バッファ）を持ち、
+**対処**: セクション 11 の「永続ハンドラ＋キュー」を **全ゲームプレイメッセージに一般化** した。`NetworkGameService.PrepareDecksAsync` で `RegisterGameplayChannels` を呼び、`k_GameplayChannels`（Draw / MainAction / Mulligan / Switch / Evolve / RecoverDeck / DamageTarget / Surrender / SpecialWin / Rematch）のハンドラを対戦開始時に**一度だけ永続登録**する。各チャンネルは `MessageChannel`（per-channel の受信バッファ）を持ち、
 
 - 受信ハンドラ: 待機中の `WaitAsync` があれば即解決、なければ JSON をキューに積む
 - `WaitAsync`: キューにあれば即返す、なければ新しい waiter を作って待つ
 
 これにより**送受信の前後関係に依存せず取りこぼさない**。「待つ直前に登録 → 1回受信して解除」という従来の遅延登録パターンは撤廃された。
 
-**公開 API は不変**: `Send*` / `WaitFor*` のシグネチャは変えていないため `MainPresenter` 側は無改修。`SendJson(messageName, json)` / `WaitJsonAsync(messageName, ct)` を共通ヘルパーとして全メッセージが利用する。ペイロードなしのメッセージ（Draw / Surrender / Rematch）は空文字列を送ることで、受信ハンドラを「一律に string を読む」形に統一している。
+**公開 API は不変**: `Send*` / `WaitFor*` のシグネチャは変えていないため `MainPresenter` 側は無改修。`SendJson(messageName, json)` / `WaitJsonAsync(messageName, ct)` を共通ヘルパーとして全メッセージが利用する。ペイロードなしのメッセージ（Draw / Surrender / SpecialWin / Rematch）は空文字列を送ることで、受信ハンドラを「一律に string を読む」形に統一している。
 
 **新メッセージ追加時の指針**: 種別定数を足し、`k_GameplayChannels` 配列に追加し、`SendJson` / `WaitJsonAsync` を使う。これだけでタイミング非依存になる。手動でのハンドラ登録・解除は不要・禁止。
 
@@ -420,11 +420,16 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
+| `NGS_SpecialWin` | Sender → Other | 特殊勝利（`HandCollectionWin` ＝太郎勝利）通知（ペイロードなし）。発動側が自分の手札で勝利条件を満たしたとき送信し、受信側は敗北として終了する（相手手札は非同期のため一方向の確定メッセージ） |
 | `NGS_Rematch` | Both | 再戦希望通知（ペイロードなし）。双方が送信し合うと両者が Main シーンを再ロードして新規対戦を開始 |
 
 `Both` 方向のメッセージ（Draw 以降）はすべて対戦開始時に永続登録され、受信値が per-channel のキューにバッファされる（セクション 13）。送受信のタイミングに依存せず取りこぼさないため、各行に個別の登録タイミング注記は不要。
 
 `NGS_Surrender` はペイロードなし（4 バイトの空 `FastBufferWriter`）。送信者は YOU LOSE + 「降参しました」を表示し、受信者は YOU WIN + 「対戦相手が降参しました」を表示する。受信監視は `PrepareDecksAsync` 完了直後（ゲーム画面表示前）に開始するため、コイントスや初期配布中の降参も検知できる。
+
+### 特殊勝利（NGS_SpecialWin）
+
+`HandCollectionWin`（太郎勝利）は、勝利条件が**発動側の手札**で決まる。相手の手札は同期されない（裏向きプレースホルダー）ため、ミラー側で再計算できない唯一の勝敗条件である。そこで投了と同じく**発動側が自分の手札で判定して一方向に通知する**方式をとる。発動側は `ApplyHandCollectionWinAsync` で条件成立を確認したら `SendSpecialWinNotification`（ペイロードなし）を送り、自分は `WinReason.HandCollection` で勝利終了する。受信側は `WatchForOpponentSpecialWinAsync`（`WatchForOpponentSurrenderAsync` と同様に対戦開始時から監視）で受信して敗北終了する。ミラー側の効果解決（`isLocal == false`）は判定をスキップし、通知だけに依存する。
 
 ### 再戦（NGS_Rematch）
 

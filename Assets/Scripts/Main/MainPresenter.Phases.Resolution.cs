@@ -56,7 +56,7 @@ namespace Main
             EffectHandler handler = EffectCatalog.Get(eventData.EventType);
             if (handler != null && handler.ValidOnEvent)
             {
-                EffectInvocation inv = new EffectInvocation(isLocal, card, eventData.EventValue, eventData.EventValue2, eventData.Keyword);
+                EffectInvocation inv = new EffectInvocation(isLocal, card, eventData.EventValue, eventData.EventValue2, eventData.Keyword, eventData.EffectParam);
                 await handler.ApplyAsync(this, inv, ct);
             }
 
@@ -146,7 +146,7 @@ namespace Main
             EffectHandler handler = EffectCatalog.Get(charData.EffectType);
             if (handler != null && handler.ValidOnCharacter)
             {
-                EffectInvocation inv = new EffectInvocation(isLocal, sourceCard, charData.EffectValue, charData.EffectValue2, charData.Keyword);
+                EffectInvocation inv = new EffectInvocation(isLocal, sourceCard, charData.EffectValue, charData.EffectValue2, charData.Keyword, charData.EffectParam);
                 await handler.ApplyAsync(this, inv, ct);
             }
 
@@ -283,6 +283,65 @@ namespace Main
                 _opponentNextCardFree = true;
             }
             await PlayFloatingLabelAsync("コスト0", "cost-free-label", sourceCard, ct);
+        }
+
+        // HandCollectionWin（太郎勝利）：requiredIds（完全ID）のカードが、発動側の手札に
+        // すべて（重複指定は枚数分）そろっていれば発動側の勝利。そろっていなければ空振り。
+        // 相手の手札は同期されない（裏向きプレースホルダー）ため、オンラインのミラー側（!isLocal）は
+        // 判定せず、発動側からの通知（WatchForOpponentSpecialWinAsync）に任せる。
+        internal UniTask ApplyHandCollectionWinAsync(string[] requiredIds, bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (_isGameOver || requiredIds == null || requiredIds.Length == 0)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            // オンラインのミラー側（相手が発動）は相手の手札中身を持たないため判定しない。
+            if (_isOnline && !isLocal)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            HandView hand = isLocal ? _handView : _opponentHandView;
+            if (!HandContainsAll(hand, requiredIds))
+            {
+                return UniTask.CompletedTask;
+            }
+
+            _isGameOver = true;
+            if (_isOnline)
+            {
+                _networkGameService.SendSpecialWinNotification();
+            }
+
+            OnGameEnd(playerWins: isLocal, winReason: WinReason.HandCollection);
+            return UniTask.CompletedTask;
+        }
+
+        // hand の中に requiredIds のカードが（重複指定は枚数分）すべて含まれるか。
+        private static bool HandContainsAll(HandView hand, string[] requiredIds)
+        {
+            Dictionary<string, int> counts = new Dictionary<string, int>();
+            foreach (CardView card in hand.Cards)
+            {
+                string id = card.Data?.Id;
+                if (string.IsNullOrEmpty(id))
+                {
+                    continue;
+                }
+                counts.TryGetValue(id, out int current);
+                counts[id] = current + 1;
+            }
+
+            foreach (string id in requiredIds)
+            {
+                if (!counts.TryGetValue(id, out int available) || available <= 0)
+                {
+                    return false;
+                }
+                counts[id] = available - 1;
+            }
+            return true;
         }
 
     }

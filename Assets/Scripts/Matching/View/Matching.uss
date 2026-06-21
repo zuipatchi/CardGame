@@ -50,9 +50,9 @@
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
-    padding-top: 10px;
+    padding-top: 16px;
     padding-right: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 16px;
     padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
@@ -86,9 +86,9 @@
     border-right-color: rgba(255, 255, 255, 0.15);
     border-top-color: rgba(255, 255, 255, 0.15);
     border-bottom-color: rgba(255, 255, 255, 0.15);
-    padding-top: 10px;
+    padding-top: 16px;
     padding-right: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 16px;
     padding-left: 10px;
     font-size: 14px;
     -unity-text-align: middle-center;
@@ -113,6 +113,9 @@
 
 /* ─── Room list ─── */
 .room-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.05);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -126,17 +129,40 @@
     border-right-color: rgba(255, 255, 255, 0.1);
     border-top-color: rgba(255, 255, 255, 0.1);
     border-bottom-color: rgba(255, 255, 255, 0.1);
-    padding-top: 14px;
-    padding-right: 16px;
-    padding-bottom: 14px;
+    padding-top: 10px;
+    padding-right: 14px;
+    padding-bottom: 10px;
     padding-left: 16px;
     margin-bottom: 8px;
-    color: rgb(180, 180, 210);
-    font-size: 14px;
-    -unity-text-align: middle-left;
     transition-property: background-color, scale;
     transition-duration: 0.15s, 0.1s;
     transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.room-item__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: rgb(225, 225, 245);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+}
+
+.room-item__count {
+    flex-shrink: 0;
+    margin-left: 12px;
+    color: rgb(200, 210, 240);
+    font-size: 13px;
+    background-color: rgba(70, 90, 180, 0.28);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding-top: 3px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    -unity-text-align: middle-center;
 }
 
 .room-item:hover {

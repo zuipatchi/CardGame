@@ -47,11 +47,17 @@ namespace Matching
                 {
                     _soundPlayer.PlaySE(_soundStore.EnterSE);
                     OnRoomSelectedAsync(sessionId).Forget();
-                })
-                {
-                    text = $"{room.Name}  {room.PlayerCount}/{room.MaxPlayers}"
-                };
+                });
                 roomButton.AddToClassList("room-item");
+
+                Label nameLabel = new Label { text = room.Name };
+                nameLabel.AddToClassList("room-item__name");
+                roomButton.Add(nameLabel);
+
+                Label countLabel = new Label { text = $"{room.PlayerCount}/{room.MaxPlayers}" };
+                countLabel.AddToClassList("room-item__count");
+                roomButton.Add(countLabel);
+
                 _roomList.Add(roomButton);
             }
             if (!hasVisible)
