@@ -542,6 +542,12 @@ namespace Main
                 _soundPlayer.PlaySE(_soundStore.LoseSE);
             }
 
+            // チュートリアルは再戦（同じ台本の再ロード）に意味がないため「ホームに戻る」のみ表示する。
+            if (_gameEndRematchButton != null)
+            {
+                _gameEndRematchButton.style.display = _isTutorial ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
             _gameEndButtonRow.style.opacity = 0f;
             _gameEndOverlay.style.display = DisplayStyle.Flex;
             _gameEndOverlay.style.opacity = 0f;
