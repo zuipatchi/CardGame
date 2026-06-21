@@ -25,8 +25,11 @@ namespace Common.Option
         private readonly CompositeDisposable _disposables = new();
         private Button _backToTitleButton;
         private Action _surrenderAction;
-        private Action _pendingSurrenderAction;
+        private Action _pendingAction;
+        private string _pendingButtonText;
+        private string _pendingConfirmText;
         private VisualElement _surrenderConfirmOverlay;
+        private Label _surrenderConfirmLabel;
 
         [Inject]
         public void Construct(ModalStore modalStore, OptionModel optionModel, SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore)
@@ -123,10 +126,10 @@ namespace Common.Option
 
             _overlay.style.display = DisplayStyle.None;
 
-            if (_pendingSurrenderAction != null)
+            if (_pendingAction != null)
             {
-                ApplySurrenderHandler(_pendingSurrenderAction);
-                _pendingSurrenderAction = null;
+                ApplyConfirmHandler(_pendingAction, _pendingButtonText, _pendingConfirmText);
+                _pendingAction = null;
             }
         }
 
@@ -161,6 +164,7 @@ namespace Common.Option
             label.style.unityFontStyleAndWeight = FontStyle.Bold;
             label.style.marginBottom = 28f;
             panel.Add(label);
+            _surrenderConfirmLabel = label;
 
             VisualElement row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
@@ -271,19 +275,36 @@ namespace Common.Option
 
         public void SetSurrenderHandler(Action surrenderAction)
         {
+            SetConfirmHandler(surrenderAction, "降参", "本当に降参しますか？");
+        }
+
+        // チュートリアルなど、降参ではなくホームへ戻る選択肢にしたいときに使う。
+        public void SetBackToHomeHandler(Action backToHomeAction)
+        {
+            SetConfirmHandler(backToHomeAction, "ホームに戻る", "ホームに戻りますか？");
+        }
+
+        private void SetConfirmHandler(Action action, string buttonText, string confirmText)
+        {
             if (_backToTitleButton == null)
             {
-                _pendingSurrenderAction = surrenderAction;
+                _pendingAction = action;
+                _pendingButtonText = buttonText;
+                _pendingConfirmText = confirmText;
                 return;
             }
 
-            ApplySurrenderHandler(surrenderAction);
+            ApplyConfirmHandler(action, buttonText, confirmText);
         }
 
-        private void ApplySurrenderHandler(Action surrenderAction)
+        private void ApplyConfirmHandler(Action action, string buttonText, string confirmText)
         {
-            _surrenderAction = surrenderAction;
-            _backToTitleButton.text = "降参";
+            _surrenderAction = action;
+            _backToTitleButton.text = buttonText;
+            if (_surrenderConfirmLabel != null)
+            {
+                _surrenderConfirmLabel.text = confirmText;
+            }
             _backToTitleButton.clicked -= BackToTitle;
             _backToTitleButton.clicked -= OnSurrenderButtonClicked;
             _backToTitleButton.clicked += OnSurrenderButtonClicked;
