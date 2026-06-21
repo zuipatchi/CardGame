@@ -113,6 +113,11 @@
 
 /* ─── Room list ─── */
 .room-item {
+    /* カードを横に広げてもルーム行は従来サイズ（旧カード幅 520px − 左右パディング 32px×2）のまま、
+       広がったリスト内で中央寄せにする。 */
+    width: 456px;
+    align-self: center;
+    flex-shrink: 0;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
