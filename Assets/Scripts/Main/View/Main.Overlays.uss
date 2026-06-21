@@ -553,6 +553,19 @@
     scale: 1.12 1.12;
 }
 
+/* 複数選択（AddToHandFromDeckByKeyword）で選択済みのカード */
+.deck-pick-card--selected {
+    scale: 1.28 1.28;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(120, 200, 255);
+    border-right-color: rgb(120, 200, 255);
+    border-top-color: rgb(120, 200, 255);
+    border-bottom-color: rgb(120, 200, 255);
+}
+
 .deck-pick-hint {
     font-size: 15px;
     color: rgb(120, 130, 170);

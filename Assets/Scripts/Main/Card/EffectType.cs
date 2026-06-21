@@ -8,6 +8,11 @@ namespace Main.Card
     public enum EventType
     {
         None = 0,
+        // 発動側のデッキから、発動カード自身の特徴（CardData.Keyword）を持つカード（キャラ・イベント問わず）を
+        // EventValue / EffectValue 枚（値1）選んで手札に加える。候補が値1以下なら全部・特徴未設定／一致カードなしなら空振り。
+        // 候補が値1より多いときはプレイヤーがピッカーで選ぶ（CPU は高コスト順・オンラインはデッキ内インデックスで同期）。
+        // 手札が上限（8枚）に達したら超過分は墓地へ送る（Draw と同じバーン）。EventValue2 / EffectValue2 は不使用。
+        AddToHandFromDeckByKeyword = 30,
         // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
         // それぞれの攻撃力を EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
         // 対象数が味方の数以上なら全員。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
