@@ -351,6 +351,7 @@ namespace Main
                     cpuDeckCards = state.OpponentDeck;
                     _opponentUsername = string.IsNullOrEmpty(state.OpponentUsername) ? "ゲスト" : state.OpponentUsername;
                     WatchForOpponentSurrenderAsync(destroyCt).Forget();
+                    WatchForOpponentSpecialWinAsync(destroyCt).Forget();
                 }
                 else
                 {

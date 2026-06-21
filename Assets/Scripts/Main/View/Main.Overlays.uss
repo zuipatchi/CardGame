@@ -226,6 +226,11 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
 }
 
+/* 太郎勝利（HandCollectionWin：手札ぞろえ特殊勝利） */
+.game-end-emblem--handcollection {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/Medal5Icon.png");
+}
+
 .game-end-label {
     font-size: 96px;
     -unity-font-style: bold;

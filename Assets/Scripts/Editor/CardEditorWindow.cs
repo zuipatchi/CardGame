@@ -707,7 +707,8 @@ namespace GameEditor
             EditorGUILayout.PropertyField(effectType, new GUIContent("効果種別"));
             DrawValueFields(ToEventType(effectType),
                 element.FindPropertyRelative("_effectValue"),
-                element.FindPropertyRelative("_effectValue2"));
+                element.FindPropertyRelative("_effectValue2"),
+                element.FindPropertyRelative("_effectParam"));
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("能力", EditorStyles.boldLabel);
@@ -729,13 +730,16 @@ namespace GameEditor
             EditorGUILayout.PropertyField(eventType, new GUIContent("効果種別"));
             DrawValueFields(ToEventType(eventType),
                 element.FindPropertyRelative("_eventValue"),
-                element.FindPropertyRelative("_eventValue2"));
+                element.FindPropertyRelative("_eventValue2"),
+                element.FindPropertyRelative("_effectParam"));
 
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
         }
 
         // EventType に応じて値1/値2 のラベルを切り替え、意味のヒントを表示する。
-        private void DrawValueFields(EventType type, SerializedProperty value1, SerializedProperty value2)
+        // 値1が文字列の効果（EffectValueInfo.Value1IsText）では、int の value1 ではなく
+        // 文字列の param（_effectParam）をテキスト入力欄として描画する。
+        private void DrawValueFields(EventType type, SerializedProperty value1, SerializedProperty value2, SerializedProperty param)
         {
             EffectHandler handler = EffectCatalog.Get(type);
             EffectValueInfo info = handler != null ? handler.Values : default;
@@ -745,9 +749,16 @@ namespace GameEditor
                 EditorGUILayout.HelpBox(info.Help, MessageType.None);
             }
 
-            using (new EditorGUI.DisabledScope(!info.Value1Used))
+            if (info.Value1IsText)
             {
-                EditorGUILayout.PropertyField(value1, new GUIContent(info.Value1Label));
+                EditorGUILayout.PropertyField(param, new GUIContent(info.Value1Label));
+            }
+            else
+            {
+                using (new EditorGUI.DisabledScope(!info.Value1Used))
+                {
+                    EditorGUILayout.PropertyField(value1, new GUIContent(info.Value1Label));
+                }
             }
             using (new EditorGUI.DisabledScope(!info.Value2Used))
             {
@@ -805,6 +816,7 @@ namespace GameEditor
             element.FindPropertyRelative("_excludeFromDeckBuilder").boolValue = false;
             element.FindPropertyRelative("_description").stringValue = string.Empty;
             element.FindPropertyRelative("_keyword").stringValue = string.Empty;
+            element.FindPropertyRelative("_effectParam").stringValue = string.Empty;
             element.FindPropertyRelative("_triggerOnGrave").boolValue = false;
 
             if (isCharacter)
@@ -913,9 +925,10 @@ namespace GameEditor
             }
 
             string keyword = element.FindPropertyRelative("_keyword").stringValue;
+            string param = element.FindPropertyRelative("_effectParam").stringValue;
             EffectHandler handler = EffectCatalog.Get(type);
             string body = handler != null
-                ? handler.BuildBody(new EffectTextContext(value1, value2, attribute, keyword, ResolveCardName, ResolveCardStats))
+                ? handler.BuildBody(new EffectTextContext(value1, value2, attribute, keyword, param, ResolveCardName, ResolveCardStats))
                 : string.Empty;
             if (!string.IsNullOrEmpty(body))
             {

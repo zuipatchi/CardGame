@@ -570,6 +570,7 @@ namespace Main
             _gameEndEmblem.EnableInClassList("game-end-emblem--deckout", reason == WinReason.DeckOut);
             _gameEndEmblem.EnableInClassList("game-end-emblem--victorypoints", reason == WinReason.VictoryPoints);
             _gameEndEmblem.EnableInClassList("game-end-emblem--fieldchars", reason == WinReason.FieldChars);
+            _gameEndEmblem.EnableInClassList("game-end-emblem--handcollection", reason == WinReason.HandCollection);
         }
 
         // 勝因ごとの勝敗テキスト。
@@ -583,6 +584,8 @@ namespace Main
                     return isWin ? "勝利点勝利" : "勝利点敗北";
                 case WinReason.FieldChars:
                     return isWin ? "制圧勝利" : "制圧敗北";
+                case WinReason.HandCollection:
+                    return isWin ? "太郎勝利" : "太郎敗北";
                 default:
                     return "";
             }
@@ -595,6 +598,7 @@ namespace Main
                 WinReason.DeckOut => new Color(0.40f, 0.65f, 0.96f, 1f),       // 青系
                 WinReason.VictoryPoints => new Color(0.95f, 0.80f, 0.30f, 1f), // 金系
                 WinReason.FieldChars => new Color(0.96f, 0.55f, 0.30f, 1f),    // 橙系
+                WinReason.HandCollection => new Color(0.72f, 0.50f, 0.95f, 1f), // 紫系
                 _ => Color.white
             };
         }

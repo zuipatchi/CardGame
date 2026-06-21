@@ -22,13 +22,17 @@ namespace Main.Card.Effects
         // 発動カードの特徴（CardData.Keyword）。キーワード系効果で使う。
         public string Keyword { get; }
 
-        public EffectInvocation(bool isLocal, CardView sourceCard, int value1, int value2, string keyword)
+        // 発動カードの文字列パラメータ（CardData.EffectParam）。HandCollectionWin の勝利条件カードIDなど。
+        public string Param { get; }
+
+        public EffectInvocation(bool isLocal, CardView sourceCard, int value1, int value2, string keyword, string param)
         {
             IsLocal = isLocal;
             SourceCard = sourceCard;
             Value1 = value1;
             Value2 = value2;
             Keyword = keyword;
+            Param = param;
         }
     }
 
@@ -41,6 +45,9 @@ namespace Main.Card.Effects
         public CardAttribute Attribute { get; }
         public string Keyword { get; }
 
+        // 効果の文字列パラメータ（CardData.EffectParam）。HandCollectionWin の勝利条件カードIDなど。
+        public string Param { get; }
+
         // ID（"C1001" など）からカード名を引くデリゲート。見つからなければ ID をそのまま返す想定。
         public Func<string, string> ResolveCardName { get; }
 
@@ -48,13 +55,14 @@ namespace Main.Card.Effects
         // 見つからない／キャラでない場合は空文字を返す想定。
         public Func<string, string> ResolveCardStats { get; }
 
-        public EffectTextContext(int value1, int value2, CardAttribute attribute, string keyword,
+        public EffectTextContext(int value1, int value2, CardAttribute attribute, string keyword, string param,
             Func<string, string> resolveCardName, Func<string, string> resolveCardStats)
         {
             Value1 = value1;
             Value2 = value2;
             Attribute = attribute;
             Keyword = keyword;
+            Param = param;
             ResolveCardName = resolveCardName;
             ResolveCardStats = resolveCardStats;
         }
@@ -69,13 +77,18 @@ namespace Main.Card.Effects
         public string Value2Label { get; }
         public string Help { get; }
 
-        public EffectValueInfo(bool value1Used, string value1Label, bool value2Used, string value2Label, string help)
+        // 値1を int ではなく文字列（CardData.EffectParam）で入力する効果か。
+        // true のとき、カードエディタは値1欄を int フィールドではなくテキスト入力欄として描画する。
+        public bool Value1IsText { get; }
+
+        public EffectValueInfo(bool value1Used, string value1Label, bool value2Used, string value2Label, string help, bool value1IsText = false)
         {
             Value1Used = value1Used;
             Value1Label = value1Label;
             Value2Used = value2Used;
             Value2Label = value2Label;
             Help = help;
+            Value1IsText = value1IsText;
         }
     }
 
