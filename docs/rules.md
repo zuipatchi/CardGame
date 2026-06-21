@@ -317,7 +317,7 @@
 | デッキ切れ（`WinReason.DeckOut`） | 「デッキ切れ勝利」「デッキ切れ敗北」 | GraveIcon | 青系（敗北側は暗め） |
 | 勝利点（`WinReason.VictoryPoints`） | 「勝利点勝利」「勝利点敗北」 | Medal1Icon | 金系（敗北側は暗め） |
 | キャラ8体（`WinReason.FieldChars`） | 「制圧勝利」「制圧敗北」 | AttackIcon | 橙系（敗北側は暗め） |
-| 特殊勝利（`WinReason.HandCollection`） | 「太郎勝利」「太郎敗北」 | Medal5Icon | 紫系（敗北側は暗め） |
+| 特殊勝利（`WinReason.HandCollection`） | 「太郎勝利」「太郎敗北」 | DiceIcon | 紫系（敗北側は暗め） |
 | 降参・タイムアウト・引き分け | 「YOU WIN」「YOU LOSE」「DRAW」 | なし | 勝=金 / 敗=赤 / 分=灰 |
 
 - 降参勝ちは「対戦相手が降参しました」、自分の降参は「降参しました」をサブラベルに表示する
