@@ -278,7 +278,15 @@ namespace Main
 
                 CancellationToken destroyCt = destroyCancellationToken;
 
-                _optionPresenter.SetSurrenderHandler(Surrender);
+                // チュートリアルは勝敗のない練習なので「降参」ではなく「ホームに戻る」を出す。
+                if (_isTutorial)
+                {
+                    _optionPresenter.SetBackToHomeHandler(GoHomeFromTutorial);
+                }
+                else
+                {
+                    _optionPresenter.SetSurrenderHandler(Surrender);
+                }
 
                 VisualElement root = GetComponent<UIDocument>().rootVisualElement;
                 _mainRoot = root.Q<VisualElement>("MainRoot");
