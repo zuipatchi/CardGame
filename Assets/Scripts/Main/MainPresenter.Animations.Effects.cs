@@ -492,6 +492,15 @@ namespace Main
                 ApplyEmblemReason(winReason.Value);
                 _gameEndEmblem.style.display = DisplayStyle.Flex;
             }
+            else if (_tutorialCompleted)
+            {
+                // クリア系チュートリアル（基本・キーワード）は「YOU WIN」ではなく「チュートリアル完了」を表示する。
+                // 勝ち方（デッキ切れ/制圧/勝利点）は winReason 付きのため上の分岐で勝因テキストを表示する。
+                _gameEndLabel.text = "チュートリアル完了";
+                _gameEndLabel.style.color = StyleKeyword.Null;
+                _gameEndLabel.AddToClassList("game-end-label--win");
+                _gameEndEmblem.style.display = DisplayStyle.None;
+            }
             else
             {
                 // 降参・タイムアウト・引き分けなど色に依らない決着

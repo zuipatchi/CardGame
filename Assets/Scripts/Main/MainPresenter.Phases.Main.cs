@@ -37,6 +37,12 @@ namespace Main
                 UntapField(_opponentFieldView);
                 await RunOnlineOpponentMainLoopAsync(ct);
             }
+            else if (_isTutorial)
+            {
+                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+                UntapField(_opponentFieldView);
+                await RunTutorialOpponentMainLoopAsync(ct);
+            }
             else
             {
                 ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
@@ -48,9 +54,19 @@ namespace Main
         // ─── メインフェーズ ループ（ローカル） ─────────────────────────────
         private async UniTask RunLocalMainLoopAsync(CancellationToken ct)
         {
-            // 手番の制限時間カウントダウンを開始する（ターン終了時に finally で停止）
+            // 手番の制限時間カウントダウンを開始する（ターン終了時に finally で停止）。
+            // チュートリアル中は急かさないようタイマーを動かさない。
             using CancellationTokenSource timerCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            StartTurnTimer(timerCts.Token);
+            if (!_isTutorial)
+            {
+                StartTurnTimer(timerCts.Token);
+            }
+
+            // チュートリアル：自分のメインフェーズ開始時にステップ案内（コーチ吹き出し）を出す。
+            if (_isTutorial)
+            {
+                TutorialBeginPlayerMainPhase();
+            }
 
             try
             {
@@ -59,6 +75,11 @@ namespace Main
                     MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
                     if (action._actionType == MainPhaseActionType.Pass)
                     {
+                        if (_isTutorial)
+                        {
+                            TutorialOnLocalPass();
+                        }
+
                         // 時間切れによるパスは「時間切れ！」を告知してから終了する
                         if (_turnTimedOut)
                         {
@@ -93,6 +114,11 @@ namespace Main
                     }
 
                     await ExecuteLocalMainResolveAsync(action, ct);
+
+                    if (_isTutorial)
+                    {
+                        TutorialOnLocalActionResolved(action);
+                    }
                 }
             }
             finally

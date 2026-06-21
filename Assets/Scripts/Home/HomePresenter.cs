@@ -5,6 +5,7 @@ using Common.GameSession;
 using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
+using Common.Tutorial;
 using Common.Username;
 using Common.View;
 using Cysharp.Threading.Tasks;
@@ -27,13 +28,39 @@ namespace Home
         private DeckRuleModel _deckRuleModel;
         private DeckRepository _deckRepository;
         private GameSessionModel _gameSessionModel;
+        private TutorialModel _tutorialModel;
         private UIDocument _uiDocument;
+        private Button _tutorialButton;
         private Button _deckBuilderButton;
         private Button _battleButton;
         private Button _matchingButton;
         private Button _creditButton;
         private Button _creditCloseButton;
         private VisualElement _creditOverlay;
+        private VisualElement _tutorialOverlay;
+        private Button _tutorialCloseButton;
+        private Button _tutorialEntryBasic;
+        private Button _tutorialEntryDeckOut;
+        private Button _tutorialEntryFieldChars;
+        private Button _tutorialEntryVictoryPoints;
+        private Button[] _tutorialTabs;
+        private VisualElement[] _tutorialPages;
+        private ScrollView _tutorialScroll;
+        private Action[] _tutorialTabHandlers;
+        private Button[] _tutorialKeywordEntries;
+        private Action[] _tutorialKeywordHandlers;
+
+        // キーワード能力タブの各エントリ（表示順）と対応する TutorialId。
+        private static readonly string[] _keywordEntryNames =
+        {
+            "TutorialEntryGuardian", "TutorialEntryHaste", "TutorialEntryFlying",
+            "TutorialEntrySakimori", "TutorialEntryAssault", "TutorialEntryNoDeckAttack",
+        };
+        private static readonly TutorialId[] _keywordTutorialIds =
+        {
+            TutorialId.GuardianKw, TutorialId.HasteKw, TutorialId.FlyingKw,
+            TutorialId.SakimoriKw, TutorialId.AssaultKw, TutorialId.NoDeckAttackKw,
+        };
         private Button _rulesButton;
         private Button _rulesCloseButton;
         private VisualElement _rulesOverlay;
@@ -53,7 +80,7 @@ namespace Home
 #endif
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRuleModel deckRuleModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, UsernameRepository usernameRepository)
+        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRuleModel deckRuleModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, TutorialModel tutorialModel, UsernameRepository usernameRepository)
         {
             _sceneTransitioner = sceneTransitioner;
             _soundPlayer = soundPlayer;
@@ -62,6 +89,7 @@ namespace Home
             _deckRuleModel = deckRuleModel;
             _deckRepository = deckRepository;
             _gameSessionModel = gameSessionModel;
+            _tutorialModel = tutorialModel;
             _deckModel.Clear();
             _deckRepository.Load(_deckModel);
             _usernameLabel.text = $"ユーザーネーム：{usernameRepository.Load() ?? string.Empty}";
@@ -139,6 +167,7 @@ namespace Home
         private void OnEnable()
         {
             VisualElement root = _uiDocument.rootVisualElement;
+            _tutorialButton = root.Q<Button>("TutorialButton");
             _deckBuilderButton = root.Q<Button>("DeckBuilderButton");
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
@@ -149,6 +178,28 @@ namespace Home
             _creditButton = root.Q<Button>("CreditButton");
             _creditCloseButton = root.Q<Button>("CreditCloseButton");
             _creditOverlay = root.Q<VisualElement>("CreditOverlay");
+            _tutorialOverlay = root.Q<VisualElement>("TutorialOverlay");
+            _tutorialCloseButton = root.Q<Button>("TutorialCloseButton");
+            _tutorialEntryBasic = root.Q<Button>("TutorialEntryBasic");
+            _tutorialEntryDeckOut = root.Q<Button>("TutorialEntryDeckOut");
+            _tutorialEntryFieldChars = root.Q<Button>("TutorialEntryFieldChars");
+            _tutorialEntryVictoryPoints = root.Q<Button>("TutorialEntryVictoryPoints");
+            _tutorialTabs = new Button[]
+            {
+                root.Q<Button>("TutorialTabBasic"),
+                root.Q<Button>("TutorialTabKeyword"),
+            };
+            _tutorialPages = new VisualElement[]
+            {
+                root.Q<VisualElement>("TutorialPageBasic"),
+                root.Q<VisualElement>("TutorialPageKeyword"),
+            };
+            _tutorialScroll = root.Q<ScrollView>("TutorialScroll");
+            _tutorialKeywordEntries = new Button[_keywordEntryNames.Length];
+            for (int i = 0; i < _keywordEntryNames.Length; i++)
+            {
+                _tutorialKeywordEntries[i] = root.Q<Button>(_keywordEntryNames[i]);
+            }
             _rulesButton = root.Q<Button>("RulesButton");
             _rulesCloseButton = root.Q<Button>("RulesCloseButton");
             _rulesOverlay = root.Q<VisualElement>("RulesOverlay");
@@ -171,6 +222,27 @@ namespace Home
                 root.Q<VisualElement>("RulesPageKeyword"),
                 root.Q<VisualElement>("RulesPageDeck"),
             };
+            _tutorialButton.clicked += OnTutorialClicked;
+            _tutorialCloseButton.clicked += OnTutorialCloseClicked;
+            _tutorialEntryBasic.clicked += OnTutorialEntryBasicClicked;
+            _tutorialEntryDeckOut.clicked += OnTutorialEntryDeckOutClicked;
+            _tutorialEntryFieldChars.clicked += OnTutorialEntryFieldCharsClicked;
+            _tutorialEntryVictoryPoints.clicked += OnTutorialEntryVictoryPointsClicked;
+            _tutorialTabHandlers = new Action[_tutorialTabs.Length];
+            for (int i = 0; i < _tutorialTabs.Length; i++)
+            {
+                int index = i;
+                _tutorialTabHandlers[i] = () => OnTutorialTabClicked(index);
+                _tutorialTabs[i].clicked += _tutorialTabHandlers[i];
+            }
+            _tutorialKeywordHandlers = new Action[_tutorialKeywordEntries.Length];
+            for (int i = 0; i < _tutorialKeywordEntries.Length; i++)
+            {
+                int index = i;
+                _tutorialKeywordHandlers[i] = () => StartTutorial(_keywordTutorialIds[index]);
+                _tutorialKeywordEntries[i].clicked += _tutorialKeywordHandlers[i];
+            }
+            SelectTutorialTab(0);
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
             _matchingButton.clicked += OnMatchingClicked;
@@ -190,6 +262,50 @@ namespace Home
 
         private void OnDisable()
         {
+            if (_tutorialButton != null)
+            {
+                _tutorialButton.clicked -= OnTutorialClicked;
+            }
+            if (_tutorialCloseButton != null)
+            {
+                _tutorialCloseButton.clicked -= OnTutorialCloseClicked;
+            }
+            if (_tutorialEntryBasic != null)
+            {
+                _tutorialEntryBasic.clicked -= OnTutorialEntryBasicClicked;
+            }
+            if (_tutorialEntryDeckOut != null)
+            {
+                _tutorialEntryDeckOut.clicked -= OnTutorialEntryDeckOutClicked;
+            }
+            if (_tutorialEntryFieldChars != null)
+            {
+                _tutorialEntryFieldChars.clicked -= OnTutorialEntryFieldCharsClicked;
+            }
+            if (_tutorialEntryVictoryPoints != null)
+            {
+                _tutorialEntryVictoryPoints.clicked -= OnTutorialEntryVictoryPointsClicked;
+            }
+            if (_tutorialTabs != null && _tutorialTabHandlers != null)
+            {
+                for (int i = 0; i < _tutorialTabs.Length; i++)
+                {
+                    if (_tutorialTabs[i] != null && _tutorialTabHandlers[i] != null)
+                    {
+                        _tutorialTabs[i].clicked -= _tutorialTabHandlers[i];
+                    }
+                }
+            }
+            if (_tutorialKeywordEntries != null && _tutorialKeywordHandlers != null)
+            {
+                for (int i = 0; i < _tutorialKeywordEntries.Length; i++)
+                {
+                    if (_tutorialKeywordEntries[i] != null && _tutorialKeywordHandlers[i] != null)
+                    {
+                        _tutorialKeywordEntries[i].clicked -= _tutorialKeywordHandlers[i];
+                    }
+                }
+            }
             if (_deckBuilderButton != null)
             {
                 _deckBuilderButton.clicked -= OnDeckBuilderClicked;
@@ -228,6 +344,19 @@ namespace Home
                     }
                 }
             }
+            _tutorialButton = null;
+            _tutorialOverlay = null;
+            _tutorialCloseButton = null;
+            _tutorialEntryBasic = null;
+            _tutorialEntryDeckOut = null;
+            _tutorialEntryFieldChars = null;
+            _tutorialEntryVictoryPoints = null;
+            _tutorialTabs = null;
+            _tutorialPages = null;
+            _tutorialScroll = null;
+            _tutorialTabHandlers = null;
+            _tutorialKeywordEntries = null;
+            _tutorialKeywordHandlers = null;
             _deckBuilderButton = null;
             _battleButton = null;
             _matchingButton = null;
@@ -303,6 +432,82 @@ namespace Home
         }
 
         private async UniTaskVoid StartCpuBattleAsync()
+        {
+            await _gameSessionModel.LeaveCurrentSessionAsync();
+            await _sceneTransitioner.Transit(Scenes.Main);
+        }
+
+        // 「チュートリアル」ボタン：選択モーダルを開く（どのチュートリアルを始めるか選ぶ）。
+        private void OnTutorialClicked()
+        {
+            PlayEnterSE();
+            SelectTutorialTab(0);
+            _tutorialOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        private void OnTutorialTabClicked(int index)
+        {
+            PlayEnterSE();
+            SelectTutorialTab(index);
+        }
+
+        // 指定したタブを選択状態にし、対応するページのみ表示する。
+        private void SelectTutorialTab(int index)
+        {
+            if (_tutorialTabs == null || _tutorialPages == null)
+            {
+                return;
+            }
+            for (int i = 0; i < _tutorialTabs.Length; i++)
+            {
+                bool selected = i == index;
+                _tutorialTabs[i].EnableInClassList("home-rules-tab--selected", selected);
+                _tutorialPages[i].EnableInClassList("home-rules-page--active", selected);
+            }
+            // タブを切り替えるたびにスクロール位置を先頭へ戻す。
+            if (_tutorialScroll != null)
+            {
+                _tutorialScroll.scrollOffset = Vector2.zero;
+            }
+        }
+
+        private void OnTutorialCloseClicked()
+        {
+            PlayEnterSE();
+            _tutorialOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void OnTutorialEntryBasicClicked()
+        {
+            StartTutorial(TutorialId.BasicLoop);
+        }
+
+        private void OnTutorialEntryDeckOutClicked()
+        {
+            StartTutorial(TutorialId.DeckOutWin);
+        }
+
+        private void OnTutorialEntryFieldCharsClicked()
+        {
+            StartTutorial(TutorialId.FieldCharsWin);
+        }
+
+        private void OnTutorialEntryVictoryPointsClicked()
+        {
+            StartTutorial(TutorialId.VictoryPointsWin);
+        }
+
+        // 選択したチュートリアルを開始する。固定デッキで戦うため、通常対戦のデッキ30枚チェックは行わない。
+        // フラグ・IDを立て、オンラインセッションを抜けて Main へ。
+        private void StartTutorial(TutorialId id)
+        {
+            PlayEnterSE();
+            _tutorialModel.IsActive = true;
+            _tutorialModel.Id = id;
+            StartTutorialAsync().Forget();
+        }
+
+        private async UniTaskVoid StartTutorialAsync()
         {
             await _gameSessionModel.LeaveCurrentSessionAsync();
             await _sceneTransitioner.Transit(Scenes.Main);

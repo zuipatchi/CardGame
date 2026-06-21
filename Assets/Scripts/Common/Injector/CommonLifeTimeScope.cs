@@ -5,6 +5,7 @@ using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
 using Common.Transition;
+using Common.Tutorial;
 using Common.Username;
 using VContainer;
 using VContainer.Unity;
@@ -20,6 +21,7 @@ namespace Common.Injector
             builder.Register<DeckRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<UsernameRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();
+            builder.Register<TutorialModel>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<ModalStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponentInHierarchy<OptionPresenter>().AsSelf();
             builder.RegisterEntryPoint<OptionModel>(Lifetime.Singleton).AsSelf();

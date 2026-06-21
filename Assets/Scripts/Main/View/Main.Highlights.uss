@@ -1,6 +1,6 @@
 /* 選択・攻撃ハイライト（attackable / attack-target / selectable / selected / cost 選択 / デッキ攻撃対象）。Main.uxml から読み込む。 */
 
-/* 自分のターンに直接攻撃できる相手デッキのハイライト（赤〜オレンジ系で強調・少し拡大） */
+/* 自分のターンに直接攻撃できる相手デッキのハイライト（少し拡大して強調） */
 .deck-view--attack-target {
     scale: 1.08 1.08;
     -unity-background-image-tint-color: rgb(255, 150, 100);

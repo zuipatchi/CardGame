@@ -1,0 +1,92 @@
+/* チュートリアル（誘導つきスクリプト対戦）のコーチ吹き出し・ハイライト */
+
+.tutorial-coach {
+    position: absolute;
+    top: 96px;
+    left: 0;
+    right: 0;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.tutorial-coach-panel {
+    max-width: 760px;
+    background-color: rgba(12, 18, 38, 0.94);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(120, 205, 255, 0.9);
+    border-right-color: rgba(120, 205, 255, 0.9);
+    border-top-color: rgba(120, 205, 255, 0.9);
+    border-bottom-color: rgba(120, 205, 255, 0.9);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.tutorial-coach-label {
+    color: rgb(235, 245, 255);
+    font-size: 26px;
+    -unity-font-style: bold;
+    white-space: normal;
+    -unity-text-align: middle-left;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.55);
+}
+
+.tutorial-coach-hint {
+    margin-top: 8px;
+    color: rgba(180, 205, 235, 0.85);
+    font-size: 15px;
+    -unity-text-align: middle-center;
+}
+
+/* 畳んだときに出る小さな再表示ボタン */
+.tutorial-coach-chip {
+    color: rgb(235, 245, 255);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgba(12, 18, 38, 0.94);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(120, 205, 255, 0.9);
+    border-right-color: rgba(120, 205, 255, 0.9);
+    border-top-color: rgba(120, 205, 255, 0.9);
+    border-bottom-color: rgba(120, 205, 255, 0.9);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.tutorial-coach-chip:hover {
+    background-color: rgba(20, 30, 58, 0.96);
+}
+
+.tutorial-highlight {
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-left-color: rgb(120, 230, 130);
+    border-right-color: rgb(120, 230, 130);
+    border-top-color: rgb(120, 230, 130);
+    border-bottom-color: rgb(120, 230, 130);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}

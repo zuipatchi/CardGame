@@ -24,7 +24,8 @@
         <ui:VisualElement name="DogSpeechBubble" class="home-speech-bubble" picking-mode="Ignore">
             <ui:Label name="DogSpeechLabel" class="home-speech-text" />
         </ui:VisualElement>
-        <ui:Button name="RulesButton" text="あそびかた" class="home-rules-button"/>
+        <ui:Button name="TutorialButton" text="チュートリアル" class="home-tutorial-button"/>
+        <ui:Button name="RulesButton" text="詳しいルール" class="home-rules-button"/>
         <ui:Button name="CreditButton" text="クレジット" class="home-credit-button"/>
         <ui:VisualElement name="RulesOverlay" class="home-rules-overlay">
             <ui:VisualElement name="RulesPanel" class="home-rules-panel">
@@ -40,75 +41,137 @@
                 <ui:ScrollView name="RulesScroll" class="home-rules-scroll">
                     <ui:VisualElement name="RulesPageGoal" class="home-rules-page">
                         <ui:Label text="3つの勝ち方" class="home-rules-section"/>
-                        <ui:Label text="次のどれか1つを満たした瞬間に勝利します。" class="home-rules-entry"/>
+                        <ui:Label text="次のどれか1つを満たした瞬間に勝利します" class="home-rules-entry"/>
                         <ui:Label text="① デッキ切れ" class="home-rules-subsection"/>
-                        <ui:Label text="相手のデッキが0枚の状態で、さらに1枚引く・デッキが削られると相手の負け。デッキを0枚にしただけでは負けず、その後もう1枚動いたときに決着します。相手のキャラを攻撃する代わりに「相手デッキ」を直接攻撃して削ることもできます。" class="home-rules-entry"/>
+                        <ui:Label text="相手のデッキが0枚の状態で、さらに1枚引く・デッキが削られると相手の負け。デッキを0枚にしただけでは負けず、その後もう1枚動いたときに決着します。相手のキャラを攻撃する代わりに「相手デッキ」を直接攻撃して削ることもできます" class="home-rules-entry"/>
                         <ui:Label text="② 勝利点20点" class="home-rules-subsection"/>
-                        <ui:Label text="一部のカードは勝利点を得られます。勝利点が20に達したら勝ち。勝利点カウンターは自分の左下・相手の右上に常に表示されます。" class="home-rules-entry"/>
+                        <ui:Label text="一部のカードは勝利点を得られます。勝利点が20に達したら勝ち。勝利点カウンターは自分の左下・相手の右上に常に表示されます" class="home-rules-entry"/>
                         <ui:Label text="③ 制圧" class="home-rules-subsection"/>
-                        <ui:Label text="自分の場にキャラを8体同時に並べた瞬間に勝ち。" class="home-rules-entry"/>
+                        <ui:Label text="自分の場にキャラを8体同時に並べた瞬間に勝ち" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageFlow" class="home-rules-page">
                         <ui:Label text="ゲーム開始時" class="home-rules-section"/>
-                        <ui:Label text="コイントスで先攻・後攻を決定 → 手札を配る（先攻3枚／後攻5枚）→ マリガン（1回だけ手札を引き直せる）。" class="home-rules-entry"/>
+                        <ui:Label text="コイントスで先攻・後攻を決定 → 手札を配る（先攻3枚／後攻5枚）→ マリガン（1回だけ手札を引き直せる）" class="home-rules-entry"/>
                         <ui:Label text="毎ターンの流れ" class="home-rules-section"/>
-                        <ui:Label text="先攻から交互にターンを繰り返します。" class="home-rules-entry"/>
+                        <ui:Label text="先攻から交互にターンを繰り返します" class="home-rules-entry"/>
                         <ui:Label text="1. ターン開始時効果" class="home-rules-subsection"/>
-                        <ui:Label text="場のキャラやプレイ済みイベントの「ターン開始時」効果が発動します。" class="home-rules-entry"/>
+                        <ui:Label text="場のキャラやプレイ済みイベントの「ターン開始時」効果が発動します" class="home-rules-entry"/>
                         <ui:Label text="2. ドロー" class="home-rules-subsection"/>
-                        <ui:Label text="デッキの上から3枚引きます（自分の一番最初のターンだけは引きません）。" class="home-rules-entry"/>
+                        <ui:Label text="デッキの上から3枚引きます（自分の一番最初のターンだけは引きません）" class="home-rules-entry"/>
                         <ui:Label text="3. メインフェーズ" class="home-rules-subsection"/>
-                        <ui:Label text="ENDボタンを押すまで、制限なくカード使うか攻撃ができます。自分の番には60秒の制限時間があり、0になると自動でターン終了します。" class="home-rules-entry"/>
+                        <ui:Label text="ENDボタンを押すまで、制限なくカード使うか攻撃ができます。自分の番には60秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
                         <ui:Label text="4. ターン終了" class="home-rules-subsection"/>
-                        <ui:Label text="右のEndボタンで自分の番を終え、相手のターンへ。" class="home-rules-entry"/>
+                        <ui:Label text="右のEndボタンで自分の番を終え、相手のターンへ" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageCard" class="home-rules-page">
                         <ui:Label text="カードの種類" class="home-rules-section"/>
-                        <ui:Label text="キャラカード：場に出して使用する。出したターンは攻撃できません。" class="home-rules-entry"/>
-                        <ui:Label text="イベントカード：使うとすぐに効果が発動し、墓地へ送られます。" class="home-rules-entry"/>
+                        <ui:Label text="キャラカード：場に出して使用する。出したターンは攻撃できません" class="home-rules-entry"/>
+                        <ui:Label text="イベントカード：使うとすぐに効果が発動し、墓地へ送られます" class="home-rules-entry"/>
                         <ui:Label text="コストの払い方" class="home-rules-section"/>
-                        <ui:Label text="カードを出すには、書かれたコストの数だけ「手札の他のカードを選んで墓地に捨て」ます。" class="home-rules-entry"/>
+                        <ui:Label text="カードを出すには、書かれたコストの数だけ「手札の他のカードを選んで墓地に捨て」ます" class="home-rules-entry"/>
                         <ui:Label text="属性のルール" class="home-rules-subsection"/>
-                        <ui:Label text="カードには属性（赤・青・緑・白など）があります。コストとして捨てるカードには、出すカードと同じ属性を必ず1枚以上含める必要があります。" class="home-rules-entry"/>
+                        <ui:Label text="カードには属性（赤・青・緑・白など）があります。コストとして捨てるカードには、出すカードと同じ属性を必ず1枚以上含める必要があります" class="home-rules-entry"/>
                         <ui:Label text="手札の上限" class="home-rules-section"/>
-                        <ui:Label text="手札は8枚まです。満杯のときに引いたカードは手札に加わらず墓地へ送られます。" class="home-rules-entry"/>
+                        <ui:Label text="手札は8枚まです。満杯のときに引いたカードは手札に加わらず墓地へ送られます" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageBattle" class="home-rules-page">
                         <ui:Label text="攻撃のしかた" class="home-rules-section"/>
-                        <ui:Label text="場のキャラから矢印をドラッグして、相手キャラまたは相手デッキへ攻撃します。相手キャラのHPが0以下になると墓地へ送られます（カウンター攻撃はありません）。" class="home-rules-entry"/>
+                        <ui:Label text="場のキャラから矢印をドラッグして、相手キャラまたは相手デッキへ攻撃します。相手キャラのHPが0以下になると墓地へ送られます（カウンター攻撃はありません）" class="home-rules-entry"/>
                         <ui:Label text="召喚酔い" class="home-rules-subsection"/>
-                        <ui:Label text="キャラは出したターンには攻撃できません。次の自分のターンから攻撃できます（速攻を持つキャラは例外）。各キャラの攻撃は1ターンに1回までです。" class="home-rules-entry"/>
+                        <ui:Label text="キャラは出したターンには攻撃できません。次の自分のターンから攻撃できます（速攻を持つキャラは例外）。各キャラの攻撃は1ターンに1回までです" class="home-rules-entry"/>
                         <ui:Label text="タップ" class="home-rules-subsection"/>
-                        <ui:Label text="攻撃したキャラは横向きに倒れます（タップ）。タップしている相手のキャラにしか攻撃できません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）。" class="home-rules-entry"/>
+                        <ui:Label text="攻撃したキャラは横向きに倒れます（タップ）。タップしている相手のキャラにしか攻撃できません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃" class="home-rules-subsection"/>
-                        <ui:Label text="自分のキャラから相手デッキへ矢印を引くと、相手デッキへ攻撃して攻撃力の数だけ相手のデッキを上から墓地へ送れます。攻撃側のキャラは通常どおりタップします。" class="home-rules-entry"/>
+                        <ui:Label text="自分のキャラから相手デッキへ矢印を引くと、相手デッキへ攻撃して攻撃力の数だけ相手のデッキを上から墓地へ送れます。攻撃側のキャラは通常どおりタップします" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageKeyword" class="home-rules-page">
                         <ui:Label text="キーワード能力" class="home-rules-section"/>
-                        <ui:Label text="カードが持つ特別な能力です。効果でゲーム中に味方へ付与されることもあります。" class="home-rules-entry"/>
+                        <ui:Label text="カードが持つ特別な能力です。効果でゲーム中に味方へ付与されることもあります" class="home-rules-entry"/>
                         <ui:Label text="守護（しゅご）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に守護持ちがいる間、相手は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。味方を守る壁になります。" class="home-rules-entry"/>
+                        <ui:Label text="相手に守護持ちがいる間、相手は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。味方を守る壁になります" class="home-rules-entry"/>
                         <ui:Label text="速攻（そっこう）" class="home-rules-subsection"/>
-                        <ui:Label text="召喚酔いしません。場に出したターンからすぐ攻撃できます。" class="home-rules-entry"/>
+                        <ui:Label text="召喚酔いしません。場に出したターンからすぐ攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="飛行（ひこう）" class="home-rules-subsection"/>
-                        <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人を持つキャラからしか攻撃されません。" class="home-rules-entry"/>
+                        <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人を持つキャラからしか攻撃されません" class="home-rules-entry"/>
                         <ui:Label text="防人（さきもり）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます。" class="home-rules-entry"/>
+                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
-                        <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます。" class="home-rules-entry"/>
+                        <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃×" class="home-rules-subsection"/>
-                        <ui:Label text="この能力を付与されたキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です。" class="home-rules-entry"/>
+                        <ui:Label text="この能力を付与されたキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageDeck" class="home-rules-page">
                         <ui:Label text="デッキ構築ルール" class="home-rules-section"/>
-                        <ui:Label text="デッキはちょうど30枚で組みます。" class="home-rules-entry"/>
+                        <ui:Label text="デッキはちょうど30枚で組みます" class="home-rules-entry"/>
                         <ui:Label text="同名カードは3枚まで" class="home-rules-subsection"/>
-                        <ui:Label text="同じカードはデッキに3枚までしか入れられません。" class="home-rules-entry"/>
+                        <ui:Label text="同じカードはデッキに3枚までしか入れられません" class="home-rules-entry"/>
                         <ui:Label text="組みかた" class="home-rules-subsection"/>
-                        <ui:Label text="Home画面の「デッキ編集」から、デッキ編集画面に移動できます。左側のカード一覧からカードを選んでデッキに追加します。変更は自動で保存されます。" class="home-rules-entry"/>
+                        <ui:Label text="Home画面の「デッキ編集」から、デッキ編集画面に移動できます。左側のカード一覧からカードを選んでデッキに追加します。変更は自動で保存されます" class="home-rules-entry"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
                 <ui:Button name="RulesCloseButton" text="閉じる" class="home-rules-close-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="TutorialOverlay" class="home-credit-overlay">
+            <ui:VisualElement class="home-credit-panel home-tutorial-panel">
+                <ui:Label text="チュートリアル" class="home-credit-title"/>
+                <ui:VisualElement class="home-rules-tabs">
+                    <ui:Button name="TutorialTabBasic" text="基本・勝ち方" class="home-rules-tab"/>
+                    <ui:Button name="TutorialTabKeyword" text="キーワード能力" class="home-rules-tab"/>
+                </ui:VisualElement>
+                <ui:ScrollView name="TutorialScroll" class="home-credit-scroll">
+                    <ui:VisualElement name="TutorialPageBasic" class="home-rules-page">
+                        <ui:Button name="TutorialEntryBasic" class="home-tutorial-entry">
+                            <ui:Label text="基本の遊び方" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="カードの出し方・コストの払い方・ターン終了・攻撃のやり方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryDeckOut" class="home-tutorial-entry">
+                            <ui:Label text="勝ち方：デッキ切れ" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="相手のデッキをマイナスにして勝つ「デッキ切れ」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryFieldChars" class="home-tutorial-entry">
+                            <ui:Label text="勝ち方：制圧（キャラ8体）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="自分の場にキャラを8体ならべる「制圧」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryVictoryPoints" class="home-tutorial-entry">
+                            <ui:Label text="勝ち方：勝利点（20点）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="勝利点を20点ためて勝つ「勝利点」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="TutorialPageKeyword" class="home-rules-page">
+                        <ui:Button name="TutorialEntryGuardian" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--guardian" picking-mode="Ignore"/>
+                            <ui:Label text="守護（しゅご）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="優先して攻撃しなければいけないキーワード「守護」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryHaste" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--haste" picking-mode="Ignore"/>
+                            <ui:Label text="速攻（そっこう）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="出したターンからすぐ攻撃できるキーワード「速攻」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryFlying" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--flying" picking-mode="Ignore"/>
+                            <ui:Label text="飛行（ひこう）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="守護を無視して攻撃できるキーワード「飛行」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntrySakimori" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--sakimori" picking-mode="Ignore"/>
+                            <ui:Label text="防人（さきもり）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="飛行が優先して攻撃しないといけないキーワード「防人」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryAssault" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--assault" picking-mode="Ignore"/>
+                            <ui:Label text="強襲（きょうしゅう）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="タップしていない相手キャラにも攻撃できるキーワード「強襲」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryNoDeckAttack" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--nodeckattack" picking-mode="Ignore"/>
+                            <ui:Label text="デッキ攻撃×" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="相手デッキを直接攻撃できないキーワード「デッキ攻撃×」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:Button name="TutorialCloseButton" text="閉じる" class="home-credit-close-button"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="CreditOverlay" class="home-credit-overlay">
