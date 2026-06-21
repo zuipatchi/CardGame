@@ -43,6 +43,13 @@ namespace Main
             await _sceneTransitioner.Transit(Scenes.Home);
         }
 
+        // チュートリアル中にオプションから「ホームに戻る」を選んだとき。
+        // 勝敗のない練習なので投了通知などは出さず、そのままホームへ戻る。
+        private void GoHomeFromTutorial()
+        {
+            _sceneTransitioner.Transit(Scenes.Home).Forget();
+        }
+
         private void Surrender()
         {
             if (_isGameOver)

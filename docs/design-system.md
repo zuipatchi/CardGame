@@ -181,10 +181,11 @@ USS クラスの `:hover` / `:active` ルールは上書きできない（イン
 
 ### リスト項目（`.room-item`）
 
-ルーム名（左・太字）と人数バッジ（右・ピル表示）を横並びにした行。子要素は `.room-item__name` / `.room-item__count`（`MatchingPresenter.RebuildRoomList` が Label を2つ生成して付与）。
+ルーム名（左・太字）と人数バッジ（右・ピル表示）を横並びにした行。子要素は `.room-item__name` / `.room-item__count`（`MatchingPresenter.RebuildRoomList` が Label を2つ生成して付与）。マッチングモーダル（カード幅 720px）を横に広げてもルーム行は固定幅 456px のまま、`align-self: center` でリスト内に中央寄せされる。
 
 ```css
 .room-item {
+    width: 456px; align-self: center; flex-shrink: 0; /* カードを広げても従来サイズで中央寄せ */
     flex-direction: row; align-items: center; justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.05);
     border-top-left-radius: 8px; /* 他3角も同じ */
