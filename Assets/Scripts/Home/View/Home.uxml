@@ -29,7 +29,7 @@
         <ui:Button name="CreditButton" text="クレジット" class="home-credit-button"/>
         <ui:VisualElement name="RulesOverlay" class="home-rules-overlay">
             <ui:VisualElement name="RulesPanel" class="home-rules-panel">
-                <ui:Label text="あそびかた" class="home-rules-title"/>
+                <ui:Label text="遊び方" class="home-rules-title"/>
                 <ui:VisualElement class="home-rules-tabs">
                     <ui:Button name="RulesTabGoal" text="目的" class="home-rules-tab"/>
                     <ui:Button name="RulesTabFlow" text="流れ" class="home-rules-tab"/>
@@ -97,7 +97,7 @@
                         <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
                         <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
-                        <ui:Label text="デッキ攻撃×" class="home-rules-subsection"/>
+                        <ui:Label text="デッキ攻撃×（でっきこうげきばつ）" class="home-rules-subsection"/>
                         <ui:Label text="この能力を付与されたキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageDeck" class="home-rules-page">
