@@ -9,7 +9,10 @@
         </ui:VisualElement>
         <ui:VisualElement class="deckbuilder-content">
             <ui:VisualElement class="deckbuilder-card-list-panel">
-                <ui:Label class="deckbuilder-panel-title" text="カード一覧" />
+                <ui:VisualElement class="deckbuilder-card-list-header">
+                    <ui:Label class="deckbuilder-panel-title" text="カード一覧" />
+                    <ui:VisualElement name="CostFilterBar" class="deckbuilder-cost-filter-bar" />
+                </ui:VisualElement>
                 <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
             </ui:VisualElement>
             <ui:VisualElement class="deckbuilder-deck-panel">

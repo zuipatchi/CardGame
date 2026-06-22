@@ -99,6 +99,7 @@ Title → Matching → Main
 | `MatchingModel` | マッチング状態を `ReactiveProperty` で管理 |
 | `MatchingPresenter` | UI とマッチング状態のバインド（`IStartable` 実装） |
 | `MatchingService` | UGS Session API 呼び出し（検索・作成・参加・started フラグ管理）|
+| `MatchingAudioManager` | マッチングシーンの BGM 再生（`MaouCyber`。`IAsyncStartable` 実装）|
 | `MatchingLifetimeScope` | Matching シーン固有 DI 登録 |
 | `GameSessionModel` | `ISession` を Common シーン跨ぎで保持（Singleton）。`HasSession` でオンライン/オフライン判定 |
 | `NetworkGameService` | Main シーンでのホスト/クライアント間デッキ交換プロトコル |
@@ -112,6 +113,7 @@ CommonLifetimeScope（Common シーン常駐）
 MatchingLifetimeScope（Matching シーン）
   ├── MatchingModel
   ├── MatchingService
+  ├── MatchingAudioManager（RegisterEntryPoint・IAsyncStartable）
   └── MatchingPresenter（IStartable）
 
 MainLifetimeScope（Main シーン）
