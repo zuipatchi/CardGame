@@ -74,19 +74,24 @@ namespace Main.Network
         {
             public readonly MainActionType ActionType;
             public readonly string CardId;
-            public readonly string AttackerId;
-            public readonly string TargetId;
+            // 攻撃の攻撃者・対象は CardId ではなくフィールド上のキャラインデックスで識別する。
+            // 同名カード（同一 CardId）が複数いても個体を一意に特定でき、タップ・ダメージ・効果が
+            // 別個体に当たる同期ズレを防ぐ（DamageTarget が indices で送るのと同じ方針）。
+            // AttackerIndex は攻撃側フィールド、TargetIndex は防御側フィールドのキャラインデックス。
+            // デッキ攻撃・対象なしのときは TargetIndex = -1。
+            public readonly int AttackerIndex;
+            public readonly int TargetIndex;
             public readonly bool TargetsDeck;
             public readonly string[] CostCardIds;
 
             public bool IsPassed => ActionType == MainActionType.Pass;
 
-            public MainActionData(MainActionType actionType, string cardId = null, string attackerId = null, string targetId = null, bool targetsDeck = false, string[] costCardIds = null)
+            public MainActionData(MainActionType actionType, string cardId = null, int attackerIndex = -1, int targetIndex = -1, bool targetsDeck = false, string[] costCardIds = null)
             {
                 ActionType = actionType;
                 CardId = cardId;
-                AttackerId = attackerId;
-                TargetId = targetId;
+                AttackerIndex = attackerIndex;
+                TargetIndex = targetIndex;
                 TargetsDeck = targetsDeck;
                 CostCardIds = costCardIds ?? Array.Empty<string>();
             }
@@ -94,7 +99,7 @@ namespace Main.Network
             public static MainActionData Pass() => new MainActionData(MainActionType.Pass);
             public static MainActionData PlaceChar(string cardId, string[] costCardIds = null) => new MainActionData(MainActionType.PlaceChar, cardId: cardId, costCardIds: costCardIds);
             public static MainActionData PlayEvent(string cardId, string[] costCardIds = null) => new MainActionData(MainActionType.PlayEvent, cardId: cardId, costCardIds: costCardIds);
-            public static MainActionData Attack(string attackerId, string targetId, bool targetsDeck = false) => new MainActionData(MainActionType.Attack, attackerId: attackerId, targetId: targetId, targetsDeck: targetsDeck);
+            public static MainActionData Attack(int attackerIndex, int targetIndex, bool targetsDeck = false) => new MainActionData(MainActionType.Attack, attackerIndex: attackerIndex, targetIndex: targetIndex, targetsDeck: targetsDeck);
         }
 
         public NetworkGameService(GameSessionModel gameSessionModel, CardDatabase cardDatabase, UsernameRepository usernameRepository)
@@ -387,8 +392,8 @@ namespace Main.Network
             {
                 actionType = (int)action.ActionType,
                 cardId = action.CardId ?? string.Empty,
-                attackerId = action.AttackerId ?? string.Empty,
-                targetId = action.TargetId ?? string.Empty,
+                attackerIndex = action.AttackerIndex,
+                targetIndex = action.TargetIndex,
                 targetsDeck = action.TargetsDeck,
                 costCardIds = action.CostCardIds
             };
@@ -402,8 +407,8 @@ namespace Main.Network
             return new MainActionData(
                 (MainActionType)payload.actionType,
                 string.IsNullOrEmpty(payload.cardId) ? null : payload.cardId,
-                string.IsNullOrEmpty(payload.attackerId) ? null : payload.attackerId,
-                string.IsNullOrEmpty(payload.targetId) ? null : payload.targetId,
+                payload.attackerIndex,
+                payload.targetIndex,
                 payload.targetsDeck,
                 payload.costCardIds);
         }
@@ -679,8 +684,8 @@ namespace Main.Network
         {
             public int actionType;
             public string cardId;
-            public string attackerId;
-            public string targetId;
+            public int attackerIndex;
+            public int targetIndex;
             public bool targetsDeck;
             public string[] costCardIds;
         }

@@ -483,16 +483,15 @@ namespace Main
                 }
                 case NetworkGameService.MainActionType.Attack:
                 {
-                    CardView attacker = _opponentFieldView.Characters
-                        .FirstOrDefault(c => c.Data.Id == networkAction.AttackerId);
+                    // 攻撃者・対象はフィールドのインデックスで特定する（CardId だと同名カードを区別できない）。
+                    // 攻撃側＝相手フィールド、対象＝自フィールド。並び順は両クライアントで同期されている。
+                    CardView attacker = CharAtIndex(_opponentFieldView, networkAction.AttackerIndex);
                     if (networkAction.TargetsDeck)
                     {
                         await ExecuteDeckAttackAsync(attacker, isLocal: false, ct);
                         break;
                     }
-                    CardView target = networkAction.TargetId != null
-                        ? _playerFieldView.Characters.FirstOrDefault(c => c.Data.Id == networkAction.TargetId)
-                        : null;
+                    CardView target = CharAtIndex(_playerFieldView, networkAction.TargetIndex);
                     await ExecuteAttackAsync(attacker, target, isLocal: false, ct);
                     break;
                 }
@@ -1010,7 +1009,7 @@ namespace Main
 
         // ─── ネットワークアクション変換 ─────────────────────────────────────
 
-        private static NetworkGameService.MainActionData ToNetworkAction(MainPhaseAction action, string[] costCardIds = null)
+        private NetworkGameService.MainActionData ToNetworkAction(MainPhaseAction action, string[] costCardIds = null)
         {
             switch (action._actionType)
             {
@@ -1019,13 +1018,44 @@ namespace Main
                 case MainPhaseActionType.PlayEvent:
                     return NetworkGameService.MainActionData.PlayEvent(action._card.Data.Id, costCardIds);
                 case MainPhaseActionType.Attack:
+                    // 攻撃者・対象はフィールドのインデックスで送る（CardId だと同名カードを区別できない）。
+                    // 攻撃者＝自フィールド、対象＝相手フィールド。受信側では攻守が反転して解決される。
                     return NetworkGameService.MainActionData.Attack(
-                        action._attacker?.Data.Id,
-                        action._target?.Data.Id,
+                        IndexOfChar(_playerFieldView, action._attacker),
+                        IndexOfChar(_opponentFieldView, action._target),
                         action._targetsDeck);
                 default:
                     return NetworkGameService.MainActionData.Pass();
             }
+        }
+
+        // フィールドのキャラ一覧における card のインデックス。見つからない／null なら -1。
+        private static int IndexOfChar(FieldView field, CardView card)
+        {
+            if (card == null)
+            {
+                return -1;
+            }
+            IReadOnlyList<CardView> chars = field.Characters;
+            for (int i = 0; i < chars.Count; i++)
+            {
+                if (chars[i] == card)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        // フィールドのキャラ一覧における index 番目のキャラ。範囲外なら null。
+        private static CardView CharAtIndex(FieldView field, int index)
+        {
+            IReadOnlyList<CardView> chars = field.Characters;
+            if (index < 0 || index >= chars.Count)
+            {
+                return null;
+            }
+            return chars[index];
         }
     }
 }
