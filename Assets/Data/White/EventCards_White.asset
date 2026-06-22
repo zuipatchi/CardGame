@@ -72,7 +72,7 @@ MonoBehaviour:
     _cardName: "\u5FDC\u63F4\u3059\u308B\u3071\u3061"
     _cost: 0
     _image: {fileID: 21300000, guid: a88c147c7ca85a0458d1387146169af5, type: 3}
-    _flavorText: "\u3071\u3063\u3061\u3001\u304C\u3093\u3070\u3048\uFF5E"
+    _flavorText: "\u3071\u3063\u3061\u304C\u3093\u3070\u3048\uFF5E"
     _voiceSpeaker: 81
     _keyword: 
     _effectParam: 
