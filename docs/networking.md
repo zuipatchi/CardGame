@@ -412,7 +412,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_InitialState` | Host → Client | 初期手札・デッキ・先攻後攻 + ホストのユーザーネーム |
 | `NGS_Mulligan` | Both | マリガン実施有無 + マリガン後のデッキ順序（mulliganed / newDeckIds。マリガンしない場合 newDeckIds は null） |
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
-| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerId / targetId / targetsDeck / costCardIds[]）。targetsDeck=true は相手デッキへの直接攻撃（ATK 枚をミル。デッキ順が両クライアントで同期済みのため決定的）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
+| `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerIndex / targetIndex / targetsDeck / costCardIds[]）。攻撃の攻撃者・対象は CardId ではなく**フィールド上のキャラインデックス**で識別する（同名カードが複数いても個体を一意に特定でき、タップ・ダメージ・効果が別個体に当たる同期ズレを防ぐ。`NGS_DamageTarget` が indices で送るのと同じ方針。並び順は両クライアントで同期済み）。targetsDeck=true は相手デッキへの直接攻撃（ATK 枚をミル。デッキ順が両クライアントで同期済みのため決定的）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
 | `NGS_CoinDraw` | Both | コインドロー（Draw 値2=1）の発動側が振った「表＝ドロー」の回数（int count）。乱数で決まる回数だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
 | `NGS_DiceDraw` | Both | サイコロドロー（Draw 値2=2）の発動側が振った出目（int roll、1〜6）。乱数で決まる出目だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
