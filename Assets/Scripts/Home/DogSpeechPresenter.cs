@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using Common.SoundManagement;
 using Common.Username;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -47,15 +46,11 @@ namespace Home
         private Label _speechLabel;
         private bool _isBubbleVisible;
         private CancellationTokenSource _speechCts;
-        private SoundPlayer _soundPlayer;
-        private DogVoiceStore _voiceStore;
 
         [Inject]
-        public void Construct(UsernameRepository usernameRepository, SoundPlayer soundPlayer, DogVoiceStore voiceStore)
+        public void Construct(UsernameRepository usernameRepository)
         {
             _username = usernameRepository.Load() ?? string.Empty;
-            _soundPlayer = soundPlayer;
-            _voiceStore = voiceStore;
         }
 
         private void Awake()
@@ -145,30 +140,11 @@ namespace Home
             {
                 return;
             }
-            // 音声アドレスは {name} 置換前の生テンプレートをキーにするため、置換前に控えておく。
-            string rawLine = text;
             text = text.Replace("{name}", _username);
             _speechCts?.Cancel();
             _speechCts?.Dispose();
             _speechCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
-            PlayVoiceAsync(rawLine, _speechCts.Token).Forget();
             ShowMessageAsync(text, _speechCts.Token).Forget();
-        }
-
-        private async UniTaskVoid PlayVoiceAsync(string rawLine, CancellationToken token)
-        {
-            if (_voiceStore == null || _soundPlayer == null)
-            {
-                return;
-            }
-
-            AudioClip clip = await _voiceStore.LoadAsync(rawLine);
-            // ロード中に吹き出しが差し替え・消去されたら鳴らさない。
-            if (clip == null || token.IsCancellationRequested)
-            {
-                return;
-            }
-            _soundPlayer.PlayVoice(clip);
         }
 
         private async UniTaskVoid ShowMessageAsync(string text, CancellationToken token)

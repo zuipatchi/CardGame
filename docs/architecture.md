@@ -154,7 +154,6 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
   - 自動補正で合わない尖った単発音などは `SoundStore.ManualSeAdjust`（クリップ名 → 追加倍率）で耳に合わせて微調整する
 - 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
 - 読み上げの話者は `CardData._voiceSpeaker`（VOICEVOX speaker ID。0＝生成ツールの既定話者）でカードごとに指定でき、声は生成時に WAV へ焼き込まれる（ランタイムは話者を意識しない）
-- ホームの犬（ペット）のセリフも同じ仕組みで読み上げる。セリフ本文から安定キー（`DogVoice.Key`＝FNV-1a）を算出し、Addressables アドレス `Voice/Dog/{key}` を `DogVoiceStore` がロード・キャッシュ（未生成は無音）。本文をキーにするためセリフの並び替えに強く、本文を変えれば自動で別アドレス扱いになる。`{name}` プレースホルダは音声では読まず（`DogVoice.ToSpeechText` で除去）吹き出しにのみプレイヤー名を出す。話者は `DogSpeechLinesSO._voiceSpeaker`
 
 > `_bgmAudioSource.volume = v / 2` としているのは、
 > OptionModel の値 1.0 がデフォルトの AudioSource 最大音量の半分に相当するようにしているため。

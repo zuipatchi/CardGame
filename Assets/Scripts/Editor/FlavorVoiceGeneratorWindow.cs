@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using Home;
 using Main.Card;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
@@ -27,8 +26,6 @@ namespace GameEditor
         private int _speaker = 3;
         // 既に音声がある（WAV が存在する）カードを再生成せずスキップするか。
         private bool _skipExisting = true;
-        // 犬セリフ音声生成の対象 SO。未指定ならプロジェクトから自動検索する。
-        private DogSpeechLinesSO _dogLines;
 
         [MenuItem("Card/フレーバー音声を一括生成")]
         public static void Open()
@@ -58,124 +55,6 @@ namespace GameEditor
             {
                 Generate();
             }
-
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("ホームの犬セリフ音声", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "DogSpeechLinesSO の全セリフを音声化し、Addressables アドレス \"Voice/Dog/{key}\" に登録します。\n" +
-                "話者は SO の「Voice Speaker」を優先し、未指定（0 以下）の場合は上の既定話者を使います。\n" +
-                "SO 未指定ならプロジェクトから自動検索します。",
-                MessageType.Info);
-            _dogLines = (DogSpeechLinesSO)EditorGUILayout.ObjectField(
-                "犬セリフ SO（任意）", _dogLines, typeof(DogSpeechLinesSO), false);
-            if (GUILayout.Button("犬セリフ音声を生成", GUILayout.Height(32)))
-            {
-                GenerateDog();
-            }
-        }
-
-        private void GenerateDog()
-        {
-            DogSpeechLinesSO lines = _dogLines;
-            if (lines == null)
-            {
-                string[] guids = AssetDatabase.FindAssets("t:" + nameof(DogSpeechLinesSO));
-                if (guids.Length > 0)
-                {
-                    lines = AssetDatabase.LoadAssetAtPath<DogSpeechLinesSO>(
-                        AssetDatabase.GUIDToAssetPath(guids[0]));
-                }
-            }
-            if (lines == null)
-            {
-                EditorUtility.DisplayDialog("犬セリフ音声生成",
-                    "DogSpeechLinesSO が見つかりませんでした。", "OK");
-                return;
-            }
-
-            IReadOnlyList<string> allLines = lines.AllLines;
-            if (allLines.Count == 0)
-            {
-                EditorUtility.DisplayDialog("犬セリフ音声生成", "セリフが見つかりませんでした。", "OK");
-                return;
-            }
-
-            string dogDir = OutputDir + "/Dog";
-            if (!Directory.Exists(dogDir))
-            {
-                Directory.CreateDirectory(dogDir);
-                AssetDatabase.Refresh();
-            }
-
-            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings == null)
-            {
-                EditorUtility.DisplayDialog("犬セリフ音声生成",
-                    "Addressables の設定が見つかりません。Addressables Groups を初期化してください。", "OK");
-                return;
-            }
-
-            int speaker = lines.VoiceSpeaker > 0 ? lines.VoiceSpeaker : _speaker;
-            int generated = 0;
-            int skipped = 0;
-            int failed = 0;
-            List<string> failedLines = new List<string>();
-
-            try
-            {
-                for (int i = 0; i < allLines.Count; i++)
-                {
-                    string raw = allLines[i];
-                    // "Dog/{key}" を id として渡すと RegisterAddressable がアドレス "Voice/Dog/{key}" を作る。
-                    string id = "Dog/" + DogVoice.Key(raw);
-                    string path = $"{OutputDir}/{id}.wav";
-
-                    bool cancel = EditorUtility.DisplayCancelableProgressBar(
-                        "犬セリフ音声生成",
-                        $"({i + 1}/{allLines.Count}) {raw}",
-                        (float)i / allLines.Count);
-                    if (cancel)
-                    {
-                        break;
-                    }
-
-                    if (_skipExisting && File.Exists(path))
-                    {
-                        RegisterAddressable(settings, path, id);
-                        skipped++;
-                        continue;
-                    }
-
-                    byte[] wav = Synthesize(DogVoice.ToSpeechText(raw), speaker, out string error);
-                    if (wav == null || wav.Length == 0)
-                    {
-                        Debug.LogError($"犬セリフ音声生成に失敗 [{raw}]: {error}");
-                        failed++;
-                        failedLines.Add(raw);
-                        continue;
-                    }
-
-                    File.WriteAllBytes(path, wav);
-                    AssetDatabase.ImportAsset(path);
-                    RegisterAddressable(settings, path, id);
-                    generated++;
-                }
-            }
-            finally
-            {
-                EditorUtility.ClearProgressBar();
-                EditorUtility.SetDirty(settings);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-
-            string message = $"生成: {generated} 件 / スキップ: {skipped} 件 / 失敗: {failed} 件";
-            if (failed > 0)
-            {
-                message += "\n失敗: " + string.Join(", ", failedLines);
-            }
-            Debug.Log($"犬セリフ音声生成 完了。{message}");
-            EditorUtility.DisplayDialog("犬セリフ音声生成", message, "OK");
         }
 
         private void Generate()
