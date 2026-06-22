@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common.Cpu;
 using Common.Deck;
 using Common.GameSession;
 using Common.Option;
@@ -46,6 +47,8 @@ namespace Main
         private GameModel _gameModel;
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
+        private CpuRosterStore _cpuRosterStore;
+        private CpuBattleModel _cpuBattleModel;
         private NetworkGameService _networkGameService;
         private OptionPresenter _optionPresenter;
         private OptionModel _optionModel;
@@ -218,6 +221,8 @@ namespace Main
 
         private string _localUsername;
         private string _opponentUsername;
+        // この対戦の CPU 難易度（相手選択時に CpuRoster から取得。チュートリアル・オンラインでは初級扱い）。
+        private CpuDifficulty _cpuDifficulty = CpuDifficulty.Beginner;
 
         private readonly UniTaskCompletionSource _readyTcs = new UniTaskCompletionSource();
 
@@ -231,6 +236,8 @@ namespace Main
             GameModel gameModel,
             SceneTransitioner sceneTransitioner,
             GameSessionModel gameSessionModel,
+            CpuRosterStore cpuRosterStore,
+            CpuBattleModel cpuBattleModel,
             NetworkGameService networkGameService,
             OptionPresenter optionPresenter,
             OptionModel optionModel,
@@ -251,6 +258,8 @@ namespace Main
             _gameModel = gameModel;
             _sceneTransitioner = sceneTransitioner;
             _gameSessionModel = gameSessionModel;
+            _cpuRosterStore = cpuRosterStore;
+            _cpuBattleModel = cpuBattleModel;
             _networkGameService = networkGameService;
             _optionPresenter = optionPresenter;
             _optionModel = optionModel;
@@ -265,11 +274,31 @@ namespace Main
             BuildAsync().Forget();
         }
 
+        // 通常 CPU 戦の相手デッキ（カード配列）を組む。
+        // ロスターの相手にカードIDが設定されていればそれを使い、未設定（プレースホルダー）なら
+        // 既存の CpuDeck.asset にフォールバックする。どちらも空なら全カードを使う。
+        private CardData[] BuildCpuPool(CpuOpponentData opponent, CardData[] allCards)
+        {
+            if (opponent != null && opponent.CardIds != null && opponent.CardIds.Count > 0)
+            {
+                return _cardDatabase.BuildDeck(opponent.CardIds);
+            }
+            CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
+            bool cpuDeckEmpty = cpuDeckSo == null || cpuDeckSo.CardIds.Count == 0;
+            if (cpuDeckEmpty)
+            {
+                Debug.LogError("CPUのデッキが空です");
+                return allCards;
+            }
+            return _cardDatabase.BuildDeck(cpuDeckSo.CardIds);
+        }
+
         private async UniTaskVoid BuildAsync()
         {
             try
             {
                 await _cardStore.Loaded;
+                await _cpuRosterStore.Loaded;
 
                 if (this == null)
                 {
@@ -391,7 +420,12 @@ namespace Main
                 }
                 else
                 {
-                    _opponentUsername = "CPU";
+                    // 通常 CPU 戦：相手は Home の相手選択で選ばれた CpuRoster の相手。
+                    // 再戦（Main 再ロード）でも CpuBattleModel.OpponentIndex が残るため同じ相手になる。
+                    int opponentIndex = _cpuBattleModel.OpponentIndex;
+                    CpuOpponentData opponent = _cpuRosterStore.GetOpponent(opponentIndex);
+                    _opponentUsername = _cpuRosterStore.DisplayName(opponentIndex);
+                    _cpuDifficulty = opponent != null ? opponent.Difficulty : CpuDifficulty.Beginner;
                     // 先攻後攻を配牌前に決める（手札枚数が先攻3枚・後攻5枚で変わるため）。
                     isLocalFirst = UnityEngine.Random.value > 0.5f;
                     playerDeckFull = _deckModel.Count > 0
@@ -401,15 +435,7 @@ namespace Main
                     CardData[] playerShuffled = CardArrayUtils.Shuffle((CardData[])playerDeckFull.Clone());
                     playerHandCards = playerShuffled.Take(playerHandSize).ToArray();
                     playerDeckCards = playerShuffled.Skip(playerHandSize).ToArray();
-                    CpuDeckSO cpuDeckSo = _cardStore.CpuDeck;
-                    bool cpuDeckEmpty = cpuDeckSo == null || cpuDeckSo.CardIds.Count == 0;
-                    if (cpuDeckEmpty)
-                    {
-                        Debug.LogError("CPUのデッキが空です");
-                    }
-                    CardData[] cpuPool = !cpuDeckEmpty
-                        ? _cardDatabase.BuildDeck(cpuDeckSo.CardIds)
-                        : allCards;
+                    CardData[] cpuPool = BuildCpuPool(opponent, allCards);
                     cpuHandSize = Mathf.Min(MulliganRule.InitialHandSize(!isLocalFirst), cpuPool.Length);
                     CardData[] cpuShuffled = CardArrayUtils.Shuffle((CardData[])cpuPool.Clone());
                     cpuHandCards = cpuShuffled.Take(cpuHandSize).ToArray();

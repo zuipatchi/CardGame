@@ -1,0 +1,287 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd06b17d325765448950ca96ae88029f, type: 3}
+  m_Name: CpuRoster
+  m_EditorClassIdentifier: Common::Common.Cpu.CpuRosterSO
+  Opponents:
+  - Name: "\u7D14\u767D\u306E\u3071\u3063\u3061 \u521D\u7D1A"
+    Portrait: {fileID: 2800000, guid: 4c36eba88c562c14eb5fef4baa417499, type: 3}
+    Difficulty: 0
+    CardIds:
+    - C1004
+    - C1004
+    - C1004
+    - C1005
+    - C1005
+    - C1005
+    - C1008
+    - C1008
+    - C1008
+    - C1011
+    - C1011
+    - C1011
+    - C1001
+    - C1001
+    - C1001
+    - C1003
+    - C1003
+    - C1003
+    - C1007
+    - C1007
+    - C1007
+    - C1002
+    - C1002
+    - C1002
+    - C1006
+    - C1006
+    - C1006
+    - E1001
+    - E1001
+    - E1001
+  - Name: "\u6FC0\u6D41\u306E\u3071\u3063\u3061 \u521D\u7D1A"
+    Portrait: {fileID: 2800000, guid: b23c64f36839a6f40a22f2554d895e8d, type: 3}
+    Difficulty: 0
+    CardIds:
+    - C2001
+    - C2001
+    - C2001
+    - C2003
+    - C2003
+    - C2003
+    - C2009
+    - C2009
+    - C2009
+    - C2002
+    - C2002
+    - C2002
+    - C2004
+    - C2004
+    - C2004
+    - E2008
+    - E2008
+    - E2008
+    - E2007
+    - E2007
+    - E2007
+    - E2005
+    - E2005
+    - E2005
+    - C2007
+    - C2007
+    - C2007
+    - C2008
+    - C2008
+    - C2008
+  - Name: "\u5927\u6A39\u306E\u3071\u3063\u3061 \u521D\u7D1A"
+    Portrait: {fileID: 2800000, guid: cede9ecc373ca214c8c8e5eac9d19542, type: 3}
+    Difficulty: 0
+    CardIds:
+    - C3005
+    - C3005
+    - C3005
+    - C3006
+    - C3006
+    - C3006
+    - C3012
+    - C3012
+    - C3012
+    - C3003
+    - C3003
+    - C3003
+    - C3004
+    - C3004
+    - C3004
+    - E3001
+    - E3001
+    - E3001
+    - E3002
+    - E3002
+    - E3002
+    - E3004
+    - E3004
+    - E3004
+    - C3010
+    - C3010
+    - C3010
+    - C3011
+    - C3011
+    - C3011
+  - Name: "\u696D\u706B\u306E\u3071\u3063\u3061 \u521D\u7D1A"
+    Portrait: {fileID: 2800000, guid: 9b06ed7237e254646b45ad469fc9e500, type: 3}
+    Difficulty: 0
+    CardIds:
+    - C5003
+    - C5003
+    - C5003
+    - C5009
+    - C5009
+    - C5009
+    - C5004
+    - C5004
+    - C5004
+    - C5001
+    - C5001
+    - C5001
+    - C5002
+    - C5002
+    - C5002
+    - E5006
+    - E5006
+    - E5006
+    - E5001
+    - E5001
+    - E5001
+    - E5005
+    - E5005
+    - E5005
+    - E5003
+    - E5003
+    - E5003
+    - E5004
+    - E5004
+    - E5004
+  - Name: "\u7D14\u767D\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
+    Portrait: {fileID: 2800000, guid: 4c36eba88c562c14eb5fef4baa417499, type: 3}
+    Difficulty: 1
+    CardIds:
+    - C1006
+    - C1006
+    - C1006
+    - C1002
+    - C1002
+    - C1002
+    - C1010
+    - C1010
+    - C1010
+    - C1007
+    - C1007
+    - C1007
+    - C1003
+    - C1003
+    - C1003
+    - C1008
+    - C1008
+    - C1008
+    - C1005
+    - C1005
+    - C1005
+    - C1004
+    - C1004
+    - C1004
+    - E1003
+    - E1003
+    - E1004
+    - E1004
+    - E1001
+    - E1001
+  - Name: "\u6FC0\u6D41\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
+    Portrait: {fileID: 2800000, guid: b23c64f36839a6f40a22f2554d895e8d, type: 3}
+    Difficulty: 1
+    CardIds:
+    - C2010
+    - C2010
+    - C2010
+    - C2008
+    - C2008
+    - C2008
+    - C2007
+    - C2007
+    - C2007
+    - C2006
+    - C2006
+    - C2006
+    - C2005
+    - C2005
+    - C2005
+    - C2002
+    - C2002
+    - C2002
+    - C2009
+    - C2009
+    - C2009
+    - C2003
+    - C2003
+    - C2003
+    - E2007
+    - E2007
+    - E2007
+    - E2005
+    - E2005
+    - E2005
+  - Name: "\u5927\u6A39\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
+    Portrait: {fileID: 2800000, guid: cede9ecc373ca214c8c8e5eac9d19542, type: 3}
+    Difficulty: 1
+    CardIds:
+    - C3006
+    - C3006
+    - C3006
+    - C3011
+    - C3011
+    - C3011
+    - C3009
+    - C3009
+    - C3009
+    - C3010
+    - C3010
+    - C3010
+    - C3008
+    - C3008
+    - C3008
+    - C3007
+    - C3007
+    - C3007
+    - C3004
+    - C3004
+    - C3004
+    - C3003
+    - C3003
+    - C3003
+    - E3001
+    - E3001
+    - E3002
+    - E3002
+    - E3004
+    - E3004
+  - Name: "\u696D\u706B\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
+    Portrait: {fileID: 2800000, guid: 9b06ed7237e254646b45ad469fc9e500, type: 3}
+    Difficulty: 1
+    CardIds:
+    - E5004
+    - E5004
+    - E5004
+    - E5003
+    - E5003
+    - E5003
+    - E5005
+    - E5005
+    - E5005
+    - E5001
+    - E5001
+    - E5001
+    - E5006
+    - E5006
+    - E5006
+    - C5008
+    - C5008
+    - C5008
+    - C5007
+    - C5007
+    - C5007
+    - C5005
+    - C5005
+    - C5005
+    - C5002
+    - C5002
+    - C5002
+    - C5004
+    - C5004
+    - C5004

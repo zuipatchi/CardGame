@@ -13,9 +13,10 @@
                 <ui:ScrollView name="CardListScrollView" class="deckbuilder-card-scroll" />
             </ui:VisualElement>
             <ui:VisualElement class="deckbuilder-deck-panel">
+                <ui:VisualElement name="OpponentSlotTabs" class="cpudeck-slot-tabs" />
                 <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="30枚を超えています" />
                 <ui:VisualElement class="deckbuilder-deck-header">
-                    <ui:Label class="deckbuilder-panel-title" text="CPUデッキ" />
+                    <ui:Label class="deckbuilder-panel-title" text="相手デッキ" />
                     <ui:VisualElement class="deckbuilder-deck-header-right">
                         <ui:Button name="CostSortDeckButton" class="deckbuilder-button--sort-deck" text="コスト順" />
                         <ui:Button name="SortDeckButton" class="deckbuilder-button--sort-deck" text="整列" />

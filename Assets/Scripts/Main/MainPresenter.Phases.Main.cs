@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common.Cpu;
 using Cysharp.Threading.Tasks;
 using Main.Card;
 using Main.Game;
@@ -756,7 +757,7 @@ namespace Main
             // コストを支払えないカードは選ばない（ローカルプレイヤーと同じく踏み倒し禁止）
             if (!_opponentFieldView.IsCharactersFull)
             {
-                int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData, i => CpuCanAffordCost(handData, i));
+                int charIdx = CpuAgent.ChooseCharacterSetCardIndex(handData, i => CpuCanAffordCost(handData, i) && CpuMayPlayToField(handData[i]));
                 if (charIdx >= 0)
                 {
                     return new MainPhaseAction
@@ -768,7 +769,7 @@ namespace Main
             }
 
             // イベントカードを使う
-            int eventIdx = CpuAgent.ChooseEventCardIndex(handData, i => CpuCanAffordCost(handData, i));
+            int eventIdx = CpuAgent.ChooseEventCardIndex(handData, i => CpuCanAffordCost(handData, i) && CpuMayPlayToField(handData[i]));
             if (eventIdx >= 0)
             {
                 return new MainPhaseAction
@@ -802,6 +803,43 @@ namespace Main
                 }
             }
             return capacity >= played.Cost;
+        }
+
+        // 中級以上の CPU は、CostBoost／ダメージトリガー持ちのカードを場に出さず、コスト支払いに回す。
+        // 初級はこの制限なしで、従来どおり支払える順に出す。
+        private bool CpuMayPlayToField(CardData data)
+        {
+            if (_cpuDifficulty == CpuDifficulty.Beginner)
+            {
+                return true;
+            }
+            return !IsCostOnlyCard(data);
+        }
+
+        // CostBoost（コスト支払いで真価を発揮）またはダメージトリガー（デッキから墓地で無料発動）のカードか。
+        // 中級以上の CPU はこれらを場に出さず、コスト専用として扱う。
+        private static bool IsCostOnlyCard(CardData data)
+        {
+            if (data == null)
+            {
+                return false;
+            }
+            // ダメージトリガー：場に出すより、コストで墓地に送る／ミルを待つほうが噛み合う。
+            if (data.TriggerOnGrave)
+            {
+                return true;
+            }
+            // CostBoost：コストとして使うと自属性のコストを倍化する。場に出す価値が薄い。
+            if (data is CharacterCardData character)
+            {
+                return character.EffectTrigger == CharacterEffectTrigger.OnUsedAsCost
+                    && character.EffectType == Main.Card.EventType.CostBoost;
+            }
+            if (data is EventCardData eventCard)
+            {
+                return eventCard.EventType == Main.Card.EventType.CostBoost;
+            }
+            return false;
         }
 
         // ─── プレイヤー入力待ち ────────────────────────────────────────────

@@ -1,3 +1,4 @@
+using Common.Cpu;
 using Common.Deck;
 using Common.GameSession;
 using Common.Option;
@@ -22,6 +23,8 @@ namespace Common.Injector
             builder.Register<UsernameRepository>(Lifetime.Singleton).AsSelf();
             builder.Register<GameSessionModel>(Lifetime.Singleton).AsSelf();
             builder.Register<TutorialModel>(Lifetime.Singleton).AsSelf();
+            builder.Register<CpuBattleModel>(Lifetime.Singleton).AsSelf();
+            builder.RegisterEntryPoint<CpuRosterStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<ModalStore>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponentInHierarchy<OptionPresenter>().AsSelf();
             builder.RegisterEntryPoint<OptionModel>(Lifetime.Singleton).AsSelf();

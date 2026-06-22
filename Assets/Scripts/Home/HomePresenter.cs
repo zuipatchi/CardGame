@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Common.Cpu;
 using Common.Deck;
 using Common.GameSession;
 using Common.SceneManagement;
@@ -29,11 +30,23 @@ namespace Home
         private DeckRepository _deckRepository;
         private GameSessionModel _gameSessionModel;
         private TutorialModel _tutorialModel;
+        private CpuRosterStore _cpuRosterStore;
+        private CpuBattleModel _cpuBattleModel;
         private UIDocument _uiDocument;
         private Button _tutorialButton;
         private Button _deckBuilderButton;
         private Button _battleButton;
         private Button _matchingButton;
+        private VisualElement _opponentSelectOverlay;
+        private Button _opponentSelectCloseButton;
+        private Button _opponentPrevButton;
+        private Button _opponentNextButton;
+        private Button _opponentFightButton;
+        private VisualElement _opponentPortrait;
+        private Label _opponentNameLabel;
+        private Label _opponentDifficultyLabel;
+        private VisualElement _opponentDots;
+        private int _currentOpponentIndex;
         private Button _creditButton;
         private Button _creditCloseButton;
         private VisualElement _creditOverlay;
@@ -80,7 +93,7 @@ namespace Home
 #endif
 
         [Inject]
-        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRuleModel deckRuleModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, TutorialModel tutorialModel, UsernameRepository usernameRepository)
+        public void Construct(SceneTransitioner sceneTransitioner, SoundPlayer soundPlayer, SoundStore soundStore, DeckModel deckModel, DeckRuleModel deckRuleModel, DeckRepository deckRepository, GameSessionModel gameSessionModel, TutorialModel tutorialModel, CpuRosterStore cpuRosterStore, CpuBattleModel cpuBattleModel, UsernameRepository usernameRepository)
         {
             _sceneTransitioner = sceneTransitioner;
             _soundPlayer = soundPlayer;
@@ -90,6 +103,8 @@ namespace Home
             _deckRepository = deckRepository;
             _gameSessionModel = gameSessionModel;
             _tutorialModel = tutorialModel;
+            _cpuRosterStore = cpuRosterStore;
+            _cpuBattleModel = cpuBattleModel;
             _deckModel.Clear();
             _deckRepository.Load(_deckModel);
             _usernameLabel.text = $"ユーザーネーム：{usernameRepository.Load() ?? string.Empty}";
@@ -171,6 +186,15 @@ namespace Home
             _deckBuilderButton = root.Q<Button>("DeckBuilderButton");
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
+            _opponentSelectOverlay = root.Q<VisualElement>("OpponentSelectOverlay");
+            _opponentSelectCloseButton = root.Q<Button>("OpponentSelectCloseButton");
+            _opponentPrevButton = root.Q<Button>("OpponentPrevButton");
+            _opponentNextButton = root.Q<Button>("OpponentNextButton");
+            _opponentFightButton = root.Q<Button>("OpponentFightButton");
+            _opponentPortrait = root.Q<VisualElement>("OpponentPortrait");
+            _opponentNameLabel = root.Q<Label>("OpponentNameLabel");
+            _opponentDifficultyLabel = root.Q<Label>("OpponentDifficultyLabel");
+            _opponentDots = root.Q<VisualElement>("OpponentDots");
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
             _deckToast = new ToastController(_costOverToastLabel);
             _usernameLabel = root.Q<Label>("UsernameLabel");
@@ -245,6 +269,10 @@ namespace Home
             SelectTutorialTab(0);
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
+            _opponentSelectCloseButton.clicked += OnOpponentSelectCloseClicked;
+            _opponentPrevButton.clicked += OnOpponentPrevClicked;
+            _opponentNextButton.clicked += OnOpponentNextClicked;
+            _opponentFightButton.clicked += OnOpponentFightClicked;
             _matchingButton.clicked += OnMatchingClicked;
             _creditButton.clicked += OnCreditClicked;
             _creditCloseButton.clicked += OnCreditCloseClicked;
@@ -314,6 +342,22 @@ namespace Home
             {
                 _battleButton.clicked -= OnBattleClicked;
             }
+            if (_opponentSelectCloseButton != null)
+            {
+                _opponentSelectCloseButton.clicked -= OnOpponentSelectCloseClicked;
+            }
+            if (_opponentPrevButton != null)
+            {
+                _opponentPrevButton.clicked -= OnOpponentPrevClicked;
+            }
+            if (_opponentNextButton != null)
+            {
+                _opponentNextButton.clicked -= OnOpponentNextClicked;
+            }
+            if (_opponentFightButton != null)
+            {
+                _opponentFightButton.clicked -= OnOpponentFightClicked;
+            }
             if (_matchingButton != null)
             {
                 _matchingButton.clicked -= OnMatchingClicked;
@@ -359,6 +403,15 @@ namespace Home
             _tutorialKeywordHandlers = null;
             _deckBuilderButton = null;
             _battleButton = null;
+            _opponentSelectOverlay = null;
+            _opponentSelectCloseButton = null;
+            _opponentPrevButton = null;
+            _opponentNextButton = null;
+            _opponentFightButton = null;
+            _opponentPortrait = null;
+            _opponentNameLabel = null;
+            _opponentDifficultyLabel = null;
+            _opponentDots = null;
             _matchingButton = null;
             _creditButton = null;
             _creditCloseButton = null;
@@ -420,6 +473,7 @@ namespace Home
             _sceneTransitioner.Transit(Scenes.DeckBuilder).Forget();
         }
 
+        // 「CPU対戦」ボタン：デッキを検証してから相手選択オーバーレイを開く。
         private void OnBattleClicked()
         {
             PlayEnterSE();
@@ -428,7 +482,136 @@ namespace Home
                 _deckToast.Show(GetDeckErrorMessage(), 1500, destroyCancellationToken);
                 return;
             }
+            OpenOpponentSelectAsync().Forget();
+        }
+
+        // ロスターのロード完了を待ってからカルーセルを初期化し、オーバーレイを表示する。
+        // ロスターは Common で起動時にロードするため通常は即時完了する。
+        private async UniTaskVoid OpenOpponentSelectAsync()
+        {
+            try
+            {
+                await _cpuRosterStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            if (_opponentSelectOverlay == null || _opponentPortrait == null)
+            {
+                return;
+            }
+            _currentOpponentIndex = 0;
+            BuildOpponentDots();
+            ShowOpponent(_currentOpponentIndex);
+            _opponentSelectOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        // ページドット（相手数ぶん）を生成する。現在位置は ShowOpponent でハイライトする。
+        private void BuildOpponentDots()
+        {
+            if (_opponentDots == null)
+            {
+                return;
+            }
+            _opponentDots.Clear();
+            int count = _cpuRosterStore.OpponentCount;
+            for (int i = 0; i < count; i++)
+            {
+                VisualElement dot = new VisualElement();
+                dot.AddToClassList("home-carousel-dot");
+                dot.pickingMode = PickingMode.Ignore;
+                _opponentDots.Add(dot);
+            }
+        }
+
+        // 指定 index の相手をカルーセル中央に表示する（端で循環する）。
+        private void ShowOpponent(int index)
+        {
+            int count = _cpuRosterStore.OpponentCount;
+            if (count <= 0)
+            {
+                return;
+            }
+            _currentOpponentIndex = ((index % count) + count) % count;
+
+            Texture2D texture = _cpuRosterStore.GetOpponent(_currentOpponentIndex)?.Portrait;
+            if (texture != null)
+            {
+                _opponentPortrait.style.backgroundImage = new StyleBackground(texture);
+            }
+            else
+            {
+                _opponentPortrait.style.backgroundImage = StyleKeyword.None;
+            }
+            _opponentPortrait.EnableInClassList("home-carousel-portrait--empty", texture == null);
+
+            _opponentNameLabel.text = _cpuRosterStore.DisplayName(_currentOpponentIndex);
+            ApplyDifficultyLabel(_currentOpponentIndex);
+            UpdateOpponentDots();
+        }
+
+        // 相手の難易度をラベルへ反映する（テキスト＋色クラス）。
+        private void ApplyDifficultyLabel(int index)
+        {
+            CpuOpponentData opponent = _cpuRosterStore.GetOpponent(index);
+            CpuDifficulty difficulty = opponent != null ? opponent.Difficulty : CpuDifficulty.Beginner;
+            _opponentDifficultyLabel.text = DifficultyText(difficulty);
+            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--beginner", difficulty == CpuDifficulty.Beginner);
+            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--intermediate", difficulty == CpuDifficulty.Intermediate);
+            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--advanced", difficulty == CpuDifficulty.Advanced);
+        }
+
+        private static string DifficultyText(CpuDifficulty difficulty)
+        {
+            switch (difficulty)
+            {
+                case CpuDifficulty.Intermediate:
+                    return "★★ 中級";
+                case CpuDifficulty.Advanced:
+                    return "★★★ 上級";
+                default:
+                    return "★ 初級";
+            }
+        }
+
+        private void UpdateOpponentDots()
+        {
+            if (_opponentDots == null)
+            {
+                return;
+            }
+            for (int i = 0; i < _opponentDots.childCount; i++)
+            {
+                _opponentDots[i].EnableInClassList("home-carousel-dot--active", i == _currentOpponentIndex);
+            }
+        }
+
+        private void OnOpponentPrevClicked()
+        {
+            PlayEnterSE();
+            ShowOpponent(_currentOpponentIndex - 1);
+        }
+
+        private void OnOpponentNextClicked()
+        {
+            PlayEnterSE();
+            ShowOpponent(_currentOpponentIndex + 1);
+        }
+
+        // 「この相手と戦う」：表示中の相手の index を保存して対戦開始。再戦時もこの index が使われる。
+        private void OnOpponentFightClicked()
+        {
+            PlayEnterSE();
+            _cpuBattleModel.OpponentIndex = _currentOpponentIndex;
+            _opponentSelectOverlay.style.display = DisplayStyle.None;
             StartCpuBattleAsync().Forget();
+        }
+
+        private void OnOpponentSelectCloseClicked()
+        {
+            PlayEnterSE();
+            _opponentSelectOverlay.style.display = DisplayStyle.None;
         }
 
         private async UniTaskVoid StartCpuBattleAsync()

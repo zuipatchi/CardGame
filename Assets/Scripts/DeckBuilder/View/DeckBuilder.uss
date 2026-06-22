@@ -904,3 +904,55 @@
     padding-bottom: 16px;
     display: none;
 }
+
+/* CPUデッキビルダー：相手スロットタブ（相手1〜8を切り替えて各デッキを編集） */
+.cpudeck-slot-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.cpudeck-slot-tab {
+    font-size: 16px;
+    color: rgb(210, 220, 240);
+    background-color: rgba(20, 28, 48, 0.9);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(110, 160, 230, 0.4);
+    border-right-color: rgba(110, 160, 230, 0.4);
+    border-top-color: rgba(110, 160, 230, 0.4);
+    border-bottom-color: rgba(110, 160, 230, 0.4);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+.cpudeck-slot-tab:hover {
+    background-color: rgba(30, 42, 70, 0.95);
+}
+
+.cpudeck-slot-tab--filled {
+    border-left-color: rgba(90, 200, 130, 0.7);
+    border-right-color: rgba(90, 200, 130, 0.7);
+    border-top-color: rgba(90, 200, 130, 0.7);
+    border-bottom-color: rgba(90, 200, 130, 0.7);
+    color: rgb(180, 240, 200);
+}
+
+.cpudeck-slot-tab--selected {
+    background-color: rgba(45, 70, 130, 1);
+    border-left-color: rgb(120, 180, 255);
+    border-right-color: rgb(120, 180, 255);
+    border-top-color: rgb(120, 180, 255);
+    border-bottom-color: rgb(120, 180, 255);
+    color: rgb(255, 255, 255);
+}

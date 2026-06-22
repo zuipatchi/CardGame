@@ -109,7 +109,7 @@
                         <ui:Label text="Home画面の「デッキ編集」から、デッキ編集画面に移動できます。左側のカード一覧からカードを選んでデッキに追加します。変更は自動で保存されます" class="home-rules-entry"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:Button name="RulesCloseButton" text="閉じる" class="home-rules-close-button"/>
+                <ui:Button name="RulesCloseButton" text="✕" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="TutorialOverlay" class="home-credit-overlay">
@@ -171,7 +171,26 @@
                         </ui:Button>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:Button name="TutorialCloseButton" text="閉じる" class="home-credit-close-button"/>
+                <ui:Button name="TutorialCloseButton" text="✕" class="home-modal-close"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="OpponentSelectOverlay" class="home-credit-overlay">
+            <ui:VisualElement class="home-credit-panel home-tutorial-panel">
+                <ui:Label text="対戦相手をえらぶ" class="home-credit-title"/>
+                <ui:VisualElement class="home-carousel">
+                    <ui:Button name="OpponentPrevButton" text="◀" class="home-carousel-arrow"/>
+                    <ui:VisualElement class="home-carousel-center">
+                        <ui:VisualElement name="OpponentPortrait" class="home-carousel-portrait" picking-mode="Ignore"/>
+                        <ui:Label name="OpponentNameLabel" class="home-carousel-name" picking-mode="Ignore"/>
+                        <ui:Label name="OpponentDifficultyLabel" class="home-carousel-difficulty" picking-mode="Ignore"/>
+                    </ui:VisualElement>
+                    <ui:Button name="OpponentNextButton" text="▶" class="home-carousel-arrow"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="OpponentDots" class="home-carousel-dots" picking-mode="Ignore"/>
+                <ui:VisualElement class="home-carousel-actions">
+                    <ui:Button name="OpponentFightButton" text="この相手と戦う" class="home-carousel-fight"/>
+                </ui:VisualElement>
+                <ui:Button name="OpponentSelectCloseButton" text="✕" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="CreditOverlay" class="home-credit-overlay">
@@ -196,7 +215,7 @@
                     <ui:Label text="Free Quick Effects Vol.1 / Gabriel Aguiar Productions" class="home-credit-entry"/>
                     <ui:Label text="Cartoon FX Remaster / Jean Moreno (JMO Assets)" class="home-credit-entry"/>
                 </ui:ScrollView>
-                <ui:Button name="CreditCloseButton" text="閉じる" class="home-credit-close-button"/>
+                <ui:Button name="CreditCloseButton" text="✕" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

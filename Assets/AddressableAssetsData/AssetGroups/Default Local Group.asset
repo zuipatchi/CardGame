@@ -288,6 +288,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7c279b67b909d064db9a6b372767a984
+    m_Address: Card/CpuRoster
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7d3936bb882dd5342b1ae21064e19ec5
     m_Address: Voice/C3011
     m_ReadOnly: 0

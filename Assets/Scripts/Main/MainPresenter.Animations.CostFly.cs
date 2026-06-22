@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common.Cpu;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Main.Card;
@@ -101,8 +102,10 @@ namespace Main
                 }
                 else
                 {
-                    // CPU：属性制約を満たしつつ、コスト値の合計が cost に達するまで手札を選ぶ
-                    foreach (CardView c in ChooseCpuCostCards(card.Data, handCards))
+                    // CPU：属性制約を満たしつつ、コスト値の合計が cost に達するまで手札を選ぶ。
+                    // 中級以上は CostBoost／ダメージトリガー持ちを優先的にコストへ回す。
+                    bool preferCostOnly = _cpuDifficulty != CpuDifficulty.Beginner;
+                    foreach (CardView c in ChooseCpuCostCards(card.Data, handCards, preferCostOnly))
                     {
                         costEntries.Add(MakeCpuCostEntry(c, hand));
                     }
@@ -134,7 +137,7 @@ namespace Main
         // CPU のコストカード選択：属性制約用に同属性カードを1枚確保し、
         // 残りはコスト値（CostPaymentValue）の合計が cost に達するまで手札先頭から選ぶ。
         // 白も一般属性として扱う（白カードは他属性の要件を満たさない）ため、白プレイ時も白を1枚確保する。
-        private static List<CardView> ChooseCpuCostCards(CardData played, IReadOnlyList<CardView> handCards)
+        private static List<CardView> ChooseCpuCostCards(CardData played, IReadOnlyList<CardView> handCards, bool preferCostOnly)
         {
             int cost = played.Cost;
             CardAttribute neededAttr = played.Attribute;
@@ -150,6 +153,25 @@ namespace Main
                     used.Add(c);
                     paid += c.Data.CostPaymentValue(neededAttr);
                     break;
+                }
+            }
+
+            // 中級以上：CostBoost／ダメージトリガー持ち（コスト専用カード）を先に充てる。
+            if (preferCostOnly)
+            {
+                foreach (CardView c in handCards)
+                {
+                    if (paid >= cost)
+                    {
+                        break;
+                    }
+                    if (used.Contains(c) || !IsCostOnlyCard(c.Data))
+                    {
+                        continue;
+                    }
+                    chosen.Add(c);
+                    used.Add(c);
+                    paid += c.Data.CostPaymentValue(neededAttr);
                 }
             }
 

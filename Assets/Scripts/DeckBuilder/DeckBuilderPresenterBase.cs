@@ -220,6 +220,9 @@ namespace DeckBuilder
                 // 全ボタン OFF の初期状態を反映（ボタンのハイライト・カード表示・デッキ一覧）
                 RefreshFilter();
                 _deckBuilderRoot.Add(_cardListDragLayer);
+
+                // 派生クラスが独自 UI（CPU の相手スロットタブなど）を組むためのフック。
+                OnDeckBuilderReady(root);
             }
             catch (OperationCanceledException) { }
         }
@@ -227,6 +230,11 @@ namespace DeckBuilder
         protected abstract void InitializeDeck();
         protected abstract void SaveDeck();
         protected abstract void NavigateBack();
+
+        // BuildAsync の最後に呼ばれる。派生クラスが追加の UI を組みたいときにオーバーライドする。
+        protected virtual void OnDeckBuilderReady(VisualElement root)
+        {
+        }
 
         private VisualElement AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass, List<CardListItem> itemsOut)
         {
@@ -629,7 +637,7 @@ namespace DeckBuilder
             _deckBuilderRoot.Add(overlay);
         }
 
-        private void RefreshDeckPanel()
+        protected void RefreshDeckPanel()
         {
             _deckListScrollView.Clear();
             _deckCountLabel.text = $"枚数 {_deckModel.Count}/{DeckModel.MaxCards}";

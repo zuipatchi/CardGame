@@ -725,3 +725,210 @@
 .home-rules-close-button:active {
     scale: 0.98 0.98;
 }
+
+/* モーダル共通：右上の丸い ✕ 閉じるボタン（相手選択・チュートリアル・ルール・クレジット） */
+.home-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(230, 235, 255);
+    background-color: rgba(20, 30, 70, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.6);
+    border-right-color: rgba(150, 170, 230, 0.6);
+    border-top-color: rgba(150, 170, 230, 0.6);
+    border-bottom-color: rgba(150, 170, 230, 0.6);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-modal-close:hover {
+    scale: 1.06 1.06;
+    background-color: rgba(35, 50, 110, 0.95);
+    color: rgb(255, 255, 255);
+}
+
+.home-modal-close:active {
+    scale: 0.94 0.94;
+}
+
+.home-carousel {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.home-carousel-arrow {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(200, 220, 255);
+    background-color: rgba(20, 30, 70, 0.8);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    width: 80px;
+    height: 80px;
+    margin-left: 24px;
+    margin-right: 24px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-carousel-arrow:hover {
+    scale: 1.08 1.08;
+    background-color: rgba(35, 50, 110, 0.95);
+    color: rgb(255, 255, 255);
+}
+
+.home-carousel-arrow:active {
+    scale: 0.94 0.94;
+}
+
+.home-carousel-center {
+    align-items: center;
+    justify-content: center;
+}
+
+.home-carousel-portrait {
+    width: 360px;
+    height: 360px;
+    background-color: rgba(8, 8, 25, 1);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 200, 255, 0.5);
+    border-right-color: rgba(150, 200, 255, 0.5);
+    border-top-color: rgba(150, 200, 255, 0.5);
+    border-bottom-color: rgba(150, 200, 255, 0.5);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    margin-bottom: 18px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.home-carousel-portrait--empty {
+    background-color: rgba(18, 24, 44, 1);
+}
+
+.home-carousel-name {
+    font-size: 40px;
+    -unity-font-style: bold;
+    color: rgb(235, 245, 255);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.home-carousel-difficulty {
+    font-size: 28px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.home-carousel-difficulty--beginner {
+    color: rgb(110, 220, 140);
+}
+
+.home-carousel-difficulty--intermediate {
+    color: rgb(255, 200, 80);
+}
+
+.home-carousel-difficulty--advanced {
+    color: rgb(255, 110, 110);
+}
+
+.home-carousel-dots {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.home-carousel-dot {
+    width: 14px;
+    height: 14px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    background-color: rgba(150, 170, 230, 0.35);
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.home-carousel-dot--active {
+    background-color: rgb(120, 180, 255);
+    scale: 1.2 1.2;
+}
+
+.home-carousel-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-carousel-fight {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(255, 240, 240);
+    background-color: rgba(60, 16, 16, 1);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(220, 60, 60, 0.85);
+    border-right-color: rgba(220, 60, 60, 0.85);
+    border-top-color: rgba(220, 60, 60, 0.85);
+    border-bottom-color: rgba(220, 60, 60, 0.85);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    height: 56px;
+    padding-left: 28px;
+    padding-right: 28px;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-carousel-fight:hover {
+    scale: 1.03 1.03;
+    background-color: rgba(85, 22, 22, 1);
+    border-left-color: rgb(255, 90, 90);
+    border-right-color: rgb(255, 90, 90);
+    border-top-color: rgb(255, 90, 90);
+    border-bottom-color: rgb(255, 90, 90);
+}
+
+.home-carousel-fight:active {
+    scale: 0.97 0.97;
+}
