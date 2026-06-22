@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c5b0ef7f9d88af459ed03eba99f2d4c, type: 3}
   m_Name: DogSpeechLinesSO
   m_EditorClassIdentifier: Home::Home.DogSpeechLinesSO
+  _voiceSpeaker: 43
   _idleMessages:
   - "\u3071\u3063\u3061\uFF5E\uFF01"
   - "{name}\u3068\u904A\u3073\u305F\u3044\u30D1\u30C1"
