@@ -10,6 +10,7 @@ using Common.Tutorial;
 using Common.Username;
 using Common.View;
 using Cysharp.Threading.Tasks;
+using Main.Card;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -21,6 +22,9 @@ namespace Home
     {
         [SerializeField] private HomeBackgroundPresenter _backgroundPresenter;
         [SerializeField] private GameObject _rainEffectPrefab;
+        // 使用デッキ選択モーダルでお気に入りカードの画像を引くために使う。
+        // DeckBuilder と同じ CardDatabase アセットをインスペクタで割り当てる（未割り当てなら背景は出ない）。
+        [SerializeField] private CardDatabase _cardDatabase;
 
         private SceneTransitioner _sceneTransitioner;
         private SoundPlayer _soundPlayer;
@@ -523,6 +527,18 @@ namespace Home
                     row.AddToClassList("home-deck-row--selected");
                 }
                 row.RegisterCallback<ClickEvent>(_ => OnDeckRowClicked(slot));
+
+                // お気に入りカードが設定されていれば、左に小さくカード全体を表示する。
+                string favoriteId = _deckRepository.LoadFavorite(slot);
+                if (_cardDatabase != null && !string.IsNullOrEmpty(favoriteId)
+                    && _cardDatabase.TryGet(favoriteId, out CardData favorite) && favorite.Image != null)
+                {
+                    VisualElement thumbnail = new VisualElement();
+                    thumbnail.AddToClassList("home-deck-row-favorite");
+                    thumbnail.style.backgroundImage = new StyleBackground(favorite.Image);
+                    thumbnail.pickingMode = PickingMode.Ignore;
+                    row.Add(thumbnail);
+                }
 
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
                 nameLabel.AddToClassList("home-deck-row-name");

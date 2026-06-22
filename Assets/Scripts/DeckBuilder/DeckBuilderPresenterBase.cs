@@ -268,6 +268,29 @@ namespace DeckBuilder
         {
         }
 
+        // カード詳細モーダルに表示する任意アクションのラベル（null＝ボタンなし）。
+        // プレイヤーのデッキビルダーが「デッキのシンボルに設定」を出すためにオーバーライドする。
+        protected virtual string CardDetailActionLabel => null;
+
+        // 上記アクションが押されたときの処理。
+        protected virtual void OnCardDetailAction(CardData card)
+        {
+        }
+
+        // カード詳細モーダルを開く（派生クラスのアクションつき）。カード一覧・デッキ一覧の双方から使う。
+        private void ShowCardDetail(CardData card)
+        {
+            _cardDetailModal.Show(card, CardDetailActionLabel, OnCardDetailAction);
+        }
+
+        // 派生クラスから簡易トーストを出す。success=true で緑の成功表示（シンボル設定など）にする。
+        // 同じラベルを使い回すため、毎回 success に応じて緑クラスを付け外しする。
+        protected void ShowToast(string message, bool success = false)
+        {
+            _toastLabel?.EnableInClassList("deckbuilder-toast--success", success);
+            _toast?.Show(message, 1500, destroyCancellationToken);
+        }
+
         private VisualElement AddCardSection(string title, IEnumerable<CardData> cards, string modifierClass, List<CardListItem> itemsOut)
         {
             List<CardData> cardList = new List<CardData>(cards);
@@ -310,7 +333,7 @@ namespace DeckBuilder
                     }
                     return false;
                 };
-                manipulator.OnClick = () => _cardDetailModal.Show(captured);
+                manipulator.OnClick = () => ShowCardDetail(captured);
                 manipulator.OnRightClick = () => TryAddCard(captured.Id, captured.Cost);
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
@@ -594,7 +617,7 @@ namespace DeckBuilder
             if (_deckRuleModel != null && _deckRuleModel.LimitSameCards
                 && _deckModel.CountOf(id) >= DeckRuleModel.MaxCopiesPerId)
             {
-                _toast.Show($"同名カードは{DeckRuleModel.MaxCopiesPerId}枚までです", 1500, destroyCancellationToken);
+                ShowToast($"同名カードは{DeckRuleModel.MaxCopiesPerId}枚までです");
                 return false;
             }
             _deckModel.Add(id, cost);
@@ -757,14 +780,14 @@ namespace DeckBuilder
                     thumbnail.style.backgroundImage = new StyleBackground(cardData.Image);
                 }
                 CardData capturedCardData = cardData;
-                thumbnail.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
+                thumbnail.RegisterCallback<ClickEvent>(_ => ShowCardDetail(capturedCardData));
 
                 Label costLabel = new Label($"{cardData.Cost}");
                 costLabel.AddToClassList("deckbuilder-deck-row-cost");
 
                 Label nameLabel = new Label(cardData.CardName);
                 nameLabel.AddToClassList("deckbuilder-deck-row-name");
-                nameLabel.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(capturedCardData));
+                nameLabel.RegisterCallback<ClickEvent>(_ => ShowCardDetail(capturedCardData));
 
                 Label countLabel = new Label($"{counts[id]}");
                 countLabel.AddToClassList("deckbuilder-deck-row-count");

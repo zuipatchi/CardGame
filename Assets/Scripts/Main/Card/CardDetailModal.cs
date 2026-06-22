@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +21,13 @@ namespace Main.Card
         }
 
         public void Show(CardData data)
+        {
+            Show(data, null, null);
+        }
+
+        // actionLabel を渡すと、パネル下部に任意のアクションボタン（押すと onAction(data) → 閉じる）を表示する。
+        // デッキ構築の「デッキのシンボルに設定」などに使う。未指定なら従来どおりボタンなし。
+        public void Show(CardData data, string actionLabel, Action<CardData> onAction)
         {
             Hide();
             _activeKeywordBlock = null;
@@ -167,6 +175,20 @@ namespace Main.Card
                 Label flavorLabel = new Label(data.FlavorText);
                 flavorLabel.AddToClassList("card-detail-flavor");
                 stats.Add(flavorLabel);
+            }
+
+            if (!string.IsNullOrEmpty(actionLabel) && onAction != null)
+            {
+                Button actionButton = new Button();
+                actionButton.text = actionLabel;
+                actionButton.AddToClassList("card-detail-action");
+                actionButton.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+                actionButton.clicked += () =>
+                {
+                    onAction(data);
+                    Hide();
+                };
+                stats.Add(actionButton);
             }
 
             panel.Add(stats);

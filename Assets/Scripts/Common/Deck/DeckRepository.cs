@@ -14,6 +14,7 @@ namespace Common.Deck
         private const string LegacySaveKey = "SavedDeck";
         private const string CardsKeyPrefix = "SavedDeck_";
         private const string NameKeyPrefix = "DeckName_";
+        private const string FavoriteKeyPrefix = "FavoriteCard_";
         private const string SelectedIndexKey = "SelectedDeckIndex";
 
         public DeckRepository()
@@ -117,6 +118,26 @@ namespace Common.Deck
         public static string DefaultName(int slot)
         {
             return $"デッキ{slot + 1}";
+        }
+
+        // デッキのシンボルカード（スロットに小さく表示する代表カードID）。未設定は空文字。
+        public string LoadFavorite(int slot)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return string.Empty;
+            }
+            return PlayerPrefs.GetString(FavoriteKeyPrefix + slot, string.Empty);
+        }
+
+        public void SaveFavorite(int slot, string cardId)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return;
+            }
+            PlayerPrefs.SetString(FavoriteKeyPrefix + slot, cardId ?? string.Empty);
+            PlayerPrefs.Save();
         }
 
         // 旧単一デッキ（キー `SavedDeck`）があり、スロット 0 が未保存ならスロット 0 へ移し替える。

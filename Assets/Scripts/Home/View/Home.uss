@@ -246,6 +246,15 @@
     transition-duration: 0.12s;
 }
 
+/* お気に入りカードのサムネ（行の左に小さくカード全体を表示） */
+.home-deck-row-favorite {
+    width: 40px;
+    height: 52px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .home-deck-row:hover {
     background-color: rgba(30, 38, 64, 0.95);
 }

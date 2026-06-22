@@ -64,6 +64,16 @@ namespace DeckBuilder
             ShowSlotList();
         }
 
+        // カード詳細モーダルに「デッキのシンボルに設定」ボタンを出す（プレイヤーのデッキビルダーのみ）。
+        protected override string CardDetailActionLabel => "★ デッキのシンボルに設定";
+
+        // 詳細を開いたカードを、今編集中のデッキのシンボル（スロットに小さく表示する代表カード）に設定する。
+        protected override void OnCardDetailAction(CardData card)
+        {
+            _deckRepository.SaveFavorite(_editingSlot, card.Id);
+            ShowToast("デッキのシンボルに設定しました", success: true);
+        }
+
         // カード読み込み前にデッキ選択画面を組んで表示する（ローディング中も見えるように）。
         protected override void OnBeforeLoad(VisualElement root)
         {
@@ -98,7 +108,7 @@ namespace DeckBuilder
             };
             header.Add(backButton);
 
-            Label title = new Label("デッキをえらぶ");
+            Label title = new Label("デッキ編集");
             title.AddToClassList("deckbuilder-slot-title");
             header.Add(title);
 
@@ -128,15 +138,27 @@ namespace DeckBuilder
                 card.AddToClassList("deckbuilder-slot-card");
                 card.RegisterCallback<ClickEvent>(_ => OpenSlot(slot));
 
-                VisualElement nameRow = new VisualElement();
-                nameRow.AddToClassList("deckbuilder-slot-name-row");
+                // お気に入りカードが設定されていれば、左に小さくカード全体を表示する。
+                string favoriteId = _deckRepository.LoadFavorite(slot);
+                if (!string.IsNullOrEmpty(favoriteId)
+                    && _cardDatabase.TryGet(favoriteId, out CardData favorite) && favorite.Image != null)
+                {
+                    VisualElement thumbnail = new VisualElement();
+                    thumbnail.AddToClassList("deckbuilder-slot-favorite");
+                    thumbnail.style.backgroundImage = new StyleBackground(favorite.Image);
+                    thumbnail.pickingMode = PickingMode.Ignore;
+                    card.Add(thumbnail);
+                }
+
+                VisualElement info = new VisualElement();
+                info.AddToClassList("deckbuilder-slot-info");
 
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
                 nameLabel.AddToClassList("deckbuilder-slot-name");
-                nameRow.Add(nameLabel);
+                info.Add(nameLabel);
 
                 Button renameButton = new Button();
-                renameButton.text = "✎";
+                renameButton.text = "✎ 名前を変更";
                 renameButton.AddToClassList("deckbuilder-slot-rename");
                 // カードのクリック（編集を開く）に伝播させないよう ClickEvent を止める。
                 renameButton.RegisterCallback<ClickEvent>(evt =>
@@ -145,9 +167,7 @@ namespace DeckBuilder
                     _soundPlayer.PlaySE(_soundStore.EnterSE);
                     BeginRename(slot);
                 });
-                nameRow.Add(renameButton);
-
-                card.Add(nameRow);
+                info.Add(renameButton);
 
                 int count = _deckRepository.LoadCount(slot);
                 Label countLabel = new Label($"{count}/{DeckModel.MaxCards}");
@@ -156,7 +176,9 @@ namespace DeckBuilder
                 {
                     countLabel.AddToClassList("deckbuilder-slot-count--ready");
                 }
-                card.Add(countLabel);
+                info.Add(countLabel);
+
+                card.Add(info);
 
                 _slotGrid.Add(card);
             }

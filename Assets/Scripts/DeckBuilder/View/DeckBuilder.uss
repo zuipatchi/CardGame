@@ -963,6 +963,14 @@
     display: none;
 }
 
+/* 成功通知トースト（お気に入り設定など）。既定の赤を緑で上書きする */
+.deckbuilder-toast--success {
+    color: rgb(225, 255, 230);
+    background-color: rgba(15, 55, 25, 0.92);
+    border-top-color: rgba(90, 220, 130, 0.6);
+    border-bottom-color: rgba(90, 220, 130, 0.6);
+}
+
 /* CPUデッキビルダー：相手スロットタブ（相手1〜8を切り替えて各デッキを編集） */
 .cpudeck-slot-tabs {
     flex-direction: row;
@@ -1074,27 +1082,36 @@
     border-top-right-radius: 14px;
     border-bottom-left-radius: 14px;
     border-bottom-right-radius: 14px;
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: stretch;
     transition-property: background-color, scale;
     transition-duration: 0.15s, 0.1s;
     transition-timing-function: ease-in-out, ease-in-out;
 }
+
+/* お気に入りカードのサムネ（左に小さくカード全体を表示） */
+.deckbuilder-slot-favorite {
+    width: 84px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* デッキ名・編集ボタン・枚数のテキスト列（サムネの右） */
+.deckbuilder-slot-info {
+    flex-grow: 1;
+    flex-shrink: 1;
+    justify-content: center;
+}
+
 
 .deckbuilder-slot-card:hover {
     background-color: rgba(30, 38, 64, 0.98);
     scale: 1.03 1.03;
 }
 
-.deckbuilder-slot-name-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-}
-
 .deckbuilder-slot-name {
-    flex-grow: 1;
-    flex-shrink: 1;
-    font-size: 26px;
+    font-size: 20px;
     -unity-font-style: bold;
     color: rgb(235, 235, 250);
     overflow: hidden;
@@ -1102,11 +1119,16 @@
     white-space: nowrap;
 }
 
+/* デッキ名編集（リネーム）ボタン。デッキ名の下に置く */
 .deckbuilder-slot-rename {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    color: rgb(200, 210, 235);
+    align-self: flex-start;
+    height: 34px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 16px;
+    color: rgb(210, 215, 235);
     background-color: rgba(70, 80, 120, 0.7);
     border-left-width: 0;
     border-right-width: 0;
@@ -1116,7 +1138,6 @@
     border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    margin-left: 8px;
 }
 
 .deckbuilder-slot-rename:hover {
