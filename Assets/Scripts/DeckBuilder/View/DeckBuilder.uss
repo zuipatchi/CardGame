@@ -1014,3 +1014,126 @@
     border-bottom-color: rgb(120, 180, 255);
     color: rgb(255, 255, 255);
 }
+
+/* プレイヤーのデッキスロット選択画面（DeckBuilder シーン内のフルスクリーンオーバーレイ） */
+.deckbuilder-slot-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(12, 12, 22);
+    flex-direction: column;
+}
+
+.deckbuilder-slot-header {
+    flex-direction: row;
+    align-items: center;
+    padding-left: 24px;
+    padding-top: 24px;
+    padding-bottom: 8px;
+}
+
+.deckbuilder-slot-title {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgb(220, 220, 245);
+    margin-left: 20px;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.6);
+}
+
+.deckbuilder-slot-grid {
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.deckbuilder-slot-card {
+    width: 300px;
+    height: 150px;
+    margin: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    background-color: rgba(20, 24, 40, 0.95);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(110, 160, 230, 0.35);
+    border-right-color: rgba(110, 160, 230, 0.35);
+    border-top-color: rgba(110, 160, 230, 0.35);
+    border-bottom-color: rgba(110, 160, 230, 0.35);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    justify-content: space-between;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.deckbuilder-slot-card:hover {
+    background-color: rgba(30, 38, 64, 0.98);
+    scale: 1.03 1.03;
+}
+
+.deckbuilder-slot-name-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.deckbuilder-slot-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(235, 235, 250);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.deckbuilder-slot-rename {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    color: rgb(200, 210, 235);
+    background-color: rgba(70, 80, 120, 0.7);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    margin-left: 8px;
+}
+
+.deckbuilder-slot-rename:hover {
+    background-color: rgba(90, 100, 150, 0.85);
+}
+
+.deckbuilder-slot-count {
+    font-size: 22px;
+    color: rgb(255, 150, 150);
+}
+
+.deckbuilder-slot-count--ready {
+    color: rgb(120, 230, 150);
+}
+
+.deckbuilder-rename-field {
+    width: 320px;
+    font-size: 24px;
+    margin-bottom: 24px;
+}

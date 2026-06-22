@@ -3,25 +3,63 @@ using UnityEngine;
 
 namespace Common.Deck
 {
+    // プレイヤーのデッキを 9 スロット（0〜8）で保存・読み込みする。各スロットは
+    // カード列（PlayerPrefs `SavedDeck_{slot}`）とデッキ名（`DeckName_{slot}`）を持ち、
+    // 対戦に使う選択中スロットは `SelectedDeckIndex` に保存する。
+    // 旧バージョンの単一デッキ（キー `SavedDeck`）はスロット 0 へ自動移行する。
     public sealed class DeckRepository
     {
-        private const string SaveKey = "SavedDeck";
+        public const int SlotCount = 9;
 
-        public void Save(DeckModel deckModel)
+        private const string LegacySaveKey = "SavedDeck";
+        private const string CardsKeyPrefix = "SavedDeck_";
+        private const string NameKeyPrefix = "DeckName_";
+        private const string SelectedIndexKey = "SelectedDeckIndex";
+
+        public DeckRepository()
         {
+            MigrateLegacyIfNeeded();
+        }
+
+        // 対戦に使う選択中スロット。範囲外は 0 にクランプして返す。
+        public int SelectedIndex
+        {
+            get
+            {
+                return Mathf.Clamp(PlayerPrefs.GetInt(SelectedIndexKey, 0), 0, SlotCount - 1);
+            }
+            set
+            {
+                PlayerPrefs.SetInt(SelectedIndexKey, Mathf.Clamp(value, 0, SlotCount - 1));
+                PlayerPrefs.Save();
+            }
+        }
+
+        public void Save(DeckModel deckModel, int slot)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return;
+            }
+
             DeckSaveData data = new DeckSaveData();
             foreach ((string id, int cost) in deckModel.Entries)
             {
                 data.Cards.Add(new CardEntry { Id = id, Cost = cost });
             }
-            string json = JsonUtility.ToJson(data);
-            PlayerPrefs.SetString(SaveKey, json);
+            PlayerPrefs.SetString(CardsKeyPrefix + slot, JsonUtility.ToJson(data));
             PlayerPrefs.Save();
         }
 
-        public void Load(DeckModel deckModel)
+        public void Load(DeckModel deckModel, int slot)
         {
-            string json = PlayerPrefs.GetString(SaveKey, null);
+            deckModel.Clear();
+            if (!IsValidSlot(slot))
+            {
+                return;
+            }
+
+            string json = PlayerPrefs.GetString(CardsKeyPrefix + slot, null);
             if (string.IsNullOrEmpty(json))
             {
                 return;
@@ -33,11 +71,75 @@ namespace Common.Deck
                 return;
             }
 
-            deckModel.Clear();
             foreach (CardEntry entry in data.Cards)
             {
                 deckModel.Add(entry.Id, entry.Cost);
             }
+        }
+
+        // DeckModel へ展開せずに、スロットの保存枚数だけを取り出す（スロット一覧の表示用）。
+        public int LoadCount(int slot)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return 0;
+            }
+
+            string json = PlayerPrefs.GetString(CardsKeyPrefix + slot, null);
+            if (string.IsNullOrEmpty(json))
+            {
+                return 0;
+            }
+
+            DeckSaveData data = JsonUtility.FromJson<DeckSaveData>(json);
+            return data?.Cards?.Count ?? 0;
+        }
+
+        public string LoadName(int slot)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return string.Empty;
+            }
+            return PlayerPrefs.GetString(NameKeyPrefix + slot, DefaultName(slot));
+        }
+
+        public void SaveName(int slot, string name)
+        {
+            if (!IsValidSlot(slot))
+            {
+                return;
+            }
+            PlayerPrefs.SetString(NameKeyPrefix + slot, name);
+            PlayerPrefs.Save();
+        }
+
+        public static string DefaultName(int slot)
+        {
+            return $"デッキ{slot + 1}";
+        }
+
+        // 旧単一デッキ（キー `SavedDeck`）があり、スロット 0 が未保存ならスロット 0 へ移し替える。
+        // 移行後は旧キーを削除し、二重移行を防ぐ。
+        private void MigrateLegacyIfNeeded()
+        {
+            if (!PlayerPrefs.HasKey(LegacySaveKey))
+            {
+                return;
+            }
+
+            string slot0Key = CardsKeyPrefix + 0;
+            if (!PlayerPrefs.HasKey(slot0Key))
+            {
+                PlayerPrefs.SetString(slot0Key, PlayerPrefs.GetString(LegacySaveKey, string.Empty));
+            }
+            PlayerPrefs.DeleteKey(LegacySaveKey);
+            PlayerPrefs.Save();
+        }
+
+        private static bool IsValidSlot(int slot)
+        {
+            return slot >= 0 && slot < SlotCount;
         }
 
         [System.Serializable]

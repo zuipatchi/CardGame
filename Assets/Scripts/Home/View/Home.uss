@@ -180,6 +180,121 @@
     -unity-text-align: middle-left;
 }
 
+/* 使用デッキ選択ボタン（home-buttons の先頭・3つのアクションボタンより低め） */
+.home-deck-select-button {
+    height: 56px;
+    margin-bottom: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
+    background-color: rgba(8, 8, 25, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.5);
+    border-right-color: rgba(150, 170, 230, 0.5);
+    border-top-color: rgba(150, 170, 230, 0.5);
+    border-bottom-color: rgba(150, 170, 230, 0.5);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(220, 230, 255);
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.home-deck-select-button:hover {
+    scale: 1.025 1.025;
+    background-color: rgba(20, 30, 70, 1);
+}
+
+.home-deck-select-button:active {
+    scale: 0.98 0.98;
+}
+
+/* 使用デッキ選択モーダルの行 */
+.home-deck-select-list {
+    flex-grow: 1;
+}
+
+.home-deck-row {
+    flex-direction: row;
+    align-items: center;
+    height: 60px;
+    padding-left: 18px;
+    padding-right: 18px;
+    margin-bottom: 10px;
+    background-color: rgba(20, 24, 40, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(110, 160, 230, 0.3);
+    border-right-color: rgba(110, 160, 230, 0.3);
+    border-top-color: rgba(110, 160, 230, 0.3);
+    border-bottom-color: rgba(110, 160, 230, 0.3);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition-property: background-color;
+    transition-duration: 0.12s;
+}
+
+.home-deck-row:hover {
+    background-color: rgba(30, 38, 64, 0.95);
+}
+
+.home-deck-row--selected {
+    background-color: rgba(35, 55, 100, 0.95);
+    border-left-color: rgb(120, 180, 255);
+    border-right-color: rgb(120, 180, 255);
+    border-top-color: rgb(120, 180, 255);
+    border-bottom-color: rgb(120, 180, 255);
+}
+
+.home-deck-row-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(235, 235, 250);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-deck-row-count {
+    font-size: 20px;
+    color: rgb(255, 150, 150);
+    margin-left: 12px;
+}
+
+.home-deck-row-count--ready {
+    color: rgb(120, 230, 150);
+}
+
+.home-deck-row-badge {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.9);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    margin-left: 12px;
+}
+
 .home-speech-bubble {
     position: absolute;
     min-width: 180px;

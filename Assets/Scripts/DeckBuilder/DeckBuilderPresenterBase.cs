@@ -23,8 +23,8 @@ namespace DeckBuilder
         protected SceneTransitioner _sceneTransitioner;
         protected DeckModel _deckModel;
         protected DeckRuleModel _deckRuleModel;
-        private SoundPlayer _soundPlayer;
-        private SoundStore _soundStore;
+        protected SoundPlayer _soundPlayer;
+        protected SoundStore _soundStore;
 
         // SoundPlayer / SoundStore は Common の常駐シングルトン。派生クラスの Construct とは別に
         // 基底クラスでまとめて受け取る（VContainer は基底クラスの [Inject] メソッドも呼び出す）。
@@ -124,6 +124,10 @@ namespace DeckBuilder
                 loadingLabel.pickingMode = PickingMode.Ignore;
                 loadingOverlay.Add(loadingLabel);
                 _deckBuilderRoot.Add(loadingOverlay);
+
+                // カード読み込み前に呼ぶフック。派生クラスがカード非依存の UI（デッキ選択画面など）を
+                // 先に組んでローディング中も表示できるようにする。
+                OnBeforeLoad(root);
 
                 await _cardStore.Loaded.AttachExternalCancellation(destroyCancellationToken);
 
@@ -254,7 +258,12 @@ namespace DeckBuilder
         protected abstract void SaveDeck();
         protected abstract void NavigateBack();
 
-        // BuildAsync の最後に呼ばれる。派生クラスが追加の UI を組みたいときにオーバーライドする。
+        // カード読み込み開始前に呼ばれる。カードに依存しない UI を先に組みたいときにオーバーライドする。
+        protected virtual void OnBeforeLoad(VisualElement root)
+        {
+        }
+
+        // BuildAsync の最後（カード読み込み完了後）に呼ばれる。派生クラスが追加の UI を組みたいときにオーバーライドする。
         protected virtual void OnDeckBuilderReady(VisualElement root)
         {
         }

@@ -37,6 +37,10 @@ namespace Home
         private Button _deckBuilderButton;
         private Button _battleButton;
         private Button _matchingButton;
+        private Button _deckSelectButton;
+        private VisualElement _deckSelectOverlay;
+        private Button _deckSelectCloseButton;
+        private ScrollView _deckSelectList;
         private VisualElement _opponentSelectOverlay;
         private Button _opponentSelectCloseButton;
         private Button _opponentPrevButton;
@@ -105,7 +109,9 @@ namespace Home
             _cpuRosterStore = cpuRosterStore;
             _cpuBattleModel = cpuBattleModel;
             _deckModel.Clear();
-            _deckRepository.Load(_deckModel);
+            // 対戦には「選択中スロット」のデッキを使う。
+            _deckRepository.Load(_deckModel, _deckRepository.SelectedIndex);
+            UpdateDeckSelectButtonLabel();
             _usernameLabel.text = $"ユーザーネーム：{usernameRepository.Load() ?? string.Empty}";
             if (_backgroundPresenter != null && _gameSessionModel.ShouldRainOnNextHome)
             {
@@ -185,6 +191,10 @@ namespace Home
             _deckBuilderButton = root.Q<Button>("DeckBuilderButton");
             _battleButton = root.Q<Button>("BattleButton");
             _matchingButton = root.Q<Button>("MatchingButton");
+            _deckSelectButton = root.Q<Button>("DeckSelectButton");
+            _deckSelectOverlay = root.Q<VisualElement>("DeckSelectOverlay");
+            _deckSelectCloseButton = root.Q<Button>("DeckSelectCloseButton");
+            _deckSelectList = root.Q<ScrollView>("DeckSelectList");
             _opponentSelectOverlay = root.Q<VisualElement>("OpponentSelectOverlay");
             _opponentSelectCloseButton = root.Q<Button>("OpponentSelectCloseButton");
             _opponentPrevButton = root.Q<Button>("OpponentPrevButton");
@@ -267,6 +277,8 @@ namespace Home
             SelectTutorialTab(0);
             _deckBuilderButton.clicked += OnDeckBuilderClicked;
             _battleButton.clicked += OnBattleClicked;
+            _deckSelectButton.clicked += OnDeckSelectClicked;
+            _deckSelectCloseButton.clicked += OnDeckSelectCloseClicked;
             _opponentSelectCloseButton.clicked += OnOpponentSelectCloseClicked;
             _opponentPrevButton.clicked += OnOpponentPrevClicked;
             _opponentNextButton.clicked += OnOpponentNextClicked;
@@ -360,6 +372,14 @@ namespace Home
             {
                 _matchingButton.clicked -= OnMatchingClicked;
             }
+            if (_deckSelectButton != null)
+            {
+                _deckSelectButton.clicked -= OnDeckSelectClicked;
+            }
+            if (_deckSelectCloseButton != null)
+            {
+                _deckSelectCloseButton.clicked -= OnDeckSelectCloseClicked;
+            }
             if (_creditButton != null)
             {
                 _creditButton.clicked -= OnCreditClicked;
@@ -410,6 +430,10 @@ namespace Home
             _opponentNameLabel = null;
             _opponentDots = null;
             _matchingButton = null;
+            _deckSelectButton = null;
+            _deckSelectOverlay = null;
+            _deckSelectCloseButton = null;
+            _deckSelectList = null;
             _creditButton = null;
             _creditCloseButton = null;
             _creditOverlay = null;
@@ -468,6 +492,80 @@ namespace Home
         {
             PlayEnterSE();
             _sceneTransitioner.Transit(Scenes.DeckBuilder).Forget();
+        }
+
+        // 「使用デッキ」ボタン：対戦に使うデッキを選ぶモーダルを開く。
+        private void OnDeckSelectClicked()
+        {
+            PlayEnterSE();
+            BuildDeckSelectList();
+            _deckSelectOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        private void OnDeckSelectCloseClicked()
+        {
+            PlayEnterSE();
+            _deckSelectOverlay.style.display = DisplayStyle.None;
+        }
+
+        // 9 スロットの一覧（名前・枚数・完成状態・使用中マーク）を組む。行タップで使用デッキを切り替える。
+        private void BuildDeckSelectList()
+        {
+            _deckSelectList.Clear();
+            int selected = _deckRepository.SelectedIndex;
+            for (int i = 0; i < DeckRepository.SlotCount; i++)
+            {
+                int slot = i;
+                VisualElement row = new VisualElement();
+                row.AddToClassList("home-deck-row");
+                if (slot == selected)
+                {
+                    row.AddToClassList("home-deck-row--selected");
+                }
+                row.RegisterCallback<ClickEvent>(_ => OnDeckRowClicked(slot));
+
+                Label nameLabel = new Label(_deckRepository.LoadName(slot));
+                nameLabel.AddToClassList("home-deck-row-name");
+                nameLabel.pickingMode = PickingMode.Ignore;
+                row.Add(nameLabel);
+
+                Label badge = new Label("使用中");
+                badge.AddToClassList("home-deck-row-badge");
+                badge.style.display = slot == selected ? DisplayStyle.Flex : DisplayStyle.None;
+                badge.pickingMode = PickingMode.Ignore;
+                row.Add(badge);
+
+                int count = _deckRepository.LoadCount(slot);
+                Label countLabel = new Label($"{count}/{DeckModel.MaxCards}");
+                countLabel.AddToClassList("home-deck-row-count");
+                if (count == DeckModel.MaxCards)
+                {
+                    countLabel.AddToClassList("home-deck-row-count--ready");
+                }
+                countLabel.pickingMode = PickingMode.Ignore;
+                row.Add(countLabel);
+
+                _deckSelectList.Add(row);
+            }
+        }
+
+        // 使用デッキを切り替えて対戦用の DeckModel を差し替える。
+        private void OnDeckRowClicked(int slot)
+        {
+            PlayEnterSE();
+            _deckRepository.SelectedIndex = slot;
+            _deckRepository.Load(_deckModel, slot);
+            UpdateDeckSelectButtonLabel();
+            _deckSelectOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void UpdateDeckSelectButtonLabel()
+        {
+            if (_deckSelectButton == null)
+            {
+                return;
+            }
+            _deckSelectButton.text = $"使用デッキ：{_deckRepository.LoadName(_deckRepository.SelectedIndex)}";
         }
 
         // 「CPU対戦」ボタン：デッキを検証してから相手選択オーバーレイを開く。
