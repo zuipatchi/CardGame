@@ -34,11 +34,15 @@ namespace Main.Card
 
             _overlay = new VisualElement();
             _overlay.AddToClassList("card-detail-overlay");
-            _overlay.RegisterCallback<ClickEvent>(_ => Hide());
+            // 外側クリックで閉じる。ClickEvent（down/up が同一要素で合成される高レベルイベント）は
+            // オンライン相手ターン中のフレームヒッチで合成されず無反応になることがあるため、
+            // より確実に発火する PointerDownEvent で閉じる。
+            _overlay.RegisterCallback<PointerDownEvent>(_ => Hide());
 
             VisualElement panel = new VisualElement();
             panel.AddToClassList("card-detail-panel");
-            panel.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+            // パネル内のクリックでは閉じない（オーバーレイへ伝播させない）。
+            panel.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
 
             VisualElement imageArea = new VisualElement();
             imageArea.AddToClassList("card-detail-image");
@@ -192,6 +196,17 @@ namespace Main.Card
             }
 
             panel.Add(stats);
+
+            // 右上の ✕ 閉じるボタン（外側クリックに頼らない確実な閉じ導線）。
+            // UI Toolkit は後から追加した兄弟が上に描画されるため、画像・スタットを追加した後に
+            // 最後に追加して最前面に置く（先頭に追加するとラベル類に隠れてホバー/クリックを拾えない）。
+            Button closeButton = new Button();
+            closeButton.text = "✕";
+            closeButton.AddToClassList("card-detail-close");
+            closeButton.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
+            closeButton.clicked += () => Hide();
+            panel.Add(closeButton);
+
             _overlay.Add(panel);
             _root.Add(_overlay);
         }

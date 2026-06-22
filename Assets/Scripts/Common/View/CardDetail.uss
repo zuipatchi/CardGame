@@ -389,3 +389,46 @@
     background-color: rgba(190, 140, 35, 0.85);
     scale: 0.97 0.97;
 }
+
+/* パネル右上の丸い ✕ 閉じるボタン（外側クリックに頼らない確実な閉じ導線） */
+.card-detail-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(230, 235, 255);
+    background-color: rgba(20, 30, 70, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.6);
+    border-right-color: rgba(150, 170, 230, 0.6);
+    border-top-color: rgba(150, 170, 230, 0.6);
+    border-bottom-color: rgba(150, 170, 230, 0.6);
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.card-detail-close:hover {
+    scale: 1.06 1.06;
+    background-color: rgba(35, 50, 110, 0.95);
+    color: rgb(255, 255, 255);
+}
+
+.card-detail-close:active {
+    scale: 0.94 0.94;
+}
