@@ -44,7 +44,6 @@ namespace Home
         private Button _opponentFightButton;
         private VisualElement _opponentPortrait;
         private Label _opponentNameLabel;
-        private Label _opponentDifficultyLabel;
         private VisualElement _opponentDots;
         private int _currentOpponentIndex;
         private Button _creditButton;
@@ -193,7 +192,6 @@ namespace Home
             _opponentFightButton = root.Q<Button>("OpponentFightButton");
             _opponentPortrait = root.Q<VisualElement>("OpponentPortrait");
             _opponentNameLabel = root.Q<Label>("OpponentNameLabel");
-            _opponentDifficultyLabel = root.Q<Label>("OpponentDifficultyLabel");
             _opponentDots = root.Q<VisualElement>("OpponentDots");
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
             _deckToast = new ToastController(_costOverToastLabel);
@@ -410,7 +408,6 @@ namespace Home
             _opponentFightButton = null;
             _opponentPortrait = null;
             _opponentNameLabel = null;
-            _opponentDifficultyLabel = null;
             _opponentDots = null;
             _matchingButton = null;
             _creditButton = null;
@@ -547,32 +544,7 @@ namespace Home
             _opponentPortrait.EnableInClassList("home-carousel-portrait--empty", texture == null);
 
             _opponentNameLabel.text = _cpuRosterStore.DisplayName(_currentOpponentIndex);
-            ApplyDifficultyLabel(_currentOpponentIndex);
             UpdateOpponentDots();
-        }
-
-        // 相手の難易度をラベルへ反映する（テキスト＋色クラス）。
-        private void ApplyDifficultyLabel(int index)
-        {
-            CpuOpponentData opponent = _cpuRosterStore.GetOpponent(index);
-            CpuDifficulty difficulty = opponent != null ? opponent.Difficulty : CpuDifficulty.Beginner;
-            _opponentDifficultyLabel.text = DifficultyText(difficulty);
-            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--beginner", difficulty == CpuDifficulty.Beginner);
-            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--intermediate", difficulty == CpuDifficulty.Intermediate);
-            _opponentDifficultyLabel.EnableInClassList("home-carousel-difficulty--advanced", difficulty == CpuDifficulty.Advanced);
-        }
-
-        private static string DifficultyText(CpuDifficulty difficulty)
-        {
-            switch (difficulty)
-            {
-                case CpuDifficulty.Intermediate:
-                    return "★★ 中級";
-                case CpuDifficulty.Advanced:
-                    return "★★★ 上級";
-                default:
-                    return "★ 初級";
-            }
         }
 
         private void UpdateOpponentDots()

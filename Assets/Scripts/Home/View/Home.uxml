@@ -182,7 +182,6 @@
                     <ui:VisualElement class="home-carousel-center">
                         <ui:VisualElement name="OpponentPortrait" class="home-carousel-portrait" picking-mode="Ignore"/>
                         <ui:Label name="OpponentNameLabel" class="home-carousel-name" picking-mode="Ignore"/>
-                        <ui:Label name="OpponentDifficultyLabel" class="home-carousel-difficulty" picking-mode="Ignore"/>
                     </ui:VisualElement>
                     <ui:Button name="OpponentNextButton" text="▶" class="home-carousel-arrow"/>
                 </ui:VisualElement>
