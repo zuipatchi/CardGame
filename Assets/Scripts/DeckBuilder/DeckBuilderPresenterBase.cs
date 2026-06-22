@@ -39,11 +39,13 @@ namespace DeckBuilder
         {
             public VisualElement Element { get; }
             public CardAttribute Attribute { get; }
+            public int Cost { get; }
 
-            public CardListItem(VisualElement element, CardAttribute attribute)
+            public CardListItem(VisualElement element, CardAttribute attribute, int cost)
             {
                 Element = element;
                 Attribute = attribute;
+                Cost = cost;
             }
         }
 
@@ -92,6 +94,9 @@ namespace DeckBuilder
         // ON になっている属性の集合。初期状態は空（全表示）。
         private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
         private readonly Dictionary<CardAttribute, Button> _attributeFilterButtons = new Dictionary<CardAttribute, Button>();
+        // ON になっているコストの集合。初期状態は空（全表示）。属性フィルタと同じ ON/OFF 方式。
+        private readonly HashSet<int> _costFilter = new HashSet<int>();
+        private readonly Dictionary<int, Button> _costFilterButtons = new Dictionary<int, Button>();
         private readonly List<CardListItem> _characterCardItems = new List<CardListItem>();
         private readonly List<CardListItem> _eventCardItems = new List<CardListItem>();
 
@@ -203,6 +208,24 @@ namespace DeckBuilder
                 _deckCountLabel.style.marginLeft = 20;
                 topLeftButtons.Add(_deckCountLabel);
 
+                // 「カード一覧」見出しの右に、存在するコストごとの横並びフィルタボタンを生成する（昇順）。
+                VisualElement costFilterBar = root.Q<VisualElement>("CostFilterBar");
+                List<int> presentCosts = new List<int>();
+                foreach (CardData cardData in _cardDatabase.AllCards)
+                {
+                    if (!presentCosts.Contains(cardData.Cost))
+                    {
+                        presentCosts.Add(cardData.Cost);
+                    }
+                }
+                presentCosts.Sort();
+                foreach (int cost in presentCosts)
+                {
+                    Button costButton = CreateCostFilterButton(cost);
+                    _costFilterButtons[cost] = costButton;
+                    costFilterBar.Add(costButton);
+                }
+
                 InitializeDeck();
 
                 _cardListScrollView.Clear();
@@ -274,7 +297,7 @@ namespace DeckBuilder
                 manipulator.OnRightClick = () => TryAddCard(captured.Id, captured.Cost);
                 cardView.AttachDragManipulator(manipulator);
                 grid.Add(cardView);
-                itemsOut.Add(new CardListItem(cardView, cardData.Attribute));
+                itemsOut.Add(new CardListItem(cardView, cardData.Attribute, cardData.Cost));
             }
             wrapper.Add(grid);
             _cardListScrollView.Add(wrapper);
@@ -324,6 +347,29 @@ namespace DeckBuilder
                 else
                 {
                     _attributeFilter.Add(captured);
+                }
+                RefreshFilter();
+            };
+            return btn;
+        }
+
+        private Button CreateCostFilterButton(int cost)
+        {
+            Button btn = new Button();
+            btn.text = cost.ToString();
+            btn.AddToClassList("deckbuilder-button--filter-cost");
+
+            int captured = cost;
+            btn.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
+                if (_costFilter.Contains(captured))
+                {
+                    _costFilter.Remove(captured);
+                }
+                else
+                {
+                    _costFilter.Add(captured);
                 }
                 RefreshFilter();
             };
@@ -430,9 +476,9 @@ namespace DeckBuilder
 
         private void RefreshFilter()
         {
-            // 属性が ON のカードだけ表示（OFF 属性は非表示）。各セクションの表示中カード数を得る
-            int characterVisible = ApplyAttributeFilterToItems(_characterCardItems);
-            int eventVisible = ApplyAttributeFilterToItems(_eventCardItems);
+            // 属性・コストが ON のカードだけ表示（OFF は非表示）。各セクションの表示中カード数を得る
+            int characterVisible = ApplyAttributeAndCostFilterToItems(_characterCardItems);
+            int eventVisible = ApplyAttributeAndCostFilterToItems(_eventCardItems);
 
             // 種別フィルタにマッチし、かつ表示中カードがあるセクションのみ表示する
             if (_characterCardSection != null)
@@ -451,16 +497,20 @@ namespace DeckBuilder
             {
                 SetButtonActive(pair.Value, _attributeFilter.Contains(pair.Key), "deckbuilder-button--filter-attr--active");
             }
+            foreach (KeyValuePair<int, Button> pair in _costFilterButtons)
+            {
+                SetButtonActive(pair.Value, _costFilter.Contains(pair.Key), "deckbuilder-button--filter-cost--active");
+            }
 
             RefreshDeckPanel();
         }
 
-        private int ApplyAttributeFilterToItems(List<CardListItem> items)
+        private int ApplyAttributeAndCostFilterToItems(List<CardListItem> items)
         {
             int visible = 0;
             foreach (CardListItem item in items)
             {
-                bool match = AttributeMatches(item.Attribute);
+                bool match = AttributeMatches(item.Attribute) && CostMatches(item.Cost);
                 item.Element.style.display = match ? DisplayStyle.Flex : DisplayStyle.None;
                 if (match)
                 {
@@ -491,6 +541,16 @@ namespace DeckBuilder
             return _attributeFilter.Contains(attribute);
         }
 
+        // コストフィルタ判定。ON のコストが無い（空集合）ならコストでの絞り込みをせず全マッチ。
+        private bool CostMatches(int cost)
+        {
+            if (_costFilter.Count == 0)
+            {
+                return true;
+            }
+            return _costFilter.Contains(cost);
+        }
+
         private static void SetButtonActive(Button btn, bool active, string activeClass)
         {
             if (active)
@@ -507,7 +567,8 @@ namespace DeckBuilder
         {
             bool typeMatch = TypeMatches(cardData is CharacterCardData);
             bool attributeMatch = AttributeMatches(cardData.Attribute);
-            return typeMatch && attributeMatch;
+            bool costMatch = CostMatches(cardData.Cost);
+            return typeMatch && attributeMatch && costMatch;
         }
 
         // 同一カード（ID 基準）の枚数制限を考慮して追加する。追加できたら true。
