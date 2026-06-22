@@ -215,7 +215,7 @@ Assets/AddressableAssets/
   └── Sound/       AudioClip
 ```
 
-- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン・勝敗画面の再戦/ホームに戻るボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CoinSE`（コイントス・コインドローの回転中にループ再生し、回転終了で停止。`SoundPlayer.PlayLoopSE`/`StopLoopSE` で制御）, `CardSE`（ドロー時）, `CardUseSE`（カード使用時。コストエフェクトと同タイミング）, `AttackSE`（攻撃時）, `DeckDamageSE`（デッキダメージのミル時）, `VictoryPointSE`（勝利点獲得時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時）。各 SE はロード時にラウドネス正規化される（上記「サウンド設計」）)
+- `SoundStore` が BGM・SE クリップをロード（BGM: `MainBGM`, `MaouOrchestra`, `MaouAcoustic`（デッキ構築シーン）, `MaouCyber`（マッチングシーン）, `KoharuIzm` / SE: `EnterSE`, `Enter2SE`, `Enter3SE`（マリガン YES/NO・OK・END ボタン・勝敗画面の再戦/ホームに戻るボタン）, `Cancel1SE`（Main の戻るボタン）, `ResultSE`, `AnalysisSE`（デッキ分析）, `WinSE`/`LoseSE`（勝敗決定時。オーバーレイ登場時に BGM を停止）, `BattleSE`（VS 告知）, `ReadySE`（コイントス結果表示）, `CoinSE`（コイントス・コインドローの回転中にループ再生し、回転終了で停止。`SoundPlayer.PlayLoopSE`/`StopLoopSE` で制御）, `CardSE`（ドロー時）, `CardUseSE`（カード使用時。コストエフェクトと同タイミング）, `AttackSE`（攻撃時）, `DeckDamageSE`（デッキダメージのミル時）, `VictoryPointSE`（勝利点獲得時）, `DownSE`（キャラ破壊時）, `LimitBreakSE`（リミットブレイク告知時）, `PlayerTurnSE`（自分の手番「YOUR TURN」告知時）。各 SE はロード時にラウドネス正規化される（上記「サウンド設計」）)
 - `ModalStore` が Option モーダルの VisualTreeAsset をロード
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
