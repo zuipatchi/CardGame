@@ -22,10 +22,11 @@
 ### その他
 
 - デッキは DeckModel に保持され、DeckBuilder → Main 遷移をまたいで引き継がれる
-- CPU デッキは `CpuDeckSO`（ScriptableObject・Addressables キー `"Card/CpuDeck"`）から読み込む
-  - カードIDリストが 1 件以上の場合：`CardDatabase.BuildDeck` を呼び出したカード群をシャッフルして使用する
-  - カードIDリストが空の場合：カードDB全カードをシャッフルした全枚数をフォールバックとして使用する
-- CPU デッキの編集は Unity Editor 専用の `CpuDeckBuilder` シーンで行う（タイトル画面の「CPU デッキ編集」ボタン、`#if UNITY_EDITOR` でのみ表示）。編集内容は `CpuDeckSO`（`Assets/Data/CpuDeck.asset`）に保存され、ビルドに含まれる
+- 対戦相手は Home の「CPU対戦」→ 相手選択カルーセルで選ぶ。各相手の名前・ポートレート・難易度・デッキは `CpuRosterSO`（Addressables キー `"Card/CpuRoster"`）の `CpuOpponentData` が保持する
+  - 相手にカードIDが設定されていれば、`CardDatabase.BuildDeck` で組んでシャッフルして使用する
+  - 相手にカードIDが未設定（プレースホルダー）の場合は `CpuDeckSO`（`"Card/CpuDeck"`）にフォールバックし、それも空ならカードDB全カードをシャッフルして使用する
+- CPU 難易度（初級/中級/上級）は相手ごとに Inspector で設定する。初級は従来どおりランダム的にカードを使う。中級以上は CostBoost／ダメージトリガー（`TriggerOnGrave`）持ちのカードを場に出さず、コスト支払いに優先的に回す（上級は当面中級と同じ挙動）
+- CPU デッキの編集は Unity Editor 専用の `CpuDeckBuilder` シーンで行う（タイトル画面の「CPU デッキ編集」ボタン、`#if UNITY_EDITOR` でのみ表示）。相手スロット（相手1〜8）を切り替えて各相手のデッキを編集し、`CpuRosterSO`（`Assets/Data/CpuRoster.asset`）の該当スロットに保存される（ビルドに含まれる）
 
 ---
 
