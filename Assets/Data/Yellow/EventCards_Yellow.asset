@@ -54,7 +54,7 @@ MonoBehaviour:
     _cardName: "\u30BF\u30ED\u30FC\u306E\u8155\u6BDB"
     _cost: 2
     _image: {fileID: 21300000, guid: 0af77dd61518d8643abfb6523b26ba7e, type: 3}
-    _flavorText: "\u3059\u3063\u3054\u3044\u308F"
+    _flavorText: "\u3059\u3063\u3054\u3044\u525B\u6BDB"
     _voiceSpeaker: 17
     _keyword: "\u30BF\u30ED\u30FC"
     _effectParam: 

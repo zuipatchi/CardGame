@@ -21,6 +21,7 @@ MonoBehaviour:
     _flavorText: 
     _voiceSpeaker: 0
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -38,6 +39,7 @@ MonoBehaviour:
     _flavorText: 
     _voiceSpeaker: 0
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 2
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -55,6 +57,7 @@ MonoBehaviour:
     _flavorText: "\u7D76\u671B\u3057\u304B\u5F85\u3063\u3066\u306A\u3044\u3053\u3068\u3092\u307E\u3060\u77E5\u3089\u306A\u3044"
     _voiceSpeaker: 89
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -72,6 +75,7 @@ MonoBehaviour:
     _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
     _voiceSpeaker: 0
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -86,9 +90,10 @@ MonoBehaviour:
     _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
     _cost: 2
     _image: {fileID: 21300000, guid: ad9c905863f812e4a82c4c1bc95c100e, type: 3}
-    _flavorText: "\u8FD4\u3063\u3066\u304F\u3060\u3055\u3044"
+    _flavorText: "\u5E30\u3063\u3066\u304F\u3060\u3055\u3044"
     _voiceSpeaker: 126
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -106,6 +111,7 @@ MonoBehaviour:
     _flavorText: 
     _voiceSpeaker: 0
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
@@ -123,6 +129,7 @@ MonoBehaviour:
     _flavorText: "\u30BF\u30CD\u3092\u898B\u7834\u308C\u308B\u304B\u306A\uFF1F"
     _voiceSpeaker: 100
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -140,6 +147,7 @@ MonoBehaviour:
     _flavorText: "\u3053\u308C\u304C\u3071\u3063\u3061\u306E\u5947\u8DE1"
     _voiceSpeaker: 20
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0

@@ -18,9 +18,10 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u30B9\u30E9\u30A4\u30E0"
     _cost: 1
     _image: {fileID: 21300000, guid: 36c033ee0736ea046a05d335eb7acff3, type: 3}
-    _flavorText: "\u904A\u3093\u3067\u3001\u904A\u3093\u3067\u30FC"
+    _flavorText: "\u904A\u3093\u3067\u904A\u3093\u3067\u30FC"
     _voiceSpeaker: 10
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -46,6 +47,7 @@ MonoBehaviour:
     _flavorText: "\u50D5\u3060\u3063\u3066\u3071\u3063\u3061\u306E\u5F1F\u306A\u3093\u3060"
     _voiceSpeaker: 74
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -71,6 +73,7 @@ MonoBehaviour:
     _flavorText: "\u6F0F\u3089\u3057\u3066\u3082\u3070\u308C\u306A\u3044\u3071\u3061"
     _voiceSpeaker: 83
     _keyword: "\u3071\u3063\u3061"
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -96,6 +99,7 @@ MonoBehaviour:
     _flavorText: "\u4FFA\u306F\u3071\u3063\u3061\u306E\u304A\u5144\u3061\u3083\u3093\u3060"
     _voiceSpeaker: 21
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -121,6 +125,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u3063\u3066\u77E5\u3063\u3066\u308B\uFF1F\u4FFA\u306E\u3044\u3068\u3053\u306A\u3093\u3060\u305C"
     _voiceSpeaker: 51
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -143,9 +148,10 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u30DA\u30C3\u30C8"
     _cost: 3
     _image: {fileID: 21300000, guid: 6e9a50159f325764bbe71faa4ff249dd, type: 3}
-    _flavorText: "\u3071\u3063\u3061\u306E\u3068\u3053\u307E\u3067\u3001\u3072\u3068\u3063\u98DB\u3073\u30FC"
+    _flavorText: "\u3071\u3063\u3061\u306E\u3068\u3053\u307E\u3067\u3072\u3068\u3063\u98DB\u3073\u30FC"
     _voiceSpeaker: 99
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -171,6 +177,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u3063\u3066\u3059\u3054\u3044\u308F"
     _voiceSpeaker: 65
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -196,6 +203,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u304C\u6709\u80FD\u3067\u9F3B\u304C\u9AD8\u3044\u308F"
     _voiceSpeaker: 65
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -221,6 +229,7 @@ MonoBehaviour:
     _flavorText: "\u3071\u3063\u3061\u306F\u79C1\u306E\u610F\u306E\u307E\u307E\u3088"
     _voiceSpeaker: 10
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -243,9 +252,10 @@ MonoBehaviour:
     _cardName: "\u3071\u3063\u3061\u306E\u7236"
     _cost: 4
     _image: {fileID: 21300000, guid: 390f922b378d9394bbffe32cc9666974, type: 3}
-    _flavorText: "\u3071\u3063\u3061\u306E\u7E6B\u6804\u306F\u6C38\u9060\u306A\u308A\uFF5E"
+    _flavorText: "\u3071\u3063\u3061\u306E\u7E6B\u6804\u306F\u6C38\u9060\u306A\u308A"
     _voiceSpeaker: 53
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
