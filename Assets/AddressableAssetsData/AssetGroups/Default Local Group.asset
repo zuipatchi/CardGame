@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: efb8034e11d617249aa392576f15337b
+    m_Address: Sound/BGM/MaouCyber
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 09341ac6ff63e624390baf3f8aea468a
     m_Address: Sound/SE/VictoryPoint
     m_ReadOnly: 0
