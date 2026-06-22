@@ -228,7 +228,7 @@ namespace Main
             plus.RemoveFromHierarchy();
         }
 
-        // ─── Switch エフェクト（手札に戻す対象キャラ位置にパーティクル + SWITCH! ラベル）───────────────
+        // ─── Switch エフェクト（手札に戻す対象キャラ位置にパーティクルのみ）───────────────
 
         internal async UniTask PlaySwitchEffectAsync(CardView sacrificedChar, CancellationToken ct)
         {
@@ -238,10 +238,12 @@ namespace Main
             }
             if (_switchEffectPrefab != null)
             {
-                PlayParticleAtCardAsync(sacrificedChar, _switchEffectPrefab, ct).Forget();
+                await PlayParticleAtCardAsync(sacrificedChar, _switchEffectPrefab, ct);
             }
-            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
-            await PlayFloatingLabelAsync("SWITCH!", "switch-label", sacrificedChar, ct);
+            else
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+            }
         }
 
         // ─── BanishChar エフェクト（対象キャラ位置にラベル + パーティクル同時再生）────────
