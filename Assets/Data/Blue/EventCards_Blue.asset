@@ -15,83 +15,11 @@ MonoBehaviour:
   _attribute: 1
   _cards:
   - _id: E2001
-    _cardName: "\u529B\u306E\u7D0B\u7AE0\u3092\u5F97\u305F"
+    _cardName: "\u30A4\u30EA\u30E5\u30FC\u30B8\u30E7\u30F3"
     _cost: 0
-    _image: {fileID: 21300000, guid: c6b59c92104212b4c889692d5e1b2cd8, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 2
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _eventTrigger: 0
-    _eventType: 1
-    _eventValue: 1
-    _eventValue2: 3
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30923\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
-    _attribute: 1
-  - _id: E2002
-    _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
-    _cost: 1
-    _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 2
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _eventTrigger: 0
-    _eventType: 3
-    _eventValue: 2
-    _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30922\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
-    _attribute: 1
-  - _id: E2003
-    _cardName: "\u672A\u6765\u3078\u306E\u671F\u5F85"
-    _cost: 2
-    _image: {fileID: 21300000, guid: c50b93b927c929e4ab6dc2dff78d8625, type: 3}
-    _flavorText: "\u7D76\u671B\u3057\u304B\u5F85\u3063\u3066\u306A\u3044\u3053\u3068\u3092\u307E\u3060\u77E5\u3089\u306A\u3044"
-    _voiceSpeaker: 89
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _eventTrigger: 0
-    _eventType: 21
-    _eventValue: 4
-    _eventValue2: 0
-    _description: "\u6B21\u306E\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B4\u679A\u591A\u304F\u5F15\u304F"
-    _attribute: 1
-  - _id: E2004
-    _cardName: "\u524D\u501F\u308A"
-    _cost: 2
-    _image: {fileID: 21300000, guid: 8caac34f889cf244dba7da79640f2ff3, type: 3}
-    _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _eventTrigger: 0
-    _eventType: 20
-    _eventValue: 3
-    _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F\u3002\u6B21\u306E\u30C9\u30ED\u30FC\u30921\u56DE\u30B9\u30AD\u30C3\u30D7\u3059\u308B"
-    _attribute: 1
-  - _id: E2005
-    _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
-    _cost: 2
-    _image: {fileID: 21300000, guid: ad9c905863f812e4a82c4c1bc95c100e, type: 3}
-    _flavorText: "\u5E30\u3063\u3066\u304F\u3060\u3055\u3044"
-    _voiceSpeaker: 126
+    _image: {fileID: 21300000, guid: 9d7fe04986b5f1d44bb9dbf52e35af01, type: 3}
+    _flavorText: "\u3053\u308C\u304C\u3071\u3063\u3061\u306E\u5947\u8DE1"
+    _voiceSpeaker: 20
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -99,30 +27,12 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 16
-    _eventValue: 1
-    _eventValue2: 0
-    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u3092\u6301\u3061\u4E3B\u306E\u624B\u672D\u306B\u623B\u3059"
-    _attribute: 1
-  - _id: E2006
-    _cardName: "\u5B87\u5B99\u3092\u8D85\u3048\u305F\u51FA\u4F1A\u3044"
-    _cost: 7
-    _image: {fileID: 21300000, guid: bac83860baceb724ab1947e60833c443, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _eventTrigger: 0
-    _eventType: 18
+    _eventType: 7
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u8FFD\u52A0\u3067\u3082\u30461\u5EA6\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u3092\u884C\u3046"
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u3092\u624B\u672D\u306B\u623B\u3057\u3001\u305D\u306E\u30AD\u30E3\u30E9\u3068\u540C\u3058\u30B3\u30B9\u30C8\u306E\u30AD\u30E3\u30E9\u3092\u624B\u672D\u304B\u3089\u30B3\u30B9\u30C8\u306A\u3057\u3067\u914D\u7F6E\u3059\u308B"
     _attribute: 1
-  - _id: E2007
+  - _id: E2002
     _cardName: "\u30C8\u30EA\u30D7\u30EB\u30C9\u30ED\u30FC"
     _cost: 1
     _image: {fileID: 21300000, guid: 348591cdf16d4e841bceea7e5d7ceded, type: 3}
@@ -140,12 +50,12 @@ MonoBehaviour:
     _eventValue2: 0
     _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F"
     _attribute: 1
-  - _id: E2008
-    _cardName: "\u30A4\u30EA\u30E5\u30FC\u30B8\u30E7\u30F3"
-    _cost: 0
-    _image: {fileID: 21300000, guid: 9d7fe04986b5f1d44bb9dbf52e35af01, type: 3}
-    _flavorText: "\u3053\u308C\u304C\u3071\u3063\u3061\u306E\u5947\u8DE1"
-    _voiceSpeaker: 20
+  - _id: E2003
+    _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
+    _cost: 2
+    _image: {fileID: 21300000, guid: ad9c905863f812e4a82c4c1bc95c100e, type: 3}
+    _flavorText: "\u5E30\u3063\u3066\u304F\u3060\u3055\u3044"
+    _voiceSpeaker: 126
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -153,8 +63,98 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 7
+    _eventType: 16
+    _eventValue: 1
+    _eventValue2: 0
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u3092\u6301\u3061\u4E3B\u306E\u624B\u672D\u306B\u623B\u3059"
+    _attribute: 1
+  - _id: E2004
+    _cardName: "\u5B87\u5B99\u3092\u8D85\u3048\u305F\u51FA\u4F1A\u3044"
+    _cost: 7
+    _image: {fileID: 21300000, guid: bac83860baceb724ab1947e60833c443, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 18
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u3092\u624B\u672D\u306B\u623B\u3057\u3001\u305D\u306E\u30AD\u30E3\u30E9\u3068\u540C\u3058\u30B3\u30B9\u30C8\u306E\u30AD\u30E3\u30E9\u3092\u624B\u672D\u304B\u3089\u30B3\u30B9\u30C8\u306A\u3057\u3067\u914D\u7F6E\u3059\u308B"
+    _description: "\u8FFD\u52A0\u3067\u3082\u30461\u5EA6\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u3092\u884C\u3046"
+    _attribute: 1
+  - _id: E2005
+    _cardName: "\u529B\u306E\u7D0B\u7AE0\u3092\u5F97\u305F"
+    _cost: 0
+    _image: {fileID: 21300000, guid: c6b59c92104212b4c889692d5e1b2cd8, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 2
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 1
+    _eventValue: 1
+    _eventValue2: 3
+    _description: "\u81EA\u5206\u306E\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30923\u4E0A\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _attribute: 1
+  - _id: E2006
+    _cardName: "\u30C0\u30D6\u30EB\u30C9\u30ED\u30FC"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 0d7879a664172944c85d3478edee6f35, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 2
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 3
+    _eventValue: 2
+    _eventValue2: 0
+    _description: "\u30AB\u30FC\u30C9\u30922\u679A\u5F15\u304F\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _attribute: 1
+  - _id: E2007
+    _cardName: "\u672A\u6765\u3078\u306E\u671F\u5F85"
+    _cost: 2
+    _image: {fileID: 21300000, guid: c50b93b927c929e4ab6dc2dff78d8625, type: 3}
+    _flavorText: "\u7D76\u671B\u3057\u304B\u5F85\u3063\u3066\u306A\u3044\u3053\u3068\u3092\u307E\u3060\u77E5\u3089\u306A\u3044"
+    _voiceSpeaker: 89
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 21
+    _eventValue: 4
+    _eventValue2: 0
+    _description: "\u6B21\u306E\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B4\u679A\u591A\u304F\u5F15\u304F"
+    _attribute: 1
+  - _id: E2008
+    _cardName: "\u524D\u501F\u308A"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 8caac34f889cf244dba7da79640f2ff3, type: 3}
+    _flavorText: "\u3053\u308C\u3067\u3042\u3063\u3066\u307E\u3059\u304B\uFF1F"
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 20
+    _eventValue: 3
+    _eventValue2: 0
+    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F\u3002\u6B21\u306E\u30C9\u30ED\u30FC\u30921\u56DE\u30B9\u30AD\u30C3\u30D7\u3059\u308B"
     _attribute: 1
