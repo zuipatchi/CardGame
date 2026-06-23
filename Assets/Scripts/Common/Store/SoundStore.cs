@@ -54,7 +54,7 @@ namespace Common.Store
         private readonly string _victoryPointSEAddressable = "Sound/SE/VictoryPoint";
         private readonly string _downSEAddressable = "Sound/SE/Down";
         private readonly string _attackSEAddressable = "Sound/SE/Attack";
-        private readonly string _limitBreakSEAddressable = "Sound/SE/LimitBreak";
+        private readonly string _overLimitSEAddressable = "Sound/SE/OverLimit";
         private readonly string _playerTurnSEAddressable = "Sound/SE/PlayerTurn";
         private readonly string _coinSEAddressable = "Sound/SE/Coin";
 
@@ -80,7 +80,7 @@ namespace Common.Store
         public AudioClip VictoryPointSE => _victoryPointSE;
         public AudioClip DownSE => _downSE;
         public AudioClip AttackSE => _attackSE;
-        public AudioClip LimitBreakSE => _limitBreakSE;
+        public AudioClip OverLimitSE => _overLimitSE;
         public AudioClip PlayerTurnSE => _playerTurnSE;
         public AudioClip CoinSE => _coinSE;
 
@@ -106,7 +106,7 @@ namespace Common.Store
         private AudioClip _victoryPointSE = null;
         private AudioClip _downSE = null;
         private AudioClip _attackSE = null;
-        private AudioClip _limitBreakSE = null;
+        private AudioClip _overLimitSE = null;
         private AudioClip _playerTurnSE = null;
         private AudioClip _coinSE = null;
 
@@ -140,7 +140,7 @@ namespace Common.Store
                 _victoryPointSE = await Addressables.LoadAssetAsync<AudioClip>(_victoryPointSEAddressable).ToUniTask();
                 _downSE = await Addressables.LoadAssetAsync<AudioClip>(_downSEAddressable).ToUniTask();
                 _attackSE = await Addressables.LoadAssetAsync<AudioClip>(_attackSEAddressable).ToUniTask();
-                _limitBreakSE = await Addressables.LoadAssetAsync<AudioClip>(_limitBreakSEAddressable).ToUniTask();
+                _overLimitSE = await Addressables.LoadAssetAsync<AudioClip>(_overLimitSEAddressable).ToUniTask();
                 _playerTurnSE = await Addressables.LoadAssetAsync<AudioClip>(_playerTurnSEAddressable).ToUniTask();
                 _coinSE = await Addressables.LoadAssetAsync<AudioClip>(_coinSEAddressable).ToUniTask();
                 NormalizeSeVolumes();
@@ -173,7 +173,7 @@ namespace Common.Store
             {
                 _enterSE, _enter2SE, _enter3SE, _cancel1SE, _resultSE, _analysisSE,
                 _winSE, _loseSE, _readySE, _battleSE, _cardSE, _cardUseSE,
-                _deckDamageSE, _victoryPointSE, _downSE, _attackSE, _limitBreakSE, _playerTurnSE,
+                _deckDamageSE, _victoryPointSE, _downSE, _attackSE, _overLimitSE, _playerTurnSE,
                 _coinSE,
             };
 

@@ -4,22 +4,33 @@ using UnityEngine.Scripting;
 
 namespace Main.Card.Effects.Handlers
 {
-    // カードを EventValue（値1）枚引く。値2は将来の拡張用に予約（現状は不使用）。
+    // カードを EventValue（値1）枚引く。値2=1 でオーバーリミット指定（デッキが0枚でも敗北せず「オーバーリミット！」告知）。
     [Preserve]
     public sealed class DrawHandler : EffectHandler
     {
+        // 値2がこの値のとき、空デッキから引いても敗北しない（オーバーリミット安全ドロー）。
+        private const int OverLimitValue2 = 1;
+
         public override EventType Type => EventType.Draw;
 
         public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1（ドロー枚数）", false, "値2（予約・未使用）",
-            "値1=デッキ上から手札に加える枚数。値2は将来の拡張用に予約（現状は使われない）。");
+            true, "値1（ドロー枚数）", true, "値2（1=オーバーリミット）",
+            "値1=デッキ上から手札に加える枚数。値2=1でオーバーリミット指定（デッキが0枚でも敗北せず「オーバーリミット！」告知だけ行う）。");
 
-        public override string BuildBody(EffectTextContext ctx) => $"カードを{ctx.Value1}枚引く";
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            string body = $"カードを{ctx.Value1}枚引く";
+            if (ctx.Value2 == OverLimitValue2)
+            {
+                body += "（デッキが0枚でも敗北せずオーバーリミットになる）";
+            }
+            return body;
+        }
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
             await p.PlayDrawEffectAsync(inv.SourceCard, inv.Value1, ct);
-            await p.ApplyDrawEffectAsync(inv.Value1, inv.IsLocal, ct);
+            await p.ApplyDrawEffectAsync(inv.Value1, inv.IsLocal, ct, overLimitSafe: inv.Value2 == OverLimitValue2);
         }
     }
 

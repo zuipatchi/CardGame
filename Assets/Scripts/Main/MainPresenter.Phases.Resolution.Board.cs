@@ -493,7 +493,9 @@ namespace Main
             }
         }
 
-        internal async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct)
+        // overLimitSafe=true のとき、デッキが0枚でも敗北させず「オーバーリミット！」告知だけ行って引きを止める
+        // （Draw 効果の値2＝オーバーリミット指定で使う）。通常は false で従来どおり空デッキドロー＝敗北。
+        internal async UniTask ApplyDrawEffectAsync(int count, bool isLocal, CancellationToken ct, bool overLimitSafe = false)
         {
             if (count <= 0)
             {
@@ -503,14 +505,28 @@ namespace Main
             DeckView deck = isLocal ? _playerDeckView : _opponentDeckView;
 
             // オーバーリミット：このドローでデッキが0枚へ落ちたら、生存を確認したうえで最後に1回告知する
-            bool limitBroke = false;
+            bool overLimited = false;
 
             for (int i = 0; i < count; i++)
             {
-                // オーバーリミット：1枚引く直前にデッキが空なら、その時点で敗北（カードを引き切った次の引きで負ける）。
-                if (_isGameOver || CheckDeckOutWin(isLocalDeck: isLocal))
+                if (_isGameOver)
                 {
                     return;
+                }
+
+                // オーバーリミット：1枚引く直前にデッキが空なら、通常は敗北（引き切った次の引きで負ける）。
+                // overLimitSafe 指定時は敗北させず、告知だけ予約してこれ以上引かない。
+                if (WinRule.IsDeckOut(deck.Count))
+                {
+                    if (overLimitSafe)
+                    {
+                        overLimited = true;
+                        break;
+                    }
+                    if (CheckDeckOutWin(isLocalDeck: isLocal))
+                    {
+                        return;
+                    }
                 }
 
                 Rect deckRect = deck.worldBound;
@@ -549,13 +565,13 @@ namespace Main
                 }
 
                 // オーバーリミット：このドローでデッキが0枚になったら告知予約（直後の引きで敗北する場合は告知しない）
-                limitBroke |= UpdateLimitBreak(isLocalDeck: isLocal);
+                overLimited |= UpdateOverLimit(isLocalDeck: isLocal);
             }
 
-            // オーバーリミット：一連のドローを生き残った場合のみ「リミットブレイク！」告知
-            if (!_isGameOver && limitBroke)
+            // オーバーリミット：一連のドローを生き残った場合のみ「オーバーリミット！」告知
+            if (!_isGameOver && overLimited)
             {
-                await PlayLimitBreakAnnouncementAsync(ct);
+                await PlayOverLimitAnnouncementAsync(ct);
             }
 
             // ドロー演出完了後、次の処理へ進む前に少し待つ

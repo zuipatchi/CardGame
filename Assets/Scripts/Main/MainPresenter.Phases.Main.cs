@@ -634,12 +634,12 @@ namespace Main
             return true;
         }
 
-        // オーバーリミット（リミットブレイク）検出：デッキが初めて0枚になった瞬間（>0→0 の down-crossing）を検出し、
+        // オーバーリミット検出：デッキが初めて0枚になった瞬間（>0→0 の down-crossing）を検出し、
         // 新たに0枚へ落ちたら true を返す。デッキが減る各処理（ドロー・ミル）でカードを抜いた直後に呼ぶ。
         // デッキが1枚以上残っていればフラグを戻すため、Recover 等で補充された後に再び0枚へ落ちたとき再度検出する。
-        // 告知はここでは行わず、呼び出し側が一連のドロー/ミル処理の最後に PlayLimitBreakAnnouncementAsync で行う。
-        // リミットブレイク直後に同じ処理内で敗北する場合（残り1枚に2ダメージ等）は告知しないため、判定と告知を分離する。
-        private bool UpdateLimitBreak(bool isLocalDeck)
+        // 告知はここでは行わず、呼び出し側が一連のドロー/ミル処理の最後に PlayOverLimitAnnouncementAsync で行う。
+        // オーバーリミット直後に同じ処理内で敗北する場合（残り1枚に2ダメージ等）は告知しないため、判定と告知を分離する。
+        private bool UpdateOverLimit(bool isLocalDeck)
         {
             DeckView deck = isLocalDeck ? _playerDeckView : _opponentDeckView;
             bool isEmpty = WinRule.IsDeckOut(deck.Count);
@@ -648,27 +648,27 @@ namespace Main
             {
                 if (!isEmpty)
                 {
-                    _playerLimitBroken = false;
+                    _playerOverLimit = false;
                     return false;
                 }
-                if (_playerLimitBroken)
+                if (_playerOverLimit)
                 {
                     return false;
                 }
-                _playerLimitBroken = true;
+                _playerOverLimit = true;
                 return true;
             }
 
             if (!isEmpty)
             {
-                _opponentLimitBroken = false;
+                _opponentOverLimit = false;
                 return false;
             }
-            if (_opponentLimitBroken)
+            if (_opponentOverLimit)
             {
                 return false;
             }
-            _opponentLimitBroken = true;
+            _opponentOverLimit = true;
             return true;
         }
 
