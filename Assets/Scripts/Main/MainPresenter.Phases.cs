@@ -31,6 +31,10 @@ namespace Main
         {
             _turnCounter.SetTurn(_gameModel.TurnNumber);
 
+            // 召喚酔い判定の基準盤面を、ターン開始時効果（OnTurnStart 召喚など）より前にスナップショットする。
+            // ここで記録したキャラだけが今ターン攻撃でき、ターン開始時に新規召喚されたキャラは召喚酔いする。
+            ReseasonActivePlayerChars();
+
             await PlayTurnStartAnnouncementAsync(_gameModel.IsLocalTurn, ct);
 
             // ターン開始時効果（ドロー前）：場のキャラ（OnTurnStart）と墓地の永続イベント（OnTurnStart）を発動

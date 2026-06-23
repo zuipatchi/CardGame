@@ -25,28 +25,25 @@ namespace Main
 
             _attackedThisTurn.Clear();
 
+            // 召喚酔いのスナップショット（ReseasonActivePlayerChars）はターン開始時効果より前に
+            // RunTurnAsync で取得済み。ここではアクティブプレイヤーの全キャラをアンタップするだけ。
             if (isLocalTurn)
             {
-                // ターン開始時に場にいるキャラは召喚酔いが明け、自分の全キャラがアンタップする
-                ReseasonChars(_playerFieldView, _playerSeasonedChars);
                 UntapField(_playerFieldView);
                 await RunLocalMainLoopAsync(ct);
             }
             else if (_isOnline)
             {
-                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
                 UntapField(_opponentFieldView);
                 await RunOnlineOpponentMainLoopAsync(ct);
             }
             else if (_isTutorial)
             {
-                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
                 UntapField(_opponentFieldView);
                 await RunTutorialOpponentMainLoopAsync(ct);
             }
             else
             {
-                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
                 UntapField(_opponentFieldView);
                 await RunCpuMainLoopAsync(ct);
             }
@@ -181,7 +178,22 @@ namespace Main
 
         // ─── 召喚酔い・攻撃済み 管理 ───────────────────────────────────────
 
-        // ターン開始時に場にいる全キャラを「召喚酔いなし」として記録する。
+        // ターン開始時（ターン開始時効果の発動前）に、アクティブプレイヤーの場のキャラを
+        // 「召喚酔いなし」としてスナップショットする。ターン開始時効果（OnTurnStart 召喚など）で
+        // 新規に登場したキャラはこの時点では場におらず、seasoned に含まれないため召喚酔いする。
+        private void ReseasonActivePlayerChars()
+        {
+            if (_gameModel.IsLocalTurn)
+            {
+                ReseasonChars(_playerFieldView, _playerSeasonedChars);
+            }
+            else
+            {
+                ReseasonChars(_opponentFieldView, _opponentSeasonedChars);
+            }
+        }
+
+        // 場にいる全キャラを「召喚酔いなし」として記録する。
         // このターンに登場したキャラはここに含まれず、攻撃できない（召喚酔い）。
         private void ReseasonChars(FieldView field, HashSet<CardView> seasoned)
         {
