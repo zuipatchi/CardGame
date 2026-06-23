@@ -9,6 +9,8 @@ namespace Title.CardSphere
         [SerializeField] private CardDatabase _cardDatabase;
         [SerializeField] private Camera _camera;
         [SerializeField] private float _radius = 3f;
+        // 全カードを揃えたい表示高さ（ワールド単位）。元 PNG のピクセル寸法に依存せず、
+        // 割り当てたスプライトの実寸で割ってこの高さに正規化する。
         [SerializeField] private float _cardScale = 0.4f;
         [SerializeField] private int _totalCards = 6;
         [SerializeField] private float _tiltDeg = 30f;
@@ -26,7 +28,17 @@ namespace Title.CardSphere
                 return;
             }
 
-            _allCards = _cardDatabase.AllCards;
+            // タイトルに出すのは「ゲームで使用する」カード（InUse＝_excludeFromGame が false）だけ。
+            // 画像未設定のカードは空表示になるので併せて除外する。
+            List<CardData> usableCards = new List<CardData>();
+            foreach (CardData card in _cardDatabase.AllCards)
+            {
+                if (card.InUse && card.Image != null)
+                {
+                    usableCards.Add(card);
+                }
+            }
+            _allCards = usableCards;
             if (_allCards.Count == 0)
             {
                 return;
@@ -43,7 +55,6 @@ namespace Title.CardSphere
                 GameObject cardObj = new GameObject($"Card_{angle:F0}");
                 cardObj.transform.SetParent(transform);
                 cardObj.transform.localPosition = localPos;
-                cardObj.transform.localScale = Vector3.one * _cardScale;
 
                 SpriteRenderer sr = cardObj.AddComponent<SpriteRenderer>();
                 _cardTransforms.Add(cardObj.transform);
@@ -94,7 +105,13 @@ namespace Title.CardSphere
 
             for (int i = 0; i < _spriteRenderers.Count; i++)
             {
-                _spriteRenderers[i].sprite = _allCards[indices[i % indices.Count]].Image;
+                Sprite sprite = _allCards[indices[i % indices.Count]].Image;
+                _spriteRenderers[i].sprite = sprite;
+
+                // PNG のピクセル寸法に依らず、全カードの高さを _cardScale に揃える。
+                float spriteHeight = sprite != null ? sprite.bounds.size.y : 0f;
+                float scale = spriteHeight > 0f ? _cardScale / spriteHeight : _cardScale;
+                _cardTransforms[i].localScale = Vector3.one * scale;
             }
         }
     }
