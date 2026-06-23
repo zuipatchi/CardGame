@@ -19,7 +19,9 @@ namespace Main
         // ガイド中心：吹き出し＋ハイライトで誘導し、本番の入力系はほぼ触らない（操作の強制ゲートはしない）。
         //
         // 台本は TutorialId ごとに分岐する:
-        //   BasicLoop      きほん: キャラを出す→ターン終了→相手の番（速攻でデッキ攻撃＝タップ）→タップした相手を攻撃→クリア
+        //   BasicLoop      きほん: キャラを出す→ターン終了でクリア（カードの使い方とターン終了だけを学ぶ）
+        //   AttackBasics   攻撃の仕方: キャラを出す→召喚酔いで攻撃できないと知る→ターン終了→相手の番（速攻でデッキ攻撃＝タップ）
+        //                  →次の自分の番でタップした相手を攻撃（アンタップには攻撃できない／反撃ダメージなし）→クリア
         //   DeckOutWin     勝ち方(デッキ切れ): 攻撃役を1体セット済み→相手デッキ(残1)へデッキ攻撃＝デッキ切れ勝利
         //   FieldCharsWin  勝ち方(制圧): 場に7体セット済み→手札の0コストキャラを1体出して8体＝制圧勝利
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
@@ -30,9 +32,10 @@ namespace Main
         // 台本の固定デッキ・セットアップ用カードID（実在カードID。並びはそのまま使う＝シャッフルしない）。
         private static class TutorialScript
         {
-            // ── BasicLoop ──
+            // ── BasicLoop / AttackBasics（共通） ──
             // 手札3枚（先頭3枚が初期手札）：ぱっち少年(コスト2/攻2/HP4)＋モブぱっち×2、残りはモブぱっち。
-            // デッキ切れで勝負がつかないよう枚数を多めに確保する（基本チュートリアルは攻撃で完了させる）。
+            // AttackBasics は攻撃で完了するため、デッキ切れで勝負がつかないよう枚数を多めに確保する
+            // （BasicLoop はターン終了で即クリアするのでデッキ枚数は問わない）。
             public static readonly string[] BasicPlayerDeckIds =
             {
                 "C1001", "C1011", "C1011",
@@ -139,6 +142,8 @@ namespace Main
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
                     return TutorialScript.KeywordFillerDeckIds;
+                case TutorialId.AttackBasics:
+                case TutorialId.BasicLoop:
                 default:
                     return TutorialScript.BasicPlayerDeckIds;
             }
@@ -161,6 +166,8 @@ namespace Main
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
                     return TutorialScript.KeywordFillerDeckIds;
+                case TutorialId.AttackBasics:
+                case TutorialId.BasicLoop:
                 default:
                     return TutorialScript.BasicCpuDeckIds;
             }
@@ -177,7 +184,8 @@ namespace Main
                 || _tutorialId == TutorialId.NoDeckAttackKw;
         }
 
-        // 進行ステップ（BasicLoop）：0=キャラを出す / 1=ターン終了 / 2=相手の番（守護） / 3=攻撃 / 4=完了
+        // 進行ステップ：0=キャラを出す / 1=ターン終了 / 2=相手の番（タップ） / 3=攻撃 / 4=完了
+        // BasicLoop は 1（ターン終了）でクリア。AttackBasics は 2→3 と進めて 3（攻撃）でクリア。
         private int _tutorialStep;
         private bool _tutorialCpuActed;
         private CardView _tutorialHeroCard;
@@ -242,10 +250,22 @@ namespace Main
             {
                 PresetVictoryPointsTutorial();
             }
+            else if (_tutorialId == TutorialId.AttackBasics)
+            {
+                PresetAttackBasicsTutorial();
+            }
             else if (IsKeywordTutorial())
             {
                 PresetKeywordTutorial();
             }
+        }
+
+        // 攻撃の仕方チュートリアル：相手の場に「アンタップ（縦向き）の的」を1体置いておく。
+        // 相手の番に速攻キャラがデッキ攻撃して横向き（タップ）の的ができるため、
+        // 「アンタップには攻撃できない／タップには攻撃できる」を同じ盤面で見比べられる。
+        private void PresetAttackBasicsTutorial()
+        {
+            PresetCharacter("C1011", isOpponent: true, tapped: false);
         }
 
         // キーワード能力チュートリアルの盤面をセットする。攻撃役と「的」を置き、必要なら相手キャラをタップ状態にする。
@@ -383,18 +403,28 @@ namespace Main
                 return;
             }
 
-            // BasicLoop
-            switch (_tutorialStep)
+            if (_tutorialId == TutorialId.AttackBasics)
             {
-                case 0:
-                    ShowCoach("ようこそ！Patchiカードゲームの基本を体験しよう。\nまずは手札の緑に枠が光っているキャラカードを、自分の場（画面中央の下半分）へドラッグして出してみよう");
-                    HighlightHandCard("C1001");
-                    break;
-                case 3:
-                    // 攻撃対象は標準のオレンジハイライト（attack-target-char）に任せ、緑枠は出さない。
-                    ShowCoach("タップ中の相手キャラには攻撃できる。自分のキャラから、相手キャラへ矢印をドラッグして攻撃してみよう！");
-                    ClearHighlights();
-                    break;
+                switch (_tutorialStep)
+                {
+                    case 0:
+                        ShowCoach("攻撃の仕方を体験しよう。\nまずは攻撃役にする手札の緑に光っているキャラを、自分の場（画面中央の下半分）へドラッグして出してみよう");
+                        HighlightHandCard("C1001");
+                        break;
+                    case 3:
+                        // 攻撃対象は標準のオレンジハイライト（attack-target-char）に任せ、緑枠は出さない。
+                        ShowCoach("さっき出したキャラは召喚酔いが解けて攻撃できるようになった！\nただしアンタップ（縦向き）の相手キャラには攻撃できない。タップ（横向き）になっている相手キャラへ矢印をドラッグして攻撃しよう。\n攻撃しても反撃ダメージは受けないよ");
+                        ClearHighlights();
+                        break;
+                }
+                return;
+            }
+
+            // BasicLoop（カードの使い方とターン終了だけ）
+            if (_tutorialStep == 0)
+            {
+                ShowCoach("ようこそ！Patchiカードゲームの基本を体験しよう。\nまずは手札の緑に光っているキャラカードを、自分の場（画面中央の下半分）へドラッグして出してみよう");
+                HighlightHandCard("C1001");
             }
         }
 
@@ -442,13 +472,13 @@ namespace Main
         // 「出す」吹き出しから「コストを払う」吹き出しへ切り替える（2段階に分割）。
         private void TutorialOnLocalStagedCost()
         {
-            if (_tutorialId == TutorialId.BasicLoop && _tutorialStep == 0)
+            if ((_tutorialId == TutorialId.BasicLoop || _tutorialId == TutorialId.AttackBasics) && _tutorialStep == 0)
             {
                 // AutoOk（自動OK）が ON なら、必要枚数を選んだ時点で自動確定するため「OKを押す」案内は出さない。
                 bool autoOk = _optionModel.AutoOk.CurrentValue;
                 ShowCoach(autoOk
-                    ? "いいね！キャラを出すにはコストを払うよ。\n手札のカードを2枚クリックして選ぼう"
-                    : "いいね！キャラを出すにはコストを払うよ。\n手札のカードを2枚クリックして選んでから【OK】ボタンを押そう");
+                    ? "いいね！キャラを出すにはコストを払うよ。\nこのカードのコストは2だから手札のカードを2枚クリックして選ぼう"
+                    : "いいね！キャラを出すにはコストを払うよ。\nこのカードのコストは2だから手札のカードを2枚クリックして選んでから【OK】ボタンを押そう");
                 ClearHighlights();
             }
         }
@@ -462,7 +492,19 @@ namespace Main
                 {
                     _tutorialStep = 1;
                     _tutorialHeroCard = action._card;
-                    ShowCoach("ナイス！キャラを場に出せたね。\nこれであなたの最初のターンの目的は完了。右側の【END】ボタンを押してターンを終了しよう");
+                    ShowCoach("ナイス！キャラを場に出せたね。\nカードの詳細はカードをクリックすると確認できるよ\nこれであなたの最初のターンの目的は完了。右側の【END】ボタンを押してターンを終了しよう");
+                    Highlight(_endButton);
+                }
+                return;
+            }
+
+            if (_tutorialId == TutorialId.AttackBasics)
+            {
+                if (_tutorialStep == 0 && action._actionType == MainPhaseActionType.PlaceChar)
+                {
+                    _tutorialStep = 1;
+                    _tutorialHeroCard = action._card;
+                    ShowCoach("出せたね！でも出したばかりのキャラは「召喚酔い」で、このターンはまだ攻撃できないんだ。\n攻撃できるのは次の自分の番から。右側の【END】ボタンを押してターンを終了しよう");
                     Highlight(_endButton);
                 }
                 else if (_tutorialStep == 3 && action._actionType == MainPhaseActionType.Attack)
@@ -508,12 +550,15 @@ namespace Main
         // 自分がパス（ターン終了）したときに呼ぶ。
         private void TutorialOnLocalPass()
         {
-            if (_tutorialId != TutorialId.BasicLoop)
+            // BasicLoop は「カードを出す→ターン終了」までが目的。ターン終了でそのままクリアする。
+            if (_tutorialId == TutorialId.BasicLoop && _tutorialStep == 1)
             {
+                CompleteTutorial();
                 return;
             }
 
-            if (_tutorialStep == 1)
+            // AttackBasics はターン終了後、相手の番（速攻でデッキ攻撃＝タップ）へ進める。
+            if (_tutorialId == TutorialId.AttackBasics && _tutorialStep == 1)
             {
                 _tutorialStep = 2;
                 ClearHighlights();
@@ -523,10 +568,10 @@ namespace Main
         // ─── 台本どおりに動く相手（チュートリアル専用 CPU ループ） ──────────
         private async UniTask RunTutorialOpponentMainLoopAsync(CancellationToken ct)
         {
-            // BasicLoop のみ、相手が速攻キャラ（C1010）を出してキミのデッキを攻撃する。
+            // AttackBasics のみ、相手が速攻キャラ（C1010）を出してキミのデッキを攻撃する。
             // 攻撃したキャラはタップ（横向き）するため、次のプレイヤーの番に「攻撃できる対象」ができる。
             // （守護には触れず、タップの仕組みだけで攻撃を教える）
-            if (_tutorialId == TutorialId.BasicLoop && _tutorialStep == 2 && !_tutorialCpuActed)
+            if (_tutorialId == TutorialId.AttackBasics && _tutorialStep == 2 && !_tutorialCpuActed)
             {
                 _tutorialCpuActed = true;
                 ShowCoach("相手の番だよ。相手はキャラを出して、キミのデッキを攻撃してきた。\n攻撃したキャラは「タップ」（横向き）になるんだ");

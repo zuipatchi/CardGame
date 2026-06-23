@@ -137,7 +137,11 @@
                     <ui:VisualElement name="TutorialPageBasic" class="home-rules-page">
                         <ui:Button name="TutorialEntryBasic" class="home-tutorial-entry">
                             <ui:Label text="基本の遊び方" class="home-tutorial-entry-title" picking-mode="Ignore"/>
-                            <ui:Label text="カードの出し方・コストの払い方・ターン終了・攻撃のやり方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                            <ui:Label text="カードの出し方・コストの払い方・ターン終了を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryAttack" class="home-tutorial-entry">
+                            <ui:Label text="攻撃の仕方" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="召喚酔い・タップした相手にしか攻撃できないこと・反撃ダメージを受けないことを体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
                         <ui:Button name="TutorialEntryDeckOut" class="home-tutorial-entry">
                             <ui:Label text="勝ち方：デッキ切れ" class="home-tutorial-entry-title" picking-mode="Ignore"/>
