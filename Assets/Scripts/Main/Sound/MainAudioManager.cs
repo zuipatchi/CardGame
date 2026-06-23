@@ -25,7 +25,7 @@ namespace Main.Sound
             try
             {
                 await _soundStore.Loaded.AttachExternalCancellation(cancellation);
-                _soundPlayer.PlayBGM(_soundStore.KoharuIzm);
+                _soundPlayer.PlayBGM(_soundStore.MaouEthnic);
             }
             catch (OperationCanceledException) { }
         }

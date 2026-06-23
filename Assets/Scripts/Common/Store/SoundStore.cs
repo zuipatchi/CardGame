@@ -32,11 +32,26 @@ namespace Common.Store
             { "Cancel1", 0.7f },
         };
 
+        // BGM は曲ごとに収録音量がバラバラなので、クリップ名 -> 音量倍率 で揃える（耳で合わせる）。
+        // 未登録の曲は 1.0（等倍）。基準にする曲を 1.0 に置き、大きい曲を下げ・小さい曲を上げる。
+        // キーは AudioClip.name（= アセットのファイル名。Addressable のアドレス名ではない点に注意）。
+        private static readonly Dictionary<string, float> ManualBgmAdjust = new()
+        {
+            // 例: { "maou_bgm_orchestra", 0.8f },
+            { "A_Cat_in_Palm_Beach", 0.5f },   // MainBGM
+            { "maou_bgm_orchestra", 0.4f },    // MaouOrchestra
+            { "maou_bgm_acoustic49", 0.4f },   // MaouAcoustic
+            { "maou_bgm_cyber45", 0.4f },      // MaouCyber
+            { "maou_bgm_ethnic33", 0.15f },   // MaouEthnic（メインシーン用にかなり小さめ）
+            { "光晴イズム", 0.8f },             // KoharuIzm
+        };
+
         // アドレス
         private readonly string _mainBgmAddressable = "Sound/BGM/CatInPalmBeach";
         private readonly string _maouOrchestraAddressable = "Sound/BGM/MaouOrchestra";
         private readonly string _maouAcousticAddressable = "Sound/BGM/MaouAcoustic";
         private readonly string _maouCyberAddressable = "Sound/BGM/MaouCyber";
+        private readonly string _maouEthnicAddressable = "Sound/BGM/MaouEthnic";
         private readonly string _koharuIzmAddressable = "Sound/BGM/KoharuIzm";
         private readonly string _enterSEAddressable = "Sound/SE/Enter1";
         private readonly string _enter2SEAddressable = "Sound/SE/Enter2";
@@ -63,6 +78,7 @@ namespace Common.Store
         public AudioClip MaouOrchestra => _maouOrchestra;
         public AudioClip MaouAcoustic => _maouAcoustic;
         public AudioClip MaouCyber => _maouCyber;
+        public AudioClip MaouEthnic => _maouEthnic;
         public AudioClip KoharuIzm => _koharuIzm;
         public AudioClip EnterSE => _enterSE;
         public AudioClip Enter2SE => _enter2SE;
@@ -89,6 +105,7 @@ namespace Common.Store
         private AudioClip _maouOrchestra = null;
         private AudioClip _maouAcoustic = null;
         private AudioClip _maouCyber = null;
+        private AudioClip _maouEthnic = null;
         private AudioClip _koharuIzm = null;
         private AudioClip _enterSE = null;
         private AudioClip _enter2SE = null;
@@ -123,6 +140,7 @@ namespace Common.Store
                 _maouOrchestra = await Addressables.LoadAssetAsync<AudioClip>(_maouOrchestraAddressable).ToUniTask();
                 _maouAcoustic = await Addressables.LoadAssetAsync<AudioClip>(_maouAcousticAddressable).ToUniTask();
                 _maouCyber = await Addressables.LoadAssetAsync<AudioClip>(_maouCyberAddressable).ToUniTask();
+                _maouEthnic = await Addressables.LoadAssetAsync<AudioClip>(_maouEthnicAddressable).ToUniTask();
                 _koharuIzm = await Addressables.LoadAssetAsync<AudioClip>(_koharuIzmAddressable).ToUniTask();
                 _enterSE = await Addressables.LoadAssetAsync<AudioClip>(_enterSEAddressable).ToUniTask();
                 _enter2SE = await Addressables.LoadAssetAsync<AudioClip>(_enter2SEAddressable).ToUniTask();
@@ -160,6 +178,19 @@ namespace Common.Store
         public float GetSeVolumeScale(AudioClip clip)
         {
             if (clip != null && _seVolumeScales.TryGetValue(clip, out float scale))
+            {
+                return scale;
+            }
+            return 1f;
+        }
+
+        /// <summary>
+        /// BGM を再生するときに掛ける音量倍率（ManualBgmAdjust の手動設定）を返す。
+        /// 未登録の曲は 1.0（等倍）。曲ごとの音量差を揃えるために使う。
+        /// </summary>
+        public float GetBgmVolumeScale(AudioClip clip)
+        {
+            if (clip != null && ManualBgmAdjust.TryGetValue(clip.name, out float scale))
             {
                 return scale;
             }

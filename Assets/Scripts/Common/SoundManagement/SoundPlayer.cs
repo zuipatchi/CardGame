@@ -20,6 +20,8 @@ namespace Common.SoundManagement
         private AudioSource _loopSeAudioSource;
         // 現在ループ再生中のクリップに掛ける音量倍率（SEVolume 変更時に再計算するため保持）。
         private float _loopSeVolumeScale = 1f;
+        // 現在再生中の BGM に掛ける曲ごとの音量倍率（BGMVolume 変更時に再計算するため保持）。
+        private float _bgmVolumeScale = 1f;
         private OptionModel _optionModel;
         private SoundStore _soundStore;
         private readonly CompositeDisposable _disposables = new();
@@ -36,8 +38,9 @@ namespace Common.SoundManagement
             _bgmAudioSource = gameObject.AddComponent<AudioSource>();
             _bgmAudioSource.loop = true;
 
+            // 曲ごとの音量差を揃えるため、BGM 倍率を掛ける（再生中に音量を変えても追従する）。
             _optionModel.BGMVolume
-                .Subscribe(v => _bgmAudioSource.volume = v / 2)
+                .Subscribe(v => _bgmAudioSource.volume = v / 2 * _bgmVolumeScale)
                 .AddTo(_disposables);
 
             _seAudioSource = gameObject.AddComponent<AudioSource>();
@@ -53,8 +56,9 @@ namespace Common.SoundManagement
             _voiceAudioSource.playOnAwake = false;
             _voiceAudioSource.loop = false;
 
+            // 読み上げは小さく埋もれがちなので、BGM/SE の半減（v/2）と違い等倍で再生して全体的に大きくする。
             _optionModel.VoiceVolume
-                .Subscribe(v => _voiceAudioSource.volume = v / 2)
+                .Subscribe(v => _voiceAudioSource.volume = v)
                 .AddTo(_disposables);
 
             _loopSeAudioSource = gameObject.AddComponent<AudioSource>();
@@ -78,6 +82,9 @@ namespace Common.SoundManagement
             {
                 return;
             }
+            // 曲ごとの音量差を揃える倍率を求め、現在の BGM 音量に掛けてから再生する。
+            _bgmVolumeScale = _soundStore != null ? _soundStore.GetBgmVolumeScale(clip) : 1f;
+            _bgmAudioSource.volume = _optionModel.BGMVolume.CurrentValue / 2 * _bgmVolumeScale;
             _bgmAudioSource.clip = clip;
             _bgmAudioSource.Play();
         }

@@ -122,6 +122,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 30be27509641c7143bebb541a3443a2b
+    m_Address: Sound/BGM/MaouEthnic
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 30ca41569df9d0941a744954216b781d
     m_Address: Sound/SE/Enter2
     m_ReadOnly: 0
