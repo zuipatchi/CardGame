@@ -14,4 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 0
   _set: 2
-  _cards: []
+  _cards:
+  - _id: C5101
+    _cardName: 
+    _cost: 0
+    _image: {fileID: 0}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _set: 2
+    _triggerOnGrave: 0
+    _attack: 0
+    _hp: 0
+    _attribute: 0
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
