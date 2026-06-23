@@ -145,6 +145,13 @@ namespace Main
             // 手札に戻る前に場で受けた変化（バフ・ダメージ・付与キーワード）を初期状態へ戻す。
             card.ResetRuntimeState();
 
+            // 同じ CardView インスタンスが再配置されるため、Presenter 側のターン内追跡状態も消す。
+            // これを消さないと「攻撃済み」「召喚酔いなし」が残り、戻して再配置したカード
+            // （速攻持ちを含む）が攻撃できない／本来召喚酔いすべきカードが攻撃できてしまう。
+            _attackedThisTurn.Remove(card);
+            _playerSeasonedChars.Remove(card);
+            _opponentSeasonedChars.Remove(card);
+
             if (hand.IsFull)
             {
                 await BurnCardToGraveyardAsync(card, fromRect, graveyard, ct);
