@@ -27,13 +27,13 @@ namespace Main
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
         //   ＜キーワード能力＞ 攻撃役と的を盤面にプリセットし、そのキーワードを実際に持つ既存カードで
         //     1アクション（攻撃。速攻のみ「出す→攻撃」）を体験させてクリア（「チュートリアル完了」表示）。
-        //     守護=C1005 / 速攻=C1010 / 飛行=C5003 / 防人=C3009(守護兼) / 強襲・デッキ攻撃×=C3008(速攻兼)
+        //     守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007(守護兼) / 強襲・デッキ攻撃×=C3006(速攻兼)
 
         // 台本の固定デッキ・セットアップ用カードID（実在カードID。並びはそのまま使う＝シャッフルしない）。
         private static class TutorialScript
         {
             // ── BasicLoop / AttackBasics（共通） ──
-            // 手札3枚（先頭3枚が初期手札）：ぱっち少年(コスト2/攻2/HP4)＋モブぱっち×2、残りはモブぱっち。
+            // 手札3枚（先頭3枚が初期手札）：ぱっち少年(コスト2/攻2/HP4)＋魔法使いぱっちトークン×2、残りも魔法使いぱっちトークン。
             // AttackBasics は攻撃で完了するため、デッキ切れで勝負がつかないよう枚数を多めに確保する
             // （BasicLoop はターン終了で即クリアするのでデッキ枚数は問わない）。
             public static readonly string[] BasicPlayerDeckIds =
@@ -45,14 +45,14 @@ namespace Main
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
 
-            // CPU は手札の先頭が速攻持ち（C1010 剛腕のぱっち・白/コスト2/速攻）。これを出して即デッキ攻撃すると
+            // CPU は手札の先頭が速攻持ち（C1009 剛腕のぱっち・白/コスト2/速攻）。これを出して即デッキ攻撃すると
             // 攻撃したキャラがタップ（横向き）するため、次のプレイヤーの番に「攻撃できる対象」ができる。
             // （守護には触れず、タップの仕組みだけで攻撃を教える）
             // 後攻＝初期手札5枚＋ターンドローでデッキが尽きると、プレイヤーが相手デッキを攻撃して
             // デッキ切れ勝利できてしまう（＝攻撃の手順を学ぶ前に終わる）。それを防ぐため枚数を多めに確保する。
             public static readonly string[] BasicCpuDeckIds =
             {
-                "C1010", "C1011", "C1011", "C1011", "C1011", "C1011",
+                "C1009", "C1011", "C1011", "C1011", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
@@ -73,10 +73,10 @@ namespace Main
             };
 
             // ── FieldCharsWin（制圧） ──
-            // 手札の先頭は0コストの魔法使いぱっちトークン（C1009）。これを出して8体目にする。
+            // 手札の先頭は0コストの魔法使いぱっちトークン（C1011）。これを出して8体目にする。
             public static readonly string[] FieldCharsPlayerDeckIds =
             {
-                "C1009", "C1011", "C1011",
+                "C1011", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
 
@@ -113,10 +113,10 @@ namespace Main
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
 
-            // 速攻だけは「出したターンに攻撃」を見せるため、手札の先頭に速攻キャラ（C1010・白・コスト2）を入れる。
+            // 速攻だけは「出したターンに攻撃」を見せるため、手札の先頭に速攻キャラ（C1009・白・コスト2）を入れる。
             public static readonly string[] HastePlayerDeckIds =
             {
-                "C1010", "C1011", "C1011",
+                "C1009", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
         }
@@ -192,6 +192,9 @@ namespace Main
         // CompleteTutorial で立てる。勝敗オーバーレイを「YOU WIN」ではなく「チュートリアル完了」表示にするためのフラグ。
         // 勝ち方（デッキ切れ/制圧/勝利点）は winReason 付きで終わるためこのフラグは使わない。
         private bool _tutorialCompleted;
+        // FailTutorial で立てる。誤った操作（例: 飛行チュートリアルで守護持ちを攻撃）をしたとき、
+        // 勝敗オーバーレイを「チュートリアル失敗」表示にするためのフラグ。
+        private bool _tutorialFailed;
 
         private VisualElement _tutorialCoach;
         private VisualElement _tutorialCoachPanel;
@@ -269,7 +272,7 @@ namespace Main
         }
 
         // キーワード能力チュートリアルの盤面をセットする。攻撃役と「的」を置き、必要なら相手キャラをタップ状態にする。
-        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3009 / 強襲・デッキ攻撃×=C3008）。
+        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3007 / 強襲・デッキ攻撃×=C3006）。
         private void PresetKeywordTutorial()
         {
             switch (_tutorialId)
@@ -280,7 +283,7 @@ namespace Main
                     PresetCharacter("C1011", isOpponent: true, tapped: true);                          // 守護以外（攻撃できない）
                     break;
                 case TutorialId.HasteKw:
-                    // 速攻キャラは手札から出す（C1010）。相手にタップ済みの的を置く。
+                    // 速攻キャラは手札から出す（C1009）。相手にタップ済みの的を置く。
                     PresetCharacter("C1011", isOpponent: true, tapped: true);
                     break;
                 case TutorialId.FlyingKw:
@@ -290,15 +293,15 @@ namespace Main
                     break;
                 case TutorialId.SakimoriKw:
                     _tutorialHeroCard = PresetCharacter("C5003", isOpponent: false, tapped: false);    // 飛行
-                    PresetCharacter("C3009", isOpponent: true, tapped: true);   // 防人（飛行は優先攻撃）
+                    PresetCharacter("C3007", isOpponent: true, tapped: true);   // 防人（飛行は優先攻撃）
                     PresetCharacter("C1011", isOpponent: true, tapped: true);                          // 防人がいると狙えない
                     break;
                 case TutorialId.AssaultKw:
-                    _tutorialHeroCard = PresetCharacter("C3008", isOpponent: false, tapped: false);    // 強襲
+                    _tutorialHeroCard = PresetCharacter("C3006", isOpponent: false, tapped: false);    // 強襲
                     PresetCharacter("C1011", isOpponent: true, tapped: false);  // 未タップ（強襲で狙える）
                     break;
                 case TutorialId.NoDeckAttackKw:
-                    _tutorialHeroCard = PresetCharacter("C3008", isOpponent: false, tapped: false);    // デッキ攻撃×
+                    _tutorialHeroCard = PresetCharacter("C3006", isOpponent: false, tapped: false);    // デッキ攻撃×
                     PresetCharacter("C1011", isOpponent: true, tapped: true);   // 代わりに攻撃する的
                     break;
             }
@@ -378,21 +381,21 @@ namespace Main
         {
             if (_tutorialId == TutorialId.DeckOutWin)
             {
-                ShowCoach("勝ち方のひとつ「デッキ切れ」を体験しよう。\n相手のデッキをマイナスにすると勝ち（0枚では勝ちにならない）！自分のキャラから、相手の【デッキ】（左上のカードの山）へ矢印をドラッグして、デッキに攻撃してとどめを刺そう！\n攻撃したキャラの攻撃力分の数だけ相手のデッキを上から破棄できるよ");
+                ShowCoach("勝ち方のひとつ「デッキ切れ」を体験しよう。\n相手のデッキをマイナスにすると勝ち（0枚では勝ちにならない）！相手の【デッキ】（左上のカードの山）へ自分のキャラから矢印をドラッグして、デッキに攻撃してとどめを刺そう！\nデッキに攻撃したキャラの攻撃力の値だけ相手のデッキを上から破棄できるよ");
                 ClearHighlights();
                 return;
             }
 
             if (_tutorialId == TutorialId.FieldCharsWin)
             {
-                ShowCoach("勝ち方のひとつ「制圧」を体験しよう。\n自分の場にキャラを8体ならべると勝ち！今7体いるから、手札の枠線が緑に光っているキャラを場へ出して8体にしよう");
-                HighlightHandCard("C1009");
+                ShowCoach("勝ち方のひとつ「制圧」を体験しよう。\n自分の場にキャラを8体ならべると勝ち！今7体いるから、手札の緑に光っているキャラを場に出して8体にしよう");
+                HighlightHandCard("C1011");
                 return;
             }
 
             if (_tutorialId == TutorialId.VictoryPointsWin)
             {
-                ShowCoach("勝ち方のひとつ「勝利点」を体験しよう。\n勝利点が20点になったら勝ち！キミは今あと2点（左下に現在の勝利点が表示される）。手札の光っているカードを使って勝利点を得て、20点にしよう");
+                ShowCoach("勝ち方のひとつ「勝利点」を体験しよう。\n勝利点が20点になったら勝ち！あなたは今18点（左下に現在の勝利点が表示される）。手札の光っているカードを使って勝利点を得て、20点にしよう");
                 HighlightHandCard("E3002");
                 return;
             }
@@ -413,7 +416,7 @@ namespace Main
                         break;
                     case 3:
                         // 攻撃対象は標準のオレンジハイライト（attack-target-char）に任せ、緑枠は出さない。
-                        ShowCoach("さっき出したキャラは召喚酔いが解けて攻撃できるようになった！\nただしアンタップ（縦向き）の相手キャラには攻撃できない。タップ（横向き）になっている相手キャラへ矢印をドラッグして攻撃しよう。\n攻撃しても反撃ダメージは受けないよ");
+                        ShowCoach("さっき出したキャラは召喚酔いが解けて攻撃できるようになった！\nただしアンタップ（縦向き）の相手キャラには攻撃できない。タップ（横向き）になっている相手キャラへ自分のキャラから矢印をドラッグして攻撃しよう。\n攻撃力の値だけ体力を減らせるよ。攻撃しても反撃ダメージは受けないよ");
                         ClearHighlights();
                         break;
                 }
@@ -434,35 +437,35 @@ namespace Main
             switch (_tutorialId)
             {
                 case TutorialId.GuardianKw:
-                    ShowCoach("「守護（しゅご）」を体験しよう。\n相手に守護を持つキャラがいる間は、守護を持つキャラしか攻撃できない。\n守護を持たないキャラへ攻撃できないことを確認してから守護を持つキャラを攻撃しよう！");
+                    ShowCoach("「守護（しゅご）」を体験しよう。\n相手に守護を持つキャラがいる間は、守護を持つキャラにしか攻撃できない。\n守護を持たないキャラへ攻撃できないことを確認してから守護を持つキャラを攻撃しよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.HasteKw:
                     if (_tutorialHeroCard != null)
                     {
-                        ShowCoach("速攻はキャラを出したターンにそのまま攻撃できる。\n相手キャラへ矢印をドラッグして攻撃しよう！");
+                        ShowCoach("速攻はキャラを出したターンにそのまま攻撃できる。\n相手キャラへ自分のキャラから矢印をドラッグして攻撃しよう！");
                         ClearHighlights();
                     }
                     else
                     {
                         ShowCoach("「速攻（そっこう）」を体験しよう。\n速攻持ちは出したターンからすぐ攻撃できる。\n手札の枠が緑に光るキャラを場へ出そう（コストに手札を2枚使う）");
-                        HighlightHandCard("C1010");
+                        HighlightHandCard("C1009");
                     }
                     break;
                 case TutorialId.FlyingKw:
-                    ShowCoach("「飛行（ひこう）」を体験しよう。\n飛行は相手の守護を持つキャラを無視して攻撃できる。\n守護を持っていない相手キャラへドラッグして攻撃しよう！");
+                    ShowCoach("「飛行（ひこう）」を体験しよう。\n飛行は相手の守護を持つキャラを無視して攻撃できる。\n守護を持っていない相手キャラへ自分のキャラから矢印をドラッグして攻撃しよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.SakimoriKw:
-                    ShowCoach("「防人（さきもり）」を体験しよう。\n相手に防人がいると、飛行を持つキャラは防人を優先して攻撃しないといけない。\n防人でないキャラへ攻撃できないことを確認してから、防人のキャラへ矢印をドラッグして攻撃しよう！");
+                    ShowCoach("「防人（さきもり）」を体験しよう。\n相手に防人がいると、飛行を持つキャラは防人を優先して攻撃しないといけない。\n防人でないキャラへ攻撃できないことを確認してから、防人のキャラへ攻撃しよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.AssaultKw:
-                    ShowCoach("「強襲（きょうしゅう）」を体験しよう。\n強襲は、まだタップしていない（縦向きの）相手キャラにも攻撃できる。\nタップしていない相手キャラへ矢印をドラッグして攻撃しよう！");
+                    ShowCoach("「強襲（きょうしゅう）」を体験しよう。\n強襲は、まだタップしていない（縦向きの）相手キャラにも攻撃できる。\nタップしていない相手キャラへ攻撃しよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.NoDeckAttackKw:
-                    ShowCoach("「デッキ攻撃×」を体験しよう。\nこの能力を持つキャラは相手デッキを直接攻撃できない。\nデッキへ矢印をドラッグして攻撃できないことを確認してから代わりに相手キャラへ矢印をドラッグして攻撃しよう！");
+                    ShowCoach("「デッキ攻撃×」を体験しよう。\nこの能力を持つキャラは相手デッキを直接攻撃できない。\nデッキへ攻撃できないことを確認してから代わりに相手キャラへ攻撃しよう！");
                     ClearHighlights();
                     break;
             }
@@ -504,7 +507,7 @@ namespace Main
                 {
                     _tutorialStep = 1;
                     _tutorialHeroCard = action._card;
-                    ShowCoach("出せたね！でも出したばかりのキャラは「召喚酔い」で、このターンはまだ攻撃できないんだ。\n攻撃できるのは次の自分の番から。右側の【END】ボタンを押してターンを終了しよう");
+                    ShowCoach("出せたね！でも出したばかりのキャラは「召喚酔い」で、このターンはまだ攻撃できないんだ。\n攻撃できるのは次の自分のターンから。右側の【END】ボタンを押してターンを終了しよう");
                     Highlight(_endButton);
                 }
                 else if (_tutorialStep == 3 && action._actionType == MainPhaseActionType.Attack)
@@ -526,7 +529,15 @@ namespace Main
                 }
                 if (action._actionType == MainPhaseActionType.Attack)
                 {
-                    CompleteTutorial();
+                    // 飛行チュートリアルで守護持ちを攻撃したら失敗（飛行は守護を無視して奥を狙うのが正解）。
+                    if (IsTutorialForbiddenAttackTarget(action._target))
+                    {
+                        FailTutorial();
+                    }
+                    else
+                    {
+                        CompleteTutorial();
+                    }
                 }
                 return;
             }
@@ -545,6 +556,27 @@ namespace Main
             _tutorialCompleted = true;
             _isGameOver = true;
             OnGameEnd(playerWins: true);
+        }
+
+        // チュートリアルで攻撃してはいけない相手キャラかどうか。
+        // 飛行チュートリアルは「守護を無視して奥のキャラを攻撃する」ことを学ばせるため、守護持ちキャラは
+        // 攻撃対象として強調せず（HighlightAttackTargets でスキップ）、攻撃したら失敗にする。
+        private bool IsTutorialForbiddenAttackTarget(CardView enemyChar)
+        {
+            return _isTutorial && _tutorialId == TutorialId.FlyingKw && enemyChar != null && enemyChar.HasGuardian;
+        }
+
+        // チュートリアルの失敗処理：勝敗オーバーレイ（チュートリアル失敗）を出して終了する。
+        private void FailTutorial()
+        {
+            if (_isGameOver)
+            {
+                return;
+            }
+            _tutorialStep = 4;
+            _tutorialFailed = true;
+            _isGameOver = true;
+            OnGameEnd(playerWins: false);
         }
 
         // 自分がパス（ターン終了）したときに呼ぶ。
@@ -568,13 +600,13 @@ namespace Main
         // ─── 台本どおりに動く相手（チュートリアル専用 CPU ループ） ──────────
         private async UniTask RunTutorialOpponentMainLoopAsync(CancellationToken ct)
         {
-            // AttackBasics のみ、相手が速攻キャラ（C1010）を出してキミのデッキを攻撃する。
+            // AttackBasics のみ、相手が速攻キャラ（C1009）を出してあなたのデッキを攻撃する。
             // 攻撃したキャラはタップ（横向き）するため、次のプレイヤーの番に「攻撃できる対象」ができる。
             // （守護には触れず、タップの仕組みだけで攻撃を教える）
             if (_tutorialId == TutorialId.AttackBasics && _tutorialStep == 2 && !_tutorialCpuActed)
             {
                 _tutorialCpuActed = true;
-                ShowCoach("相手の番だよ。相手はキャラを出して、キミのデッキを攻撃してきた。\n攻撃したキャラは「タップ」（横向き）になるんだ");
+                ShowCoach("相手の番だよ。相手はキャラを出して、あなたのデッキを攻撃してきた。\n攻撃したキャラは「タップ」（横向き）になるんだ");
                 ClearHighlights();
 
                 IReadOnlyList<CardView> cpuHand = _opponentHandView.Cards;
@@ -585,7 +617,7 @@ namespace Main
                         new MainPhaseAction { _actionType = MainPhaseActionType.PlaceChar, _card = cpuHand[0] },
                         ct);
 
-                    // 出したキャラ（速攻）でキミのデッキを攻撃させ、相手キャラをタップ状態にする。
+                    // 出したキャラ（速攻）であなたのデッキを攻撃させ、相手キャラをタップ状態にする。
                     CardView cpuAttacker = _opponentFieldView.Characters.FirstOrDefault();
                     if (cpuAttacker != null && !_isGameOver)
                     {

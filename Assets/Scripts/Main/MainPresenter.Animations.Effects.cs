@@ -494,6 +494,14 @@ namespace Main
                 ApplyEmblemReason(winReason.Value);
                 _gameEndEmblem.style.display = DisplayStyle.Flex;
             }
+            else if (_tutorialFailed)
+            {
+                // チュートリアルで誤った操作（例: 飛行チュートリアルで守護持ちを攻撃）をしたときの失敗表示。
+                _gameEndLabel.text = "チュートリアル失敗";
+                _gameEndLabel.style.color = StyleKeyword.Null;
+                _gameEndLabel.AddToClassList("game-end-label--lose");
+                _gameEndEmblem.style.display = DisplayStyle.None;
+            }
             else if (_tutorialCompleted)
             {
                 // クリア系チュートリアル（基本・キーワード）は「YOU WIN」ではなく「チュートリアル完了」を表示する。

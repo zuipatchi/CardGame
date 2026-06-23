@@ -992,7 +992,8 @@ namespace Main
                         break;
                     }
                 }
-                if (anyCanAttack)
+                // チュートリアルで攻撃を禁じる相手（飛行チュートリアルの守護持ち）は強調しない。
+                if (anyCanAttack && !IsTutorialForbiddenAttackTarget(enemyChar))
                 {
                     enemyChar.AddToClassList("attack-target-char");
                     enemyChar.SetAttackHighlighted(true);
