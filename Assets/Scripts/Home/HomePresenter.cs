@@ -63,6 +63,7 @@ namespace Home
         private VisualElement _tutorialOverlay;
         private Button _tutorialCloseButton;
         private Button _tutorialEntryBasic;
+        private Button _tutorialEntryAttack;
         private Button _tutorialEntryDeckOut;
         private Button _tutorialEntryFieldChars;
         private Button _tutorialEntryVictoryPoints;
@@ -234,6 +235,7 @@ namespace Home
             _tutorialOverlay = root.Q<VisualElement>("TutorialOverlay");
             _tutorialCloseButton = root.Q<Button>("TutorialCloseButton");
             _tutorialEntryBasic = root.Q<Button>("TutorialEntryBasic");
+            _tutorialEntryAttack = root.Q<Button>("TutorialEntryAttack");
             _tutorialEntryDeckOut = root.Q<Button>("TutorialEntryDeckOut");
             _tutorialEntryFieldChars = root.Q<Button>("TutorialEntryFieldChars");
             _tutorialEntryVictoryPoints = root.Q<Button>("TutorialEntryVictoryPoints");
@@ -263,6 +265,7 @@ namespace Home
                 root.Q<Button>("RulesTabFlow"),
                 root.Q<Button>("RulesTabCard"),
                 root.Q<Button>("RulesTabBattle"),
+                root.Q<Button>("RulesTabOverLimit"),
                 root.Q<Button>("RulesTabKeyword"),
                 root.Q<Button>("RulesTabDeck"),
             };
@@ -272,12 +275,14 @@ namespace Home
                 root.Q<VisualElement>("RulesPageFlow"),
                 root.Q<VisualElement>("RulesPageCard"),
                 root.Q<VisualElement>("RulesPageBattle"),
+                root.Q<VisualElement>("RulesPageOverLimit"),
                 root.Q<VisualElement>("RulesPageKeyword"),
                 root.Q<VisualElement>("RulesPageDeck"),
             };
             _tutorialButton.clicked += OnTutorialClicked;
             _tutorialCloseButton.clicked += OnTutorialCloseClicked;
             _tutorialEntryBasic.clicked += OnTutorialEntryBasicClicked;
+            _tutorialEntryAttack.clicked += OnTutorialEntryAttackClicked;
             _tutorialEntryDeckOut.clicked += OnTutorialEntryDeckOutClicked;
             _tutorialEntryFieldChars.clicked += OnTutorialEntryFieldCharsClicked;
             _tutorialEntryVictoryPoints.clicked += OnTutorialEntryVictoryPointsClicked;
@@ -336,6 +341,10 @@ namespace Home
             if (_tutorialEntryBasic != null)
             {
                 _tutorialEntryBasic.clicked -= OnTutorialEntryBasicClicked;
+            }
+            if (_tutorialEntryAttack != null)
+            {
+                _tutorialEntryAttack.clicked -= OnTutorialEntryAttackClicked;
             }
             if (_tutorialEntryDeckOut != null)
             {
@@ -796,6 +805,11 @@ namespace Home
         private void OnTutorialEntryBasicClicked()
         {
             StartTutorial(TutorialId.BasicLoop);
+        }
+
+        private void OnTutorialEntryAttackClicked()
+        {
+            StartTutorial(TutorialId.AttackBasics);
         }
 
         private void OnTutorialEntryDeckOutClicked()
