@@ -45,9 +45,9 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 3
-    _eventValue: 1
-    _eventValue2: 1
+    _eventType: 31
+    _eventValue: 0
+    _eventValue2: 0
     _description: "\u30B3\u30A4\u30F3\u3092\u632F\u308A\u3001\u8868\u304C\u51FA\u308B\u305F\u3073\u306B\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u88CF\u304C\u51FA\u305F\u3089\u7D42\u4E86\uFF09"
     _attribute: 3
   - _id: E4003
@@ -63,9 +63,9 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 3
-    _eventValue: 1
-    _eventValue2: 1
+    _eventType: 31
+    _eventValue: 0
+    _eventValue2: 0
     _description: "\u30B3\u30A4\u30F3\u3092\u632F\u308A\u3001\u8868\u304C\u51FA\u308B\u305F\u3073\u306B\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u88CF\u304C\u51FA\u305F\u3089\u7D42\u4E86\uFF09"
     _attribute: 3
   - _id: E4004
@@ -81,9 +81,9 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 3
-    _eventValue: 1
-    _eventValue2: 1
+    _eventType: 31
+    _eventValue: 0
+    _eventValue2: 0
     _description: "\u30B3\u30A4\u30F3\u3092\u632F\u308A\u3001\u8868\u304C\u51FA\u308B\u305F\u3073\u306B\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u88CF\u304C\u51FA\u305F\u3089\u7D42\u4E86\uFF09"
     _attribute: 3
   - _id: E4005
@@ -99,9 +99,9 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 3
+    _eventType: 32
     _eventValue: 0
-    _eventValue2: 2
+    _eventValue2: 0
     _description: "\u30B5\u30A4\u30B3\u30ED\u3092\u632F\u308A\u3001\u51FA\u305F\u76EE\u306E\u6570\u3060\u3051\u30AB\u30FC\u30C9\u3092\u5F15\u304F"
     _attribute: 3
   - _id: E4006
@@ -135,8 +135,8 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 3
-    _eventValue: 1
-    _eventValue2: 1
+    _eventType: 31
+    _eventValue: 0
+    _eventValue2: 0
     _description: "\u30B3\u30A4\u30F3\u3092\u632F\u308A\u3001\u8868\u304C\u51FA\u308B\u305F\u3073\u306B\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u88CF\u304C\u51FA\u305F\u3089\u7D42\u4E86\uFF09"
     _attribute: 3

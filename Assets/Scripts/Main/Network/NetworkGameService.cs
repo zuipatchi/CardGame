@@ -497,7 +497,7 @@ namespace Main.Network
             return _cardDatabase.BuildDeck(payload.deckIds);
         }
 
-        // コインドロー（Draw 値2フラグ）の発動側が確定した「表＝ドロー」の回数を相手クライアントへ伝える。
+        // コインドロー（EventType.CoinDraw）の発動側が確定した「表＝ドロー」の回数を相手クライアントへ伝える。
         // 乱数で決まる回数だけを送り、ミラー側は同期済みデッキの上から同じ枚数を引く。
         public void SendCoinDrawCount(int count)
         {
@@ -512,7 +512,7 @@ namespace Main.Network
             return payload.count;
         }
 
-        // サイコロドロー（Draw 値2=2）の発動側が振った出目（1〜6）を相手クライアントへ伝える。
+        // サイコロドロー（EventType.DiceDraw）の発動側が振った出目（1〜6）を相手クライアントへ伝える。
         // 乱数で決まる出目だけを送り、ミラー側は同期済みデッキの上から同じ枚数を引く。
         public void SendDiceDrawResult(int roll)
         {

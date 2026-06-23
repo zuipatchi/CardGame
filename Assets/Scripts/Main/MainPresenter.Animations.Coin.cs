@@ -148,7 +148,7 @@ namespace Main
         }
 
         // ─── コインドロー用の軽量コイン演出（カード付近で素早く1回振る）───────
-        // コインドロー（Draw 値2フラグ）で1トスごとに呼ぶ。isHeads=true で表（＝ドロー継続）、
+        // コインドロー（EventType.CoinDraw）で1トスごとに呼ぶ。isHeads=true で表（＝ドロー継続）、
         // false で裏（＝終了）に着地する。全画面の PlayCoinTossAsync と違い、アンカーの上で
         // 短時間に回るため連続トスでもテンポを損なわない。
         internal async UniTask PlayCoinFlipAsync(VisualElement anchor, bool isHeads, CancellationToken ct)
@@ -244,7 +244,7 @@ namespace Main
         }
 
         // ─── サイコロドロー用のダイス演出（カード付近で転がして出目に着地）───────
-        // サイコロドロー（Draw 値2=2）で呼ぶ。result（1〜6）の出目に着地する。転がし中の見せ数字は
+        // サイコロドロー（EventType.DiceDraw）で呼ぶ。result（1〜6）の出目に着地する。転がし中の見せ数字は
         // 演出のみで出目とは無関係（クライアント間でズレても問題ない）。出目 result は同期済み。
         internal async UniTask PlayDiceRollAsync(VisualElement anchor, int result, CancellationToken ct)
         {

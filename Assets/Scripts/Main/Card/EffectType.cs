@@ -30,6 +30,9 @@ namespace Main.Card
         BuffAttackByKeyword = 22,
         // BuffAttackByKeyword と同じ対象選択で、HP（現在HP・最大HP両方）を EventValue / EffectValue 上げる。
         BuffHpByKeyword = 23,
+        // コインを振り、表が出るたびにカードを1枚引く（裏が出たら終了）。
+        // EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（0）。
+        CoinDraw = 31,
         // 発動側が自フィールドのキャラを1体選び、そのキャラのコピーを EventValue / EffectValue 体（未設定=0 は1体）自フィールドに出す。
         // コピーはバフ・現在HP込みの状態を複製する。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
         // 配置時に OnEnter も発動。フィールド満杯で打ち切り。自キャラが0体なら空振り。EventValue2 / EffectValue2 は不使用。
@@ -52,6 +55,11 @@ namespace Main.Card
         // ミルされたカードが「ダメージトリガー」なら持ち主（相手）がコストなしで使用する。
         // 相手デッキが0枚になればデッキ切れで相手が敗北。EventValue2 / EffectValue2 は不使用。
         DamageEnemyDeck = 28,
+        // サイコロ（6面）を振り、出た目の数だけカードを引く。
+        // EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（0）。
+        DiceDraw = 32,
+        // デッキの上から EventValue / EffectValue 枚（値1）を手札に加える。
+        // EventValue2 / EffectValue2（値2）は将来の拡張用に予約（現状は不使用）。
         Draw = 3,
         // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
         // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。
