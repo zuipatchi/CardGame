@@ -329,6 +329,61 @@
     scale: 0.95 0.95;
 }
 
+.deckbuilder-deck-header-left {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* 「デッキ」見出しの横に置く「使用する」ボタン。未使用時（押せる）は暗め。 */
+.deckbuilder-button--use-deck {
+    height: 32px;
+    margin-left: 14px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(200, 220, 255);
+    background-color: rgba(40, 70, 120, 0.55);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(110, 150, 210, 0.6);
+    border-right-color: rgba(110, 150, 210, 0.6);
+    border-top-color: rgba(110, 150, 210, 0.6);
+    border-bottom-color: rgba(110, 150, 210, 0.6);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.deckbuilder-button--use-deck:hover {
+    background-color: rgba(60, 100, 160, 0.8);
+}
+
+.deckbuilder-button--use-deck:active {
+    background-color: rgba(40, 70, 120, 0.45);
+    scale: 0.93 0.93;
+}
+
+/* すでに使用デッキのとき＝「★使用中」表示で押せない。使用中は明るく強調する。 */
+.deckbuilder-button--use-deck:disabled {
+    opacity: 1;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.95);
+    border-left-color: rgba(150, 195, 255, 0.9);
+    border-right-color: rgba(150, 195, 255, 0.9);
+    border-top-color: rgba(150, 195, 255, 0.9);
+    border-bottom-color: rgba(150, 195, 255, 0.9);
+}
+
 .deckbuilder-deck-header-right {
     flex-direction: row;
     align-items: center;
