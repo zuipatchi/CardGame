@@ -32,9 +32,14 @@ namespace CpuDeckBuilder
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = new DeckModel();
-            // CPU デッキは Home のトグルに関係なく常に3枚制限を適用する。
-            // 共有の DeckRuleModel ではなく、常に有効な独自インスタンスを使う。
-            _deckRuleModel = new DeckRuleModel();
+            // CPU デッキは Home のトグルに関係なく常に同名3枚制限・デッキ枚数制限を適用する。
+            // 共有の DeckRuleModel ではなく独自インスタンスを使うが、Editor 用コンストラクタは
+            // EditorPrefs（Home のトグル状態）を読むため、生成直後に明示的に常時 ON へ上書きする。
+            _deckRuleModel = new DeckRuleModel
+            {
+                LimitSameCards = true,
+                LimitDeckCount = true,
+            };
             _sceneTransitioner = sceneTransitioner;
         }
 
