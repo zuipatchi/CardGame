@@ -17,6 +17,8 @@ namespace DeckBuilder
 
         private VisualElement _slotOverlay;
         private VisualElement _slotGrid;
+        // 編集中デッキをその場で対戦用（SelectedIndex）にする「使用する」ボタン（編集画面ヘッダ）。
+        private Button _useDeckButton;
         // 使用デッキ（対戦に使う SelectedIndex）を選ぶ：上部ボタン＋ Home 風の一覧モーダル。
         private Button _deckSelectButton;
         private VisualElement _deckSelectOverlay;
@@ -91,6 +93,12 @@ namespace DeckBuilder
         protected override void OnDeckBuilderReady(VisualElement root)
         {
             _cardsLoaded = true;
+
+            // 編集画面ヘッダの「使用する」ボタン：編集中デッキをその場で対戦用（SelectedIndex）にする。
+            _useDeckButton = root.Q<Button>("UseDeckButton");
+            _useDeckButton.clicked += OnUseDeckClicked;
+            UpdateUseDeckButton();
+
             // 読み込み中に枠を開いていなければ、まだスロット一覧を表示中。カード裏面は読み込み後に
             // しか得られないため、ここで一覧を組み直してシンボル未設定スロットに裏面を反映する。
             if (!_pendingOpen)
@@ -279,6 +287,32 @@ namespace DeckBuilder
             }
         }
 
+        // 編集中デッキを対戦用（SelectedIndex）にする。すでに使用中なら何もしない。
+        private void OnUseDeckClicked()
+        {
+            if (_deckRepository.SelectedIndex == _editingSlot)
+            {
+                return;
+            }
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
+            _deckRepository.SelectedIndex = _editingSlot;
+            UpdateDeckSelectButtonLabel();
+            UpdateUseDeckButton();
+            ShowToast("このデッキを使用中にしました", success: true);
+        }
+
+        // 「使用する」ボタンの表示：編集中スロットがすでに使用デッキなら「★使用中」で押せなくする。
+        private void UpdateUseDeckButton()
+        {
+            if (_useDeckButton == null)
+            {
+                return;
+            }
+            bool isSelected = _deckRepository.SelectedIndex == _editingSlot;
+            _useDeckButton.text = isSelected ? "★使用中" : "使用する";
+            _useDeckButton.SetEnabled(!isSelected);
+        }
+
         // 上部ボタンのラベルを現在の使用デッキ名に合わせる。
         private void UpdateDeckSelectButtonLabel()
         {
@@ -380,6 +414,7 @@ namespace DeckBuilder
             {
                 _deckRepository.Load(_deckModel, slot);
                 RefreshDeckPanel();
+                UpdateUseDeckButton();
             }
             else
             {
