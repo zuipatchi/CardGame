@@ -22,7 +22,7 @@ MonoBehaviour:
     _voiceSpeaker: 17
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 1
+    _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _triggerOnGrave: 0
@@ -30,7 +30,7 @@ MonoBehaviour:
     _eventType: 0
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B\u6BCE\u30BF\u30FC\u30F3\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B\u6BCE\u30BF\u30FC\u30F3\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 2
   - _id: E3002
     _cardName: "\u4E0D\u6B7B\u9CE5\u306E\u6075\u307F"
