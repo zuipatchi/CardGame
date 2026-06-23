@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 183235da6d61c3540821208446056ffd, type: 3}
-  m_Name: CharacterCards_Blue_Set2
+  m_Name: CharacterCards_Green_Set2
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
-  _attribute: 1
+  _attribute: 2
   _set: 2
   _cards:
-  - _id: C2101
-    _cardName: "\u3071\u3063\u3061\u306E\u5BB6\u306E\u5EAD\u5E2B"
+  - _id: C3101
+    _cardName: "\u30B4\u30EA\u30E9\u30B4\u30EA\u30E9\u30E2\u30CA\u30AB"
     _cost: 0
-    _image: {fileID: 21300000, guid: b79e5b3ccb006924eb6af51a31d88c81, type: 3}
-    _flavorText: 
+    _image: {fileID: 21300000, guid: 332f3d185181d8e47bbada8ed20e9f91, type: 3}
+    _flavorText: "\u3053\u3063\u3061\u307F\u3093\u306A"
     _voiceSpeaker: 0
     _keyword: 
     _effectParam: 
@@ -30,7 +30,7 @@ MonoBehaviour:
     _triggerOnGrave: 0
     _attack: 0
     _hp: 0
-    _attribute: 1
+    _attribute: 2
     _effectTrigger: 0
     _effectType: 0
     _effectValue: 0
@@ -42,10 +42,37 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _description: 
-  - _id: C2102
-    _cardName: "\u3071\u3063\u3061\u306E\u6BCD"
+  - _id: C3102
+    _cardName: "\u30E2\u30CA\u30AD\u30E3\u30C3\u30C8"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 5ce3d17c66230044b870d7687e55f07c, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 1
+    _excludeFromDeckBuilder: 0
+    _set: 2
+    _triggerOnGrave: 0
+    _attack: 0
+    _hp: 0
+    _attribute: 2
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C3103
+    _cardName: "\u68EE\u306E\u4E3B"
     _cost: 5
-    _image: {fileID: 21300000, guid: 8f6cd594f4bea7d46b2d2e6ea4502071, type: 3}
+    _image: {fileID: 21300000, guid: 348bcb03b2382da4f9a7cf5f2573a872, type: 3}
     _flavorText: 
     _voiceSpeaker: 0
     _keyword: 
@@ -57,34 +84,7 @@ MonoBehaviour:
     _triggerOnGrave: 0
     _attack: 6
     _hp: 11
-    _attribute: 1
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _sakimori: 0
-    _assault: 0
-    _noDeckAttack: 0
-    _description: 
-  - _id: C2103
-    _cardName: "\u3071\u3063\u3061\u306E\u5BB6\u5EAD\u6559\u5E2B"
-    _cost: 0
-    _image: {fileID: 21300000, guid: b43b6b37a7d306b47a62f6101a1bb0bd, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _set: 2
-    _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
-    _attribute: 1
+    _attribute: 2
     _effectTrigger: 0
     _effectType: 0
     _effectValue: 0

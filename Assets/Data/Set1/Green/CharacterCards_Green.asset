@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CharacterCards_Green
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 2
+  _set: 1
   _cards:
   - _id: C3001
     _cardName: "\u5408\u6210\u866B"
@@ -25,6 +26,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 1
     _attack: 1
     _hp: 2
@@ -51,6 +53,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 4
@@ -77,6 +80,7 @@ MonoBehaviour:
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 3
@@ -103,6 +107,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -129,6 +134,7 @@ MonoBehaviour:
     _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 2
@@ -155,6 +161,7 @@ MonoBehaviour:
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 4
@@ -181,6 +188,7 @@ MonoBehaviour:
     _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 9
@@ -207,6 +215,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 5
     _hp: 8
@@ -233,6 +242,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 2
@@ -259,32 +269,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 0
-    _attack: 3
-    _hp: 7
-    _attribute: 2
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _sakimori: 0
-    _assault: 0
-    _noDeckAttack: 0
-    _description: 
-  - _id: C3011
-    _cardName: "\u30B4\u30EA\u30E9\u30B4\u30EA\u30E9\u30E2\u30CA\u30AB"
-    _cost: 3
-    _image: {fileID: 21300000, guid: 332f3d185181d8e47bbada8ed20e9f91, type: 3}
-    _flavorText: "\u3053\u3063\u3061\u307F\u3093\u306A"
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 7

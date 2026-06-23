@@ -16,9 +16,9 @@ MonoBehaviour:
   _set: 2
   _cards:
   - _id: C5101
-    _cardName: 
-    _cost: 0
-    _image: {fileID: 0}
+    _cardName: "\u707C\u71B1\u306E\u30E0\u30AB\u30C7"
+    _cost: 5
+    _image: {fileID: 21300000, guid: 7f964fc267390f645b96512260c2df93, type: 3}
     _flavorText: 
     _voiceSpeaker: 0
     _keyword: 
@@ -28,8 +28,8 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 2
     _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
+    _attack: 6
+    _hp: 11
     _attribute: 0
     _effectTrigger: 0
     _effectType: 0

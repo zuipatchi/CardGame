@@ -22,6 +22,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a47d0ab9a9ef9684ca4b55ffb92e165a, type: 2}
   - {fileID: 11400000, guid: 24e5955c9de5ea24581fd3ab2cf855b8, type: 2}
   - {fileID: 11400000, guid: 49dbc5471038bba4696c204d0d2c0e6f, type: 2}
+  - {fileID: 11400000, guid: 84b581d12522f1441a7be32c06feea3a, type: 2}
+  - {fileID: 11400000, guid: d8eb22a82c8c7714aa407a1e45919143, type: 2}
   _eventCardSets:
   - {fileID: 11400000, guid: da4148aefccb9cc4792df2ae7e274651, type: 2}
   - {fileID: 11400000, guid: d22dd94a48f673a48ad7c495763df7d4, type: 2}
