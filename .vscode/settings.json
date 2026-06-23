@@ -67,7 +67,7 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Card.slnx",
+    "dotnet.defaultSolution": "Card-card-b.slnx",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
