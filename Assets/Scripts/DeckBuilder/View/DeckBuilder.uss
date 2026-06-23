@@ -1053,6 +1053,226 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.6);
 }
 
+/* 使用デッキを選ぶセレクトボックス（ヘッダ中央に絶対配置で中央寄せするための土台） */
+.deckbuilder-deck-select {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 使用デッキ選択ボタン（押すと一覧モーダルを開く）。高さは「もどる」ボタン（デッキ編集ヘッダ）と同じ 64px */
+.deckbuilder-deck-select-button {
+    height: 64px;
+    padding-left: 28px;
+    padding-right: 28px;
+    background-color: rgba(8, 8, 25, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.5);
+    border-right-color: rgba(150, 170, 230, 0.5);
+    border-top-color: rgba(150, 170, 230, 0.5);
+    border-bottom-color: rgba(150, 170, 230, 0.5);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(220, 230, 255);
+    -unity-text-align: middle-center;
+    transition-property: scale, background-color;
+    transition-duration: 0.1s, 0.12s;
+}
+
+.deckbuilder-deck-select-button:hover {
+    scale: 1.025 1.025;
+    background-color: rgba(20, 30, 70, 1);
+}
+
+.deckbuilder-deck-select-button:active {
+    scale: 0.98 0.98;
+}
+
+/* 使用デッキ一覧モーダル：暗幕 */
+.deckbuilder-deck-modal-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+
+/* 使用デッキ一覧モーダル：パネル */
+.deckbuilder-deck-modal-panel {
+    width: 600px;
+    max-height: 70%;
+    background-color: rgba(8, 8, 25, 0.98);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.6);
+    border-right-color: rgba(150, 170, 230, 0.6);
+    border-top-color: rgba(150, 170, 230, 0.6);
+    border-bottom-color: rgba(150, 170, 230, 0.6);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-left: 36px;
+    padding-right: 36px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    align-items: stretch;
+}
+
+.deckbuilder-deck-modal-title {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgb(255, 230, 100);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.5);
+    margin-bottom: 18px;
+}
+
+.deckbuilder-deck-modal-list {
+    flex-grow: 1;
+}
+
+.deckbuilder-deck-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(230, 235, 255);
+    background-color: rgba(20, 30, 70, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(150, 170, 230, 0.6);
+    border-right-color: rgba(150, 170, 230, 0.6);
+    border-top-color: rgba(150, 170, 230, 0.6);
+    border-bottom-color: rgba(150, 170, 230, 0.6);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.deckbuilder-deck-modal-close:hover {
+    scale: 1.06 1.06;
+    background-color: rgba(35, 50, 110, 0.95);
+    color: rgb(255, 255, 255);
+}
+
+.deckbuilder-deck-modal-close:active {
+    scale: 0.94 0.94;
+}
+
+/* 使用デッキ一覧モーダルの行 */
+.deckbuilder-deck-row {
+    flex-direction: row;
+    align-items: center;
+    height: 60px;
+    padding-left: 18px;
+    padding-right: 18px;
+    margin-bottom: 10px;
+    background-color: rgba(20, 24, 40, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(110, 160, 230, 0.3);
+    border-right-color: rgba(110, 160, 230, 0.3);
+    border-top-color: rgba(110, 160, 230, 0.3);
+    border-bottom-color: rgba(110, 160, 230, 0.3);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition-property: background-color;
+    transition-duration: 0.12s;
+}
+
+.deckbuilder-deck-row:hover {
+    background-color: rgba(30, 38, 64, 0.95);
+}
+
+.deckbuilder-deck-row--selected {
+    background-color: rgba(35, 55, 100, 0.95);
+    border-left-color: rgb(120, 180, 255);
+    border-right-color: rgb(120, 180, 255);
+    border-top-color: rgb(120, 180, 255);
+    border-bottom-color: rgb(120, 180, 255);
+}
+
+.deckbuilder-deck-row-favorite {
+    width: 40px;
+    height: 52px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.deckbuilder-deck-row-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(235, 235, 250);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.deckbuilder-deck-row-badge {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.9);
+    margin-left: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.deckbuilder-deck-row-count {
+    font-size: 20px;
+    color: rgb(255, 150, 150);
+    margin-left: 12px;
+}
+
+.deckbuilder-deck-row-count--ready {
+    color: rgb(120, 230, 150);
+}
+
 .deckbuilder-slot-grid {
     flex-grow: 1;
     flex-direction: row;
@@ -1064,7 +1284,7 @@
 }
 
 .deckbuilder-slot-card {
-    width: 300px;
+    width: 330px;
     height: 150px;
     margin: 14px;
     padding-left: 20px;
@@ -1112,8 +1332,61 @@
     scale: 1.03 1.03;
 }
 
+/* 使用中（対戦に使う）デッキのスロットを強調する枠 */
+.deckbuilder-slot-card--selected {
+    background-color: rgba(35, 55, 100, 0.95);
+    border-left-color: rgb(120, 180, 255);
+    border-right-color: rgb(120, 180, 255);
+    border-top-color: rgb(120, 180, 255);
+    border-bottom-color: rgb(120, 180, 255);
+}
+
+/* 下段：枚数（左）と使用中バッジ（右）を横並びにする行 */
+.deckbuilder-slot-count-row {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+/* 使用中（対戦に使う）デッキのスロットに表示するバッジ。枚数（x/x）と同じ高さにそろえて右に置く */
+.deckbuilder-slot-use-badge {
+    flex-shrink: 0;
+    height: 28px;
+    white-space: nowrap;
+    -unity-text-align: middle-center;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.95);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(150, 195, 255, 0.9);
+    border-right-color: rgba(150, 195, 255, 0.9);
+    border-top-color: rgba(150, 195, 255, 0.9);
+    border-bottom-color: rgba(150, 195, 255, 0.9);
+    margin-left: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* デッキ名（左・伸縮）と名前変更ボタン（右）を横並びにする行 */
+.deckbuilder-slot-name-row {
+    flex-direction: row;
+    align-items: center;
+}
+
 .deckbuilder-slot-name {
-    font-size: 20px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 16px;
     -unity-font-style: bold;
     color: rgb(235, 235, 250);
     overflow: hidden;
@@ -1121,15 +1394,16 @@
     white-space: nowrap;
 }
 
-/* デッキ名編集（リネーム）ボタン。デッキ名の下に置く */
+/* デッキ名編集（リネーム）ボタン。デッキ名の右に置く */
 .deckbuilder-slot-rename {
-    align-self: flex-start;
-    height: 34px;
-    margin-top: 6px;
-    margin-bottom: 6px;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-size: 16px;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-left: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 13px;
+    -unity-text-align: middle-center;
     color: rgb(210, 215, 235);
     background-color: rgba(70, 80, 120, 0.7);
     border-left-width: 0;
@@ -1147,7 +1421,9 @@
 }
 
 .deckbuilder-slot-count {
-    font-size: 22px;
+    height: 28px;
+    -unity-text-align: middle-left;
+    font-size: 16px;
     color: rgb(255, 150, 150);
 }
 
