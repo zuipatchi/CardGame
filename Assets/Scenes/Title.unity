@@ -685,7 +685,7 @@ MonoBehaviour:
   _cardDatabase: {fileID: 11400000, guid: d84503d125c0df7499d68ac2cd715f5a, type: 2}
   _camera: {fileID: 583007815}
   _radius: 2.4
-  _cardScale: 0.05
+  _cardScale: 0.6
   _totalCards: 20
   _tiltDeg: 0
   _periodSec: 30
