@@ -249,6 +249,7 @@ namespace Home
                 root.Q<Button>("RulesTabFlow"),
                 root.Q<Button>("RulesTabCard"),
                 root.Q<Button>("RulesTabBattle"),
+                root.Q<Button>("RulesTabOverLimit"),
                 root.Q<Button>("RulesTabKeyword"),
                 root.Q<Button>("RulesTabDeck"),
             };
@@ -258,6 +259,7 @@ namespace Home
                 root.Q<VisualElement>("RulesPageFlow"),
                 root.Q<VisualElement>("RulesPageCard"),
                 root.Q<VisualElement>("RulesPageBattle"),
+                root.Q<VisualElement>("RulesPageOverLimit"),
                 root.Q<VisualElement>("RulesPageKeyword"),
                 root.Q<VisualElement>("RulesPageDeck"),
             };
