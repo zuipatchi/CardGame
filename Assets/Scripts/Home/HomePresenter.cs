@@ -25,6 +25,9 @@ namespace Home
         // 使用デッキ選択モーダルでお気に入りカードの画像を引くために使う。
         // DeckBuilder と同じ CardDatabase アセットをインスペクタで割り当てる（未割り当てなら背景は出ない）。
         [SerializeField] private CardDatabase _cardDatabase;
+        // 使用デッキ選択モーダルで、シンボル未設定デッキに表示するカード裏面（Addressable Image/CardBack の Texture2D）。
+        // 未割り当てなら裏面は出ない（Home には CardStore が無いためインスペクタで割り当てる）。
+        [SerializeField] private Texture2D _cardBack;
 
         private SceneTransitioner _sceneTransitioner;
         private SoundPlayer _soundPlayer;
@@ -528,17 +531,21 @@ namespace Home
                 }
                 row.RegisterCallback<ClickEvent>(_ => OnDeckRowClicked(slot));
 
-                // お気に入りカードが設定されていれば、左に小さくカード全体を表示する。
+                // 左にデッキのシンボル（代表カード全体）を表示する。シンボル未設定はカード裏面で代替する。
+                VisualElement thumbnail = new VisualElement();
+                thumbnail.AddToClassList("home-deck-row-favorite");
+                thumbnail.pickingMode = PickingMode.Ignore;
                 string favoriteId = _deckRepository.LoadFavorite(slot);
                 if (_cardDatabase != null && !string.IsNullOrEmpty(favoriteId)
                     && _cardDatabase.TryGet(favoriteId, out CardData favorite) && favorite.Image != null)
                 {
-                    VisualElement thumbnail = new VisualElement();
-                    thumbnail.AddToClassList("home-deck-row-favorite");
                     thumbnail.style.backgroundImage = new StyleBackground(favorite.Image);
-                    thumbnail.pickingMode = PickingMode.Ignore;
-                    row.Add(thumbnail);
                 }
+                else if (_cardBack != null)
+                {
+                    thumbnail.style.backgroundImage = new StyleBackground(_cardBack);
+                }
+                row.Add(thumbnail);
 
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
                 nameLabel.AddToClassList("home-deck-row-name");
