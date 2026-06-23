@@ -81,6 +81,30 @@ namespace GameEditor
             window.Show();
         }
 
+        // カードエディタを開かずに、全カードの効果テキストを一括生成する Card メニュー項目。
+        // エディタが既に開いていればそのインスタンスで実行（表示中の効果テキストも更新される）、
+        // 開いていなければ一時インスタンスを生成して実行・破棄する。生成ロジックは
+        // RegenerateAllDescriptions に集約済みで、ウィンドウのボタンと同じ結果になる。
+        [MenuItem("Card/効果テキストを一括生成")]
+        public static void RegenerateAllDescriptionsFromMenu()
+        {
+            if (HasOpenInstances<CardEditorWindow>())
+            {
+                GetWindow<CardEditorWindow>().RegenerateAllDescriptions();
+                return;
+            }
+
+            CardEditorWindow window = CreateInstance<CardEditorWindow>();
+            try
+            {
+                window.RegenerateAllDescriptions();
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
         private void OnEnable()
         {
             RebuildEntries();
@@ -419,12 +443,8 @@ namespace GameEditor
                 }
             }
 
-            GUILayout.FlexibleSpace();
+            GUILayout.Space(8f);
 
-            if (GUILayout.Button("効果テキスト一括生成", EditorStyles.toolbarButton, GUILayout.Width(120f)))
-            {
-                RegenerateAllDescriptions();
-            }
             if (GUILayout.Button("ID再採番", EditorStyles.toolbarButton, GUILayout.Width(72f)))
             {
                 ReassignAllIds();
