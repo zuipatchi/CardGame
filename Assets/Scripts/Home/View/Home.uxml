@@ -47,11 +47,11 @@
                         <ui:Label text="3つの勝ち方" class="home-rules-section"/>
                         <ui:Label text="次のどれか1つを満たした瞬間に勝利します" class="home-rules-entry"/>
                         <ui:Label text="① デッキ切れ" class="home-rules-subsection"/>
-                        <ui:Label text="相手のデッキが0枚の状態で、さらに1枚引く・デッキが削られると相手の負け。デッキを0枚にしただけでは負けず、その後もう1枚動いたときに決着します。相手のキャラを攻撃する代わりに「相手デッキ」を直接攻撃して削ることもできます" class="home-rules-entry"/>
+                        <ui:Label text="相手のデッキをマイナスにしたら勝ち。デッキを0枚にされただけでは負けず、オーバーリミット状態になります。詳しくはオーバーリミットの項を参照してください" class="home-rules-entry"/>
                         <ui:Label text="② 勝利点20点" class="home-rules-subsection"/>
                         <ui:Label text="一部のカードは勝利点を得られます。勝利点が20に達したら勝ち。勝利点カウンターは自分の左下・相手の右上に常に表示されます" class="home-rules-entry"/>
                         <ui:Label text="③ 制圧" class="home-rules-subsection"/>
-                        <ui:Label text="自分の場にキャラを8体同時に並べた瞬間に勝ち" class="home-rules-entry"/>
+                        <ui:Label text="自分の場にキャラを8体並べた瞬間に勝ち" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageFlow" class="home-rules-page">
                         <ui:Label text="ゲーム開始時" class="home-rules-section"/>
@@ -59,13 +59,13 @@
                         <ui:Label text="毎ターンの流れ" class="home-rules-section"/>
                         <ui:Label text="先攻から交互にターンを繰り返します" class="home-rules-entry"/>
                         <ui:Label text="1. ターン開始時効果" class="home-rules-subsection"/>
-                        <ui:Label text="場のキャラやプレイ済みイベントの「ターン開始時」効果が発動します" class="home-rules-entry"/>
-                        <ui:Label text="2. ドロー" class="home-rules-subsection"/>
-                        <ui:Label text="デッキの上から3枚引きます（自分の一番最初のターンだけは引きません）" class="home-rules-entry"/>
+                        <ui:Label text="場のキャラやイベントの「ターン開始時」効果が発動します" class="home-rules-entry"/>
+                        <ui:Label text="2. ドローフェーズ" class="home-rules-subsection"/>
+                        <ui:Label text="デッキの上から3枚引きます（お互い一番最初のターンだけは引きません）" class="home-rules-entry"/>
                         <ui:Label text="3. メインフェーズ" class="home-rules-subsection"/>
-                        <ui:Label text="ENDボタンを押すまで、制限なくカード使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
+                        <ui:Label text="ENDボタンを押すまで、好きなだけカード使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
                         <ui:Label text="4. ターン終了" class="home-rules-subsection"/>
-                        <ui:Label text="右のEndボタンで自分の番を終え、相手のターンへ" class="home-rules-entry"/>
+                        <ui:Label text="Endボタンをクリックして自分のターンを終え、相手のターンへ" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageCard" class="home-rules-page">
                         <ui:Label text="カードの種類" class="home-rules-section"/>
@@ -90,15 +90,13 @@
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageOverLimit" class="home-rules-page">
                         <ui:Label text="オーバーリミットとは" class="home-rules-section"/>
-                        <ui:Label text="デッキが0枚になっても、その瞬間は負けません。0枚（オーバーリミット状態）になった後、さらにカードを引く・デッキを削られると、その本人が敗北します＝相手の「デッキ切れ勝ち」です" class="home-rules-entry"/>
-                        <ui:Label text="負けるタイミング" class="home-rules-subsection"/>
-                        <ui:Label text="デッキが0枚の状態で、1枚引く／ミル（デッキを上から墓地へ送る）しようとした瞬間に敗北します。デッキを0枚にした引き・ミルそのものでは負けず、その後もう1枚動いたときに決着します" class="home-rules-entry"/>
-                        <ui:Label text="ターン最初のドローは安全" class="home-rules-subsection"/>
-                        <ui:Label text="毎ターン最初のドローだけは例外で、決して負けません。デッキに残っている枚数だけ引いて止まります（1枚なら1枚引いて0枚、0枚なら引かない）" class="home-rules-entry"/>
-                        <ui:Label text="リミットブレイク！" class="home-rules-subsection"/>
-                        <ui:Label text="デッキが初めて0枚になった瞬間に「リミットブレイク！」が画面中央に表示されます。これがオーバーリミット状態に入った合図です。ここから自分も相手も、空デッキへのドローやデッキ攻撃で一気に決着できます" class="home-rules-entry"/>
-                        <ui:Label text="攻める使い方" class="home-rules-subsection"/>
-                        <ui:Label text="相手のデッキを攻撃（ミル）したりデッキダメージ効果で削り、相手を先にオーバーリミットへ追い込めば、デッキ切れで勝利を狙えます" class="home-rules-entry"/>
+                        <ui:Label text="オーバーリミット効果が付与されている効果の解決時にデッキがマイナスになる状態であってもデッキの持ち主は敗北しません。効果解決時に強制的にデッキが0枚（オーバーリミット状態）になります。その後さらにオーバーリミットでない効果でカードを引くかデッキにダメージを受けると、デッキの持ち主が敗北します＝相手の「デッキ切れ勝ち」です。" class="home-rules-entry"/>
+                        <ui:Label text="オーバーリミットになる例" class="home-rules-subsection"/>
+                        <ui:Label text="デッキが残り1枚の状態で自分のターンになる。ドローフェーズでカードを1枚だけドローしてオーバーリミット状態になる。" class="home-rules-entry"/>
+                        <ui:Label text="負けるタイミングの例" class="home-rules-subsection"/>
+                        <ui:Label text="デッキが0枚の状態で、オーバーリミットでない効果でカードを1枚引くまたはデッキに1ダメージ受けると敗北します。デッキが1枚の状態でオーバーリミットでない効果でカードを2枚引くまたはデッキに2ダメージを受けると敗北します。" class="home-rules-entry"/>
+                        <ui:Label text="ドローフェーズのドローは安全" class="home-rules-subsection"/>
+                        <ui:Label text="ドローフェーズのドローにはオーバーリミット効果が付与されています。デッキに残っている枚数だけ引いて止まります（1枚なら1枚引いて0枚、0枚なら引かない）" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageKeyword" class="home-rules-page">
                         <ui:Label text="キーワード能力" class="home-rules-section"/>
