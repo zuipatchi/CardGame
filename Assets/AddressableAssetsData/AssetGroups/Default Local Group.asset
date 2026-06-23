@@ -102,6 +102,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 27942cbc7f4aeb5409a178d242fc3b25
+    m_Address: Voice/E1002
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 27e51cfd44d654e418eb4e8d107e64b3
     m_Address: Voice/C2004
     m_ReadOnly: 0
@@ -150,6 +155,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3bcd522bfcd724c49b59ef242409fb7f
     m_Address: Sound/SE/Enter1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3eab08e4b1352864493d8c8e6ac08e4d
+    m_Address: Voice/C3101
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -210,6 +220,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 53fbef6edd8fc2340b267e2796257e43
+    m_Address: Voice/C3002
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 55ccb55b543cd5a408fb8aeaba48b92a
     m_Address: Sound/SE/OverLimit
     m_ReadOnly: 0
@@ -254,6 +269,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 64bccff2d17f83344a2f49300327cb99
     m_Address: Voice/C5004
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 680a381e8a8aac24fa09c328de4b2fd1
+    m_Address: Voice/E2001
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -462,6 +482,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca2267ac6ee84ce409f84a05e372590e
+    m_Address: Voice/E3003
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ce706d54b3e98d34d9f8e41a9b62fee9
     m_Address: Voice/C4002
     m_ReadOnly: 0
@@ -504,6 +529,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dd602057a691bfa468b056107729a8b8
     m_Address: Voice/C6001
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd6adaecff849ba4e8ddbb6f6e53444e
+    m_Address: Voice/E2002
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
