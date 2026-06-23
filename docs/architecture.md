@@ -143,7 +143,7 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 
 ## サウンド設計
 
-- BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え・`StopBGM()` で停止（シーン間で BGM を引き継ぐ／止め分けるために使う）
+- BGM: `AudioSource.loop = true`、`PlayBGM()` で差し替え・`StopBGM()` で停止（シーン間で BGM を引き継ぐ／止め分けるために使う）。再生時に曲ごとの音量倍率（下記）を AudioSource の音量へ畳み込む
 - SE: `PlayOneShot(clip, volumeScale)` で重ね再生。`volumeScale` には SE ごとのラウドネス正規化倍率（下記）を渡す
 - ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`（`PlayOneShot()`）。前の読み上げが終わる前でも止めずに重ねて鳴らす（一時的に複数同時に流れてもよい）
 - 持続 SE（途中で止めたい効果音）: 専用 AudioSource（`loop = true`）で `PlayLoopSE()` 再生・`StopLoopSE()` 停止。`PlayOneShot` は途中停止できないため、演出の長さに合わせて鳴らし切る用途に使う（例: コイントス・コインドローの回転音を回転開始から回転終了まで鳴らす）。SE ラウドネス正規化倍率は再生時に AudioSource の音量へ畳み込む
@@ -152,11 +152,13 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 - **SE ラウドネス正規化**: SE クリップごとに収録音量がバラバラなので、`SoundStore` がロード完了時に各 SE の体感音量（約100msブロックごとの最大 RMS）とピークを解析し、全 SE の中央値を目標に「同じ聞こえ方になる音量倍率」を算出する（`NormalizeSeVolumes`）。ピークが 1.0 を超えないようヘッドルームで上限を制限し、最後に倍率を `[0.1, 4.0]` でクランプ。`SoundPlayer.PlaySE` が `SoundStore.GetSeVolumeScale(clip)` で倍率を取得して `PlayOneShot` の `volumeScale` に渡すため、SE スライダー（`SEVolume`）とは独立して乗算され、スライダー位置に関わらず SE 同士のバランスは保たれる
   - クリップの Load Type が `Decompress On Load` 以外（`Compressed In Memory` 等）だと `AudioClip.GetData` で波形を読めず、そのクリップは等倍（1.0）にフォールバックする（その場合は警告ログを出す）
   - 自動補正で合わない尖った単発音などは `SoundStore.ManualSeAdjust`（クリップ名 → 追加倍率）で耳に合わせて微調整する
+- **BGM 曲ごと音量調整**: BGM は曲数が少なく長尺なので自動正規化（全波形のRMS解析＝メモリ消費大）はせず、`SoundStore.ManualBgmAdjust`（クリップ名 → 音量倍率・未登録は1.0）で曲間の音量差を耳合わせで揃える。`SoundPlayer.PlayBGM` が `SoundStore.GetBgmVolumeScale(clip)` で倍率を取得し、`BGMVolume / 2 × 倍率` を AudioSource に設定する（再生中に BGM スライダーを動かしても倍率を保ったまま追従）。キーは `AudioClip.name`（アセットのファイル名。Addressable のアドレス名とは異なる点に注意）
 - 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
 - 読み上げの話者は `CardData._voiceSpeaker`（VOICEVOX speaker ID。0＝生成ツールの既定話者）でカードごとに指定でき、声は生成時に WAV へ焼き込まれる（ランタイムは話者を意識しない）
 
-> `_bgmAudioSource.volume = v / 2` としているのは、
-> OptionModel の値 1.0 がデフォルトの AudioSource 最大音量の半分に相当するようにしているため。
+> BGM/SE は `volume = v / 2` としている。OptionModel の値 1.0 がデフォルトの AudioSource
+> 最大音量の半分に相当するように抑えるため。
+> ボイス（読み上げ）だけは小さく埋もれがちなので半減せず `volume = v`（最大 1.0）で再生し、全体的に大きくしている。
 
 ---
 
