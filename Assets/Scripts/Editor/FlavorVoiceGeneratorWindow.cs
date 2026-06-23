@@ -25,7 +25,7 @@ namespace GameEditor
         // カードエディタで個別に話者を指定していない（_voiceSpeaker == 0）カードはこの話者で生成する。
         private int _speaker = 3;
         // 既に音声がある（WAV が存在する）カードを再生成せずスキップするか。
-        private bool _skipExisting = true;
+        private bool _skipExisting = false;
 
         [MenuItem("Card/フレーバー音声を一括生成")]
         public static void Open()
