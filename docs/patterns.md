@@ -41,19 +41,19 @@ public sealed class XxxCardSO : ScriptableObject
 
 **③ `CardDatabase` に追加する**
 
-[CardDatabase.cs](../Assets/Scripts/Main/Card/CardDatabase.cs) は属性別 SO の配列 `_characterCardSets` / `_eventCardSets` を保持し、`Build()` と `AllCards` で全 SO を走査して集約する。新しいカード種別を増やす場合は同じ要領で配列フィールドを追加し、`Register` / `AddAll` を呼ぶ。
+[CardDatabase.cs](../Assets/Scripts/Main/Card/CardDatabase.cs) は属性 × 弾別 SO の配列 `_characterCardSets` / `_eventCardSets` を保持し、`Build()` と `AllCards` で全 SO を走査して集約する（全弾をマージ）。新しいカード種別を増やす場合は同じ要領で配列フィールドを追加し、`Register` / `AddAll` を呼ぶ。
 
 **④ SO アセットを作って CardDatabase にアサイン**
 
-`CharacterCardSO` / `EventCardSO` は**属性ごとに分割**して管理する（`Assets/Data/{属性}/CharacterCards_{属性}.asset` 等）。Create → Card → Xxx Cards でアセットを作り、SO の Inspector で `Attribute`（その SO が扱う属性）を設定して、`CardDatabase` の対応する配列にアサインする。
+`CharacterCardSO` / `EventCardSO` は**属性 × 弾（第N弾）ごとに分割**して管理する（`Assets/Data/Set{弾}/{属性}/CharacterCards_{属性}.asset` 等。弾1は無印・弾2以降は `_Set{N}` を付ける）。Create → Card → Xxx Cards でアセットを作り、SO の Inspector で `Attribute`（その SO が扱う属性）と `Set`（弾番号・既定1）を設定して、`CardDatabase` の対応する配列にアサインする。**カードエディタの「新規追加」で属性＋弾を指定すれば、該当弾の SO が無くても自動生成＋CardDatabase 登録まで行われる**（手動でアセットを作る必要はない）。
 
 **⑤ カードデータを実際に入力**
 
 該当属性の SO の Inspector で `_cards` リストにカードを追加して入力する。各カードの `Attribute` は SO が一括設定するため**インスペクタでは読み取り専用（グレー表示）**で、SO の `Attribute` に自動追従する。
 
-ID は SO の `OnValidate` で**自動採番**される（`CardIdAutoAssigner`）。採番規則は **`C{(属性番号)×1000 + リスト連番}`**（属性番号 = 白1/青2/緑3/黄4/赤5/黒6/紫7。白=`C1001`/青=`C2001`/…、イベントは `E1001`…）。1属性あたり最大999枚で、属性別 SO 間でも一意・"C{番号}" 形式を保つ（SummonChar 互換）。要素の追加・削除・並び替えのたびに振り直されるため手入力不要。
+ID は SO の `OnValidate` で**自動採番**される（`CardIdAutoAssigner`）。採番規則は **`C{(属性番号)×1000 + (弾-1)×100 + リスト連番}`**（属性番号 = 白1/青2/緑3/黄4/赤5/黒6/紫7。白第1弾=`C1001`/白第2弾=`C1101`/青第1弾=`C2001`/…、イベントは `E1001`…）。**弾1はオフセット0なので既存 ID は不変**（弾未設定=0 も弾1扱い）。1属性1弾あたり最大99枚・最大9弾で、属性×弾の SO 間でも一意・"C{番号}" 形式を保つ（SummonChar 互換）。要素の追加・削除・並び替えのたびに振り直されるため手入力不要（弾ごとに ID ブロックが独立するため、ある弾への追加が他の弾の ID をずらすことはない）。
 
-> 既存の単一 SO を属性別へ分割する移行ツール：メニュー **`Card → 属性別SOに分割`**（[CardSoAttributeSplitter.cs](../Assets/Scripts/Editor/CardSoAttributeSplitter.cs)）。属性で振り分けて各フォルダに SO を生成し CardDatabase へアサインする。複数属性が混在する SO は属性を上書きしない（レガシー SO の破壊防止）。
+> 既存の単一 SO を属性別へ分割する移行ツール：メニュー **`Card → 属性別SOに分割`**（[CardSoAttributeSplitter.cs](../Assets/Scripts/Editor/CardSoAttributeSplitter.cs)）。属性で振り分けて各フォルダに SO を生成し CardDatabase へアサインする（現在は属性別への一度きりの移行用。弾分割は上記カードエディタの自動生成で行う）。複数属性が混在する SO は属性を上書きしない（レガシー SO の破壊防止）。
 
 > 調整中・未完成のカードはメニュー **`Card → カードエディタ`**（[CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs)）の「ゲームで使用」トグルを OFF にすると、`CardData._excludeFromGame` が立ち `CardDatabase` の集計（プール・対戦・ID 解決）から完全に除外される（一覧ではグレーアウト＋`(未使用)`表示）。SO からカードを削除せずに一時的に隠せる。
 
@@ -158,7 +158,7 @@ namespace Main.Card.Effects.Handlers
 
 **① カードデータに効果を設定する**
 
-対象キャラが属する属性別 `CharacterCardSO`（`Assets/Data/{属性}/CharacterCards_{属性}.asset`）のインスペクターで、`Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。任意で `Flavor Text`（世界観テキスト。効果には影響せず詳細モーダル最下部に表示）も設定できる。
+対象キャラが属する `CharacterCardSO`（`Assets/Data/Set{弾}/{属性}/CharacterCards_{属性}.asset`）のインスペクターで、`Effect Trigger = OnEnter`、`Effect Type`（例: `Draw` / `BanishChar`）、`Effect Value`、`Description`（詳細モーダル表示用の説明テキスト）を設定する。任意で `Flavor Text`（世界観テキスト。効果には影響せず詳細モーダル最下部に表示）も設定できる。
 
 **② 効果種別の解決処理（ハンドラは「2」で共有）**
 

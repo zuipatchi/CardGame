@@ -372,12 +372,12 @@ EventType         enum（EffectType.cs）。
 EffectHandler / EffectCatalog   効果1種＝EffectHandler 派生1クラス（Assets/Scripts/Main/Card/Effects/）。演出＋盤面適用（ApplyAsync）とエディタ用メタデータ（効果テキスト BuildBody・値ラベル Values・キャラ/イベント可否）を1クラスに集約。
                   EffectCatalog が Main アセンブリを走査してハンドラを自動登録（起動時に全 EventType の網羅を検証）。MainPresenter（ResolveEventCardEffectAsync / ResolveCharacterTriggeredEffectAsync）と CardEditorWindow はカタログ経由でハンドラを引くだけで、効果追加時に switch を編集しない。盤面操作は MainPresenter の internal building-block メソッドをハンドラから呼ぶ。
 
-CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（属性ごとに分割。Assets/Data/{属性}/ に配置）
-                  SO ごとに Attribute を持ち、所属カードの属性を一括設定する（カードの Attribute はインスペクタで読み取り専用＝ReadOnly 属性）
-                  ID は OnValidate で自動採番（CardIdAutoAssigner・エディタ専用）。規則は C{(属性番号)×1000+連番}（白=C1001/青=C2001…、属性番号=白1/青2/緑3/黄4/赤5/黒6/紫7。E も同様）。属性別 SO 間でも一意・"C{番号}" 形式（SummonChar 互換）。1属性最大999枚
-                  既存の単一 SO を属性別へ分割する移行ツール：メニュー Card → 属性別SOに分割（CardSoAttributeSplitter）
+CharacterCardSO / EventCardSO   各カード種別の ScriptableObject（属性 × 弾＝第N弾ごとに分割。Assets/Data/Set{弾}/{属性}/ に配置）
+                  SO ごとに Attribute と Set（弾番号・既定1）を持ち、所属カードの属性・弾を一括設定する（カードの Attribute はインスペクタで読み取り専用＝ReadOnly 属性）
+                  ID は OnValidate で自動採番（CardIdAutoAssigner・エディタ専用）。規則は C{(属性番号)×1000+(弾-1)×100+連番}（白第1弾=C1001/白第2弾=C1101/青第1弾=C2001…、属性番号=白1/青2/緑3/黄4/赤5/黒6/紫7。E も同様）。弾1=オフセット0で既存ID維持・属性×弾の SO 間でも一意・"C{番号}" 形式（SummonChar 互換）。1属性1弾あたり最大99枚・最大9弾
+                  カードエディタの新規追加で属性＋弾を指定すると、該当弾の SO が無ければ自動生成し CardDatabase へ自動登録する
 
-CardDatabase      ScriptableObject。属性別 SO の配列 _characterCardSets / _eventCardSets を集約し、Dictionary でルックアップ
+CardDatabase      ScriptableObject。属性 × 弾別 SO の配列 _characterCardSets / _eventCardSets を集約し、Dictionary でルックアップ（全弾をマージ。弾は採番・管理上の軸で、対戦・デッキ構築プールでは区別しない）
 CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
 
 TurnPhase         enum。Draw / Main
