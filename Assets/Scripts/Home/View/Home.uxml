@@ -62,7 +62,7 @@
                         <ui:Label text="2. ドロー" class="home-rules-subsection"/>
                         <ui:Label text="デッキの上から3枚引きます（自分の一番最初のターンだけは引きません）" class="home-rules-entry"/>
                         <ui:Label text="3. メインフェーズ" class="home-rules-subsection"/>
-                        <ui:Label text="ENDボタンを押すまで、制限なくカード使うか攻撃ができます。自分の番には60秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
+                        <ui:Label text="ENDボタンを押すまで、制限なくカード使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
                         <ui:Label text="4. ターン終了" class="home-rules-subsection"/>
                         <ui:Label text="右のEndボタンで自分の番を終え、相手のターンへ" class="home-rules-entry"/>
                     </ui:VisualElement>

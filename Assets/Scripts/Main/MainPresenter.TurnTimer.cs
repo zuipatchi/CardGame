@@ -16,7 +16,7 @@ namespace Main
         // 次の入力待ち（WaitForPlayerMainActionAsync 冒頭）で即パスする（オンラインの同期ずれを避けるため）。
 
         // 1ターンの制限時間（秒）。
-        private const int TurnTimeLimitSeconds = 60;
+        private const int TurnTimeLimitSeconds = 90;
         // 残りこの秒数以下で警告表示（赤点滅＋警告SE）にする。
         private const int TurnTimeWarningSeconds = 10;
 
