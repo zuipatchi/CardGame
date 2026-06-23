@@ -25,9 +25,11 @@
         <ui:VisualElement name="DogSpeechBubble" class="home-speech-bubble" picking-mode="Ignore">
             <ui:Label name="DogSpeechLabel" class="home-speech-text" />
         </ui:VisualElement>
-        <ui:Button name="TutorialButton" text="チュートリアル" class="home-tutorial-button"/>
-        <ui:Button name="RulesButton" text="詳しいルール" class="home-rules-button"/>
-        <ui:Button name="CreditButton" text="クレジット" class="home-credit-button"/>
+        <ui:VisualElement name="HomeBottomButtons" class="home-bottom-buttons">
+            <ui:Button name="TutorialButton" text="チュートリアル" class="home-tutorial-button"/>
+            <ui:Button name="RulesButton" text="詳しいルール" class="home-rules-button"/>
+            <ui:Button name="CreditButton" text="クレジット" class="home-credit-button"/>
+        </ui:VisualElement>
         <ui:VisualElement name="RulesOverlay" class="home-rules-overlay">
             <ui:VisualElement name="RulesPanel" class="home-rules-panel">
                 <ui:Label text="遊び方" class="home-rules-title"/>

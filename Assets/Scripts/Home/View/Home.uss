@@ -358,10 +358,17 @@
     display: none;
 }
 
-.home-credit-button {
+/* 画面右下のボタン群（チュートリアル / 詳しいルール / クレジット）を等間隔で横並び */
+.home-bottom-buttons {
     position: absolute;
     right: 32px;
     bottom: 28px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.home-credit-button {
+    margin-left: 16px;
     font-size: 18px;
     -unity-font-style: bold;
     color: rgb(230, 235, 255);
@@ -598,9 +605,6 @@
 
 /* チュートリアルボタン: あそびかたボタンの左に並べる */
 .home-tutorial-button {
-    position: absolute;
-    right: 342px;
-    bottom: 28px;
     font-size: 18px;
     -unity-font-style: bold;
     color: rgb(230, 240, 255);
@@ -639,11 +643,9 @@
     scale: 0.97 0.97;
 }
 
-/* あそびかた（ルール）ボタン: クレジットボタンの左に並べる */
+/* あそびかた（ルール）ボタン: チュートリアルとクレジットの間に並べる */
 .home-rules-button {
-    position: absolute;
-    right: 180px;
-    bottom: 28px;
+    margin-left: 16px;
     font-size: 18px;
     -unity-font-style: bold;
     color: rgb(230, 235, 255);
