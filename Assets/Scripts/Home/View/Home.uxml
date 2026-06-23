@@ -66,7 +66,7 @@
                         <ui:Label text="2. ドローフェーズ" class="home-rules-subsection"/>
                         <ui:Label text="デッキの上から3枚引きます（お互い一番最初のターンだけは引きません）" class="home-rules-entry"/>
                         <ui:Label text="3. メインフェーズ" class="home-rules-subsection"/>
-                        <ui:Label text="ENDボタンを押すまで、好きなだけカード使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
+                        <ui:Label text="ENDボタンを押すまで、好きなだけカードを使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
                         <ui:Label text="4. ターン終了" class="home-rules-subsection"/>
                         <ui:Label text="Endボタンをクリックして自分のターンを終え、相手のターンへ" class="home-rules-entry"/>
                     </ui:VisualElement>
@@ -75,21 +75,21 @@
                         <ui:Label text="キャラカード：場に出して使用する。出したターンは攻撃できません" class="home-rules-entry"/>
                         <ui:Label text="イベントカード：使うとすぐに効果が発動し、墓地へ送られます" class="home-rules-entry"/>
                         <ui:Label text="コストの払い方" class="home-rules-section"/>
-                        <ui:Label text="カードを出すには、書かれたコストの数だけ「手札の他のカードを選んで墓地に捨て」ます" class="home-rules-entry"/>
+                        <ui:Label text="カードを出すには、コストの数だけ手札の他のカードを選んで墓地に捨てます" class="home-rules-entry"/>
                         <ui:Label text="属性のルール" class="home-rules-subsection"/>
-                        <ui:Label text="カードには属性（赤・青・緑・白など）があります。コストとして捨てるカードには、出すカードと同じ属性を必ず1枚以上含める必要があります" class="home-rules-entry"/>
+                        <ui:Label text="カードには属性（赤・青・緑・白など）があります。コストとして捨てるカードには、出すカードと同じ属性が必ず1枚以上含まれている必要があります" class="home-rules-entry"/>
                         <ui:Label text="手札の上限" class="home-rules-section"/>
-                        <ui:Label text="手札は8枚まです。満杯のときに引いたカードは手札に加わらず墓地へ送られます" class="home-rules-entry"/>
+                        <ui:Label text="手札は8枚まです。9枚目に引いたカードは手札に加わらず墓地へ送られます" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageBattle" class="home-rules-page">
                         <ui:Label text="攻撃のしかた" class="home-rules-section"/>
-                        <ui:Label text="場のキャラから矢印をドラッグして、相手キャラまたは相手デッキへ攻撃します。相手キャラのHPが0以下になると墓地へ送られます（カウンター攻撃はありません）" class="home-rules-entry"/>
+                        <ui:Label text="場のキャラから矢印をドラッグして、相手キャラまたは相手デッキへ攻撃します。相手キャラのHPが0以下になると墓地へ送られます（相手キャラからの反撃はありません）" class="home-rules-entry"/>
                         <ui:Label text="召喚酔い" class="home-rules-subsection"/>
                         <ui:Label text="キャラは出したターンには攻撃できません。次の自分のターンから攻撃できます（速攻を持つキャラは例外）。各キャラの攻撃は1ターンに1回までです" class="home-rules-entry"/>
-                        <ui:Label text="タップ" class="home-rules-subsection"/>
-                        <ui:Label text="攻撃したキャラは横向きに倒れます（タップ）。タップしている相手のキャラにしか攻撃できません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）" class="home-rules-entry"/>
+                        <ui:Label text="タップとアンタップ" class="home-rules-subsection"/>
+                        <ui:Label text="キャラは召喚されるとアンタップ（縦向き）の状態で場に出ます。攻撃したキャラは横向きに倒れます（タップ）。攻撃はタップしている相手のキャラにしか行えません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃" class="home-rules-subsection"/>
-                        <ui:Label text="自分のキャラから相手デッキへ矢印を引くと、相手デッキへ攻撃して攻撃力の数だけ相手のデッキを上から墓地へ送れます。攻撃側のキャラは通常どおりタップします" class="home-rules-entry"/>
+                        <ui:Label text="自分のキャラから相手デッキへ矢印を引くと、相手デッキへ攻撃して攻撃力の値だけ相手のデッキを上から墓地へ送れます。攻撃側のキャラは通常どおりタップします" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageOverLimit" class="home-rules-page">
                         <ui:Label text="オーバーリミットとは" class="home-rules-section"/>
@@ -105,13 +105,13 @@
                         <ui:Label text="キーワード能力" class="home-rules-section"/>
                         <ui:Label text="カードが持つ特別な能力です。効果でゲーム中に味方へ付与されることもあります" class="home-rules-entry"/>
                         <ui:Label text="守護（しゅご）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に守護持ちがいる間、相手は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。味方を守る壁になります" class="home-rules-entry"/>
+                        <ui:Label text="相手に守護持ちがいる間、自分は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。守護持ちは自分のターン終了時に自動でタップ（横向き）するため、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
                         <ui:Label text="速攻（そっこう）" class="home-rules-subsection"/>
                         <ui:Label text="召喚酔いしません。場に出したターンからすぐ攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="飛行（ひこう）" class="home-rules-subsection"/>
                         <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人を持つキャラからしか攻撃されません" class="home-rules-entry"/>
                         <ui:Label text="防人（さきもり）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます" class="home-rules-entry"/>
+                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます。防人持ちは守護と同じく自分のターン終了時に自動でタップ（横向き）するため、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
                         <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃×（でっきこうげきばつ）" class="home-rules-subsection"/>
