@@ -162,7 +162,7 @@
 | Trigger | 発動タイミング |
 |---|---|
 | None | 効果なし |
-| OnEnter | 通常配置でフィールドに出した瞬間（Switch / Evolve 配置は対象外。CPU・オンライン相手の配置でも発動） |
+| OnEnter | フィールドに出した瞬間（通常配置・Switch / Evolve で出し直したキャラのいずれでも発動。CPU・オンライン相手の配置でも発動） |
 | OnAttack | 攻撃宣言時（相手キャラ・相手デッキへの攻撃） |
 | OnUsedAsCost | 手札からコストとして支払うとき（`EffectType=CostBoost` と併用してコスト倍化に使う） |
 | OnDestroy | 破壊時。戦闘での撃破・`DamageEnemy` / `DamageAllEnemies` での撃破・`BanishChar` での除去で発動する（HP が 0 になって、または除去されて場から墓地へ送られた瞬間）。Evolve の生贄・Switch で手札に戻すのは対象外。破壊されたキャラを source として効果を解決する |
