@@ -1191,8 +1191,9 @@
     scale: 0.94 0.94;
 }
 
-/* 使用デッキ一覧モーダルの行 */
-.deckbuilder-deck-row {
+/* 使用デッキ一覧モーダルの行（デッキ内カード行 .deckbuilder-deck-row 系とは別物。
+   クラス名が衝突すると後勝ちで一方のスタイルが他方に適用されるため別接頭辞にする） */
+.deckbuilder-deckselect-row {
     flex-direction: row;
     align-items: center;
     height: 60px;
@@ -1216,11 +1217,11 @@
     transition-duration: 0.12s;
 }
 
-.deckbuilder-deck-row:hover {
+.deckbuilder-deckselect-row:hover {
     background-color: rgba(30, 38, 64, 0.95);
 }
 
-.deckbuilder-deck-row--selected {
+.deckbuilder-deckselect-row--selected {
     background-color: rgba(35, 55, 100, 0.95);
     border-left-color: rgb(120, 180, 255);
     border-right-color: rgb(120, 180, 255);
@@ -1228,7 +1229,7 @@
     border-bottom-color: rgb(120, 180, 255);
 }
 
-.deckbuilder-deck-row-favorite {
+.deckbuilder-deckselect-favorite {
     width: 40px;
     height: 52px;
     margin-right: 12px;
@@ -1236,7 +1237,7 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
-.deckbuilder-deck-row-name {
+.deckbuilder-deckselect-name {
     flex-grow: 1;
     flex-shrink: 1;
     font-size: 24px;
@@ -1247,7 +1248,7 @@
     white-space: nowrap;
 }
 
-.deckbuilder-deck-row-badge {
+.deckbuilder-deckselect-badge {
     font-size: 16px;
     -unity-font-style: bold;
     color: rgb(255, 255, 255);
@@ -1263,13 +1264,13 @@
     border-bottom-right-radius: 6px;
 }
 
-.deckbuilder-deck-row-count {
+.deckbuilder-deckselect-count {
     font-size: 20px;
     color: rgb(255, 150, 150);
     margin-left: 12px;
 }
 
-.deckbuilder-deck-row-count--ready {
+.deckbuilder-deckselect-count--ready {
     color: rgb(120, 230, 150);
 }
 

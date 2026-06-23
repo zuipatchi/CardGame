@@ -310,16 +310,16 @@ namespace DeckBuilder
             {
                 int slot = i;
                 VisualElement row = new VisualElement();
-                row.AddToClassList("deckbuilder-deck-row");
+                row.AddToClassList("deckbuilder-deckselect-row");
                 if (slot == selected)
                 {
-                    row.AddToClassList("deckbuilder-deck-row--selected");
+                    row.AddToClassList("deckbuilder-deckselect-row--selected");
                 }
                 row.RegisterCallback<ClickEvent>(_ => OnDeckSelectRowClicked(slot));
 
                 // 左にデッキのシンボル（代表カード全体）を表示する。シンボル未設定はカード裏面で代替する。
                 VisualElement thumbnail = new VisualElement();
-                thumbnail.AddToClassList("deckbuilder-deck-row-favorite");
+                thumbnail.AddToClassList("deckbuilder-deckselect-favorite");
                 thumbnail.pickingMode = PickingMode.Ignore;
                 string favoriteId = _deckRepository.LoadFavorite(slot);
                 if (!string.IsNullOrEmpty(favoriteId)
@@ -334,22 +334,22 @@ namespace DeckBuilder
                 row.Add(thumbnail);
 
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
-                nameLabel.AddToClassList("deckbuilder-deck-row-name");
+                nameLabel.AddToClassList("deckbuilder-deckselect-name");
                 nameLabel.pickingMode = PickingMode.Ignore;
                 row.Add(nameLabel);
 
                 Label badge = new Label("使用中");
-                badge.AddToClassList("deckbuilder-deck-row-badge");
+                badge.AddToClassList("deckbuilder-deckselect-badge");
                 badge.style.display = slot == selected ? DisplayStyle.Flex : DisplayStyle.None;
                 badge.pickingMode = PickingMode.Ignore;
                 row.Add(badge);
 
                 int count = _deckRepository.LoadCount(slot);
                 Label countLabel = new Label($"{count}/{DeckModel.MaxCards}");
-                countLabel.AddToClassList("deckbuilder-deck-row-count");
+                countLabel.AddToClassList("deckbuilder-deckselect-count");
                 if (count == DeckModel.MaxCards)
                 {
-                    countLabel.AddToClassList("deckbuilder-deck-row-count--ready");
+                    countLabel.AddToClassList("deckbuilder-deckselect-count--ready");
                 }
                 countLabel.pickingMode = PickingMode.Ignore;
                 row.Add(countLabel);
