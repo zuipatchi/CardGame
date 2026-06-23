@@ -2,7 +2,10 @@
     <Style src="Home.uss"/>
     <ui:VisualElement name="HomeRoot" class="home-root">
         <ui:VisualElement name="DarkOverlay" class="home-dark-overlay" picking-mode="Ignore" />
-        <ui:Label name="UsernameLabel" class="home-username" picking-mode="Ignore" />
+        <ui:VisualElement name="UsernameRow" class="home-username-row">
+            <ui:Label name="UsernameLabel" class="home-username" picking-mode="Ignore" />
+            <ui:Button name="UsernameEditButton" text="✎" class="home-username-edit-button" />
+        </ui:VisualElement>
         <ui:Label name="CostOverToastLabel" class="home-cost-over-toast" />
         <ui:VisualElement class="home-buttons">
             <ui:Button name="DeckSelectButton" class="home-deck-select-button" text="使用デッキ" />
@@ -225,6 +228,15 @@
                     <ui:Label text="Cartoon FX Remaster / Jean Moreno (JMO Assets)" class="home-credit-entry"/>
                 </ui:ScrollView>
                 <ui:Button name="CreditCloseButton" text="✕" class="home-modal-close"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="UsernameEditOverlay" class="home-credit-overlay">
+            <ui:VisualElement class="home-credit-panel home-username-edit-panel">
+                <ui:Label text="ユーザーネームを変更" class="home-credit-title"/>
+                <ui:TextField name="UsernameEditField" class="home-username-edit-field"/>
+                <ui:Label name="UsernameEditError" class="home-username-edit-error" text=""/>
+                <ui:Button name="UsernameEditConfirmButton" text="決定" class="home-username-edit-confirm"/>
+                <ui:Button name="UsernameEditCloseButton" text="✕" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

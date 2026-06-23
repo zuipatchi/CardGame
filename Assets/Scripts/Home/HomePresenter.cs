@@ -93,6 +93,13 @@ namespace Home
         private ScrollView _rulesScroll;
         private Label _costOverToastLabel;
         private Label _usernameLabel;
+        private UsernameRepository _usernameRepository;
+        private Button _usernameEditButton;
+        private VisualElement _usernameEditOverlay;
+        private TextField _usernameEditField;
+        private Label _usernameEditError;
+        private Button _usernameEditConfirmButton;
+        private Button _usernameEditCloseButton;
         private VisualElement _darkOverlay;
         private ToastController _deckToast;
 #if UNITY_EDITOR
@@ -115,11 +122,12 @@ namespace Home
             _tutorialModel = tutorialModel;
             _cpuRosterStore = cpuRosterStore;
             _cpuBattleModel = cpuBattleModel;
+            _usernameRepository = usernameRepository;
             _deckModel.Clear();
             // 対戦には「選択中スロット」のデッキを使う。
             _deckRepository.Load(_deckModel, _deckRepository.SelectedIndex);
             UpdateDeckSelectButtonLabel();
-            _usernameLabel.text = $"ユーザーネーム：{usernameRepository.Load() ?? string.Empty}";
+            UpdateUsernameLabel();
             if (_backgroundPresenter != null && _gameSessionModel.ShouldRainOnNextHome)
             {
                 _backgroundPresenter.IsRainy = true;
@@ -213,6 +221,12 @@ namespace Home
             _costOverToastLabel = root.Q<Label>("CostOverToastLabel");
             _deckToast = new ToastController(_costOverToastLabel);
             _usernameLabel = root.Q<Label>("UsernameLabel");
+            _usernameEditButton = root.Q<Button>("UsernameEditButton");
+            _usernameEditOverlay = root.Q<VisualElement>("UsernameEditOverlay");
+            _usernameEditField = root.Q<TextField>("UsernameEditField");
+            _usernameEditError = root.Q<Label>("UsernameEditError");
+            _usernameEditConfirmButton = root.Q<Button>("UsernameEditConfirmButton");
+            _usernameEditCloseButton = root.Q<Button>("UsernameEditCloseButton");
             _darkOverlay = root.Q<VisualElement>("DarkOverlay");
             _creditButton = root.Q<Button>("CreditButton");
             _creditCloseButton = root.Q<Button>("CreditCloseButton");
@@ -293,6 +307,10 @@ namespace Home
             _matchingButton.clicked += OnMatchingClicked;
             _creditButton.clicked += OnCreditClicked;
             _creditCloseButton.clicked += OnCreditCloseClicked;
+            _usernameEditButton.clicked += OnUsernameEditClicked;
+            _usernameEditCloseButton.clicked += OnUsernameEditCloseClicked;
+            _usernameEditConfirmButton.clicked += OnUsernameEditConfirmClicked;
+            _usernameEditField.RegisterValueChangedCallback(OnUsernameEditFieldChanged);
             _rulesButton.clicked += OnRulesClicked;
             _rulesCloseButton.clicked += OnRulesCloseClicked;
             _rulesTabHandlers = new Action[_rulesTabs.Length];
@@ -395,6 +413,22 @@ namespace Home
             {
                 _creditCloseButton.clicked -= OnCreditCloseClicked;
             }
+            if (_usernameEditButton != null)
+            {
+                _usernameEditButton.clicked -= OnUsernameEditClicked;
+            }
+            if (_usernameEditCloseButton != null)
+            {
+                _usernameEditCloseButton.clicked -= OnUsernameEditCloseClicked;
+            }
+            if (_usernameEditConfirmButton != null)
+            {
+                _usernameEditConfirmButton.clicked -= OnUsernameEditConfirmClicked;
+            }
+            if (_usernameEditField != null)
+            {
+                _usernameEditField.UnregisterValueChangedCallback(OnUsernameEditFieldChanged);
+            }
             if (_rulesButton != null)
             {
                 _rulesButton.clicked -= OnRulesClicked;
@@ -455,6 +489,12 @@ namespace Home
             _deckToast = null;
             _costOverToastLabel = null;
             _usernameLabel = null;
+            _usernameEditButton = null;
+            _usernameEditOverlay = null;
+            _usernameEditField = null;
+            _usernameEditError = null;
+            _usernameEditConfirmButton = null;
+            _usernameEditCloseButton = null;
             _darkOverlay = null;
         }
 
@@ -810,6 +850,51 @@ namespace Home
         {
             PlayEnterSE();
             _creditOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void UpdateUsernameLabel()
+        {
+            _usernameLabel.text = $"ユーザーネーム：{_usernameRepository.Load() ?? string.Empty}";
+        }
+
+        private void OnUsernameEditClicked()
+        {
+            PlayEnterSE();
+            _usernameEditField.value = _usernameRepository.Load() ?? string.Empty;
+            ValidateUsernameEditField(_usernameEditField.value);
+            _usernameEditOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        private void OnUsernameEditCloseClicked()
+        {
+            PlayEnterSE();
+            _usernameEditOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void OnUsernameEditFieldChanged(ChangeEvent<string> evt)
+        {
+            ValidateUsernameEditField(evt.newValue);
+        }
+
+        private void ValidateUsernameEditField(string value)
+        {
+            bool valid = UsernameValidator.IsValid(value, out string errorMessage);
+            _usernameEditConfirmButton.SetEnabled(valid);
+            _usernameEditError.text = errorMessage;
+            _usernameEditError.style.display = string.IsNullOrEmpty(errorMessage) ? DisplayStyle.None : DisplayStyle.Flex;
+        }
+
+        private void OnUsernameEditConfirmClicked()
+        {
+            string name = _usernameEditField.value.Trim();
+            if (!UsernameValidator.IsValid(name, out string _))
+            {
+                return;
+            }
+            PlayEnterSE();
+            _usernameRepository.Save(name);
+            UpdateUsernameLabel();
+            _usernameEditOverlay.style.display = DisplayStyle.None;
         }
 
         private void OnRulesClicked()
