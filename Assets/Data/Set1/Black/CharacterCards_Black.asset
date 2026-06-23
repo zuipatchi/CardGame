@@ -13,17 +13,20 @@ MonoBehaviour:
   m_Name: CharacterCards_Black
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 4
+  _set: 1
   _cards:
   - _id: C6001
-    _cardName: "\u95C7\u306E\u3071\u3063\u3061"
+    _cardName: "\u30C0\u30FC\u30AF\u3071\u3063\u3061"
     _cost: 1
     _image: {fileID: 21300000, guid: a5738855d9824764dbf410d8c8aef44c, type: 3}
     _flavorText: "\u95C7\u306B\u843D\u3061\u308D\u3071\u3061"
     _voiceSpeaker: 85
     _keyword: 
+    _effectParam: 
     _victoryPointBonus: 0
-    _excludeFromGame: 1
+    _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -36,4 +39,87 @@ MonoBehaviour:
     _haste: 0
     _flying: 0
     _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
+  - _id: C6002
+    _cardName: "\u30D6\u30E9\u30C3\u30AF\u30AD\u30E3\u30C3\u30C8"
+    _cost: 1
+    _image: {fileID: 21300000, guid: fa11b9dae9c8afd4795ebb6070522bb6, type: 3}
+    _flavorText: "\u306B\u3083\u3093\u306B\u3083\u3093"
+    _voiceSpeaker: 85
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 1
+    _hp: 2
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6003
+    _cardName: "\u30D0\u30F3\u30C7\u30A3\u30C3\u30C8\u30E9\u30C3\u30C8"
+    _cost: 2
+    _image: {fileID: 21300000, guid: c07e7fc54ff177e4d8767ebc782ab794, type: 3}
+    _flavorText: "\u3070\u308C\u3066\u306A\u3055\u305D\u3046"
+    _voiceSpeaker: 85
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 1
+    _attack: 1
+    _hp: 2
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6004
+    _cardName: "\u30C8\u30EC\u30FC\u30C0\u30FC\u30AB\u30E0\u30AA"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 630f1bfe61fbd2f42a74f3d3a76e64e7, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 85
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 0
+    _hp: 0
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
