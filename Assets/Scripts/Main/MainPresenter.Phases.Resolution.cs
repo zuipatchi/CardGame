@@ -108,8 +108,9 @@ namespace Main
         }
 
         // ─── キャラ登場時効果 ────────────────────────────────────────────────
-        // 通常配置（ローカル PlaceChar / 相手カードプレイ）で配置確定したキャラの
-        // EffectTrigger == OnEnter 効果を発動する。Switch / Evolve 配置は対象外。
+        // 配置確定したキャラの EffectTrigger == OnEnter 効果を発動する。
+        // 通常配置（ローカル PlaceChar / 相手カードプレイ）に加え、Switch / Evolve で
+        // 出し直したキャラでも発動する（フィールドに出た瞬間はすべて対象）。
         private UniTask ResolveCharacterEnterEffectAsync(CardView placedChar, bool isLocal, CancellationToken ct)
         {
             return ResolveCharacterTriggeredEffectAsync(placedChar, CharacterEffectTrigger.OnEnter, isLocal, ct);

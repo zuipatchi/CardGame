@@ -260,6 +260,11 @@ namespace Main
                 {
                     await PlayParticleAtCardAsync(placed, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                 }
+                if (placed != null)
+                {
+                    // 進化で出したキャラも通常配置と同じく登場時効果（OnEnter）を発動する。
+                    await ResolveCharacterEnterEffectAsync(placed, isLocal: true, ct);
+                }
             }
             else if (_isOnline)
             {
@@ -283,6 +288,8 @@ namespace Main
                         await UniTask.NextFrame(ct);
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                     }
+                    // 進化で出したキャラも登場時効果（OnEnter）を発動する（送信側と対称に解決）。
+                    await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);
                 }
             }
             else
@@ -304,6 +311,8 @@ namespace Main
                         await UniTask.NextFrame(ct);
                         await PlayParticleAtCardAsync(newChar, _evolveEffectPrefab, ct, Quaternion.Euler(90f, 0f, 0f));
                     }
+                    // 進化で出したキャラも登場時効果（OnEnter）を発動する。
+                    await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);
                 }
             }
         }
@@ -364,6 +373,8 @@ namespace Main
                 if (newChar != null)
                 {
                     OnCardPlayed(newChar.Data, playedByLocal: true);
+                    // Switch で出し直したキャラも通常配置と同じく登場時効果（OnEnter）を発動する。
+                    await ResolveCharacterEnterEffectAsync(newChar, isLocal: true, ct);
                 }
             }
             else if (_isOnline)
@@ -404,6 +415,8 @@ namespace Main
                     await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(newChar);
                     OnCardPlayed(cardData, playedByLocal: false);
+                    // Switch で出し直したキャラも登場時効果（OnEnter）を発動する（送信側と対称に解決）。
+                    await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);
                 }
             }
             else
@@ -427,6 +440,8 @@ namespace Main
                     ownField.PlaceCard(newChar);
                     OnCardPlayed(newChar.Data, playedByLocal: false);
                     await newChar.FlipAsync(ct);
+                    // Switch で出し直したキャラも登場時効果（OnEnter）を発動する。
+                    await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);
                 }
             }
         }
