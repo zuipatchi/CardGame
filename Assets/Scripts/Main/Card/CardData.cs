@@ -35,6 +35,10 @@ namespace Main.Card
         // true でも対戦の参照テーブル（CardDatabase._dict）には登録されるため、効果から ID で召喚・参照できる。
         // 既定値 false＝デッキ構築でも使用する（既存アセットは未設定でも false になるため移行不要）。
         [SerializeField] protected bool _excludeFromDeckBuilder;
+        // リリース弾（第N弾）。所属する SO（属性×弾の SO）が一括設定するため、カードごとに手で設定しない。
+        // ID 採番のブロック（属性×1000 +（弾-1）×100 + 連番）と、エディタ上の弾フィルタ・表示に使う。
+        // 既定値 0＝第一弾扱い（既存アセットは未設定でも 0 になるため移行不要。Set プロパティで 0→1 に正規化）。
+        [SerializeField] protected int _set;
         // ダメージトリガー：このカードが「デッキ」から墓地へ送られた場合（デッキ攻撃のミル・将来のデッキミル効果）、
         // デッキの持ち主がコストを支払わずにこのカードを使用する。
         // キャラは場に召喚（登場時効果も発動）、イベントは効果を解決してから墓地へ送る。
@@ -60,6 +64,8 @@ namespace Main.Card
         public bool InDeckPool => InUse && !_excludeFromDeckBuilder;
         // ダメージトリガーするか（デッキから墓地へ送られたときコストなしで使用）。キャラ・イベント共通。
         public bool TriggerOnGrave => _triggerOnGrave;
+        // リリース弾（1始まり）。0（未設定）は第一弾として扱う。
+        public int Set => _set <= 0 ? 1 : _set;
 
         public virtual int Attack => 0;
         public virtual int Hp => 0;
@@ -84,6 +90,12 @@ namespace Main.Card
         public void EditorSetId(string id)
         {
             _id = id;
+        }
+
+        // エディタ専用：所属 SO が弾（第N弾）を一括設定するための setter（属性の EditorSetAttribute と同じ役割）
+        public void EditorSetSet(int set)
+        {
+            _set = set;
         }
 #endif
     }

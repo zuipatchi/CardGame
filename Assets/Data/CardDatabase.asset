@@ -20,6 +20,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8867f1244c585e6419a2f6a5cde011bc, type: 2}
   - {fileID: 11400000, guid: 01a1b8049c54a7c46accb76efd6027dd, type: 2}
   - {fileID: 11400000, guid: a47d0ab9a9ef9684ca4b55ffb92e165a, type: 2}
+  - {fileID: 11400000, guid: 24e5955c9de5ea24581fd3ab2cf855b8, type: 2}
   _eventCardSets:
   - {fileID: 11400000, guid: da4148aefccb9cc4792df2ae7e274651, type: 2}
   - {fileID: 11400000, guid: d22dd94a48f673a48ad7c495763df7d4, type: 2}

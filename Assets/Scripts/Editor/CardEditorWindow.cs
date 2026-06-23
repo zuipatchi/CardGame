@@ -22,6 +22,8 @@ namespace GameEditor
             public string Id { get; set; }
             public string Name { get; set; }
             public CardAttribute Attribute { get; set; }
+            // リリース弾（第N弾。1始まり）。所属 SO から取得する。
+            public int Set { get; set; }
             public int Cost { get; set; }
             public bool InUse { get; set; }
             // 対戦専用トークン（デッキ構築プールから除外）か。
@@ -59,6 +61,8 @@ namespace GameEditor
 
         private string _search = string.Empty;
         private readonly HashSet<CardAttribute> _attributeFilter = new HashSet<CardAttribute>();
+        // 弾フィルタ。0＝すべての弾を表示、N＝第N弾のみ。
+        private int _setFilter;
         private bool _showCharacter = true;
         private bool _showEvent = true;
         private SortMode _sortMode = SortMode.Id;
@@ -68,6 +72,8 @@ namespace GameEditor
 
         private CardAttribute _newAttribute = CardAttribute.Red;
         private bool _newIsCharacter = true;
+        // 新規追加先の弾（第N弾。1始まり）。該当する弾の SO が無ければ追加時に自動生成・登録する。
+        private int _newSet = 1;
 
         // 特徴（キーワード）ドロップダウンの選択肢キャッシュ。[0] は「特徴なし（空文字）」。
         private const string KeywordNoneLabel = "（特徴なし）";
@@ -209,6 +215,7 @@ namespace GameEditor
                     Id = card.Id,
                     Name = card.CardName,
                     Attribute = card.Attribute,
+                    Set = card.Set,
                     Cost = card.Cost,
                     InUse = card.InUse,
                     IsToken = card.InUse && !card.InDeckPool,
@@ -236,7 +243,7 @@ namespace GameEditor
             foreach (string guid in AssetDatabase.FindAssets("t:CharacterCardSO"))
             {
                 CharacterCardSO so = AssetDatabase.LoadAssetAtPath<CharacterCardSO>(AssetDatabase.GUIDToAssetPath(guid));
-                if (so != null && CardIdAutoAssigner.AssignIds(so.Cards, "C"))
+                if (so != null && CardIdAutoAssigner.AssignIds(so.Cards, "C", so.EditorSet))
                 {
                     EditorUtility.SetDirty(so);
                     changed++;
@@ -245,7 +252,7 @@ namespace GameEditor
             foreach (string guid in AssetDatabase.FindAssets("t:EventCardSO"))
             {
                 EventCardSO so = AssetDatabase.LoadAssetAtPath<EventCardSO>(AssetDatabase.GUIDToAssetPath(guid));
-                if (so != null && CardIdAutoAssigner.AssignIds(so.Cards, "E"))
+                if (so != null && CardIdAutoAssigner.AssignIds(so.Cards, "E", so.EditorSet))
                 {
                     EditorUtility.SetDirty(so);
                     changed++;
@@ -420,6 +427,9 @@ namespace GameEditor
             }
 
             GUILayout.Space(8f);
+            DrawSetFilter();
+
+            GUILayout.Space(8f);
             foreach (CardAttribute attribute in AllAttributes)
             {
                 bool on = _attributeFilter.Contains(attribute);
@@ -462,6 +472,40 @@ namespace GameEditor
             EditorGUILayout.EndHorizontal();
         }
 
+        // 弾フィルタのポップアップ（すべて / 第1弾 / … / 第N弾）。N は現在存在する最大の弾。
+        private void DrawSetFilter()
+        {
+            int maxSet = MaxSet();
+            // 選択中の弾が一覧から消えた（最大弾が下がった）場合は「すべて」へ戻す。
+            if (_setFilter > maxSet)
+            {
+                _setFilter = 0;
+            }
+
+            string[] labels = new string[maxSet + 1];
+            labels[0] = "弾:すべて";
+            for (int set = 1; set <= maxSet; set++)
+            {
+                labels[set] = $"第{set}弾";
+            }
+
+            _setFilter = EditorGUILayout.Popup(_setFilter, labels, EditorStyles.toolbarPopup, GUILayout.Width(84f));
+        }
+
+        // 現在の一覧に存在する最大の弾番号（最低1）。弾フィルタ／追加パネルの目安に使う。
+        private int MaxSet()
+        {
+            int max = 1;
+            foreach (CardEntry entry in _entries)
+            {
+                if (entry.Set > max)
+                {
+                    max = entry.Set;
+                }
+            }
+            return max;
+        }
+
         private void DrawList()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(280f));
@@ -487,8 +531,10 @@ namespace GameEditor
                 GUI.color = previous;
 
                 string prefix = _sortMode == SortMode.Cost ? $"[{entry.Cost}]  {entry.Id}" : entry.Id;
+                // 第2弾以降は弾バッジを付けて見分ける（第1弾は無印）。
+                string setBadge = entry.Set > 1 ? $"  〈弾{entry.Set}〉" : string.Empty;
                 string suffix = !entry.InUse ? "  (未使用)" : entry.IsToken ? "  (トークン)" : string.Empty;
-                string label = $"{prefix}  {entry.Name}{suffix}";
+                string label = $"{prefix}{setBadge}  {entry.Name}{suffix}";
                 GUIStyle style = isSelected ? EditorStyles.boldLabel : EditorStyles.label;
                 Color previousContent = GUI.color;
                 if (!entry.InUse)
@@ -532,6 +578,10 @@ namespace GameEditor
             {
                 return false;
             }
+            if (_setFilter > 0 && entry.Set != _setFilter)
+            {
+                return false;
+            }
             if (!string.IsNullOrEmpty(_search))
             {
                 string query = _search.Trim();
@@ -552,10 +602,12 @@ namespace GameEditor
 
             _newIsCharacter = EditorGUILayout.Popup("種別", _newIsCharacter ? 0 : 1, new[] { "キャラ", "イベント" }) == 0;
             _newAttribute = (CardAttribute)EditorGUILayout.EnumPopup("属性", _newAttribute);
+            _newSet = Mathf.Max(1, EditorGUILayout.IntField("弾（第N弾）", _newSet));
+            EditorGUILayout.LabelField(" ", $"追加先: Data/Set{_newSet}/{_newAttribute}/{SoAssetName(_newAttribute, _newIsCharacter, _newSet)}", EditorStyles.miniLabel);
 
             if (GUILayout.Button("追加"))
             {
-                AddCard(_newAttribute, _newIsCharacter);
+                AddCard(_newAttribute, _newIsCharacter, _newSet);
             }
 
             EditorGUILayout.EndVertical();
@@ -625,6 +677,8 @@ namespace GameEditor
             {
                 EditorGUILayout.TextField("ID", element.FindPropertyRelative("_id").stringValue);
                 EditorGUILayout.EnumPopup("属性", (CardAttribute)element.FindPropertyRelative("_attribute").enumValueIndex);
+                // 弾は所属 SO が一括設定するため読み取り専用（属性と同じ扱い）。
+                EditorGUILayout.IntField("弾（第N弾）", _selected.Set);
             }
             EditorGUILayout.LabelField("種別", _selected.IsCharacter ? "キャラ" : "イベント");
 
@@ -801,14 +855,20 @@ namespace GameEditor
             GUI.backgroundColor = previous;
         }
 
-        private void AddCard(CardAttribute attribute, bool isCharacter)
+        private void AddCard(CardAttribute attribute, bool isCharacter, int set)
         {
-            ScriptableObject so = FindSo(attribute, isCharacter);
+            set = Mathf.Max(1, set);
+            ScriptableObject so = FindSo(attribute, isCharacter, set);
+            if (so == null)
+            {
+                // 該当する（属性×弾）の SO がまだ無ければ自動生成し、CardDatabase に登録する。
+                so = CreateAndRegisterSo(attribute, isCharacter, set);
+            }
             if (so == null)
             {
                 EditorUtility.DisplayDialog("追加できません",
-                    $"{attribute} の{(isCharacter ? "キャラ" : "イベント")} SO が見つかりません。"
-                    + "先に該当属性の SO を作成し、CardDatabase に登録してください。", "OK");
+                    $"{attribute} 第{set}弾の{(isCharacter ? "キャラ" : "イベント")} SO を生成・登録できませんでした。"
+                    + "CardDatabase アセットが見つかるか確認してください。", "OK");
                 return;
             }
 
@@ -892,8 +952,10 @@ namespace GameEditor
             }
         }
 
-        private ScriptableObject FindSo(CardAttribute attribute, bool isCharacter)
+        // 指定した（属性 × 弾）の SO を探す。弾は未設定（_set=0）を第1弾とみなして比較する。
+        private ScriptableObject FindSo(CardAttribute attribute, bool isCharacter, int set)
         {
+            int wantedSet = Mathf.Max(1, set);
             string filter = isCharacter ? "t:CharacterCardSO" : "t:EventCardSO";
             foreach (string guid in AssetDatabase.FindAssets(filter))
             {
@@ -905,12 +967,110 @@ namespace GameEditor
                 }
                 SerializedObject sobj = new SerializedObject(so);
                 SerializedProperty attributeProp = sobj.FindProperty("_attribute");
-                if (attributeProp != null && (CardAttribute)attributeProp.enumValueIndex == attribute)
+                SerializedProperty setProp = sobj.FindProperty("_set");
+                int soSet = setProp != null ? Mathf.Max(1, setProp.intValue) : 1;
+                if (attributeProp != null && (CardAttribute)attributeProp.enumValueIndex == attribute && soSet == wantedSet)
                 {
                     return so;
                 }
             }
             return null;
+        }
+
+        // 自動生成する SO アセットのファイル名。第1弾は無印（既存命名と互換）、第2弾以降は _Set{N} を付ける。
+        private static string SoAssetName(CardAttribute attribute, bool isCharacter, int set)
+        {
+            string baseName = isCharacter ? "CharacterCards" : "EventCards";
+            string suffix = set > 1 ? $"_Set{set}" : string.Empty;
+            return $"{baseName}_{attribute}{suffix}.asset";
+        }
+
+        // 該当する（属性×弾）の SO を新規生成し、属性・弾を設定したうえで CardDatabase に登録する。
+        // 配置先は弾ごとに分けたフォルダ Assets/Data/Set{弾}/{属性}/。
+        private ScriptableObject CreateAndRegisterSo(CardAttribute attribute, bool isCharacter, int set)
+        {
+            string folder = SoFolder(attribute, set);
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                CreateFolderRecursive(folder);
+            }
+
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{SoAssetName(attribute, isCharacter, set)}");
+
+            ScriptableObject so;
+            if (isCharacter)
+            {
+                CharacterCardSO charSo = ScriptableObject.CreateInstance<CharacterCardSO>();
+                charSo.EditorSetCards(attribute, new List<CharacterCardData>(), set);
+                so = charSo;
+            }
+            else
+            {
+                EventCardSO eventSo = ScriptableObject.CreateInstance<EventCardSO>();
+                eventSo.EditorSetCards(attribute, new List<EventCardData>(), set);
+                so = eventSo;
+            }
+
+            AssetDatabase.CreateAsset(so, path);
+            AssetDatabase.SaveAssets();
+
+            if (!RegisterInDatabase(so, isCharacter))
+            {
+                Debug.LogWarning($"CardDatabase が見つからず、{path} を自動登録できませんでした。手動で CardDatabase に登録してください。");
+            }
+            return so;
+        }
+
+        // 弾×属性で分けた SO の配置フォルダ。Assets/Data/Set{弾}/{属性}/。
+        private static string SoFolder(CardAttribute attribute, int set)
+        {
+            return $"Assets/Data/Set{Mathf.Max(1, set)}/{attribute}";
+        }
+
+        private static void CreateFolderRecursive(string folder)
+        {
+            string[] parts = folder.Split('/');
+            string current = parts[0];
+            for (int i = 1; i < parts.Length; i++)
+            {
+                string next = $"{current}/{parts[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                {
+                    AssetDatabase.CreateFolder(current, parts[i]);
+                }
+                current = next;
+            }
+        }
+
+        // 生成した SO を CardDatabase の対応する配列（_characterCardSets / _eventCardSets）の末尾に追加する。
+        private static bool RegisterInDatabase(ScriptableObject so, bool isCharacter)
+        {
+            string[] dbGuids = AssetDatabase.FindAssets("t:CardDatabase");
+            if (dbGuids.Length == 0)
+            {
+                return false;
+            }
+
+            CardDatabase db = AssetDatabase.LoadAssetAtPath<CardDatabase>(AssetDatabase.GUIDToAssetPath(dbGuids[0]));
+            if (db == null)
+            {
+                return false;
+            }
+
+            SerializedObject dbSo = new SerializedObject(db);
+            SerializedProperty array = dbSo.FindProperty(isCharacter ? "_characterCardSets" : "_eventCardSets");
+            if (array == null)
+            {
+                return false;
+            }
+
+            int index = array.arraySize;
+            array.InsertArrayElementAtIndex(index);
+            array.GetArrayElementAtIndex(index).objectReferenceValue = so;
+            dbSo.ApplyModifiedProperties();
+            EditorUtility.SetDirty(db);
+            AssetDatabase.SaveAssets();
+            return true;
         }
 
         // enumValueIndex（宣言順インデックス）を実際の EventType 値へ変換する（11 欠番への対応）。
