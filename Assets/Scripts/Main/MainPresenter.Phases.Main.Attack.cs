@@ -170,7 +170,7 @@ namespace Main
             GraveyardView graveyard = deckOwnerIsLocal ? _playerGraveyardView : _opponentGraveyardView;
 
             // オーバーリミット：このミルでデッキが0枚へ落ちたら、生存を確認したうえで最後に1回告知する
-            bool limitBroke = false;
+            bool overLimited = false;
 
             for (int i = 0; i < count; i++)
             {
@@ -192,20 +192,20 @@ namespace Main
                 {
                     await ResolveGraveTriggerFromDeckAsync(milled, ownerIsLocal: deckOwnerIsLocal, fromRect: deckRect, ct);
                     // オーバーリミット：このミルでデッキが0枚になったら告知予約（直後のミルで敗北する場合は告知しない）
-                    limitBroke |= UpdateLimitBreak(isLocalDeck: deckOwnerIsLocal);
+                    overLimited |= UpdateOverLimit(isLocalDeck: deckOwnerIsLocal);
                     continue;
                 }
                 CardView milledCard = new CardView(_cardStore.CardTemplate, milled, _cardStore.CardBack, faceDown: false, isOpponent: !deckOwnerIsLocal);
                 _soundPlayer.PlaySE(_soundStore.DeckDamageSE);
                 await FlyToGraveyardAsync(milledCard, deckRect, graveyard, ct);
                 // オーバーリミット：このミルでデッキが0枚になったら告知予約（直後のミルで敗北する場合は告知しない）
-                limitBroke |= UpdateLimitBreak(isLocalDeck: deckOwnerIsLocal);
+                overLimited |= UpdateOverLimit(isLocalDeck: deckOwnerIsLocal);
             }
 
-            // オーバーリミット：一連のミルを生き残った場合のみ「リミットブレイク！」告知
-            if (!_isGameOver && limitBroke)
+            // オーバーリミット：一連のミルを生き残った場合のみ「オーバーリミット！」告知
+            if (!_isGameOver && overLimited)
             {
-                await PlayLimitBreakAnnouncementAsync(ct);
+                await PlayOverLimitAnnouncementAsync(ct);
             }
         }
     }

@@ -183,10 +183,10 @@ namespace Main
         private bool _playerSkipNextDraw;
         private bool _opponentSkipNextDraw;
 
-        // オーバーリミット（リミットブレイク）：デッキが初めて0枚になった瞬間に1回だけ「リミットブレイク！」を告知する。
+        // オーバーリミット：デッキが初めて0枚になった瞬間に1回だけ「オーバーリミット！」を告知する。
         // デッキが0枚の間は true。Recover 等で再び1枚以上になれば false に戻り、次に0枚へ落ちたとき再度告知する。
-        private bool _playerLimitBroken;
-        private bool _opponentLimitBroken;
+        private bool _playerOverLimit;
+        private bool _opponentOverLimit;
 
         // DrawNextTurnStart 効果: 発動側の次のターン開始時に追加でドローする予約枚数（累積）。
         // 発動時に加算し、そのプレイヤーの次の RunDrawPhaseAsync で通常ドローに上乗せして消費する。

@@ -18,7 +18,7 @@ namespace Main
             bool isLocalTurn = _gameModel.IsLocalTurn;
 
             // オーバーリミット：このドローフェーズでデッキが0枚へ落ちたら、生存を確認したうえで最後に1回告知する
-            bool limitBroke = false;
+            bool overLimited = false;
 
             // 各プレイヤーの初手（このゲームで最初の自分のドローフェーズ）はドローなし＝先攻有利の補正。
             // 先攻・後攻の双方が対象。ExtraTurn で通算ターン番号がずれても、各自の初手のみ正しく0枚になる。
@@ -86,7 +86,7 @@ namespace Main
                             await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
                         }
                         // オーバーリミット：このドローでデッキが0枚になったら告知予約（ターン最初のドローでは敗北しない）
-                        limitBroke |= UpdateLimitBreak(isLocalDeck: true);
+                        overLimited |= UpdateOverLimit(isLocalDeck: true);
                     }
                 }
                 // ドロー0枚でも同期のため通知は送る（両者の lockstep を崩さない）。
@@ -141,16 +141,16 @@ namespace Main
                             await PlayCpuDrawAsync(drawn, deckRect, ct);
                         }
                         // オーバーリミット：このドローでデッキが0枚になったら告知予約（ターン最初のドローでは敗北しない）
-                        limitBroke |= UpdateLimitBreak(isLocalDeck: false);
+                        overLimited |= UpdateOverLimit(isLocalDeck: false);
                     }
                 }
                 // オーバーリミット：ターン最初のドローはデッキ枚数分だけ引いて止まり、決して敗北しない。
             }
 
-            // オーバーリミット：一連のドローを生き残った場合のみ「リミットブレイク！」告知（ターン最初のドローは常に生存）
-            if (!_isGameOver && limitBroke)
+            // オーバーリミット：一連のドローを生き残った場合のみ「オーバーリミット！」告知（ターン最初のドローは常に生存）
+            if (!_isGameOver && overLimited)
             {
-                await PlayLimitBreakAnnouncementAsync(ct);
+                await PlayOverLimitAnnouncementAsync(ct);
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);

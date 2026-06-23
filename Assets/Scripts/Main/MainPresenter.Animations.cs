@@ -29,11 +29,12 @@ namespace Main
             await PlayAnnouncementAsync(text, labelClass, ct);
         }
 
-        // オーバーリミット告知：デッキが初めて0枚になった瞬間（リミットブレイク）に「リミットブレイク！」を表示する。
-        private async UniTask PlayLimitBreakAnnouncementAsync(CancellationToken ct)
+        // オーバーリミット告知：デッキが初めて0枚になった瞬間、またはオーバーリミット指定のドローが空デッキに当たったときに
+        // 「オーバーリミット！」を表示する。
+        private async UniTask PlayOverLimitAnnouncementAsync(CancellationToken ct)
         {
-            _soundPlayer.PlaySE(_soundStore.LimitBreakSE);
-            await PlayAnnouncementAsync("リミットブレイク！", "turn-announcement-label--limit-break", ct);
+            _soundPlayer.PlaySE(_soundStore.OverLimitSE);
+            await PlayAnnouncementAsync("オーバーリミット！", "turn-announcement-label--over-limit", ct);
         }
 
         private async UniTask PlayAnnouncementAsync(string text, string labelClass, CancellationToken ct)
@@ -47,7 +48,7 @@ namespace Main
             _turnLabel.RemoveFromClassList("turn-announcement-label--fight");
             _turnLabel.RemoveFromClassList("turn-announcement-label--mulligan");
             _turnLabel.RemoveFromClassList("turn-announcement-label--draw");
-            _turnLabel.RemoveFromClassList("turn-announcement-label--limit-break");
+            _turnLabel.RemoveFromClassList("turn-announcement-label--over-limit");
             _turnLabel.RemoveFromClassList("turn-announcement-label--cost");
             _turnLabel.RemoveFromClassList("turn-announcement-label--cost-opponent");
             _turnLabel.RemoveFromClassList("turn-announcement-label--set");

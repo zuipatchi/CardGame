@@ -59,7 +59,7 @@ namespace Main.Card
         // EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（0）。
         DiceDraw = 32,
         // デッキの上から EventValue / EffectValue 枚（値1）を手札に加える。
-        // EventValue2 / EffectValue2（値2）は将来の拡張用に予約（現状は不使用）。
+        // EventValue2 / EffectValue2（値2）＝1 でオーバーリミット指定：デッキが0枚でも敗北せず「オーバーリミット！」告知のみ行う（0=通常）。
         Draw = 3,
         // 発動時には引かず、そのプレイヤーの次のターン開始時（次のドローフェーズ）に EventValue / EffectValue 枚ドローする。
         // 通常ドローに上乗せして引く。複数回発動すると枚数は累積する。EventValue2 / EffectValue2 は不使用。
