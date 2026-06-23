@@ -9,13 +9,18 @@ namespace DeckBuilder
 {
     // プレイヤーのデッキビルダー。1 シーン内で「スロット一覧（9枠）」と「編集」の 2 画面を
     // フルスクリーンオーバーレイの表示／非表示で切り替える。枠を選ぶとそのスロットの編集画面に入り、
-    // 編集内容はそのスロットへ自動保存する。対戦に使うデッキ（SelectedIndex）の選択は Home 側で行う。
+    // 編集内容はそのスロットへ自動保存する。対戦に使うデッキ（SelectedIndex）の選択は、スロット一覧画面
+    // 上部の「使用デッキ」ボタン→ Home 風の一覧モーダルでここからも行える（Home と同じ SelectedIndex を更新する）。
     public sealed class DeckBuilderPresenter : DeckBuilderPresenterBase
     {
         private DeckRepository _deckRepository;
 
         private VisualElement _slotOverlay;
         private VisualElement _slotGrid;
+        // 使用デッキ（対戦に使う SelectedIndex）を選ぶ：上部ボタン＋ Home 風の一覧モーダル。
+        private Button _deckSelectButton;
+        private VisualElement _deckSelectOverlay;
+        private ScrollView _deckSelectList;
         // 現在編集中のスロット（対戦に使う SelectedIndex とは独立）。
         private int _editingSlot;
         // カード読み込みが完了したか。完了前に枠を開いた場合、デッキ展開は読み込み後の
@@ -86,6 +91,12 @@ namespace DeckBuilder
         protected override void OnDeckBuilderReady(VisualElement root)
         {
             _cardsLoaded = true;
+            // 読み込み中に枠を開いていなければ、まだスロット一覧を表示中。カード裏面は読み込み後に
+            // しか得られないため、ここで一覧を組み直してシンボル未設定スロットに裏面を反映する。
+            if (!_pendingOpen)
+            {
+                RebuildSlotGrid();
+            }
             _pendingOpen = false;
         }
 
@@ -112,13 +123,67 @@ namespace DeckBuilder
             title.AddToClassList("deckbuilder-slot-title");
             header.Add(title);
 
+            // 使用デッキ（対戦に使う SelectedIndex）を選ぶボタンを画面上部中央に置く。
+            // 押すと Home と同じ一覧モーダルを開く（Home 側の使用デッキ選択と同じ SelectedIndex を更新する）。
+            VisualElement deckSelect = new VisualElement();
+            deckSelect.AddToClassList("deckbuilder-deck-select");
+            // ヘッダ全幅に絶対配置して中央寄せするため、空き領域が「もどる」ボタンのクリックを
+            // 邪魔しないよう自身はピック対象外にする（子のボタンは操作可能）。
+            deckSelect.pickingMode = PickingMode.Ignore;
+
+            _deckSelectButton = new Button();
+            _deckSelectButton.AddToClassList("deckbuilder-deck-select-button");
+            _deckSelectButton.clicked += OpenDeckSelectModal;
+            deckSelect.Add(_deckSelectButton);
+            header.Add(deckSelect);
+
+            UpdateDeckSelectButtonLabel();
+
             _slotOverlay.Add(header);
 
             _slotGrid = new VisualElement();
             _slotGrid.AddToClassList("deckbuilder-slot-grid");
             _slotOverlay.Add(_slotGrid);
 
+            BuildDeckSelectModal();
+
             root.Add(_slotOverlay);
+        }
+
+        // 使用デッキ一覧モーダル（Home の使用デッキ選択と同じ見た目）を組む。スロット一覧の上に重ねる。
+        private void BuildDeckSelectModal()
+        {
+            _deckSelectOverlay = new VisualElement();
+            _deckSelectOverlay.AddToClassList("deckbuilder-deck-modal-overlay");
+            _deckSelectOverlay.style.display = DisplayStyle.None;
+            // 暗幕クリックで閉じる。
+            _deckSelectOverlay.RegisterCallback<ClickEvent>(_ => CloseDeckSelectModal());
+
+            VisualElement panel = new VisualElement();
+            panel.AddToClassList("deckbuilder-deck-modal-panel");
+            // パネル内クリックは暗幕に伝播させない（閉じない）。
+            panel.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+
+            Label title = new Label("使用デッキをえらぶ");
+            title.AddToClassList("deckbuilder-deck-modal-title");
+            panel.Add(title);
+
+            _deckSelectList = new ScrollView();
+            _deckSelectList.AddToClassList("deckbuilder-deck-modal-list");
+            panel.Add(_deckSelectList);
+
+            Button closeButton = new Button();
+            closeButton.text = "✕";
+            closeButton.AddToClassList("deckbuilder-deck-modal-close");
+            closeButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.Cancel1SE);
+                CloseDeckSelectModal();
+            };
+            panel.Add(closeButton);
+
+            _deckSelectOverlay.Add(panel);
+            _slotOverlay.Add(_deckSelectOverlay);
         }
 
         private void ShowSlotList()
@@ -131,34 +196,48 @@ namespace DeckBuilder
         {
             _slotGrid.Clear();
 
+            int selected = _deckRepository.SelectedIndex;
             for (int i = 0; i < DeckRepository.SlotCount; i++)
             {
                 int slot = i;
                 VisualElement card = new VisualElement();
                 card.AddToClassList("deckbuilder-slot-card");
+                if (slot == selected)
+                {
+                    card.AddToClassList("deckbuilder-slot-card--selected");
+                }
                 card.RegisterCallback<ClickEvent>(_ => OpenSlot(slot));
 
-                // お気に入りカードが設定されていれば、左に小さくカード全体を表示する。
+                // 左にデッキのシンボル（代表カード全体）を表示する。シンボル未設定のスロットは
+                // カードの裏面を代わりに表示する（裏面はカード読み込み後にしか無いので、その時は何も出さない）。
+                VisualElement thumbnail = new VisualElement();
+                thumbnail.AddToClassList("deckbuilder-slot-favorite");
+                thumbnail.pickingMode = PickingMode.Ignore;
                 string favoriteId = _deckRepository.LoadFavorite(slot);
                 if (!string.IsNullOrEmpty(favoriteId)
                     && _cardDatabase.TryGet(favoriteId, out CardData favorite) && favorite.Image != null)
                 {
-                    VisualElement thumbnail = new VisualElement();
-                    thumbnail.AddToClassList("deckbuilder-slot-favorite");
                     thumbnail.style.backgroundImage = new StyleBackground(favorite.Image);
-                    thumbnail.pickingMode = PickingMode.Ignore;
-                    card.Add(thumbnail);
                 }
+                else if (_cardStore != null && _cardStore.CardBack != null)
+                {
+                    thumbnail.style.backgroundImage = new StyleBackground(_cardStore.CardBack);
+                }
+                card.Add(thumbnail);
 
                 VisualElement info = new VisualElement();
                 info.AddToClassList("deckbuilder-slot-info");
 
+                // デッキ名（左・伸縮）と名前変更ボタン（右）を横並びにする。
+                VisualElement nameRow = new VisualElement();
+                nameRow.AddToClassList("deckbuilder-slot-name-row");
+
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
                 nameLabel.AddToClassList("deckbuilder-slot-name");
-                info.Add(nameLabel);
+                nameRow.Add(nameLabel);
 
                 Button renameButton = new Button();
-                renameButton.text = "✎ 名前を変更";
+                renameButton.text = "✎";
                 renameButton.AddToClassList("deckbuilder-slot-rename");
                 // カードのクリック（編集を開く）に伝播させないよう ClickEvent を止める。
                 renameButton.RegisterCallback<ClickEvent>(evt =>
@@ -167,7 +246,13 @@ namespace DeckBuilder
                     _soundPlayer.PlaySE(_soundStore.EnterSE);
                     BeginRename(slot);
                 });
-                info.Add(renameButton);
+                nameRow.Add(renameButton);
+
+                info.Add(nameRow);
+
+                // 下段：枚数（左）と、使用中なら「★使用中」バッジ（その右）を横並びにする。
+                VisualElement countRow = new VisualElement();
+                countRow.AddToClassList("deckbuilder-slot-count-row");
 
                 int count = _deckRepository.LoadCount(slot);
                 Label countLabel = new Label($"{count}/{DeckModel.MaxCards}");
@@ -176,12 +261,111 @@ namespace DeckBuilder
                 {
                     countLabel.AddToClassList("deckbuilder-slot-count--ready");
                 }
-                info.Add(countLabel);
+                countRow.Add(countLabel);
+
+                // 使用中（対戦に使う）デッキのスロットには枚数の右に小さくバッジを出す。
+                if (slot == selected)
+                {
+                    Label useBadge = new Label("★使用中");
+                    useBadge.AddToClassList("deckbuilder-slot-use-badge");
+                    countRow.Add(useBadge);
+                }
+
+                info.Add(countRow);
 
                 card.Add(info);
 
                 _slotGrid.Add(card);
             }
+        }
+
+        // 上部ボタンのラベルを現在の使用デッキ名に合わせる。
+        private void UpdateDeckSelectButtonLabel()
+        {
+            if (_deckSelectButton == null)
+            {
+                return;
+            }
+            _deckSelectButton.text = $"使用デッキ：{_deckRepository.LoadName(_deckRepository.SelectedIndex)} ▾";
+        }
+
+        private void OpenDeckSelectModal()
+        {
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
+            BuildDeckSelectList();
+            _deckSelectOverlay.style.display = DisplayStyle.Flex;
+        }
+
+        private void CloseDeckSelectModal()
+        {
+            _deckSelectOverlay.style.display = DisplayStyle.None;
+        }
+
+        // 9 スロットの一覧（サムネ・名前・使用中バッジ・枚数・完成状態）を組む。行タップで使用デッキを切り替える。
+        private void BuildDeckSelectList()
+        {
+            _deckSelectList.Clear();
+            int selected = _deckRepository.SelectedIndex;
+            for (int i = 0; i < DeckRepository.SlotCount; i++)
+            {
+                int slot = i;
+                VisualElement row = new VisualElement();
+                row.AddToClassList("deckbuilder-deck-row");
+                if (slot == selected)
+                {
+                    row.AddToClassList("deckbuilder-deck-row--selected");
+                }
+                row.RegisterCallback<ClickEvent>(_ => OnDeckSelectRowClicked(slot));
+
+                // 左にデッキのシンボル（代表カード全体）を表示する。シンボル未設定はカード裏面で代替する。
+                VisualElement thumbnail = new VisualElement();
+                thumbnail.AddToClassList("deckbuilder-deck-row-favorite");
+                thumbnail.pickingMode = PickingMode.Ignore;
+                string favoriteId = _deckRepository.LoadFavorite(slot);
+                if (!string.IsNullOrEmpty(favoriteId)
+                    && _cardDatabase.TryGet(favoriteId, out CardData favorite) && favorite.Image != null)
+                {
+                    thumbnail.style.backgroundImage = new StyleBackground(favorite.Image);
+                }
+                else if (_cardStore != null && _cardStore.CardBack != null)
+                {
+                    thumbnail.style.backgroundImage = new StyleBackground(_cardStore.CardBack);
+                }
+                row.Add(thumbnail);
+
+                Label nameLabel = new Label(_deckRepository.LoadName(slot));
+                nameLabel.AddToClassList("deckbuilder-deck-row-name");
+                nameLabel.pickingMode = PickingMode.Ignore;
+                row.Add(nameLabel);
+
+                Label badge = new Label("使用中");
+                badge.AddToClassList("deckbuilder-deck-row-badge");
+                badge.style.display = slot == selected ? DisplayStyle.Flex : DisplayStyle.None;
+                badge.pickingMode = PickingMode.Ignore;
+                row.Add(badge);
+
+                int count = _deckRepository.LoadCount(slot);
+                Label countLabel = new Label($"{count}/{DeckModel.MaxCards}");
+                countLabel.AddToClassList("deckbuilder-deck-row-count");
+                if (count == DeckModel.MaxCards)
+                {
+                    countLabel.AddToClassList("deckbuilder-deck-row-count--ready");
+                }
+                countLabel.pickingMode = PickingMode.Ignore;
+                row.Add(countLabel);
+
+                _deckSelectList.Add(row);
+            }
+        }
+
+        // 使用デッキ（SelectedIndex）を切り替える。編集中デッキ（_deckModel）は触らずグリッド表示だけ更新する。
+        private void OnDeckSelectRowClicked(int slot)
+        {
+            _soundPlayer.PlaySE(_soundStore.EnterSE);
+            _deckRepository.SelectedIndex = slot;
+            UpdateDeckSelectButtonLabel();
+            CloseDeckSelectModal();
+            RebuildSlotGrid();
         }
 
         // 枠タップ＝そのデッキの「編集」。対戦に使うデッキ（SelectedIndex）は変えない。
@@ -246,6 +430,8 @@ namespace DeckBuilder
                 _deckRepository.SaveName(slot, name);
                 overlay.RemoveFromHierarchy();
                 RebuildSlotGrid();
+                // 使用中スロットの名前を変えた場合は上部ボタンのラベルも更新する。
+                UpdateDeckSelectButtonLabel();
             };
 
             buttons.Add(cancelButton);
