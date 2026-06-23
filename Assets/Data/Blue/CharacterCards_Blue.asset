@@ -263,7 +263,7 @@ MonoBehaviour:
     _attack: 3
     _hp: 9
     _attribute: 1
-    _effectTrigger: 3
+    _effectTrigger: 6
     _effectType: 3
     _effectValue: 1
     _effectValue2: 0
@@ -273,4 +273,4 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
+    _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F"
