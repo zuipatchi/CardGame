@@ -514,6 +514,17 @@ namespace DeckBuilder
             };
         }
 
+        // フィルタ（種別・属性・コスト）を初期状態（全表示）に戻す。
+        // 編集画面から戻るときに呼び、次に枠を開いたとき前回の絞り込みが残らないようにする。
+        protected void ResetFilter()
+        {
+            _showCharacterCards = false;
+            _showEventCards = false;
+            _attributeFilter.Clear();
+            _costFilter.Clear();
+            RefreshFilter();
+        }
+
         private void RefreshFilter()
         {
             // 属性・コストが ON のカードだけ表示（OFF は非表示）。各セクションの表示中カード数を得る

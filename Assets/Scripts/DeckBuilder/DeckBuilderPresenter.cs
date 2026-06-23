@@ -68,6 +68,7 @@ namespace DeckBuilder
         // 編集画面からはスロット一覧へ戻す。一覧からホームへ戻るのは一覧専用の「もどる」が担う。
         protected override void NavigateBack()
         {
+            ResetFilter();
             ShowSlotList();
         }
 
