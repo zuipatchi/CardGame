@@ -68,7 +68,7 @@
                         <ui:Label text="3. メインフェーズ" class="home-rules-subsection"/>
                         <ui:Label text="ENDボタンを押すまで、好きなだけカードを使うか攻撃ができます。自分の番には90秒の制限時間があり、0になると自動でターン終了します" class="home-rules-entry"/>
                         <ui:Label text="4. ターン終了" class="home-rules-subsection"/>
-                        <ui:Label text="Endボタンをクリックして自分のターンを終え、相手のターンへ" class="home-rules-entry"/>
+                        <ui:Label text="ENDボタンをクリックして自分のターンを終え、相手のターンへ" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageCard" class="home-rules-page">
                         <ui:Label text="カードの種類" class="home-rules-section"/>
@@ -79,7 +79,7 @@
                         <ui:Label text="属性のルール" class="home-rules-subsection"/>
                         <ui:Label text="カードには属性（赤・青・緑・白など）があります。コストとして捨てるカードには、出すカードと同じ属性が必ず1枚以上含まれている必要があります" class="home-rules-entry"/>
                         <ui:Label text="手札の上限" class="home-rules-section"/>
-                        <ui:Label text="手札は8枚まです。9枚目に引いたカードは手札に加わらず墓地へ送られます" class="home-rules-entry"/>
+                        <ui:Label text="手札は8枚までです。9枚目に引いたカードは手札に加わらず墓地へ送られます" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageBattle" class="home-rules-page">
                         <ui:Label text="攻撃のしかた" class="home-rules-section"/>
@@ -87,7 +87,7 @@
                         <ui:Label text="召喚酔い" class="home-rules-subsection"/>
                         <ui:Label text="キャラは出したターンには攻撃できません。次の自分のターンから攻撃できます（速攻を持つキャラは例外）。各キャラの攻撃は1ターンに1回までです" class="home-rules-entry"/>
                         <ui:Label text="タップとアンタップ" class="home-rules-subsection"/>
-                        <ui:Label text="キャラは召喚されるとアンタップ（縦向き）の状態で場に出ます。攻撃したキャラは横向きに倒れます（タップ）。攻撃はタップしている相手のキャラにしか行えません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）" class="home-rules-entry"/>
+                        <ui:Label text="キャラは召喚されるとアンタップ（縦向き）の状態で場に出ます。攻撃したキャラは横向きに倒れます（タップ）。相手キャラへの攻撃はタップしているキャラにしか行えません。自分のキャラはターン開始時に縦向きに戻ります（アンタップ）" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃" class="home-rules-subsection"/>
                         <ui:Label text="自分のキャラから相手デッキへ矢印を引くと、相手デッキへ攻撃して攻撃力の値だけ相手のデッキを上から墓地へ送れます。攻撃側のキャラは通常どおりタップします" class="home-rules-entry"/>
                     </ui:VisualElement>
@@ -115,7 +115,7 @@
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
                         <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃×（でっきこうげきばつ）" class="home-rules-subsection"/>
-                        <ui:Label text="この能力を付与されたキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
+                        <ui:Label text="この能力を持つキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageDeck" class="home-rules-page">
                         <ui:Label text="デッキ構築ルール" class="home-rules-section"/>
