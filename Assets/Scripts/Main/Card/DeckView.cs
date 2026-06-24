@@ -14,6 +14,7 @@ namespace Main.Card
         private readonly bool _isOpponent;
         private readonly List<CardView> _deckCards = new List<CardView>();
         private readonly Label _countLabel;
+        private readonly VisualElement _badgeContainer;
         private int _visualCount;
 
         public int Count => _deckCards.Count;
@@ -58,7 +59,22 @@ namespace Main.Card
 
             badgeContainer.Add(badge);
             Add(badgeContainer);
+            _badgeContainer = badgeContainer;
 
+        }
+
+        // 枚数バッジ（ハートアイコン）の直前にオーバーレイ要素を差し込む。
+        // デッキカードより前面・ハートアイコンより背面に描画されるため、
+        // シャッフル演出のフェイクパケットをハートの後ろに置くのに使う。
+        public void InsertOverlayBehindBadge(VisualElement overlay)
+        {
+            int badgeIndex = IndexOf(_badgeContainer);
+            if (badgeIndex < 0)
+            {
+                Add(overlay);
+                return;
+            }
+            Insert(badgeIndex, overlay);
         }
 
         public CardData DrawTop()

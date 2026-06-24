@@ -37,6 +37,7 @@
     bottom: 8px;
     scale: 0.6 0.6;
     transform-origin: right bottom;
+    overflow: visible;
 }
 
 .main-opponent-hand-area {
@@ -57,6 +58,7 @@
     top: -50px;
     scale: 0.6 0.6;
     transform-origin: center center;
+    overflow: visible;
 }
 
 .main-hand-area {
@@ -77,6 +79,7 @@
     border-top-width: 0;
     border-bottom-width: 0;
     background-color: rgba(0, 0, 0, 0);
+    overflow: visible;
 }
 
 .graveyard-view {
