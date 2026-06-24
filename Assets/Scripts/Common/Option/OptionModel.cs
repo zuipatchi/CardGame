@@ -7,10 +7,15 @@ namespace Common.Option
 {
     public class OptionModel: IStartable
     {
+        private readonly string _masterVolumeKey = "masterVolume";
         private readonly string _bgmVolumeKey = "bgmVolume";
         private readonly string _seVolumeKey = "seVolume";
         private readonly string _voiceVolumeKey = "voiceVolume";
         private readonly string _autoOkKey = "autoOk";
+
+        // BGM/SE/ボイスすべてに掛かる全体音量。実効倍率は値×2（スライダー 0.5 で等倍）。
+        private readonly ReactiveProperty<float> _masterVolume = new();
+        public ReadOnlyReactiveProperty<float> MasterVolume => _masterVolume;
 
         private readonly ReactiveProperty<float> _bgmVolume = new();
         public ReadOnlyReactiveProperty<float> BGMVolume => _bgmVolume;
@@ -28,6 +33,10 @@ namespace Common.Option
         // セーブデータから読み込み
         public void Start()
         {
+            // 既定 0.5。他のスライダーと初期表示を揃える（各チャンネル音量に掛ける倍率）。
+            float masterVolume = PlayerPrefs.GetFloat(_masterVolumeKey, 0.5f);
+            _masterVolume.Value = masterVolume;
+
             float bgmVolume = PlayerPrefs.GetFloat(_bgmVolumeKey, 0.5f);
             _bgmVolume.Value = bgmVolume;
 
@@ -38,6 +47,12 @@ namespace Common.Option
             _voiceVolume.Value = voiceVolume;
 
             _autoOk.Value = PlayerPrefs.GetInt(_autoOkKey, 1) == 1;
+        }
+
+        public void SetMasterVolume(float value)
+        {
+            _masterVolume.Value = Math.Clamp(value, 0, 1);
+            PlayerPrefs.SetFloat(_masterVolumeKey, _masterVolume.Value);
         }
 
         public void SetBGMVolume(float value)

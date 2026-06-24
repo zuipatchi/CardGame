@@ -39,7 +39,9 @@ namespace Common.SoundManagement
             _bgmAudioSource.loop = true;
 
             // 曲ごとの音量差を揃えるため、BGM 倍率を掛ける（再生中に音量を変えても追従する）。
-            _optionModel.BGMVolume
+            // マスター音量も掛けることで、全体音量の変更にも追従する（スライダー 0.5 で等倍＝×2）。
+            _optionModel.MasterVolume
+                .CombineLatest(_optionModel.BGMVolume, (m, v) => m * 2f * v)
                 .Subscribe(v => _bgmAudioSource.volume = v / 2 * _bgmVolumeScale)
                 .AddTo(_disposables);
 
@@ -47,7 +49,8 @@ namespace Common.SoundManagement
             _seAudioSource.playOnAwake = false;
             _seAudioSource.loop = false;
 
-            _optionModel.SEVolume
+            _optionModel.MasterVolume
+                .CombineLatest(_optionModel.SEVolume, (m, v) => m * 2f * v)
                 .Subscribe(v => _seAudioSource.volume = v / 2)
                 .AddTo(_disposables);
 
@@ -57,7 +60,8 @@ namespace Common.SoundManagement
             _voiceAudioSource.loop = false;
 
             // 読み上げは小さく埋もれがちなので、BGM/SE の半減（v/2）と違い等倍で再生して全体的に大きくする。
-            _optionModel.VoiceVolume
+            _optionModel.MasterVolume
+                .CombineLatest(_optionModel.VoiceVolume, (m, v) => m * 2f * v)
                 .Subscribe(v => _voiceAudioSource.volume = v)
                 .AddTo(_disposables);
 
@@ -66,7 +70,8 @@ namespace Common.SoundManagement
             _loopSeAudioSource.loop = true;
 
             // 持続 SE も SE 音量に連動させる（再生中に音量を変えても追従する）。
-            _optionModel.SEVolume
+            _optionModel.MasterVolume
+                .CombineLatest(_optionModel.SEVolume, (m, v) => m * 2f * v)
                 .Subscribe(v => _loopSeAudioSource.volume = v / 2 * _loopSeVolumeScale)
                 .AddTo(_disposables);
         }
@@ -84,7 +89,7 @@ namespace Common.SoundManagement
             }
             // 曲ごとの音量差を揃える倍率を求め、現在の BGM 音量に掛けてから再生する。
             _bgmVolumeScale = _soundStore != null ? _soundStore.GetBgmVolumeScale(clip) : 1f;
-            _bgmAudioSource.volume = _optionModel.BGMVolume.CurrentValue / 2 * _bgmVolumeScale;
+            _bgmAudioSource.volume = _optionModel.MasterVolume.CurrentValue * 2f * _optionModel.BGMVolume.CurrentValue / 2 * _bgmVolumeScale;
             _bgmAudioSource.clip = clip;
             _bgmAudioSource.Play();
         }
@@ -118,7 +123,7 @@ namespace Common.SoundManagement
             }
             _loopSeVolumeScale = _soundStore != null ? _soundStore.GetSeVolumeScale(clip) : 1f;
             _loopSeAudioSource.clip = clip;
-            _loopSeAudioSource.volume = _optionModel.SEVolume.CurrentValue / 2 * _loopSeVolumeScale;
+            _loopSeAudioSource.volume = _optionModel.MasterVolume.CurrentValue * 2f * _optionModel.SEVolume.CurrentValue / 2 * _loopSeVolumeScale;
             _loopSeAudioSource.Play();
         }
 

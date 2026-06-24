@@ -85,6 +85,15 @@ namespace Common.Option
             _backToTitleButton = modal.Q<Button>("BackToTitleButton");
             _backToTitleButton.clicked += BackToTitle;
 
+            Slider masterSlider = modal.Q<Slider>("MasterSlider");
+            masterSlider.value = _optionModel.MasterVolume.CurrentValue;
+
+            _optionModel.MasterVolume
+                .Subscribe(v => masterSlider.SetValueWithoutNotify(v))
+                .AddTo(_disposables);
+
+            masterSlider.RegisterValueChangedCallback(OnMasterSliderChange);
+
             Slider bgmSlider = modal.Q<Slider>("BGMSlider");
             bgmSlider.value = _optionModel.BGMVolume.CurrentValue;
 
@@ -339,6 +348,11 @@ namespace Common.Option
         {
             CloseModal();
             _sceneTransitioner.Transit(Scenes.Title).Forget();
+        }
+
+        private void OnMasterSliderChange(ChangeEvent<float> evt)
+        {
+            _optionModel.SetMasterVolume(evt.newValue);
         }
 
         private void OnBGMSliderChange(ChangeEvent<float> evt)
