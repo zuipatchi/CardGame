@@ -13,4 +13,81 @@ MonoBehaviour:
   m_Name: EventCards_Black
   m_EditorClassIdentifier: Main::Main.Card.EventCardSO
   _attribute: 4
-  _cards: []
+  _set: 1
+  _cards:
+  - _id: E6001
+    _cardName: "\u624B\u306B\u611F\u67D3\u3057\u305F"
+    _cost: 1
+    _image: {fileID: 21300000, guid: eebd44cff4d3d3840b3052a62407ee04, type: 3}
+    _flavorText: "\u6D17\u3048\u3070\u5927\u4E08\u592B\u304B\u306A\uFF1F"
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 33
+    _eventValue: 2
+    _eventValue2: 0
+    _description: "\u76F8\u624B\u306E\u624B\u672D\u30922\u679A\u6368\u3066\u3055\u305B\u308B"
+    _attribute: 4
+  - _id: E6002
+    _cardName: "\u5FA9\u6D3B\u306E\u546A\u6587"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 5ef07976ac6509f4696869ae5b6902f1, type: 3}
+    _flavorText: "\u8607\u308B\u3071\u3061\uFF5E"
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 0
+    _eventValue: 0
+    _eventValue2: 0
+    _description: 
+    _attribute: 4
+  - _id: E6003
+    _cardName: "\u8FBB\u65AC\u308A"
+    _cost: 0
+    _image: {fileID: 21300000, guid: 97e0cc61c3600f94a8ff344c54d44f05, type: 3}
+    _flavorText: "\u5207\u308A\u6368\u3066\u3054\u3081\u3093"
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 5
+    _eventValue: 1
+    _eventValue2: 0
+    _description: "\u76F8\u624B\u306E\u30AD\u30E3\u30E9\u30921\u4F53\u9078\u3093\u3067\u7834\u58CA\u3059\u308B"
+    _attribute: 4
+  - _id: E6004
+    _cardName: "\u91D1\u7E1B\u308A"
+    _cost: 0
+    _image: {fileID: 21300000, guid: bb7d6f236112cbf4685192517c87f223, type: 3}
+    _flavorText: 
+    _voiceSpeaker: 0
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _eventTrigger: 0
+    _eventType: 0
+    _eventValue: 0
+    _eventValue2: 0
+    _description: 
+    _attribute: 4

@@ -58,6 +58,9 @@ namespace Main.Card
         // サイコロ（6面）を振り、出た目の数だけカードを引く。
         // EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（0）。
         DiceDraw = 32,
+        // ハンデス：相手プレイヤーは手札を EventValue / EffectValue 枚（値1）捨てる（捨てるカードは手札の持ち主が選ぶ）。
+        // 手札枚数が値1未満なら手札全部。手札が0枚なら空振り。EventValue2 / EffectValue2 は不使用。
+        Discard = 33,
         // デッキの上から EventValue / EffectValue 枚（値1）を手札に加える。
         // EventValue2 / EffectValue2（値2）＝1 でオーバーリミット指定：デッキが0枚でも敗北せず「オーバーリミット！」告知のみ行う（0=通常）。
         Draw = 3,

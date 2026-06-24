@@ -49,6 +49,23 @@ namespace Main.Game
             return bestIdx;
         }
 
+        // ハンデス（被害者が CPU）：手札から捨てる count 枚のインデックスを返す。
+        // 価値の低い（コストの低い）カードを優先して捨てる。count が手札枚数以上なら全部。
+        public static List<int> ChooseDiscardIndices(IReadOnlyList<CardData> hand, int count)
+        {
+            List<int> indices = new List<int>();
+            for (int i = 0; i < hand.Count; i++)
+            {
+                indices.Add(i);
+            }
+            indices.Sort((a, b) => hand[a].Cost.CompareTo(hand[b].Cost));
+            if (count < indices.Count)
+            {
+                indices.RemoveRange(count, indices.Count - count);
+            }
+            return indices;
+        }
+
         private static int FindFirst<T>(IReadOnlyList<CardData> hand, Func<int, bool> canAfford) where T : CardData
         {
             for (int i = 0; i < hand.Count; i++)

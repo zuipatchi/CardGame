@@ -30,6 +30,7 @@ namespace Main.Network
         private const string k_Switch = "NGS_Switch";
         private const string k_Evolve = "NGS_Evolve";
         private const string k_DamageTarget = "NGS_DamageTarget";
+        private const string k_Discard = "NGS_Discard";
         private const string k_MainAction = "NGS_MainAction";
 
         // 対戦中に双方向でやり取りするゲームプレイメッセージ。これらはすべて対戦開始時
@@ -49,6 +50,7 @@ namespace Main.Network
             k_CoinDraw,
             k_DiceDraw,
             k_DamageTarget,
+            k_Discard,
             k_Surrender,
             k_SpecialWin,
             k_Rematch,
@@ -484,6 +486,23 @@ namespace Main.Network
             return payload.indices ?? Array.Empty<int>();
         }
 
+        // ハンデス（EventType.Discard）で手札の持ち主が選んで捨てたカードの ID を発動側へ伝える。
+        // 相手の手札は同期されない（裏向き）ため、捨てる側（被害者）が選んで発動側へ送る逆方向の同期。
+        // 発動側は受信した ID のカードを相手の墓地へ送る（プレースホルダを実カードに置き換える）。
+        public void SendDiscardedCards(string[] cardIds)
+        {
+            DiscardPayload payload = new DiscardPayload { cardIds = cardIds ?? Array.Empty<string>() };
+            SendJson(k_Discard, JsonUtility.ToJson(payload));
+        }
+
+        // 相手（被害者）が捨てたカードの ID 配列を受信する。捨てなかった場合は空配列を返す。
+        public async UniTask<string[]> WaitForOpponentDiscardedCardsAsync(CancellationToken ct)
+        {
+            string json = await WaitJsonAsync(k_Discard, ct);
+            DiscardPayload payload = JsonUtility.FromJson<DiscardPayload>(json);
+            return payload.cardIds ?? Array.Empty<string>();
+        }
+
         public void SendRecoverDeckOrder(string[] deckIds)
         {
             DeckOrderPayload payload = new DeckOrderPayload { deckIds = deckIds };
@@ -677,6 +696,12 @@ namespace Main.Network
         private sealed class DamageTargetPayload
         {
             public int[] indices;
+        }
+
+        [Serializable]
+        private sealed class DiscardPayload
+        {
+            public string[] cardIds;
         }
 
         [Serializable]
