@@ -22,7 +22,7 @@ namespace Main.Card.Effects.Handlers
             string body = $"カードを{ctx.Value1}枚引く";
             if (ctx.Value2 == OverLimitValue2)
             {
-                body += "（デッキが0枚でも敗北せずオーバーリミットになる）";
+                body += "（デッキが尽きても敗北しない）";
             }
             return body;
         }
