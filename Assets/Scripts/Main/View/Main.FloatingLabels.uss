@@ -115,6 +115,18 @@
     height: 60px;
 }
 
+/* ─── DrawSkipNext フローティングラベル（ドロースキップ） ──────────────────── */
+.skip-draw-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(255, 150, 70);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 320px;
+    height: 60px;
+}
+
 /* ─── Recover フローティングラベル ──────────────────────────────────────── */
 .recover-label {
     font-size: 36px;
