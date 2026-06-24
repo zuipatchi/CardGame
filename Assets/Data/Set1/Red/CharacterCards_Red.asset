@@ -163,20 +163,20 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _triggerOnGrave: 0
-    _attack: 3
+    _attack: 2
     _hp: 4
     _attribute: 0
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
+    _effectTrigger: 2
+    _effectType: 13
+    _effectValue: 1
+    _effectValue2: 2
     _guardian: 0
     _haste: 1
     _flying: 0
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _description: 
+    _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306B2\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B"
   - _id: C5007
     _cardName: "\u6EB6\u5CA9\u30B4\u30FC\u30EC\u30E0"
     _cost: 3

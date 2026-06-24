@@ -498,6 +498,21 @@ namespace Main.Card
             await PulseStatAsync(_atkArea, _atkLabel, new Color(1f, 0.65f, 0.1f), ct);
         }
 
+        // 攻撃力を amount 永続的に下げる（DebuffAttack）。CurrentAttack は 0 未満にならないようクランプする。
+        // ATK ラベルを更新し青のパルス演出を出す（上昇のオレンジと区別）。
+        public async UniTask DebuffAttackAsync(int amount, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+            // CurrentAttack（= Data.Attack + _attackBuff）が 0 を下回らないよう、減算量を実際に下げられる分にクランプする
+            int reduce = Mathf.Min(amount, CurrentAttack);
+            _attackBuff -= reduce;
+            _atkLabel.text = CurrentAttack.ToString();
+            await PulseStatAsync(_atkArea, _atkLabel, new Color(0.25f, 0.55f, 1f), ct);
+        }
+
         // HP（現在HP・最大HP）を amount 永続的に上げる（BuffHpByKeyword）。HP ラベルを更新し緑のパルス演出を出す。
         public async UniTask BuffHpAsync(int amount, CancellationToken ct)
         {

@@ -39,6 +39,26 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 発動側が敵フィールドから値1体（0=敵全員）選び、それぞれの攻撃力を値2、永続的に下げる（0未満にはならない）。
+    [Preserve]
+    public sealed class DebuffAttackHandler : EffectHandler
+    {
+        public override EventType Type => EventType.DebuffAttack;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（対象数）", true, "値2（攻撃力の減少量）",
+            "値1=敵フィールドから選ぶ相手の体数（0=敵全員・対象数が敵の数以上なら全員）/ 値2=各対象の攻撃力を永続的に下げる量（0未満にはならない）。");
+
+        public override string BuildBody(EffectTextContext ctx) =>
+            $"{EnemiesTargetPrefix(ctx.Value1)}の攻撃力を{ctx.Value2}下げる";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            // 値1=対象数、値2=減少量
+            return p.ApplyDebuffSelectedEnemiesAsync(inv.Value2, inv.Value1, inv.IsLocal, ct);
+        }
+    }
+
     // 相手キャラを値1体（0=1体）選んで破壊する。対象数が敵の数以上なら全員。
     [Preserve]
     public sealed class BanishCharHandler : EffectHandler

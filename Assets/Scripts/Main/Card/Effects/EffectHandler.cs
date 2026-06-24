@@ -51,5 +51,11 @@ namespace Main.Card.Effects
         {
             return value1 <= 0 ? "自分のキャラ全体" : $"自分のキャラ{value1}体";
         }
+
+        // 敵フィールドから値1体（0=敵全員）選ぶ効果テキストの対象部分を作る共有ヘルパー。
+        protected static string EnemiesTargetPrefix(int value1)
+        {
+            return value1 <= 0 ? "相手キャラ全体" : $"相手キャラ{value1}体";
+        }
     }
 }

@@ -158,6 +158,42 @@ namespace Main
             }
         }
 
+        // DebuffAttack：発動側から見た敵フィールドから count 体（値1。0=敵全員）選び、それぞれの攻撃力を
+        // amount（値2）永続的に下げる（0未満にはならない）。対象数が敵の数以上なら全員。
+        // 対象選択は DamageEnemy と同じ仕組み（プレイヤー選択／CPU 攻撃力上位／オンライン同期）を共用する。
+        internal async UniTask ApplyDebuffSelectedEnemiesAsync(int amount, int count, bool isLocal, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            int enemyCount = targetField.Characters.Count;
+            if (enemyCount == 0)
+            {
+                return;
+            }
+
+            // 値1=0 は「敵キャラ全員」を対象にする
+            int targetCount = count <= 0 ? enemyCount : Mathf.Min(count, enemyCount);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "攻撃力を下げる相手キャラを選択", ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> tasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                // 各対象で ATK 減算パルスと「攻撃ダウンN」フローティングラベルを同時に再生する
+                tasks.Add(target.DebuffAttackAsync(amount, ct));
+                tasks.Add(PlayFloatingLabelAsync($"攻撃ダウン{amount}", "debuff-attack-label", target, ct));
+            }
+            await UniTask.WhenAll(tasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
         private async UniTask HitCharWithParticleAsync(CardView target, int damage, CancellationToken ct)
         {
             if (_hitEffectPrefab != null)
