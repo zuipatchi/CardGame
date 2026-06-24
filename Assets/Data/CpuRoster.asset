@@ -149,6 +149,40 @@ MonoBehaviour:
     - E1001
     - E1001
     - E1001
+  - Name: "\u30C0\u30FC\u30AF\u3071\u3063\u3061 \u521D\u7D1A"
+    Portrait: {fileID: 2800000, guid: a5738855d9824764dbf410d8c8aef44c, type: 3}
+    Difficulty: 1
+    CardIds:
+    - C6001
+    - C6001
+    - C6001
+    - C6005
+    - C6005
+    - C6005
+    - C6002
+    - C6002
+    - C6002
+    - C6003
+    - C6003
+    - C6003
+    - C6007
+    - C6007
+    - C6007
+    - C6006
+    - C6006
+    - C6006
+    - E6001
+    - E6001
+    - E6001
+    - E6004
+    - E6004
+    - E6004
+    - E6002
+    - E6002
+    - E6002
+    - E6003
+    - E6003
+    - E6003
   - Name: "\u6FC0\u6D41\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
     Portrait: {fileID: 2800000, guid: b23c64f36839a6f40a22f2554d895e8d, type: 3}
     Difficulty: 1
@@ -285,3 +319,37 @@ MonoBehaviour:
     - E1001
     - E1001
     - E1001
+  - Name: "\u30C0\u30FC\u30AF\u3071\u3063\u3061 \u4E2D\u7D1A"
+    Portrait: {fileID: 2800000, guid: a5738855d9824764dbf410d8c8aef44c, type: 3}
+    Difficulty: 1
+    CardIds:
+    - C6001
+    - C6001
+    - C6001
+    - C6002
+    - C6002
+    - C6002
+    - C6003
+    - C6003
+    - C6003
+    - C6004
+    - C6004
+    - C6004
+    - C6007
+    - C6007
+    - C6007
+    - C6008
+    - C6008
+    - C6008
+    - C6006
+    - C6006
+    - C6006
+    - E6001
+    - E6001
+    - E6001
+    - E6005
+    - E6005
+    - E6002
+    - E6004
+    - E6004
+    - E6002
