@@ -95,6 +95,32 @@ namespace Main.Card.Effects
     // 属性の短縮名（赤/青/…）。エディタの属性ボタンと CostBoost の効果テキストで共用する。
     public static class CardAttributeNames
     {
+        // 属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7。カードID採番の AttributeNumber と同じ並び）→ 属性。
+        // 範囲外（0 や 8 以上）は null を返す。属性を値で指定する効果（DamageDeckRecoverByColorChars）が
+        // 実行時に使う（CardIdAutoAssigner は Editor 専用のためランタイムで使えない）。
+        public static CardAttribute? FromNumber(int number)
+        {
+            switch (number)
+            {
+                case 1:
+                    return CardAttribute.White;
+                case 2:
+                    return CardAttribute.Blue;
+                case 3:
+                    return CardAttribute.Green;
+                case 4:
+                    return CardAttribute.Yellow;
+                case 5:
+                    return CardAttribute.Red;
+                case 6:
+                    return CardAttribute.Black;
+                case 7:
+                    return CardAttribute.Purple;
+                default:
+                    return null;
+            }
+        }
+
         public static string Short(CardAttribute attribute)
         {
             switch (attribute)

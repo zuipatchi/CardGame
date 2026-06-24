@@ -180,6 +180,57 @@ namespace Main
             return graveyard.CountByAttribute(CardAttribute.Green);
         }
 
+        // 発動した側の自フィールドにいる指定属性キャラの数を返す（DamageDeckRecoverByColorChars の動的な枚数）。
+        // 盤面は両クライアントで同期済みのため、オンラインでも対称に解決される（追加同期不要）。
+        internal int CountCharsOnFieldByAttribute(bool isLocal, CardAttribute attribute)
+        {
+            FieldView field = isLocal ? _playerFieldView : _opponentFieldView;
+            int count = 0;
+            foreach (CardView character in field.Characters)
+            {
+                if (character.Data.Attribute == attribute)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        // DamageDeckRecoverByColorChars 効果（ハンドラから呼ぶ）：自フィールドの指定属性キャラ数 N を数え、
+        // 相手デッキに N ダメージ（上から N 枚ミル）→ 同じ N 枚を自分の墓地の上からデッキへ戻してシャッフルする。
+        // colorNumber は属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7）。0=属性を問わず自フィールドの全キャラを数える。範囲外なら空振り。
+        // N は1回だけ算出し両処理で共有する。ミルで相手がデッキ切れ敗北してゲームが終わったら回収はスキップする。
+        internal async UniTask ApplyColorCharDeckDamageAndRecoverAsync(bool isLocal, int colorNumber, CardView sourceCard, CancellationToken ct)
+        {
+            int count;
+            if (colorNumber == 0)
+            {
+                // 値1=0：属性を問わず自フィールドの全キャラを数える
+                count = (isLocal ? _playerFieldView : _opponentFieldView).Characters.Count;
+            }
+            else
+            {
+                CardAttribute? attribute = CardAttributeNames.FromNumber(colorNumber);
+                if (attribute == null)
+                {
+                    return;
+                }
+                count = CountCharsOnFieldByAttribute(isLocal, attribute.Value);
+            }
+            if (count <= 0)
+            {
+                return;
+            }
+            // 発動側(isLocal)から見た相手のデッキ＝ !isLocal の持ち主をミルする
+            await MillDeckAsync(deckOwnerIsLocal: !isLocal, count, ct);
+            if (_isGameOver)
+            {
+                return;
+            }
+            await PlayFloatingLabelAsync($"ドレイン {count}", "drain-label", sourceCard, ct);
+            await ApplyRecoverEffectAsync(count, isLocal, ct);
+        }
+
         // Recover 効果（RecoverHandler から呼ぶ）：墓地の上から value 枚を回収してデッキへ戻し、シャッフルする。
         // オンラインでは戻したデッキ順をホスト基準で同期する（受信側はアニメ前にハンドラ登録してロストを防ぐ）。
         internal async UniTask ApplyRecoverEffectAsync(int value, bool isLocal, CancellationToken ct)

@@ -47,6 +47,33 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 自フィールドの指定属性キャラの数 N だけ相手デッキにダメージ（ミル）を与え、同じ N 枚を自分の墓地の上からデッキへ戻す。
+    [Preserve]
+    public sealed class DamageDeckRecoverByColorCharsHandler : EffectHandler
+    {
+        public override EventType Type => EventType.DamageDeckRecoverByColorChars;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（属性番号 / 0=全キャラ）", false, "値2（未使用）",
+            "値1=数える属性の番号（白1/青2/緑3/黄4/赤5/黒6/紫7。0=属性を問わず自分の場の全キャラ）。自分の場のそのキャラ数だけ相手デッキを削り、同じ数だけ墓地から回収する。範囲外なら空振り。");
+
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            if (ctx.Value1 == 0)
+            {
+                return "自分の場のキャラの数だけ相手のデッキにダメージを与え、同じ数だけ自分の墓地の上のカードをデッキに戻す";
+            }
+            CardAttribute? attribute = CardAttributeNames.FromNumber(ctx.Value1);
+            string color = attribute == null ? "指定属性" : CardAttributeNames.Short(attribute.Value);
+            return $"自分の場の{color}のキャラの数だけ相手のデッキにダメージを与え、同じ数だけ自分の墓地の上のカードをデッキに戻す";
+        }
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyColorCharDeckDamageAndRecoverAsync(inv.IsLocal, inv.Value1, inv.SourceCard, ct);
+        }
+    }
+
     // お互いのデッキの上から値1枚ずつを墓地へ送る（デッキへのダメージ＝ミル）。自分 → 相手の順にミルする。
     // ミルされたカードが「ダメージトリガー」なら持ち主がコストなしで使用する。自分のデッキも削れるため両刃。
     [Preserve]
