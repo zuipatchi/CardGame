@@ -44,10 +44,10 @@ MonoBehaviour:
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C6002
     _cardName: "\u30D6\u30E9\u30C3\u30AF\u30AD\u30E3\u30C3\u30C8"
-    _cost: 1
+    _cost: 2
     _image: {fileID: 21300000, guid: fa11b9dae9c8afd4795ebb6070522bb6, type: 3}
     _flavorText: "\u306B\u3083\u3093\u306B\u3083\u3093"
-    _voiceSpeaker: 85
+    _voiceSpeaker: 54
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -55,8 +55,8 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _triggerOnGrave: 0
-    _attack: 1
-    _hp: 2
+    _attack: 2
+    _hp: 4
     _attribute: 4
     _effectTrigger: 0
     _effectType: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: c07e7fc54ff177e4d8767ebc782ab794, type: 3}
     _flavorText: "\u3070\u308C\u3066\u306A\u3055\u305D\u3046"
-    _voiceSpeaker: 85
+    _voiceSpeaker: 67
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -100,8 +100,116 @@ MonoBehaviour:
     _cardName: "\u30C8\u30EC\u30FC\u30C0\u30FC\u30AB\u30E0\u30AA"
     _cost: 0
     _image: {fileID: 21300000, guid: 630f1bfe61fbd2f42a74f3d3a76e64e7, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 85
+    _flavorText: "\u305F\u3042"
+    _voiceSpeaker: 73
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 0
+    _hp: 0
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6005
+    _cardName: "\u30CA\u30A4\u30C8\u30D0\u30C3\u30C8"
+    _cost: 1
+    _image: {fileID: 21300000, guid: 42ad51b9f459b5f46ac26fa6f2bcd318, type: 3}
+    _flavorText: "\u8840\u3092\u6C42\u3081\u3066\u3055\u307E\u3088\u3063\u3066\u3044\u308B"
+    _voiceSpeaker: 124
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 1
+    _hp: 2
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6006
+    _cardName: "\u30EC\u30A4\u30B8\u30F3\u30B0\u30D6\u30EB"
+    _cost: 3
+    _image: {fileID: 21300000, guid: 8f3c9623e527e3f49a46bd4d98d66e5e, type: 3}
+    _flavorText: "\u6012\u3063\u305F\u305E\u30FC"
+    _voiceSpeaker: 82
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 3
+    _hp: 6
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6007
+    _cardName: "\u30EC\u30C7\u30A3\u30B7\u30FC\u30D5"
+    _cost: 2
+    _image: {fileID: 21300000, guid: 97a99ec574efee140b173f76324e529c, type: 3}
+    _flavorText: "\u3071\u3063\u3061\u306F\u3042\u3063\u3061\u3088"
+    _voiceSpeaker: 94
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 2
+    _hp: 4
+    _attribute: 4
+    _effectTrigger: 0
+    _effectType: 0
+    _effectValue: 0
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _description: 
+  - _id: C6008
+    _cardName: "\u9ED2\u6CA2\u30DE\u30B9\u30BF\u30FC"
+    _cost: 0
+    _image: {fileID: 21300000, guid: cec7e0cc5be563343a4d1c02275be6cb, type: 3}
+    _flavorText: "\u3071\u3063\u3061\u306E\u30B8\u30E3\u30B9\u30C6\u30A3\u30B9\u3060\uFF01"
+    _voiceSpeaker: 52
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0

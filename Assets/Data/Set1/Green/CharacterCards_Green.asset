@@ -190,7 +190,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _triggerOnGrave: 0
-    _attack: 3
+    _attack: 4
     _hp: 9
     _attribute: 2
     _effectTrigger: 6
@@ -217,7 +217,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _triggerOnGrave: 0
-    _attack: 5
+    _attack: 4
     _hp: 8
     _attribute: 2
     _effectTrigger: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
     _set: 0
     _triggerOnGrave: 0
     _attack: 3
-    _hp: 7
+    _hp: 6
     _attribute: 2
     _effectTrigger: 0
     _effectType: 0

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CharacterCards_White
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 6
+  _set: 1
   _cards:
   - _id: C1001
     _cardName: "\u3071\u3063\u3061\u5C11\u5E74"
@@ -25,6 +26,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 4
@@ -51,8 +53,9 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
-    _attack: 4
+    _attack: 3
     _hp: 6
     _attribute: 6
     _effectTrigger: 0
@@ -77,6 +80,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 1
     _attack: 1
     _hp: 2
@@ -103,6 +107,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -129,9 +134,10 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 0
-    _hp: 3
+    _hp: 2
     _attribute: 6
     _effectTrigger: 1
     _effectType: 2
@@ -155,9 +161,10 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 4
-    _hp: 9
+    _hp: 8
     _attribute: 6
     _effectTrigger: 0
     _effectType: 0
@@ -181,6 +188,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 2
@@ -207,6 +215,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -233,6 +242,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -259,6 +269,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 2
@@ -285,6 +296,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 1
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -311,6 +323,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 1
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
