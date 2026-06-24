@@ -904,10 +904,10 @@ namespace Main
                             ShowToast("タップ状態のキャラにしか攻撃できません");
                             return false;
                         }
-                        // 飛行を持つキャラは飛行か防人を持つキャラからしか攻撃されない
-                        if (IsFlying(targetChar) && !IsFlying(capturedChar) && !IsSakimori(capturedChar))
+                        // 飛行を持つキャラは飛行・防人・射手を持つキャラからしか攻撃されない
+                        if (IsFlying(targetChar) && !IsFlying(capturedChar) && !IsSakimori(capturedChar) && !IsArcher(capturedChar))
                         {
-                            ShowToast("飛行を持つキャラには飛行か防人でしか攻撃できません");
+                            ShowToast("飛行を持つキャラには飛行・防人・射手でしか攻撃できません");
                             return false;
                         }
                         // 守護・防人による対象強制：飛行は防人を、非飛行は守護を優先して攻撃しなければならない（非飛行は防人を対象に取れない）
