@@ -59,7 +59,7 @@ namespace Main.Card.Effects.Handlers
         public override EffectValueInfo Values => new EffectValueInfo(
             true, "値1（回収枚数）", false, "値2（未使用）", "値1=墓地の上から回収してデッキへ戻す枚数。");
 
-        public override string BuildBody(EffectTextContext ctx) => $"墓地から上の{ctx.Value1}枚をデッキに戻す";
+        public override string BuildBody(EffectTextContext ctx) => $"墓地から上のカード{ctx.Value1}枚をデッキに戻してシャッフルする";
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
