@@ -258,7 +258,7 @@ namespace Main
                     CardData[] shuffledDeck = await recoverReceiveTask;
                     targetDeck.Rebuild(shuffledDeck);
                 }
-                await PlayDeckShufflePulseAsync(targetDeck, ct);
+                await PlayDeckShuffleAsync(targetDeck, ct);
             }
         }
 

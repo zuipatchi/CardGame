@@ -475,30 +475,84 @@ namespace Main
             }
         }
 
-        // ─── デッキシャッフルパルス（デッキがスケールアップしてから戻る）────────
-
-        private async UniTask PlayDeckShufflePulseAsync(DeckView deck, CancellationToken ct)
+        // ─── デッキシャッフル演出（オーバーハンド：上半分を持ち上げて切り直す）────────
+        // デッキの上に「カード裏面を数枚重ねたパケット」を生成し、持ち上げ→横へずらし→パタンと
+        // 落とす動きを左右交互に数回繰り返して、手でデッキを切り直す様子を見せる。
+        // データのシャッフルは AddCardsAndShuffle で済んでいるため、この演出は純粋に装飾。
+        private async UniTask PlayDeckShuffleAsync(DeckView deck, CancellationToken ct)
         {
-            const float PulseDuration = 0.15f;
+            const int PacketCardCount = 3;   // 持ち上げるパケットの見た目の厚み（裏面の枚数）
+            const int CutCount = 3;          // 切り直す回数
+            const float LiftDuration = 0.12f;
+            const float DropDuration = 0.10f;
+            const float LiftHeight = 52f;    // 持ち上げる高さ(px)
+            const float ShiftX = 26f;        // 横へずらす量(px)
+            const float LeanAngle = 8f;      // 持ち上げ時の傾き(度)
+            // デッキは USS で 0.6 倍表示（CardScaleConstants.HandDeck）なので、パケットも同じ倍率にして見た目を揃える。
+            const float DeckScale = CardScaleConstants.HandDeck;
+            const float LiftScale = DeckScale * 1.04f;   // 持ち上げ時の軽い拡大
 
+            // 裏面の見た目はデッキ先頭カードを faceDown で流用（中身は見えないのでデータは何でもよい）。
+            IReadOnlyList<CardData> snapshot = deck.GetCardDataSnapshot();
+            if (snapshot.Count == 0)
+            {
+                return;
+            }
+            CardData backData = snapshot[0];
+
+            Rect deckRect = deck.worldBound;
+            float baseLeft = deckRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float baseTop = deckRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            VisualElement packet = new VisualElement();
+            packet.style.position = Position.Absolute;
+            packet.style.left = baseLeft;
+            packet.style.top = baseTop;
+            packet.style.width = CardScaleConstants.CardWidth;
+            packet.style.height = CardScaleConstants.CardHeight;
+            packet.style.scale = new Scale(new Vector3(DeckScale, DeckScale, 1f));
+            packet.pickingMode = PickingMode.Ignore;
+            for (int i = 0; i < PacketCardCount; i++)
+            {
+                CardView back = new CardView(_cardStore.CardTemplate, backData, _cardStore.CardBack, faceDown: true);
+                back.style.position = Position.Absolute;
+                back.style.left = (PacketCardCount - 1 - i) * 1f;
+                back.style.top = (PacketCardCount - 1 - i) * -1f;
+                back.pickingMode = PickingMode.Ignore;
+                packet.Add(back);
+            }
+            _dragLayer.Add(packet);
+
+            float rotDeg = 0f;
             UniTaskCompletionSource tcs = new UniTaskCompletionSource();
-            Sequence seq = DOTween.Sequence()
-                .Append(DOTween.To(
-                    () => deck.style.scale.value.value.x,
-                    s => deck.style.scale = new Scale(new Vector3(s, s, 1f)),
-                    1.15f, PulseDuration).SetEase(Ease.OutQuad))
-                .Append(DOTween.To(
-                    () => deck.style.scale.value.value.x,
-                    s => deck.style.scale = new Scale(new Vector3(s, s, 1f)),
-                    1f, PulseDuration).SetEase(Ease.InQuad))
-                .OnComplete(() => tcs.TrySetResult());
+            Sequence seq = DOTween.Sequence();
+            for (int cut = 0; cut < CutCount; cut++)
+            {
+                float dir = (cut % 2 == 0) ? 1f : -1f;
+                // 持ち上げ＋横へずらし＋傾ける
+                seq.Append(DOTween.To(() => packet.style.top.value.value, v => packet.style.top = v, baseTop - LiftHeight, LiftDuration).SetEase(Ease.OutQuad))
+                    .Join(DOTween.To(() => packet.style.left.value.value, v => packet.style.left = v, baseLeft + ShiftX * dir, LiftDuration).SetEase(Ease.OutQuad))
+                    .Join(DOTween.To(() => rotDeg, v => { rotDeg = v; packet.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree)); }, -LeanAngle * dir, LiftDuration))
+                    .Join(DOTween.To(() => packet.style.scale.value.value.x, s => packet.style.scale = new Scale(new Vector3(s, s, 1f)), LiftScale, LiftDuration));
+                // パタンと元の位置へ落とす
+                seq.Append(DOTween.To(() => packet.style.top.value.value, v => packet.style.top = v, baseTop, DropDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => packet.style.left.value.value, v => packet.style.left = v, baseLeft, DropDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => rotDeg, v => { rotDeg = v; packet.style.rotate = new Rotate(new Angle(v, AngleUnit.Degree)); }, 0f, DropDuration))
+                    .Join(DOTween.To(() => packet.style.scale.value.value.x, s => packet.style.scale = new Scale(new Vector3(s, s, 1f)), DeckScale, DropDuration));
+                seq.AppendCallback(PlayDrawSe);
+                seq.AppendInterval(0.04f);
+            }
+            seq.OnComplete(() => tcs.TrySetResult());
 
             ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
 
             try { await tcs.Task; }
             catch (OperationCanceledException) { }
 
-            deck.style.scale = new Scale(Vector3.one);
+            if (packet.parent == _dragLayer)
+            {
+                _dragLayer.Remove(packet);
+            }
         }
 
         // ─── 召喚キャラの登場演出（その場で出現）────────────────────────────
