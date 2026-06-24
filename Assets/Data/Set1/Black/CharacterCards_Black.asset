@@ -41,6 +41,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C6002
     _cardName: "\u30D6\u30E9\u30C3\u30AF\u30AD\u30E3\u30C3\u30C8"
@@ -56,7 +57,7 @@ MonoBehaviour:
     _set: 0
     _triggerOnGrave: 0
     _attack: 2
-    _hp: 4
+    _hp: 3
     _attribute: 4
     _effectTrigger: 0
     _effectType: 0
@@ -68,6 +69,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 1
     _description: 
   - _id: C6003
     _cardName: "\u30D0\u30F3\u30C7\u30A3\u30C3\u30C8\u30E9\u30C3\u30C8"
@@ -95,6 +97,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C6004
     _cardName: "\u30C8\u30EC\u30FC\u30C0\u30FC\u30AB\u30E0\u30AA"
@@ -122,6 +125,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C6005
     _cardName: "\u30CA\u30A4\u30C8\u30D0\u30C3\u30C8"
@@ -149,6 +153,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C6006
     _cardName: "\u30EC\u30A4\u30B8\u30F3\u30B0\u30D6\u30EB"
@@ -176,6 +181,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C6007
     _cardName: "\u30EC\u30C7\u30A3\u30B7\u30FC\u30D5"
@@ -203,6 +209,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C6008
     _cardName: "\u9ED2\u6CA2\u30DE\u30B9\u30BF\u30FC"
@@ -230,4 +237,5 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 

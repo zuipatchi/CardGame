@@ -302,6 +302,15 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
         }
 
+        // ─── 射手 ─────────────────────────────────────────────────────────
+
+        // 表向きの射手持ちキャラかどうか：飛行を持たない地上キャラながら飛行を持つ相手キャラを攻撃できる（対空攻撃）。
+        // 防人と違い対空ガード（飛行に優先して狙われる壁）ではなく、純粋に飛行を殴れるだけの攻撃的能力。
+        private static bool IsArcher(CardView card)
+        {
+            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasArcher;
+        }
+
         // ─── 防人（対空ガード）───────────────────────────────────────────
 
         // 表向きの防人持ちキャラかどうか。防人は対空ガード：飛行を持つ攻撃者はこのキャラを優先して攻撃せねばならない。
@@ -324,8 +333,8 @@ namespace Main
             return false;
         }
 
-        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人を考慮）。
-        // ・飛行を持つ target は、飛行か防人を持つ attacker からしか攻撃されない
+        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人・射手を考慮）。
+        // ・飛行を持つ target は、飛行か防人か射手を持つ attacker からしか攻撃されない
         // ・飛行を持つ attacker は、相手フィールドに防人がいる間は防人を優先して攻撃しなければならない（守護は無視）
         // ・飛行を持たない attacker は、相手フィールドに守護がいる間は守護を優先して攻撃しなければならない
         //   （防人だけでは地上攻撃者を縛らない。守護がいるときも狙えるのは守護のみで、防人は対象に取れない）
@@ -341,7 +350,7 @@ namespace Main
             {
                 return false;
             }
-            if (IsFlying(target) && !IsFlying(attacker) && !IsSakimori(attacker))
+            if (IsFlying(target) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
             {
                 return false;
             }

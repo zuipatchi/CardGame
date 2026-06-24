@@ -12,6 +12,7 @@ namespace Main.Card
         Sakimori = 4,
         Assault = 5,
         NoDeckAttack = 6,
+        Archer = 7,
     }
 
     public static class GrantableKeywordExtensions
@@ -33,12 +34,14 @@ namespace Main.Card
                     return GrantableKeyword.Assault;
                 case 6:
                     return GrantableKeyword.NoDeckAttack;
+                case 7:
+                    return GrantableKeyword.Archer;
                 default:
                     return GrantableKeyword.None;
             }
         }
 
-        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人 / 強襲 / デッキ攻撃×）。None は空文字。
+        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人 / 強襲 / デッキ攻撃× / 射手）。None は空文字。
         public static string DisplayName(this GrantableKeyword keyword)
         {
             switch (keyword)
@@ -55,6 +58,8 @@ namespace Main.Card
                     return "強襲";
                 case GrantableKeyword.NoDeckAttack:
                     return "デッキ攻撃×";
+                case GrantableKeyword.Archer:
+                    return "射手";
                 default:
                     return "";
             }
