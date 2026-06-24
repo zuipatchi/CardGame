@@ -147,7 +147,8 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
 - SE: `PlayOneShot(clip, volumeScale)` で重ね再生。`volumeScale` には SE ごとのラウドネス正規化倍率（下記）を渡す
 - ボイス（フレーバーテキスト読み上げ）: 専用 AudioSource で `PlayVoice()`（`PlayOneShot()`）。前の読み上げが終わる前でも止めずに重ねて鳴らす（一時的に複数同時に流れてもよい）
 - 持続 SE（途中で止めたい効果音）: 専用 AudioSource（`loop = true`）で `PlayLoopSE()` 再生・`StopLoopSE()` 停止。`PlayOneShot` は途中停止できないため、演出の長さに合わせて鳴らし切る用途に使う（例: コイントス・コインドローの回転音を回転開始から回転終了まで鳴らす）。SE ラウドネス正規化倍率は再生時に AudioSource の音量へ畳み込む
-- 音量は `OptionModel.BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
+- 音量は `OptionModel.MasterVolume / BGMVolume / SEVolume / VoiceVolume` (0–1) を ReactiveProperty で管理（ボイスは SE とは独立した音量）
+- マスター音量は BGM/SE/ボイスすべてに掛かる全体音量。実効倍率は値×2（スライダー 0.5 で等倍）で、各チャンネル音量との積で実音量が決まる。`SoundPlayer` は `MasterVolume.CombineLatest(各チャンネル音量)` を Subscribe して反映する
 - `SoundPlayer` は音量変化を Subscribe して AudioSource に即時反映
 - **SE ラウドネス正規化**: SE クリップごとに収録音量がバラバラなので、`SoundStore` がロード完了時に各 SE の体感音量（約100msブロックごとの最大 RMS）とピークを解析し、全 SE の中央値を目標に「同じ聞こえ方になる音量倍率」を算出する（`NormalizeSeVolumes`）。ピークが 1.0 を超えないようヘッドルームで上限を制限し、最後に倍率を `[0.1, 4.0]` でクランプ。`SoundPlayer.PlaySE` が `SoundStore.GetSeVolumeScale(clip)` で倍率を取得して `PlayOneShot` の `volumeScale` に渡すため、SE スライダー（`SEVolume`）とは独立して乗算され、スライダー位置に関わらず SE 同士のバランスは保たれる
   - クリップの Load Type が `Decompress On Load` 以外（`Compressed In Memory` 等）だと `AudioClip.GetData` で波形を読めず、そのクリップは等倍（1.0）にフォールバックする（その場合は警告ログを出す）
