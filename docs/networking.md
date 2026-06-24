@@ -417,6 +417,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_CoinDraw` | Both | コインドロー（`EventType.CoinDraw`）の発動側が振った「表＝ドロー」の回数（int count）。乱数で決まる回数だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
 | `NGS_DiceDraw` | Both | サイコロドロー（`EventType.DiceDraw`）の発動側が振った出目（int roll、1〜6）。乱数で決まる出目だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
 | `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信 |
+| `NGS_Discard` | Victim → Activator | ハンデス（`EventType.Discard`）で被害者（手札の持ち主）が選んで捨てたカードの完全 ID 配列 string[]。相手手札は非同期（裏向き・枚数のみ）のため、**被害者が選んで発動側へ送る逆方向の同期**。発動側は受信 ID のカードを相手の墓地へ送り、相手手札のプレースホルダを同数除去する |
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
