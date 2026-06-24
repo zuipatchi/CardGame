@@ -345,6 +345,16 @@
     display: none;
 }
 
+/* 射手アイコン（デッキ攻撃×アイコンの下に表示。射手持ちキャラのみ CardView で display を切替） */
+.game-card__archer-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/ArrowIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 /* ダメージトリガーアイコン（守護などと同じ枠。TriggerOnGrave のカードのみ CardView で display を切替。キャラ・イベント共通） */
 .game-card__trigger-on-grave-icon {
     width: 36px;

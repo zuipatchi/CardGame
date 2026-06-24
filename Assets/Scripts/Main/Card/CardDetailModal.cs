@@ -124,6 +124,11 @@ namespace Main.Card
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--no-deck-attack", "デッキ攻撃×",
                         "相手デッキを直接攻撃できない"));
                 }
+                if (charData.Archer)
+                {
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--archer", "射手",
+                        "飛行を持つ相手キャラに攻撃できる"));
+                }
                 if (charData.TriggerOnGrave)
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--trigger-on-grave", "ダメージトリガー",
