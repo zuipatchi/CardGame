@@ -696,6 +696,10 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/NoDeckAttackIcon.png");
 }
 
+.home-tutorial-entry-icon--archer {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/ArrowIcon.png");
+}
+
 /* チュートリアルボタン: あそびかたボタンの左に並べる */
 .home-tutorial-button {
     font-size: 18px;

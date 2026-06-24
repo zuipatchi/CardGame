@@ -79,11 +79,13 @@ namespace Home
         {
             "TutorialEntryGuardian", "TutorialEntryHaste", "TutorialEntryFlying",
             "TutorialEntrySakimori", "TutorialEntryAssault", "TutorialEntryNoDeckAttack",
+            "TutorialEntryArcher",
         };
         private static readonly TutorialId[] _keywordTutorialIds =
         {
             TutorialId.GuardianKw, TutorialId.HasteKw, TutorialId.FlyingKw,
             TutorialId.SakimoriKw, TutorialId.AssaultKw, TutorialId.NoDeckAttackKw,
+            TutorialId.ArcherKw,
         };
         private Button _rulesButton;
         private Button _rulesCloseButton;
@@ -264,6 +266,7 @@ namespace Home
                 root.Q<Button>("RulesTabGoal"),
                 root.Q<Button>("RulesTabFlow"),
                 root.Q<Button>("RulesTabCard"),
+                root.Q<Button>("RulesTabColor"),
                 root.Q<Button>("RulesTabBattle"),
                 root.Q<Button>("RulesTabOverLimit"),
                 root.Q<Button>("RulesTabKeyword"),
@@ -274,6 +277,7 @@ namespace Home
                 root.Q<VisualElement>("RulesPageGoal"),
                 root.Q<VisualElement>("RulesPageFlow"),
                 root.Q<VisualElement>("RulesPageCard"),
+                root.Q<VisualElement>("RulesPageColor"),
                 root.Q<VisualElement>("RulesPageBattle"),
                 root.Q<VisualElement>("RulesPageOverLimit"),
                 root.Q<VisualElement>("RulesPageKeyword"),

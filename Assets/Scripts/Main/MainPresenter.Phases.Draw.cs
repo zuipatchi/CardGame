@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Main.Card;
+using Main.Game;
 using UnityEngine;
 
 namespace Main
@@ -16,9 +17,6 @@ namespace Main
         private async UniTask RunDrawPhaseAsync(CancellationToken ct)
         {
             bool isLocalTurn = _gameModel.IsLocalTurn;
-
-            // オーバーリミット：このドローフェーズでデッキが0枚へ落ちたら、生存を確認したうえで最後に1回告知する
-            bool overLimited = false;
 
             // 各プレイヤーの初手（このゲームで最初の自分のドローフェーズ）はドローなし＝先攻有利の補正。
             // 先攻・後攻の双方が対象。ExtraTurn で通算ターン番号がずれても、各自の初手のみ正しく0枚になる。
@@ -85,8 +83,8 @@ namespace Main
                         {
                             await _handView.AddCardAnimatedAsync(drawn, deckRect, 0f, ct);
                         }
-                        // オーバーリミット：このドローでデッキが0枚になったら告知予約（ターン最初のドローでは敗北しない）
-                        overLimited |= UpdateOverLimit(isLocalDeck: true);
+                        // オーバーリミット：このドローでデッキが0枚になったら状態を記録（ターン最初のドローでは敗北しない）
+                        UpdateOverLimit(isLocalDeck: true);
                     }
                 }
                 // ドロー0枚でも同期のため通知は送る（両者の lockstep を崩さない）。
@@ -140,15 +138,18 @@ namespace Main
                         {
                             await PlayCpuDrawAsync(drawn, deckRect, ct);
                         }
-                        // オーバーリミット：このドローでデッキが0枚になったら告知予約（ターン最初のドローでは敗北しない）
-                        overLimited |= UpdateOverLimit(isLocalDeck: false);
+                        // オーバーリミット：このドローでデッキが0枚になったら状態を記録（ターン最初のドローでは敗北しない）
+                        UpdateOverLimit(isLocalDeck: false);
                     }
                 }
                 // オーバーリミット：ターン最初のドローはデッキ枚数分だけ引いて止まり、決して敗北しない。
             }
 
-            // オーバーリミット：一連のドローを生き残った場合のみ「オーバーリミット！」告知（ターン最初のドローは常に生存）
-            if (!_isGameOver && overLimited)
+            // オーバーリミット：ドローフェーズ終了時にアクティブプレイヤーのデッキが0枚なら「オーバーリミット！」告知。
+            // このフェーズで新たに0枚へ落ちた場合だけでなく、すでに0枚のまま迎えた場合も危険を知らせる
+            // （ドローフェーズのドローはオーバーリミット安全なので、空デッキでも敗北せず必ず生存する）。
+            bool activeDeckEmpty = WinRule.IsDeckOut((isLocalTurn ? _playerDeckView : _opponentDeckView).Count);
+            if (!_isGameOver && activeDeckEmpty)
             {
                 await PlayOverLimitAnnouncementAsync(ct);
             }

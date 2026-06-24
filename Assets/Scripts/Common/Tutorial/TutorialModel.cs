@@ -21,6 +21,7 @@ namespace Common.Tutorial
         SakimoriKw,      // 防人
         AssaultKw,       // 強襲
         NoDeckAttackKw,  // デッキ攻撃×
+        ArcherKw,        // 射手
     }
 
     // チュートリアル（誘導つきスクリプト対戦）の起動情報を保持する Common 常駐モデル。

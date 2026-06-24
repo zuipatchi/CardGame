@@ -141,6 +141,7 @@ namespace Main
                 case TutorialId.SakimoriKw:
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
+                case TutorialId.ArcherKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
                 case TutorialId.BasicLoop:
@@ -165,6 +166,7 @@ namespace Main
                 case TutorialId.SakimoriKw:
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
+                case TutorialId.ArcherKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
                 case TutorialId.BasicLoop:
@@ -181,7 +183,8 @@ namespace Main
                 || _tutorialId == TutorialId.FlyingKw
                 || _tutorialId == TutorialId.SakimoriKw
                 || _tutorialId == TutorialId.AssaultKw
-                || _tutorialId == TutorialId.NoDeckAttackKw;
+                || _tutorialId == TutorialId.NoDeckAttackKw
+                || _tutorialId == TutorialId.ArcherKw;
         }
 
         // 進行ステップ：0=キャラを出す / 1=ターン終了 / 2=相手の番（タップ） / 3=攻撃 / 4=完了
@@ -272,7 +275,7 @@ namespace Main
         }
 
         // キーワード能力チュートリアルの盤面をセットする。攻撃役と「的」を置き、必要なら相手キャラをタップ状態にする。
-        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3007 / 強襲・デッキ攻撃×=C3006）。
+        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3007 / 強襲・デッキ攻撃×=C3006 / 射手=C6002）。
         private void PresetKeywordTutorial()
         {
             switch (_tutorialId)
@@ -303,6 +306,10 @@ namespace Main
                 case TutorialId.NoDeckAttackKw:
                     _tutorialHeroCard = PresetCharacter("C3006", isOpponent: false, tapped: false);    // デッキ攻撃×
                     PresetCharacter("C1011", isOpponent: true, tapped: true);   // 代わりに攻撃する的
+                    break;
+                case TutorialId.ArcherKw:
+                    _tutorialHeroCard = PresetCharacter("C6002", isOpponent: false, tapped: false);    // 射手（地上）
+                    PresetCharacter("C5003", isOpponent: true, tapped: true);   // 飛行（通常は地上から狙えない）
                     break;
             }
         }
@@ -466,6 +473,10 @@ namespace Main
                     break;
                 case TutorialId.NoDeckAttackKw:
                     ShowCoach("「デッキ攻撃×」を体験しよう。\nこの能力を持つキャラは相手デッキを直接攻撃できない。\nデッキへ攻撃できないことを確認してから代わりに相手キャラへ攻撃しよう！");
+                    ClearHighlights();
+                    break;
+                case TutorialId.ArcherKw:
+                    ShowCoach("「射手（しゃしゅ）」を体験しよう。\n飛行や防人を持たないキャラは、飛行を持つ相手キャラを攻撃できない。しかし、射手を持っていれば飛行を持つ相手キャラを攻撃できる！\nさっそく攻撃してみよう！");
                     ClearHighlights();
                     break;
             }

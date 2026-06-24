@@ -225,7 +225,7 @@ MonoBehaviour:
     _set: 0
     _triggerOnGrave: 0
     _attack: 1
-    _hp: 2
+    _hp: 1
     _attribute: 4
     _effectTrigger: 1
     _effectType: 36
