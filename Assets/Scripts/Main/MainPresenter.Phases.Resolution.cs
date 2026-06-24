@@ -221,13 +221,13 @@ namespace Main
             {
                 return;
             }
+            await PlayFloatingLabelAsync($"ドレイン {count}", "drain-label", sourceCard, ct);
             // 発動側(isLocal)から見た相手のデッキ＝ !isLocal の持ち主をミルする
             await MillDeckAsync(deckOwnerIsLocal: !isLocal, count, ct);
             if (_isGameOver)
             {
                 return;
             }
-            await PlayFloatingLabelAsync($"ドレイン {count}", "drain-label", sourceCard, ct);
             await ApplyRecoverEffectAsync(count, isLocal, ct);
         }
 
