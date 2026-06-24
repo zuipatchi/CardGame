@@ -43,7 +43,7 @@ namespace Main.Card.Effects.Handlers
             CardView evolveChar = field.Characters.Count > 0 ? field.Characters[0] : null;
             if (evolveChar != null)
             {
-                await p.PlayFloatingLabelAsync("EVOLVE", "evolve-label", evolveChar, ct);
+                await p.PlayFloatingLabelAsync("進化！", "evolve-label", evolveChar, ct);
             }
             await p.ApplyEvolveEffectAsync(inv.IsLocal, ct);
         }

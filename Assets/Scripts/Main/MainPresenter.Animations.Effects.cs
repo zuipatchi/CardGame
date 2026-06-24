@@ -256,7 +256,7 @@ namespace Main
             }
 
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync("BANISH!", "banish-char-label", targetChar, ct));
+            tasks.Add(PlayFloatingLabelAsync("破壊！", "banish-char-label", targetChar, ct));
             if (_banishCharEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(targetChar, _banishCharEffectPrefab, ct));
@@ -292,7 +292,7 @@ namespace Main
         internal async UniTask PlayDrawEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"DRAW {value}", "draw-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"ドロー{value}", "draw-label", card, ct));
             if (_drawEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _drawEffectPrefab, ct));
@@ -305,7 +305,7 @@ namespace Main
         internal async UniTask PlayRecoverEffectAsync(CardView card, int value, CancellationToken ct)
         {
             List<UniTask> tasks = new List<UniTask>();
-            tasks.Add(PlayFloatingLabelAsync($"RECOVER +{value}", "recover-label", card, ct));
+            tasks.Add(PlayFloatingLabelAsync($"回復+{value}", "recover-label", card, ct));
             if (_recoverEffectPrefab != null)
             {
                 tasks.Add(PlayParticleAtCardAsync(card, _recoverEffectPrefab, ct));

@@ -124,7 +124,7 @@ namespace Main.Card.Effects.Handlers
 
         public override async UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
         {
-            await p.PlayFloatingLabelAsync($"次ターン DRAW {inv.Value1}", "draw-label", inv.SourceCard, ct);
+            await p.PlayFloatingLabelAsync($"次のターン ドロー{inv.Value1}", "draw-label", inv.SourceCard, ct);
             p.AddPendingNextDraw(inv.Value1, inv.IsLocal);
         }
     }
