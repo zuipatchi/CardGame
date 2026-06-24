@@ -136,7 +136,17 @@ namespace Main
 
         // 候補カードを並べたオーバーレイを表示し、プレイヤーが count 枚タップで選ぶのを待つ。
         // タップで選択／再タップで解除、count 枚に達した時点で確定する。選んだデッキ内インデックスを返す。
-        private async UniTask<List<int>> WaitForPlayerDeckCardsSelectionAsync(List<int> candidates, IReadOnlyList<CardData> deckCards, string keyword, int count, CancellationToken ct)
+        private UniTask<List<int>> WaitForPlayerDeckCardsSelectionAsync(List<int> candidates, IReadOnlyList<CardData> deckCards, string keyword, int count, CancellationToken ct)
+        {
+            string title = string.IsNullOrEmpty(keyword) ? "カードを選択" : $"『{keyword}』を選択";
+            return WaitForPlayerCardsPickAsync(candidates, deckCards, title, "デッキから手札に加えるカードを選ぶ", count, ct);
+        }
+
+        // 複数選択ピッカーの共通実装：候補カードを並べたオーバーレイを表示し、count 枚タップで選ぶのを待つ。
+        // タップで選択／再タップで解除、count 枚に達した時点で確定する。選んだ candidates 由来のインデックスを返す。
+        // タイトル・サブタイトルだけ差し替えてデッキ／墓地など供給元の異なる選択で共用する。
+        // cardExtraClass を渡すと各候補カードに追加クラスを付ける（呼び出し元ごとにホバー演出などを変えるため）。
+        private async UniTask<List<int>> WaitForPlayerCardsPickAsync(List<int> candidates, IReadOnlyList<CardData> sourceCards, string title, string subtitle, int count, CancellationToken ct, string cardExtraClass = null)
         {
             UniTaskCompletionSource<List<int>> tcs = new UniTaskCompletionSource<List<int>>();
             List<int> selected = new List<int>();
@@ -151,13 +161,13 @@ namespace Main
             header.AddToClassList("deck-pick-header");
             header.pickingMode = PickingMode.Ignore;
 
-            Label title = new Label(string.IsNullOrEmpty(keyword) ? "カードを選択" : $"『{keyword}』を選択");
-            title.AddToClassList("deck-pick-title");
-            header.Add(title);
+            Label titleLabel = new Label(title);
+            titleLabel.AddToClassList("deck-pick-title");
+            header.Add(titleLabel);
 
-            Label subtitle = new Label("デッキから手札に加えるカードを選ぶ");
-            subtitle.AddToClassList("deck-pick-subtitle");
-            header.Add(subtitle);
+            Label subtitleLabel = new Label(subtitle);
+            subtitleLabel.AddToClassList("deck-pick-subtitle");
+            header.Add(subtitleLabel);
             panel.Add(header);
 
             VisualElement divider = new VisualElement();
@@ -179,9 +189,13 @@ namespace Main
 
             foreach (int idx in candidates)
             {
-                CardData data = deckCards[idx];
+                CardData data = sourceCards[idx];
                 CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: false);
                 card.AddToClassList("deck-pick-card");
+                if (!string.IsNullOrEmpty(cardExtraClass))
+                {
+                    card.AddToClassList(cardExtraClass);
+                }
                 int captured = idx;
                 card.RegisterCallback<ClickEvent>(_ =>
                 {

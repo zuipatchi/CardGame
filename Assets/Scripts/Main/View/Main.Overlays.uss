@@ -553,6 +553,15 @@
     scale: 1.12 1.12;
 }
 
+/* ホバーでの拡大を打ち消す（SummonFromGrave の墓地ピッカー）。選択済みの拡大は維持する */
+.deck-pick-card--no-hover:hover {
+    scale: 1.18 1.18;
+}
+
+.deck-pick-card--no-hover.deck-pick-card--selected:hover {
+    scale: 1.28 1.28;
+}
+
 /* 複数選択（AddToHandFromDeckByKeyword）で選択済みのカード */
 .deck-pick-card--selected {
     scale: 1.28 1.28;

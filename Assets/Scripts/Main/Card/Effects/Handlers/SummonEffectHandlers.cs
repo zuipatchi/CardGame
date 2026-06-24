@@ -53,6 +53,25 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 発動側自身の墓地からキャラカードを値1体（0=1体）選んで自フィールドに出す。
+    [Preserve]
+    public sealed class SummonFromGraveHandler : EffectHandler
+    {
+        public override EventType Type => EventType.SummonFromGrave;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（出す体数）", false, "値2（未使用）",
+            "自分の墓地からキャラを値1体選んで場に出す（0=1体）。墓地から消費し、配置時に OnEnter も発動する。");
+
+        public override string BuildBody(EffectTextContext ctx) =>
+            $"自分の墓地からキャラを{(ctx.Value1 <= 0 ? 1 : ctx.Value1)}体選んで場に出す";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplySummonFromGraveAsync(inv.Value1, inv.IsLocal, ct);
+        }
+    }
+
     // 自分のキャラを1体選び、そのコピー（バフ・現在HP込み）を値1体（0=1体）自フィールドに出す。
     [Preserve]
     public sealed class CopyFieldCharHandler : EffectHandler

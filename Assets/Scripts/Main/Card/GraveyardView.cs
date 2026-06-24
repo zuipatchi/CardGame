@@ -54,6 +54,27 @@ namespace Main.Card
             return count;
         }
 
+        // 墓地のカード一覧のスナップショット（下＝0／上＝末尾。インデックスは内部リストと一致）。
+        // SummonFromGrave などインデックス指定で取り除く効果で使う（両クライアントで同期済み）。
+        // 呼び出し側がループ中に RemoveCardAt しても崩れないよう、コピーを返す（DeckView と同じ）。
+        public IReadOnlyList<CardData> GetCardDataSnapshot()
+        {
+            return _cards.ToArray();
+        }
+
+        // 指定インデックスのカードを墓地から取り除いて返す（範囲外は null）。
+        // 内部リストはインデックスが詰まるため、複数取り除くときは降順で呼ぶこと。
+        public CardData RemoveCardAt(int index)
+        {
+            if (index < 0 || index >= _cards.Count)
+            {
+                return null;
+            }
+            CardData data = _cards[index];
+            _cards.RemoveAt(index);
+            return data;
+        }
+
         public List<CardData> TakeFromTop(int count)
         {
             int toTake = Mathf.Min(count, _cards.Count);

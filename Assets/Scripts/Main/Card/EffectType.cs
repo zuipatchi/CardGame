@@ -104,6 +104,10 @@ namespace Main.Card
         // 対象はプレイヤーが選択（CPU は最高コスト・オンラインはデッキ内インデックスで同期）。デッキから消費し、
         // 配置時に OnEnter も発動する。特徴一致キャラがデッキにいない／フィールド満杯なら空振り。EventValue / EventValue2 は不使用。
         SummonFromDeckByKeyword = 24,
+        // 発動側自身の墓地から、キャラカードを EventValue / EffectValue 体（値1。未設定=0 は1体）選んで自フィールドに出す。
+        // 墓地から消費し、配置時に OnEnter も発動する。候補が値1以下なら全部・墓地にキャラがいない／フィールド満杯なら空振り。
+        // 対象はプレイヤーが選択（CPU は高コスト順・オンラインは墓地内インデックスで同期）。EventValue2 / EffectValue2 は不使用。
+        SummonFromGrave = 34,
         Switch = 7,
     }
 }

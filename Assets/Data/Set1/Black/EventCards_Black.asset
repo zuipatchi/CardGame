@@ -23,7 +23,7 @@ MonoBehaviour:
     _voiceSpeaker: 21
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     _attribute: 4
   - _id: E6002
     _cardName: "\u5FA9\u6D3B\u306E\u546A\u6587\u3092\u5531\u3048\u305F"
-    _cost: 0
+    _cost: 3
     _image: {fileID: 21300000, guid: 5ef07976ac6509f4696869ae5b6902f1, type: 3}
     _flavorText: "\u8607\u308B\u3071\u3061\uFF5E"
     _voiceSpeaker: 42
@@ -48,20 +48,20 @@ MonoBehaviour:
     _set: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 0
-    _eventValue: 0
+    _eventType: 34
+    _eventValue: 1
     _eventValue2: 0
     _description: 
     _attribute: 4
   - _id: E6003
     _cardName: "\u8FBB\u65AC\u308A"
-    _cost: 0
+    _cost: 2
     _image: {fileID: 21300000, guid: 97e0cc61c3600f94a8ff344c54d44f05, type: 3}
     _flavorText: "\u5207\u308A\u6368\u3066\u3054\u3081\u3093"
     _voiceSpeaker: 100
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
@@ -80,26 +80,26 @@ MonoBehaviour:
     _voiceSpeaker: 66
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 0
+    _eventType: 20
     _eventValue: 0
     _eventValue2: 0
     _description: 
     _attribute: 4
   - _id: E6005
     _cardName: "\u4E0D\u6B7B\u85AC\u3092\u98F2\u3093\u3060"
-    _cost: 0
+    _cost: 1
     _image: {fileID: 21300000, guid: 1b51051f7d2d9ca469842edfa76351c8, type: 3}
     _flavorText: "\u53E3\u306E\u4E2D\u30D9\u30C8\u30D9\u30C8\u30FC"
     _voiceSpeaker: 25
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
