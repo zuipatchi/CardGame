@@ -105,17 +105,19 @@
                         <ui:Label text="キーワード能力" class="home-rules-section"/>
                         <ui:Label text="カードが持つ特別な能力です。効果でゲーム中に味方へ付与されることもあります" class="home-rules-entry"/>
                         <ui:Label text="守護（しゅご）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に守護持ちがいる間、自分は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。守護持ちは自分のターン終了時に自動でタップ（横向き）するため、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
+                        <ui:Label text="相手に守護持ちがいる間、自分は守護持ちにしか攻撃できません（他のキャラや相手デッキは狙えない）。守護持ちは自分のターン終了時に自動でタップ（横向き）するので、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
                         <ui:Label text="速攻（そっこう）" class="home-rules-subsection"/>
                         <ui:Label text="召喚酔いしません。場に出したターンからすぐ攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="飛行（ひこう）" class="home-rules-subsection"/>
-                        <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人を持つキャラからしか攻撃されません" class="home-rules-entry"/>
+                        <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人か射手を持つキャラからしか攻撃されません" class="home-rules-entry"/>
                         <ui:Label text="防人（さきもり）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます。防人持ちは守護と同じく自分のターン終了時に自動でタップ（横向き）するため、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
+                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます。防人持ちは守護と同じく自分のターン終了時に自動でタップ（横向き）するので、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
                         <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃×（でっきこうげきばつ）" class="home-rules-subsection"/>
-                        <ui:Label text="この能力を持つキャラは相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
+                        <ui:Label text="相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
+                        <ui:Label text="射手（しゃしゅ）" class="home-rules-subsection"/>
+                        <ui:Label text="飛行を持つ相手キャラを攻撃できます。守護や防人は無視できません。" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageDeck" class="home-rules-page">
                         <ui:Label text="デッキ構築ルール" class="home-rules-section"/>
@@ -187,6 +189,11 @@
                             <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--nodeckattack" picking-mode="Ignore"/>
                             <ui:Label text="デッキ攻撃×" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="相手デッキを直接攻撃できないキーワード「デッキ攻撃×」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
+                        <ui:Button name="TutorialEntryArcher" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--archer" picking-mode="Ignore"/>
+                            <ui:Label text="射手（しゃしゅ）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="飛行を持つ相手キャラを攻撃できるキーワード「射手」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
                     </ui:VisualElement>
                 </ui:ScrollView>
