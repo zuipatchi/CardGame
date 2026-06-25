@@ -34,6 +34,7 @@
 | DamageEnemyDeck | 相手デッキの上から**値1枚**を墓地へ送る（ミル）。デッキ枚数未満なら全枚数。ダメージトリガー起動・オーバーリミット敗北を誘発（空デッキにも当てられる） | 値1=ミル枚数 |
 | DamageBothDecks | 自分 → 相手の順に両デッキを**値1枚**ずつミル。自分のデッキが先に尽きると自滅する両刃。各ミルは DamageEnemyDeck と同じ | 値1=ミル枚数 |
 | DamageDeckRecoverByColorChars | 自分の場の**値1指定属性のキャラ数 N** を数え、相手デッキを N ミル＋自分の墓地の上から N 枚をデッキへ戻してシャッフル。値1=属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7。**0=全キャラ**）。指定属性0体なら空振り | 値1=属性番号 / 値2=未使用 |
+| JamEnemyDeck | 相手デッキに**お邪魔トークン**を値1枚混ぜてシャッフルする。トークンは値2が示すイベント（`E{値2}`。SummonChar と同じ ID 指定）。値1≤0／トークンID未解決なら空振り。相手の引きを薄め・手札枠を圧迫する。デッキ順は発動側がシャッフル結果を送って同期（`NGS_JamDeck`） | 値1=混ぜる枚数 / 値2=トークンのイベントID数字 |
 | SummonChar | 指定キャラ（**値1**=ID数字→"C{番号}"。例 1001→C1001）を**値2**体、自フィールドに新規生成（手札・デッキ消費なし）。OnEnter 発動。9体で打ち切り。不正IDは空振り | 値1=召喚キャラID数字 / 値2=体数 |
 | GainVPPerGreenGrave | 発動した側の墓地にある**緑属性カードの枚数**だけ、自分の勝利点に加算する（演出は勝利点付帯値と同じメダルフロート＋加点演出。得点数 1〜5 に応じた Medal1〜Medal5Icon を表示）。墓地に緑カードがなければ加点 0。イベントカードは効果解決後に墓地へ送られるため、プレイしたそのカード自身は枚数に含まれない | 使用しない（0 固定） |
 | NextCardCostFree | 発動した側が**次にプレイするカード1枚のコストを0にする**（使うまで持続。ターンをまたいでも次の1枚に適用）。発動カード上に「コスト0」フロート表示。コスト0のカードに使うと無駄に消費される点に注意 | 使用しない（0 固定） |
@@ -96,6 +97,7 @@
 | DamageEnemy | 相手キャラn体にmダメージを与える |
 | DebuffAttack | 相手キャラn体の攻撃力をm下げる（n=0は敵全体「相手キャラ全体の攻撃力をm下げる」） |
 | DamageDeckRecoverByColorChars | 自分の場の{属性}のキャラの数だけ相手のデッキにダメージを与え、同じ数だけ自分の墓地の上のカードをデッキに戻す（{属性}は値1=白1/青2/緑3/黄4/赤5/黒6/紫7。値1=0は属性なしで「自分の場のキャラ」。範囲外は「指定属性」） |
+| JamEnemyDeck | 相手のデッキに「{トークン名}」をn枚混ぜる（`E{m}` から名前を解決。名前が引けないときは「お邪魔トークン」。n=0は1枚） |
 | SummonChar | {ATK}/{HP}の「{召喚カード名}」をm体召喚する（ID `C{n}` から名前と攻撃力/HPを解決。数値が引けないときは「{召喚カード名}」のみ。m=0は1体） |
 | NextCardCostFree | 次に使うカード1枚のコストを0にする |
 | Bounce | 相手キャラn体を持ち主の手札に戻す |
@@ -135,6 +137,7 @@
 | Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
 | 読み上げ話者 | フレーバー読み上げ音声の VOICEVOX 話者。「（共通設定を使う）」＝生成ツールの既定話者。カードごとに声を変えたいときだけ指定する（音声生成については [../README.md](../README.md) 参照） |
 | ダメージトリガー | ON にすると、このカードが**デッキから**墓地へ送られたとき（デッキ攻撃のミル・将来のデッキミル効果）、デッキの持ち主がコストを支払わずに使用する。イベントは効果を解決してから墓地へ送る。手札・場・コスト支払い・戦闘破壊などデッキ以外から墓地へ行った場合は発動しない（下記「ダメージトリガー」参照）。守護などのキーワード能力と同じ枠で**カードと詳細モーダルに GraveIcon を表示**する |
+| コスト素材にできない | ON にすると、このカードは手札からコスト支払いの素材として数えない（`CostPaymentValue=0`）。引いても出せない高コストカード等と組み合わせて「死に札」を作るためのフラグ（お邪魔トークン用）。キャラ・イベント共通。コスト選択 UI でも選べない |
 | Event Trigger | 発動タイミング（下表）。既定は `OnPlay` |
 
 - ID は属性 × 弾ごとに自動採番される：`E{(属性番号)×1000 + (弾-1)×100 + 連番}`（属性番号=白1/青2/緑3/黄4/赤5/黒6/紫7。白第1弾=`E1001`/白第2弾=`E1101`/青第1弾=`E2001`/…。弾1=オフセット0で既存ID維持。`CardIdAutoAssigner`）
@@ -167,6 +170,8 @@
 | Assault | **強襲**。ON にすると、このキャラはアンタップ状態のキャラにも攻撃できる（通常「タップ状態のキャラにしか攻撃できない」制限を無視する）。守護・飛行・防人の対象制限はそのまま適用される。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに AssaultIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | No Deck Attack | **デッキ攻撃×**。ON にすると、このキャラ自身は相手デッキを直接攻撃（ミル）できない（相手キャラへの攻撃は通常どおり）。制限を受けるのはこの能力を持つキャラだけで、他の味方キャラのデッキ攻撃には影響しない。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに NoDeckAttackIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
 | Archer | **射手**。ON にすると、飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）。防人と違い対空ガード（飛行に優先して狙われる壁）ではなく、純粋に「飛行を殴れる」だけの攻撃的能力で、守護の対象強制ルールは通常どおり受ける。`EffectType` とは独立したフラグで、攻撃のみに作用する。カードと詳細モーダルに ArrowIcon を表示（詳細は [rules.md](rules.md)「攻撃の詳細」） |
+| 制圧勝利の対象外 | ON にすると、このキャラは**制圧勝利（キャラ8体勝利）のカウントに含めない**（`FieldView.CountCharsForDominationWin`）。相手デッキに混ぜたお邪魔キャラがダメージトリガー等で相手の場に出ても、相手の制圧勝利を進めないようにするフラグ（お邪魔トークン用）。場の枠（最大9体）は通常どおり占有する |
+| コスト素材にできない | ON にすると、このカードは手札からコスト支払いの素材として数えない（`CostPaymentValue=0`）。引いても出せない高コストカード等と組み合わせて「死に札」を作るためのフラグ（お邪魔トークン用）。キャラ・イベント共通。コスト選択 UI でも選べない |
 | Description | 効果説明（詳細モーダル表示用に手書き） |
 | Flavor Text | フレーバーテキスト（世界観・雰囲気用。効果には影響せず、詳細モーダル最下部に斜体で表示。空欄なら非表示） |
 | 読み上げ話者 | フレーバー読み上げ音声の VOICEVOX 話者。「（共通設定を使う）」＝生成ツールの既定話者。カードごとに声を変えたいときだけ指定する（音声生成については [../README.md](../README.md) 参照） |
@@ -193,8 +198,9 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / DamageEnemyDeck / DamageBothDecks / DamageDeckRecoverByColorChars / SummonChar / SummonFromDeckByKeyword / SummonFromGrave / CopyFieldChar / GainVPPerGreenGrave / ReduceEnemyVP / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageAllEnemies / DamageEnemy / DamageEnemyDeck / DamageBothDecks / DamageDeckRecoverByColorChars / JamEnemyDeck / SummonChar / SummonFromDeckByKeyword / SummonFromGrave / CopyFieldChar / GainVPPerGreenGrave / ReduceEnemyVP / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
 - **ReduceEnemyVP（相手の勝利点を下げる）**: 値1=下げる勝利点（値2不使用）。発動側から見た相手プレイヤーの勝利点（`isLocal ? _opponentVictoryPoints : _playerVictoryPoints`）を `ReduceEnemyVictoryPointsAsync` で値1分減らす。**勝利点は0未満にならない**ため実際に下がるのは現在値まで（`Math.Min(値1, 現在値)`）で、相手が既に0点なら空振り。減算は勝利を発生させないため勝敗判定は走らない。演出は発動カード上に「勝利点低下 N」フローティングラベル（`vp-reduce-label`）を出したあと、獲得演出（`PlayVictoryPointGainAsync`）の減算版 `PlayVictoryPointLossAsync`（相手の勝利点カウンターを数字カウントダウン＋赤い「-N」フロート＋メダルの弾み、SE は獲得と共通）を再生する。ラベル・「-N」とも**実際に下がった分**（`Math.Min(値1, 現在値)`）を表示する。勝利点は同期済みで固定値のため、オンラインでも両クライアントで対称に解決される（追加同期不要）。`VictoryPointBonus` のマイナス指定は不可（付帯値は発動側への加算専用で `amount <= 0` は無視される）なので、相手の減算は必ずこの効果で表す。
+- **JamEnemyDeck（お邪魔トークンを相手デッキに混ぜる）**: 値1=混ぜる枚数、値2=トークンにするイベントID数字（`E{値2}`。SummonChar と同じ ID 指定方式）。発動側から見た相手デッキ（`!isLocal` の持ち主）に、`E{値2}` のカードを値1枚追加して `AddCardsAndShuffle` でシャッフルする（`ApplyJamEnemyDeckAsync`）。値1≤0／トークンIDが `CardDatabase` で解決できない場合は空振り。演出は発動カード上に「お邪魔トークン N」フローティングラベル（`jam-label`）→ 裏向きトークンが発動カードから相手デッキへ飛翔（`PlayJamTokensFlyAsync`）→ デッキシャッフル演出。**シャッフルは乱数を使うため、オンラインでは発動側がシャッフル後のデッキ順を送り、ミラー側は受信した順で組み直す**（`NGS_JamDeck`。`Recover` と同じ方式・受信ハンドラはアニメ前に登録してロスト防止）。トークンは `CardDatabase._dict` に登録されていれば（「ゲームで使用」ON）解決できるため、**トークンは「対戦専用（トークン）」のイベントとして用意する**のが想定運用。引いても出せない（高コスト）＋「コスト素材にできない」にしておくと、手札枠を1つ潰す完全な死に札になる。お邪魔トークンはデッキを増やす（デッキ切れ＝オーバーリミット敗北を遅らせる）一方で、相手の引きを薄め・手札枠を圧迫する。
 - **DamageEnemyDeck / DamageBothDecks（デッキへのダメージ）**: デッキの上から指定枚数を墓地へ送る（ミル）。デッキ攻撃（`ExecuteDeckAttackAsync`）と同じ `MillDeckAsync` を経由するため、**ダメージトリガーカードの起動・オーバーリミット判定・オンライン同期**がすべて共通。`DamageEnemyDeck` は相手デッキのみ、`DamageBothDecks` は自分 → 相手の順に両デッキを削る。**オーバーリミット**により、空デッキ（0枚）からさらにミルしようとした瞬間にその持ち主が敗北する（値1が残り枚数を超えるとき。`DamageBothDecks` で自分のデッキが先に尽きると自滅する両刃。空デッキの相手に当てれば敗北を誘発できる）。デッキ順は同期済みのため決定的に対称動作する（追加同期不要）。
 - **DamageDeckRecoverByColorChars（指定属性キャラ数ぶんのデッキ削り＋墓地回収）**: 値1=属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7。`CardAttributeNames.FromNumber`。**0=属性を問わず自フィールドの全キャラ**＝`FieldView.Characters.Count`。範囲外なら空振り）。発動側の自フィールドのその属性のキャラ数 N を `CountCharsOnFieldByAttribute` で数え（`CardView.Data.Attribute == 指定属性`）、`MillDeckAsync` で相手デッキを N 枚ミル → `ApplyRecoverEffectAsync` で自分の墓地の上から N 枚をデッキへ戻してシャッフルする（`ApplyColorCharDeckDamageAndRecoverAsync`）。**N は1回だけ算出して両処理で共有**する。ミルは `DamageEnemyDeck` と同じ（ダメージトリガー・オーバーリミット判定・オンライン同期込み）、墓地回収は `Recover` と同じ（墓地が N 枚未満なら全枚数・オンラインはデッキ順を同期）だが、**演出は RECOVER ラベルではなく「ドレイン N」フローティングラベル（`drain-label`）を発動カード上に表示**する。**ミルで相手がデッキ切れ敗北してゲームが終わったら（`_isGameOver`）墓地回収はスキップ**する。指定属性キャラが0体なら空振り。盤面・墓地・デッキ順は同期済みのため決定的に対称解決する（追加同期不要）。
 - **BuffAttackByKeyword / BuffHpByKeyword（特徴シナジー）**: 発動側の自フィールドで、発動元（source）と同じ特徴（`CardData.Keyword`）を持つキャラを source 自身を除いて集め、`CardView.BuffAttackAsync` / `BuffHpAsync` で攻撃力／HP を `EventValue`（=上昇量）分**永続加算**する（`ApplyBuffByKeywordAsync`）。攻撃力には従来実行時バフの仕組みが無かったため、`CardView` に `_attackBuff` / `_hpBuff`（→ `CurrentAttack` / `MaxHp`）を新設し、戦闘ダメージ・CPU判断・対象選択の攻撃力参照を `Data.Attack`→`CurrentAttack` に統一した。HP バフは現在HPと最大HP（回復のクランプ上限）の両方を上げる。発動時の盤面スナップショットに対して一度だけ適用するため、**後から場に出たキャラや特徴の異なるキャラは対象外**。source の特徴が空なら空振り。効果はカードデータ（特徴）と同期済み盤面から決定的に解決されるため、CPU・オンラインでも対称に発動する（追加同期不要）。イベントカードに付けた場合は場に source キャラがいないので、対象特徴を持つ味方キャラ全員に適用される。
