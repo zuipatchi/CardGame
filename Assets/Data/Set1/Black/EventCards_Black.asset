@@ -17,7 +17,7 @@ MonoBehaviour:
   _cards:
   - _id: E6001
     _cardName: "\u624B\u306B\u611F\u67D3\u3057\u305F"
-    _cost: 0
+    _cost: 1
     _image: {fileID: 21300000, guid: eebd44cff4d3d3840b3052a62407ee04, type: 3}
     _flavorText: "\u6D17\u3048\u3070\u5927\u4E08\u592B\u304B\u306A\uFF1F"
     _voiceSpeaker: 21
@@ -27,12 +27,13 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 33
-    _eventValue: 1
+    _eventValue: 2
     _eventValue2: 0
-    _description: "\u76F8\u624B\u306E\u624B\u672D\u30921\u679A\u6368\u3066\u3055\u305B\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u76F8\u624B\u306E\u624B\u672D\u30922\u679A\u6368\u3066\u3055\u305B\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
     _attribute: 4
   - _id: E6002
     _cardName: "\u5FA9\u6D3B\u306E\u546A\u6587\u3092\u5531\u3048\u305F"
@@ -46,6 +47,7 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 34
@@ -65,6 +67,7 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 5
@@ -74,22 +77,23 @@ MonoBehaviour:
     _attribute: 4
   - _id: E6004
     _cardName: "\u91D1\u7E1B\u308A\u306B\u3042\u3063\u305F"
-    _cost: 2
+    _cost: 0
     _image: {fileID: 21300000, guid: bb7d6f236112cbf4685192517c87f223, type: 3}
     _flavorText: "\u5F8C\u308D\u306F\u3060\u3081\u30FC"
     _voiceSpeaker: 66
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 1
+    _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 20
-    _eventValue: 0
-    _eventValue2: 1
-    _description: "\u76F8\u624B\u306E\u6B21\u306E\u30C9\u30ED\u30FC\u30D5\u30A7\u30FC\u30BA\u30921\u56DE\u30B9\u30AD\u30C3\u30D7\u3059\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _eventType: 36
+    _eventValue: 1
+    _eventValue2: 2
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 4
   - _id: E6005
     _cardName: "\u4E0D\u8001\u85AC\u3092\u98F2\u3093\u3060"
@@ -103,6 +107,7 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 6

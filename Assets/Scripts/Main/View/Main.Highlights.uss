@@ -113,3 +113,19 @@
     border-top-color: rgb(255, 80, 80);
     border-bottom-color: rgb(255, 80, 80);
 }
+
+/* 凍結中（FreezeEnemyChars）のキャラ：攻撃できないことを水色の枠で常時示す */
+.frozen-char .game-card,
+.frozen-char .game-card:hover {
+    border-left-color: rgb(120, 200, 255);
+    border-right-color: rgb(120, 200, 255);
+    border-top-color: rgb(120, 200, 255);
+    border-bottom-color: rgb(120, 200, 255);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+}
+
+/* 氷結オーバーレイ（.frozen-overlay）と中央の FreezeIcon（.frozen-icon）は Card.uss 側に定義する
+   （アイコン画像の相対パスを ../Icon/ で解決するため。CardView が _cardRoot の子として追加する）。 */

@@ -385,7 +385,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 
 **背景**: セクション 7・9・10・11 はすべて同一クラスのバグ ——「受信側がアニメーション後にハンドラを遅延登録する間に、送信側の名前付きメッセージが NGO に破棄され、受信側が永久待機する」。個別に事前登録（`_preDrawReceiveTask` 等）でしのいできたが、メッセージ種別を追加するたびに同じ罠を踏むリスクが残っていた。
 
-**対処**: セクション 11 の「永続ハンドラ＋キュー」を **全ゲームプレイメッセージに一般化** した。`NetworkGameService.PrepareDecksAsync` で `RegisterGameplayChannels` を呼び、`k_GameplayChannels`（Draw / MainAction / Mulligan / Switch / Evolve / RecoverDeck / DamageTarget / Surrender / SpecialWin / Rematch）のハンドラを対戦開始時に**一度だけ永続登録**する。各チャンネルは `MessageChannel`（per-channel の受信バッファ）を持ち、
+**対処**: セクション 11 の「永続ハンドラ＋キュー」を **全ゲームプレイメッセージに一般化** した。`NetworkGameService.PrepareDecksAsync` で `RegisterGameplayChannels` を呼び、`k_GameplayChannels`（Draw / MainAction / Mulligan / Switch / Evolve / RecoverDeck / JamDeck / CoinDraw / DiceDraw / DamageTarget / Discard / Surrender / SpecialWin / Rematch）のハンドラを対戦開始時に**一度だけ永続登録**する。各チャンネルは `MessageChannel`（per-channel の受信バッファ）を持ち、
 
 - 受信ハンドラ: 待機中の `WaitAsync` があれば即解決、なければ JSON をキューに積む
 - `WaitAsync`: キューにあれば即返す、なければ新しい waiter を作って待つ
@@ -414,6 +414,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_Draw` | Both | ドロー完了通知（ペイロードなし） |
 | `NGS_MainAction` | Both | メインフェーズ行動（actionType / cardId / attackerIndex / targetIndex / targetsDeck / costCardIds[]）。攻撃の攻撃者・対象は CardId ではなく**フィールド上のキャラインデックス**で識別する（同名カードが複数いても個体を一意に特定でき、タップ・ダメージ・効果が別個体に当たる同期ズレを防ぐ。`NGS_DamageTarget` が indices で送るのと同じ方針。並び順は両クライアントで同期済み）。targetsDeck=true は相手デッキへの直接攻撃（ATK 枚をミル。デッキ順が両クライアントで同期済みのため決定的）。コスト支払いアニメーション完了直後（イベント効果解決アニメーション前）に送信することで相手側のアニメーション開始を早める |
 | `NGS_RecoverDeck` | Both | Recover 効果後のシャッフル済みデッキ順序（string[] cardIds） |
+| `NGS_JamDeck` | Both | JamEnemyDeck 効果（お邪魔トークンを相手デッキに混ぜる）後のシャッフル済みデッキ順序（string[] cardIds）。`NGS_RecoverDeck` と同じく発動側がシャッフル結果を送り、ミラー側は `Rebuild` で組み直す |
 | `NGS_CoinDraw` | Both | コインドロー（`EventType.CoinDraw`）の発動側が振った「表＝ドロー」の回数（int count）。乱数で決まる回数だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
 | `NGS_DiceDraw` | Both | サイコロドロー（`EventType.DiceDraw`）の発動側が振った出目（int roll、1〜6）。乱数で決まる出目だけを送り、ミラー側は同期済みデッキ上から同じ枚数を引く |
 | `NGS_DamageTarget` | Both | DamageEnemy / Bounce 効果の対象（敵フィールド上のインデックス配列 int[]）。対象数 < 敵数のとき手番側が選んで送信 |

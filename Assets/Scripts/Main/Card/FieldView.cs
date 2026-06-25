@@ -47,6 +47,22 @@ namespace Main.Card
         // キャラ数が上限に達しているか（イベントカードは墓地行きのため対象外）
         public bool IsCharactersFull => Characters.Count >= MaxCharacters;
 
+        // 制圧勝利（キャラ8体）のカウント対象キャラ数。
+        // お邪魔トークン（CharacterCardData.ExcludeFromDomination）は除外する。
+        public int CountCharsForDominationWin()
+        {
+            int count = 0;
+            foreach (CardView card in Characters)
+            {
+                if (card.Data is CharacterCardData character && character.ExcludeFromDomination)
+                {
+                    continue;
+                }
+                count++;
+            }
+            return count;
+        }
+
         public bool Contains(CardView card) => _cards.Contains(card);
 
         public Action<CardView> OnCardClicked { get; set; }

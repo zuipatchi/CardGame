@@ -194,6 +194,37 @@ namespace Main
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
         }
 
+        // FreezeEnemyChars：発動側から見た敵フィールドから count 体（値1。0=敵全員）選び、「凍結」状態を付与して
+        // 次の相手ターン中は攻撃できなくする（CanCharAttack が false を返す＝通常攻撃・デッキ攻撃の両方を止める）。
+        // 対象選択は DamageEnemy / DebuffAttack と同じ仕組み（プレイヤー選択／CPU 攻撃力上位／オンラインはインデックス同期）を共用。
+        // 凍結はそのキャラの持ち主のターン終了時に ClearFrozenChars で解除される（盤面から決定的に解決されるため追加同期不要）。
+        internal async UniTask ApplyFreezeEnemyCharsAsync(int count, bool isLocal, CancellationToken ct)
+        {
+            FieldView targetField = isLocal ? _opponentFieldView : _playerFieldView;
+            int enemyCount = targetField.Characters.Count;
+            if (enemyCount == 0)
+            {
+                return;
+            }
+
+            // 値1=0 は「敵キャラ全員」を対象にする
+            int targetCount = count <= 0 ? enemyCount : Mathf.Min(count, enemyCount);
+            List<CardView> targets = await ResolveEnemyCharTargetsAsync(targetField, targetCount, enemyCount, isLocal, "攻撃できなくする相手キャラを選択", ct);
+            if (targets.Count == 0)
+            {
+                return;
+            }
+
+            List<UniTask> tasks = new List<UniTask>(targets.Count);
+            foreach (CardView target in targets)
+            {
+                target.SetFrozen(true);
+                tasks.Add(PlayFloatingLabelAsync("攻撃不可", "freeze-label", target, ct));
+            }
+            await UniTask.WhenAll(tasks);
+            await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+        }
+
         private async UniTask HitCharWithParticleAsync(CardView target, int damage, CancellationToken ct)
         {
             if (_hitEffectPrefab != null)

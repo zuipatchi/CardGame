@@ -93,6 +93,10 @@ namespace Main.Card
         // 発動した（アクティブな）プレイヤーが、相手にターンを渡さずもう一度自分のターンを行う。
         // EventValue は不使用（0）。1ターン中に複数回発動しても追加ターンは1回（フラグ管理）。
         ExtraTurn = 18,
+        // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。0=敵全員）選び、
+        // 「凍結」状態を付与して**次の相手ターン中は攻撃できなくする**（通常攻撃・デッキ攻撃の両方。攻撃矢印も出ない）。
+        // 凍結はそのキャラの持ち主のターンが終わるときに自動解除される（1ターンのみ）。EventValue2 / EffectValue2 は不使用。
+        FreezeEnemyChars = 39,
         // 11 は欠番（旧 GainVictoryPoints）。勝利点の付与は CardData.VictoryPointBonus に統合した。
         // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（勝利点の勝利条件への加点）に加算する。
         // EventValue / EffectValue は不使用（0）。墓地に緑カードがなければ加点 0。
@@ -112,6 +116,12 @@ namespace Main.Card
         // EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
         // 旧 DefBoost（防御という独立ステータスは無いため HP ブーストへ統合。整数値 2 を継続使用）。
         HpBoost = 2,
+        // 相手のデッキに「お邪魔トークン」を EventValue / EffectValue 枚（値1）混ぜてシャッフルする。
+        // トークンは EventValue2 / EffectValue2（値2）が示すイベント（数字部分→"E###"）を参照する（SummonChar と同じ ID 指定方式）。
+        // 値1≤0／トークンIDが解決できない場合は空振り。トークンは相手の引きを薄め・手札枠を圧迫する（お邪魔カード）。
+        // デッキ順は同期済みのため、発動側がシャッフル結果（NGS_JamDeck）を送って両クライアントで対称に解決する。
+        // ※整数値 38 は origin 側の AddToHandFromGrave と衝突したため 40 へ変更（マージ解消）。E7002 等の参照カードも更新済み。
+        JamEnemyDeck = 40,
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree = 15,
         Recover = 6,

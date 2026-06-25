@@ -296,6 +296,21 @@ namespace Main
             }
         }
 
+        // ターン終了時：手番側の場のキャラの凍結（FreezeEnemyChars）を解除する。
+        // 凍結は「次の相手ターン1回ぶん」攻撃を止めるため、その手番が終わった時点で消費・解除する。
+        // 発動側のターン（相手キャラに付与した直後）では発動側の場を解除するだけで相手の凍結は残り、
+        // 凍結された側のターン終了時にここで解除される。
+        private void ClearFrozenChars(FieldView field)
+        {
+            foreach (CardView card in field.Characters)
+            {
+                if (card.IsFrozen)
+                {
+                    card.SetFrozen(false);
+                }
+            }
+        }
+
         // ─── タップ／アンタップ ───────────────────────────────────────────
 
         // ターン開始時：アクティブプレイヤーの場の全キャラをアンタップ（縦に戻す）する。
@@ -327,9 +342,14 @@ namespace Main
             }
         }
 
-        // キャラが攻撃可能か：このターン未攻撃 かつ（召喚酔いしていない または 速攻持ち）
+        // キャラが攻撃可能か：凍結していない かつ このターン未攻撃 かつ（召喚酔いしていない または 速攻持ち）
         private bool CanCharAttack(CardView card, FieldView ownerField)
         {
+            // 凍結中（FreezeEnemyChars）は通常攻撃・デッキ攻撃のいずれも開始できない
+            if (card.IsFrozen)
+            {
+                return false;
+            }
             if (_attackedThisTurn.Contains(card))
             {
                 return false;
@@ -680,7 +700,8 @@ namespace Main
             }
 
             FieldView field = isLocalField ? _playerFieldView : _opponentFieldView;
-            if (!WinRule.IsFieldCharsWin(field.Characters.Count))
+            // お邪魔トークン（ExcludeFromDomination）はカウントに含めない。
+            if (!WinRule.IsFieldCharsWin(field.CountCharsForDominationWin()))
             {
                 return;
             }

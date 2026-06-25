@@ -74,6 +74,33 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 相手のデッキに「お邪魔トークン」を値1枚混ぜてシャッフルする。
+    // トークンは値2が示すイベント（"E###"）を参照する（SummonChar と同じ ID 指定方式）。
+    [Preserve]
+    public sealed class JamEnemyDeckHandler : EffectHandler
+    {
+        public override EventType Type => EventType.JamEnemyDeck;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（混ぜる枚数）", true, "値2（トークンのイベントID数字）",
+            "値1=相手デッキに混ぜるお邪魔トークンの枚数。値2=トークンにするイベントIDの数字部分（例 1001→E1001）。トークンは『対戦専用（トークン）』のイベントを指定する。");
+
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            int count = ctx.Value1 <= 0 ? 1 : ctx.Value1;
+            string id = $"E{ctx.Value2}";
+            string name = ctx.ResolveCardName(id);
+            // トークン名が ID のまま（解決できない）なら汎用名で表示する。
+            string tokenName = string.IsNullOrEmpty(name) || name == id ? "お邪魔トークン" : name;
+            return $"相手のデッキに「{tokenName}」を{count}枚混ぜる";
+        }
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyJamEnemyDeckAsync(inv.Value1, inv.Value2, inv.IsLocal, inv.SourceCard, ct);
+        }
+    }
+
     // お互いのデッキの上から値1枚ずつを墓地へ送る（デッキへのダメージ＝ミル）。自分 → 相手の順にミルする。
     // ミルされたカードが「ダメージトリガー」なら持ち主がコストなしで使用する。自分のデッキも削れるため両刃。
     [Preserve]
