@@ -575,6 +575,15 @@
     border-bottom-color: rgb(120, 200, 255);
 }
 
+/* 拡大を一切させない（ハンデスの捨て札ピッカー）。選択済みの枠ハイライトは維持する */
+.deck-pick-card--no-scale,
+.deck-pick-card--no-scale:hover,
+.deck-pick-card--no-scale:active,
+.deck-pick-card--no-scale.deck-pick-card--selected,
+.deck-pick-card--no-scale.deck-pick-card--selected:hover {
+    scale: 1.18 1.18;
+}
+
 .deck-pick-hint {
     font-size: 15px;
     color: rgb(120, 130, 170);
