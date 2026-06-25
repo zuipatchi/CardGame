@@ -166,7 +166,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
+    _archer: 1
     _deadly: 0
     _excludeFromDomination: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u300C\u304A\u90AA\u9B54\u30AB\u30FC\u30C9\u300D\u30922\u679A\u6DF7\u305C\u308B"
