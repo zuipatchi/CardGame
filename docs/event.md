@@ -22,6 +22,7 @@
 | CoinDraw | コインを振り、表が出るたび1枚引き裏で終了（0枚もありうる）。引く枚数はデッキ残量が上限＝空引き敗北なし | 値1・値2とも不使用（0） |
 | DiceDraw | 6面サイコロを振り、出た目（1〜6）の数だけ引く。確定値のため通常 Draw 扱い（出目がデッキ残量超ならオーバーリミット敗北あり） | 値1・値2とも不使用（0） |
 | Discard | **ハンデス**。相手が手札を値1枚（0=1枚）墓地へ捨てる（捨てるカードは持ち主が選ぶ）。相手手札0枚なら空振り。手札→墓地のためダメージトリガーは発動しない | 値1=捨てさせる枚数 |
+| ReduceEnemyVP | **相手の勝利点を下げる**。相手プレイヤーの勝利点を値1分下げる（**0未満にはならない＝0でクランプ**）。相手の勝利点が既に0なら空振り。固定値のためオンラインでも決定的に解決される（追加同期不要）。勝利点付帯値（`VictoryPointBonus`）は発動側への加算専用でマイナスにできないため、相手の減算はこの効果で表す | 値1=下げる勝利点 |
 | BanishChar | 相手フィールドのキャラを指定体数選んで墓地へ送る（複数いる場合はクリックで選択／CPU・オンライン相手は自動・同期）。対象数が相手キャラ数以上なら全員。相手フィールドにキャラがいない場合は空振り | 破壊する体数（0=1体） |
 | Recover | 発動プレイヤー自身の墓地の**上から**指定枚数を取り出し、自デッキに加えてシャッフルする。墓地枚数が指定枚数未満の場合は存在する全枚数を回収する | 回収枚数 |
 | Switch | 自分のキャラ1体を手札に戻し、**同じコストのキャラ**を手札から1枚コストなしで配置（属性不問）。同コストが手札に無ければ戻すだけ。キャラ不在なら無効。手札上限なら戻すキャラは墓地へ | 使用しない（0 固定） |
@@ -53,7 +54,7 @@
 | GrantKeyword | AtkBoost と同じ対象選択で、選んだ味方に**値2のキーワード能力を永続付与**（場を離れるまで）。**値1=0 は味方全員**。既に持つ能力への再付与はアイコンのポップ演出のみ。**値2が範囲外（1〜7以外）なら空振り** | 値1=対象数（0=場の味方全員） / 値2=付与する能力（1=守護・2=速攻・3=飛行・4=防人・5=強襲・6=デッキ攻撃×・7=射手） |
 | HandCollectionWin | **太郎勝利（特殊勝利）**。**値1（テキスト）にカンマ区切りで書いた完全ID**（例 `C1001,E2003,C1005`）が発動時に**発動側の手札に全てそろっていれば即勝利**（勝因「太郎勝利／太郎敗北」）。**重複指定は枚数分の所持が必要**。そろわなければ空振り。発動カード自身は判定時に手札を離れているため集める対象と別 | 値1=勝利条件カードID（カンマ区切り完全ID・テキスト） / 値2=未使用 |
 
-> 「勝利点を固定値で得るだけ」のカードは `EventType=None` ＋ 勝利点付帯値（`VictoryPointBonus`）で作る（旧 `GainVictoryPoints` は撤去・付帯値へ統合。enum の整数 11 は欠番）。
+> 「勝利点を固定値で得るだけ」のカードは `EventType=None` ＋ 勝利点付帯値（`VictoryPointBonus`）で作る（旧 `GainVictoryPoints` は撤去・付帯値へ統合。enum の整数 11 は欠番）。**逆に「相手の勝利点を下げる」カードは `ReduceEnemyVP` を使う**。付帯値は発動側（自分）への加算専用でマイナスにできないため、相手の減算には付帯値ではなく `ReduceEnemyVP` を設定する。
 
 > **特徴（キーワード / `CardData.Keyword`）**: 全カード共通で任意の特徴文字列を持てる（空＝特徴なし）。種族シナジー等の判定（`BuffAttackByKeyword` / `BuffHpByKeyword` の対象＝「同じ特徴を持つキャラ」）に使い、マッチングは文字列一致で行う。登録候補は **`CardKeywordSO`（特徴マスターリスト）** で管理し、カードエディタの「特徴」ドロップダウンから選ぶ（`Assets/Data/CardKeywords.asset`。カードエディタの「特徴」行の「管理」ボタンで作成・表示できる）。実行時はカードに乗った文字列だけで判定するため `CardKeywordSO` をロードしない（特徴を増やしてもコード変更不要）。カード詳細モーダルにも特徴がタグ表示される。
 
@@ -84,6 +85,7 @@
 | CoinDraw | コインを振り、表が出るたびにカードを1枚引く（裏が出たら終了） |
 | DiceDraw | サイコロを振り、出た目の数だけカードを引く |
 | Discard | 相手の手札をn枚捨てさせる（n=0は1枚） |
+| ReduceEnemyVP | 相手の勝利点をn下げる |
 | BanishChar | 相手のキャラをn体選んで破壊する |
 | Recover | 墓地から上のカードn枚をデッキに戻してシャッフルする |
 | Switch | 自分のキャラ1体を手札に戻し、そのキャラと同じコストのキャラを手札からコストなしで配置する |
@@ -191,7 +193,8 @@
 ## 効果ごとの注意点
 
 - **CostBoost**: キャラは `EffectTrigger=OnUsedAsCost` + `EffectType=CostBoost`、イベントは `EventType=CostBoost` 単体で判定。通常プレイ時は無効果で、コスト支払い時のみ `EventValue` 分のコストとして数える。**属性連動**：CostBoost カードの属性がプレイするカードの属性と一致するときだけ EventValue 分になり、それ以外の属性のコストには1として数える（白も一般属性扱いで、白 CostBoost は白のコストのみ倍化。コスト判定の詳細は [rules.md](rules.md)「コストシステム」）。
-- **DamageAllEnemies / DamageEnemy / DamageEnemyDeck / DamageBothDecks / DamageDeckRecoverByColorChars / SummonChar / SummonFromDeckByKeyword / SummonFromGrave / CopyFieldChar / GainVPPerGreenGrave / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **DamageAllEnemies / DamageEnemy / DamageEnemyDeck / DamageBothDecks / DamageDeckRecoverByColorChars / SummonChar / SummonFromDeckByKeyword / SummonFromGrave / CopyFieldChar / GainVPPerGreenGrave / ReduceEnemyVP / HealAllAllies / NextCardCostFree / Bounce / BounceAll / ExtraTurn / DrawSkipNext / DrawNextTurnStart / BuffAttackByKeyword / BuffHpByKeyword / GrantKeyword**: イベント・キャラ（OnEnter / OnAttack / OnDestroy / OnTurnStart / OnAttacked / OnKill）両方で使用可能。勝利点付帯値（`VictoryPointBonus`）も同じく両方で使用可能で、効果と同時に発動する。
+- **ReduceEnemyVP（相手の勝利点を下げる）**: 値1=下げる勝利点（値2不使用）。発動側から見た相手プレイヤーの勝利点（`isLocal ? _opponentVictoryPoints : _playerVictoryPoints`）を `ReduceEnemyVictoryPointsAsync` で値1分減らす。**勝利点は0未満にならない**ため実際に下がるのは現在値まで（`Math.Min(値1, 現在値)`）で、相手が既に0点なら空振り。減算は勝利を発生させないため勝敗判定は走らない。演出は発動カード上に「勝利点低下 N」フローティングラベル（`vp-reduce-label`）を出したあと、獲得演出（`PlayVictoryPointGainAsync`）の減算版 `PlayVictoryPointLossAsync`（相手の勝利点カウンターを数字カウントダウン＋赤い「-N」フロート＋メダルの弾み、SE は獲得と共通）を再生する。ラベル・「-N」とも**実際に下がった分**（`Math.Min(値1, 現在値)`）を表示する。勝利点は同期済みで固定値のため、オンラインでも両クライアントで対称に解決される（追加同期不要）。`VictoryPointBonus` のマイナス指定は不可（付帯値は発動側への加算専用で `amount <= 0` は無視される）なので、相手の減算は必ずこの効果で表す。
 - **DamageEnemyDeck / DamageBothDecks（デッキへのダメージ）**: デッキの上から指定枚数を墓地へ送る（ミル）。デッキ攻撃（`ExecuteDeckAttackAsync`）と同じ `MillDeckAsync` を経由するため、**ダメージトリガーカードの起動・オーバーリミット判定・オンライン同期**がすべて共通。`DamageEnemyDeck` は相手デッキのみ、`DamageBothDecks` は自分 → 相手の順に両デッキを削る。**オーバーリミット**により、空デッキ（0枚）からさらにミルしようとした瞬間にその持ち主が敗北する（値1が残り枚数を超えるとき。`DamageBothDecks` で自分のデッキが先に尽きると自滅する両刃。空デッキの相手に当てれば敗北を誘発できる）。デッキ順は同期済みのため決定的に対称動作する（追加同期不要）。
 - **DamageDeckRecoverByColorChars（指定属性キャラ数ぶんのデッキ削り＋墓地回収）**: 値1=属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7。`CardAttributeNames.FromNumber`。**0=属性を問わず自フィールドの全キャラ**＝`FieldView.Characters.Count`。範囲外なら空振り）。発動側の自フィールドのその属性のキャラ数 N を `CountCharsOnFieldByAttribute` で数え（`CardView.Data.Attribute == 指定属性`）、`MillDeckAsync` で相手デッキを N 枚ミル → `ApplyRecoverEffectAsync` で自分の墓地の上から N 枚をデッキへ戻してシャッフルする（`ApplyColorCharDeckDamageAndRecoverAsync`）。**N は1回だけ算出して両処理で共有**する。ミルは `DamageEnemyDeck` と同じ（ダメージトリガー・オーバーリミット判定・オンライン同期込み）、墓地回収は `Recover` と同じ（墓地が N 枚未満なら全枚数・オンラインはデッキ順を同期）だが、**演出は RECOVER ラベルではなく「ドレイン N」フローティングラベル（`drain-label`）を発動カード上に表示**する。**ミルで相手がデッキ切れ敗北してゲームが終わったら（`_isGameOver`）墓地回収はスキップ**する。指定属性キャラが0体なら空振り。盤面・墓地・デッキ順は同期済みのため決定的に対称解決する（追加同期不要）。
 - **BuffAttackByKeyword / BuffHpByKeyword（特徴シナジー）**: 発動側の自フィールドで、発動元（source）と同じ特徴（`CardData.Keyword`）を持つキャラを source 自身を除いて集め、`CardView.BuffAttackAsync` / `BuffHpAsync` で攻撃力／HP を `EventValue`（=上昇量）分**永続加算**する（`ApplyBuffByKeywordAsync`）。攻撃力には従来実行時バフの仕組みが無かったため、`CardView` に `_attackBuff` / `_hpBuff`（→ `CurrentAttack` / `MaxHp`）を新設し、戦闘ダメージ・CPU判断・対象選択の攻撃力参照を `Data.Attack`→`CurrentAttack` に統一した。HP バフは現在HPと最大HP（回復のクランプ上限）の両方を上げる。発動時の盤面スナップショットに対して一度だけ適用するため、**後から場に出たキャラや特徴の異なるキャラは対象外**。source の特徴が空なら空振り。効果はカードデータ（特徴）と同期済み盤面から決定的に解決されるため、CPU・オンラインでも対称に発動する（追加同期不要）。イベントカードに付けた場合は場に source キャラがいないので、対象特徴を持つ味方キャラ全員に適用される。
