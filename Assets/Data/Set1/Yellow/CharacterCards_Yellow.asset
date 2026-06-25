@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CharacterCards_Yellow
   m_EditorClassIdentifier: Main::Main.Card.CharacterCardSO
   _attribute: 3
+  _set: 1
   _cards:
   - _id: C4001
     _cardName: "\u6210\u91D1\u3071\u3063\u3061"
@@ -25,6 +26,7 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -39,6 +41,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9EC4\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C4002
     _cardName: "\u3071\u3061\u3069\u3063\u304F"
@@ -51,9 +54,10 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
-    _triggerOnGrave: 1
-    _attack: 1
-    _hp: 5
+    _set: 0
+    _triggerOnGrave: 0
+    _attack: 3
+    _hp: 7
     _attribute: 3
     _effectTrigger: 0
     _effectType: 0
@@ -65,10 +69,11 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
   - _id: C4003
     _cardName: "\u30C9\u30C3\u30B0"
-    _cost: 3
+    _cost: 2
     _image: {fileID: 21300000, guid: 4ea4dc8ee98e85d4fa318babc4ed5bf5, type: 3}
     _flavorText: "\u8210\u3081\u3093\u306A\u3088"
     _voiceSpeaker: 7
@@ -77,9 +82,10 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
     _triggerOnGrave: 1
-    _attack: 2
-    _hp: 4
+    _attack: 1
+    _hp: 2
     _attribute: 3
     _effectTrigger: 0
     _effectType: 0
@@ -91,4 +97,5 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
     _description: 
