@@ -139,7 +139,7 @@ namespace Main
         private UniTask<List<int>> WaitForPlayerDeckCardsSelectionAsync(List<int> candidates, IReadOnlyList<CardData> deckCards, string keyword, int count, CancellationToken ct)
         {
             string title = string.IsNullOrEmpty(keyword) ? "カードを選択" : $"『{keyword}』を選択";
-            return WaitForPlayerCardsPickAsync(candidates, deckCards, title, "デッキから手札に加えるカードを選ぶ", count, ct);
+            return WaitForPlayerCardsPickAsync(candidates, deckCards, title, "デッキから手札に加えるカードを選ぶ", count, ct, "deck-pick-card--no-hover");
         }
 
         // 複数選択ピッカーの共通実装：候補カードを並べたオーバーレイを表示し、count 枚タップで選ぶのを待つ。
