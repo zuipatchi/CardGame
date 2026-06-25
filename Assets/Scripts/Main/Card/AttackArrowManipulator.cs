@@ -13,6 +13,10 @@ namespace Main.Card
         private ArrowView _arrowView;
         private bool _isDragging;
 
+        // 矢印をドラッグ中か。盤面再構築（RefreshAttackInput）で他キャラの攻撃解決後に
+        // この矢印を壊さないよう、ドラッグ中の矢印は維持するための判定に使う。
+        public bool IsDragging => _isDragging;
+
         public AttackArrowManipulator(VisualElement dragLayer)
         {
             _dragLayer = dragLayer;

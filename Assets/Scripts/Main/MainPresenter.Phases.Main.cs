@@ -992,7 +992,9 @@ namespace Main
         // 盤面が変わるたび（各解決の後・予約のたび）に呼び、攻撃可能なキャラ・対象を貼り直す。
         private void RefreshAttackInput()
         {
-            TeardownAttackInput();
+            // ドラッグ中の矢印は壊さない。他キャラの攻撃が解決して盤面を貼り直すときも、
+            // 今引いている矢印はそのまま残す（残った分は _attackManipulators に保持される）。
+            TeardownAttackInput(preserveDragging: true);
 
             // ターン終了予約済み・自分のターンでない・ゲーム終了時は攻撃入力を出さない
             if (_isGameOver || !_gameModel.IsLocalTurn || _endTurnQueued)
@@ -1002,6 +1004,11 @@ namespace Main
 
             foreach (CardView charCard in _playerFieldView.Characters)
             {
+                // ドラッグ中で維持された矢印のキャラには、二重にマニピュレータを付けない
+                if (_attackManipulators.Any(m => m.card == charCard))
+                {
+                    continue;
+                }
                 // 攻撃済み・召喚酔いのキャラには攻撃矢印を付けない
                 if (!CanCharAttack(charCard, _playerFieldView))
                 {
@@ -1031,16 +1038,27 @@ namespace Main
         }
 
         // 常駐中の攻撃矢印マニピュレータ・対象ハイライトをすべて外す。
-        private void TeardownAttackInput()
+        // preserveDragging が true のときは、いま矢印をドラッグ中のマニピュレータだけは
+        // 壊さずに残す（他キャラの攻撃解決後の盤面貼り直しで、引いている矢印を消さないため）。
+        private void TeardownAttackInput(bool preserveDragging = false)
         {
+            List<(CardView card, AttackArrowManipulator manip)> retained =
+                new List<(CardView, AttackArrowManipulator)>();
             foreach ((CardView card, AttackArrowManipulator manip) in _attackManipulators)
             {
+                if (preserveDragging && manip.IsDragging)
+                {
+                    // ドラッグ中の矢印・マニピュレータ・攻撃元ハイライトはそのまま維持する
+                    retained.Add((card, manip));
+                    continue;
+                }
                 manip.ClearArrow();
                 card.RemoveManipulator(manip);
                 card.RemoveFromClassList("attackable-char");
                 card.SetAttackHighlighted(false);
             }
             _attackManipulators.Clear();
+            _attackManipulators.AddRange(retained);
 
             foreach (CardView target in _highlightedAttackTargets)
             {
