@@ -197,6 +197,7 @@ namespace Main
                 CardData data = handCards[i];
                 CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: false);
                 card.AddToClassList("deck-pick-card");
+                card.AddToClassList("deck-pick-card--no-scale");
                 int captured = i;
                 card.RegisterCallback<ClickEvent>(_ =>
                 {
