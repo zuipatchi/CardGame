@@ -133,6 +133,11 @@ namespace Main.Card
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--archer", "射手",
                         "飛行を持つ相手キャラに攻撃できる"));
                 }
+                if (charData.Deadly)
+                {
+                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--deadly", "必殺",
+                        "相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する"));
+                }
                 if (charData.TriggerOnGrave)
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--trigger-on-grave", "ダメージトリガー",

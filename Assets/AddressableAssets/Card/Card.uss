@@ -355,6 +355,16 @@
     display: none;
 }
 
+/* 必殺アイコン（射手アイコンの下に表示。必殺持ちキャラのみ CardView で display を切替） */
+.game-card__deadly-icon {
+    width: 36px;
+    height: 36px;
+    margin-top: 4px;
+    background-image: url("../Icon/SlayerIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
 /* ダメージトリガーアイコン（守護などと同じ枠。TriggerOnGrave のカードのみ CardView で display を切替。キャラ・イベント共通） */
 .game-card__trigger-on-grave-icon {
     width: 36px;

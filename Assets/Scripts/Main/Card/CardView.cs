@@ -26,6 +26,7 @@ namespace Main.Card
         private readonly VisualElement _assaultIcon;
         private readonly VisualElement _noDeckAttackIcon;
         private readonly VisualElement _archerIcon;
+        private readonly VisualElement _deadlyIcon;
         private readonly VisualElement _triggerOnGraveIcon;
         private int _currentHp;
         // 実行時バフ（BuffAttackByKeyword / BuffHpByKeyword）。攻撃力・最大HPへの加算量。
@@ -39,6 +40,7 @@ namespace Main.Card
         private bool _grantedAssault;
         private bool _grantedNoDeckAttack;
         private bool _grantedArcher;
+        private bool _grantedDeadly;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
@@ -58,6 +60,7 @@ namespace Main.Card
         public bool HasAssault => (Data is CharacterCardData assaultData && assaultData.Assault) || _grantedAssault;
         public bool HasNoDeckAttack => (Data is CharacterCardData noDeckAttackData && noDeckAttackData.NoDeckAttack) || _grantedNoDeckAttack;
         public bool HasArcher => (Data is CharacterCardData archerData && archerData.Archer) || _grantedArcher;
+        public bool HasDeadly => (Data is CharacterCardData deadlyData && deadlyData.Deadly) || _grantedDeadly;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -81,6 +84,7 @@ namespace Main.Card
             _assaultIcon = this.Q<VisualElement>("AssaultIcon");
             _noDeckAttackIcon = this.Q<VisualElement>("NoDeckAttackIcon");
             _archerIcon = this.Q<VisualElement>("ArcherIcon");
+            _deadlyIcon = this.Q<VisualElement>("DeadlyIcon");
             _triggerOnGraveIcon = this.Q<VisualElement>("TriggerOnGraveIcon");
 
             _cardRoot.style.scale = new Scale(Vector3.one);
@@ -396,6 +400,7 @@ namespace Main.Card
             _grantedAssault = false;
             _grantedNoDeckAttack = false;
             _grantedArcher = false;
+            _grantedDeadly = false;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = _currentHp.ToString();
             RefreshKeywordIcons();
@@ -417,6 +422,7 @@ namespace Main.Card
             _grantedAssault = source._grantedAssault;
             _grantedNoDeckAttack = source._grantedNoDeckAttack;
             _grantedArcher = source._grantedArcher;
+            _grantedDeadly = source._grantedDeadly;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
             RefreshKeywordIcons();
@@ -433,6 +439,7 @@ namespace Main.Card
             _assaultIcon.style.display = HasAssault ? DisplayStyle.Flex : DisplayStyle.None;
             _noDeckAttackIcon.style.display = HasNoDeckAttack ? DisplayStyle.Flex : DisplayStyle.None;
             _archerIcon.style.display = HasArcher ? DisplayStyle.Flex : DisplayStyle.None;
+            _deadlyIcon.style.display = HasDeadly ? DisplayStyle.Flex : DisplayStyle.None;
             _triggerOnGraveIcon.style.display = Data.TriggerOnGrave ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -470,6 +477,10 @@ namespace Main.Card
                 case GrantableKeyword.Archer:
                     _grantedArcher = true;
                     icon = _archerIcon;
+                    break;
+                case GrantableKeyword.Deadly:
+                    _grantedDeadly = true;
+                    icon = _deadlyIcon;
                     break;
                 default:
                     return;

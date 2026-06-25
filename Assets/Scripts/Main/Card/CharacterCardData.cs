@@ -28,12 +28,14 @@ namespace Main.Card
         [SerializeField] private bool _noDeckAttack;
         // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
         [SerializeField] private bool _archer;
+        // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
+        [SerializeField] private bool _deadly;
         [SerializeField] private string _description;
 
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool archer = false)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool archer = false, bool deadly = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -50,6 +52,7 @@ namespace Main.Card
             _assault = assault;
             _noDeckAttack = noDeckAttack;
             _archer = archer;
+            _deadly = deadly;
             _description = description;
         }
 
@@ -75,6 +78,8 @@ namespace Main.Card
         public bool NoDeckAttack => _noDeckAttack;
         // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
         public bool Archer => _archer;
+        // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
+        public bool Deadly => _deadly;
         public string Description => _description;
 
         // OnUsedAsCost + CostBoost のキャラは、支払い対象が自属性のとき EffectValue 分（最低1）として数える。

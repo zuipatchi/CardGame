@@ -35,7 +35,24 @@ namespace Main
             int atk = attacker.CurrentAttack;
             int damage = atk;
 
-            if (damage == 0)
+            // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を無条件で破壊する（ATK 0 でも破壊）。
+            bool deadly = attacker.HasDeadly;
+
+            if (deadly)
+            {
+                if (_hitEffectPrefab != null)
+                {
+                    await PlayParticleAtCardAsync(target, _hitEffectPrefab, ct);
+                }
+                await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
+                // 攻撃を受けたキャラの OnAttacked を発動（ダメージは与えないが「攻撃を受けた」ため）。
+                // OnAttacked で場を離れ得るため、破壊判定はこの後に Contains で再確認する。
+                if (targetField.Contains(target))
+                {
+                    await FireOnAttackedEffectAsync(target, !isLocal, ct);
+                }
+            }
+            else if (damage == 0)
             {
                 await PlayShieldBlockEffectAsync(target, ct);
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
@@ -46,8 +63,7 @@ namespace Main
                 }
                 return;
             }
-
-            if (damage > 0)
+            else
             {
                 if (_hitEffectPrefab != null)
                 {
@@ -69,7 +85,8 @@ namespace Main
                 return;
             }
 
-            bool charWillBeDestroyed = target != null && target.CurrentHp <= 0;
+            // 必殺は HP に関係なく破壊する。通常攻撃は HP 0 以下で破壊。
+            bool charWillBeDestroyed = target != null && (deadly || target.CurrentHp <= 0);
 
             if (charWillBeDestroyed && targetField.Contains(target))
             {

@@ -793,6 +793,7 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_assault"), new GUIContent("強襲"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_noDeckAttack"), new GUIContent("デッキ攻撃×"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_archer"), new GUIContent("射手"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_deadly"), new GUIContent("必殺"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
         }
 
@@ -915,6 +916,7 @@ namespace GameEditor
                 element.FindPropertyRelative("_assault").boolValue = false;
                 element.FindPropertyRelative("_noDeckAttack").boolValue = false;
                 element.FindPropertyRelative("_archer").boolValue = false;
+                element.FindPropertyRelative("_deadly").boolValue = false;
             }
             else
             {
