@@ -43,6 +43,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C6002
@@ -73,6 +74,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 1
+    _deadly: 0
     _excludeFromDomination: 0
     _description: 
   - _id: C6003
@@ -103,6 +105,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: 
   - _id: C6004
@@ -133,6 +136,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5834\u306E\u30AD\u30E3\u30E9\u306E\u6570\u3060\u3051\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u3001\u540C\u3058\u6570\u3060\u3051\u81EA\u5206\u306E\u5893\u5730\u306E\u4E0A\u306E\u30AB\u30FC\u30C9\u3092\u30C7\u30C3\u30AD\u306B\u623B\u3059\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6005
@@ -163,6 +167,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: 
   - _id: C6006
@@ -193,6 +198,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: 
   - _id: C6007
@@ -223,6 +229,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
     _description: 
   - _id: C6008
@@ -253,5 +260,6 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _archer: 0
+    _deadly: 0
     _excludeFromDomination: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5893\u5730\u304B\u3089\u30AB\u30FC\u30C9\u30921\u679A\u9078\u3093\u3067\u624B\u672D\u306B\u52A0\u3048\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5893\u5730\u304B\u3089\u30AB\u30FC\u30C9\u30921\u679A\u9078\u3093\u3067\u624B\u672D\u306B\u52A0\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
