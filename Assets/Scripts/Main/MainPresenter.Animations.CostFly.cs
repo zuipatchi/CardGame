@@ -147,6 +147,11 @@ namespace Main
 
             foreach (CardView c in handCards)
             {
+                // コスト素材にできないカード（お邪魔トークン等＝CostPaymentValue 0）は選ばない。
+                if (c.Data.CostPaymentValue(neededAttr) <= 0)
+                {
+                    continue;
+                }
                 if (c.Data.Attribute == neededAttr)
                 {
                     chosen.Add(c);
@@ -181,7 +186,8 @@ namespace Main
                 {
                     break;
                 }
-                if (used.Contains(c))
+                // コスト素材にできないカード（お邪魔トークン等＝CostPaymentValue 0）は選ばない。
+                if (used.Contains(c) || c.Data.CostPaymentValue(neededAttr) <= 0)
                 {
                     continue;
                 }
