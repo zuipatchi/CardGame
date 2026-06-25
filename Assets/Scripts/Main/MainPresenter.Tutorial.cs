@@ -119,6 +119,28 @@ namespace Main
                 "C1009", "C1011", "C1011",
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
+
+            // ── CardReading（カードの見方） ──
+            // 戦闘はしない。手札・デッキはすべてキーワード能力を持つ実在キャラにする（トークンは入れない）。
+            // アイコン（コスト/属性/攻撃力/体力/キーワード）と詳細モーダルの読み方を学ぶため、
+            // 守護=C1005 / 飛行=C5003 / 速攻=C1009 / 防人=C3007 / 強襲=C3006 / 射手=C6002 を巡回させる。
+            // 先頭は解説でハイライトする守護の C1005。END を何度か押してもデッキ切れで負けないよう多めに確保する。
+            public static readonly string[] CardReadingPlayerDeckIds =
+            {
+                "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
+            };
+
+            public static readonly string[] CardReadingCpuDeckIds =
+            {
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
+            };
         }
 
         // E3002 が付与する勝利点。プリセット値（あと何点で勝てるか）の計算に使う。
@@ -128,6 +150,8 @@ namespace Main
         {
             switch (_tutorialId)
             {
+                case TutorialId.CardReading:
+                    return TutorialScript.CardReadingPlayerDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutPlayerDeckIds;
                 case TutorialId.FieldCharsWin:
@@ -154,6 +178,8 @@ namespace Main
         {
             switch (_tutorialId)
             {
+                case TutorialId.CardReading:
+                    return TutorialScript.CardReadingCpuDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutCpuDeckIds;
                 case TutorialId.FieldCharsWin:
@@ -386,6 +412,18 @@ namespace Main
         // 自分のメインフェーズ開始時に、現在ステップの案内を表示する。
         private void TutorialBeginPlayerMainPhase()
         {
+            if (_tutorialId == TutorialId.CardReading)
+            {
+                // step 0：手札カードのアイコンの読み方を解説し、先頭カードを光らせてクリックを促す。
+                // （step 0 のまま END を押しても完了せず、次の自分の番でここへ戻って再表示される）
+                if (_tutorialStep == 0)
+                {
+                    ShowCoach("カードの見方を覚えよう。\n手札のカードの左側にはアイコンが並んでいるよ。\n一番上のアイコンが【コスト】（出すのに必要な手札の枚数）、その下が攻撃力、さらにその下がHP\nそれ以降はそのカードが持つ【キーワード能力】だよ。\n光っているカードをクリックして、くわしい情報を見てみよう！");
+                    HighlightHandCard("C1005");
+                }
+                return;
+            }
+
             if (_tutorialId == TutorialId.DeckOutWin)
             {
                 ShowCoach("勝ち方のひとつ「デッキ切れ」を体験しよう。\n相手のデッキをマイナスにすると勝ち（0枚では勝ちにならない）！相手の【デッキ】（左上のカードの山）へ自分のキャラから矢印をドラッグして、デッキに攻撃してとどめを刺そう！\nデッキに攻撃したキャラの攻撃力の値だけ相手のデッキを上から破棄できるよ");
@@ -497,6 +535,31 @@ namespace Main
             }
         }
 
+        // カードの見方チュートリアル：手札カードをクリックしてカード詳細モーダルを開いたときに呼ぶ。
+        // step 0（解説中）→ step 1（詳細を開いた＝閉じ待ち）へ進める。詳細の解説はモーダルと重ならないよう、
+        // 閉じた後（TutorialOnLocalCardDetailClosed）に出す。
+        private void TutorialOnLocalCardDetailOpened()
+        {
+            if (_tutorialId != TutorialId.CardReading || _tutorialStep != 0)
+            {
+                return;
+            }
+            _tutorialStep = 1;
+        }
+
+        // カードの見方チュートリアル：一度開いた詳細を閉じたときに呼ぶ（CardDetailModal.OnHidden 経由）。
+        // step 1（閉じ待ち）→ step 2（END 待ち）へ進め、詳細画面の読み方を解説して END をハイライトする。
+        private void TutorialOnLocalCardDetailClosed()
+        {
+            if (_tutorialId != TutorialId.CardReading || _tutorialStep != 1)
+            {
+                return;
+            }
+            _tutorialStep = 2;
+            ShowCoach("今見たのが【カード詳細】だよ。\nコスト・攻撃力・体力に加えて、キーワード能力や効果、フレーバーテキストまで見れる。\nキーワード能力のアイコンをクリックすると、その能力の説明が見れるよ。\n確認が終わったら右側の【END】ボタンを押してチュートリアル完了！");
+            Highlight(_endButton);
+        }
+
         // 自分のアクションが解決した直後に呼ぶ。期待アクションならステップを進める / クリアする。
         private void TutorialOnLocalActionResolved(MainPhaseAction action)
         {
@@ -593,6 +656,14 @@ namespace Main
         // 自分がパス（ターン終了）したときに呼ぶ。
         private void TutorialOnLocalPass()
         {
+            // CardReading は詳細を開いて閉じ、解説を見た後（step 2）に END でクリア。
+            // それ以前（step 0/1）は何もせず、次の自分の番で再び解説に戻る。
+            if (_tutorialId == TutorialId.CardReading && _tutorialStep == 2)
+            {
+                CompleteTutorial();
+                return;
+            }
+
             // BasicLoop は「カードを出す→ターン終了」までが目的。ターン終了でそのままクリアする。
             if (_tutorialId == TutorialId.BasicLoop && _tutorialStep == 1)
             {

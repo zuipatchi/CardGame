@@ -3,6 +3,8 @@ namespace Common.Tutorial
     // チュートリアルの種類。Home の選択モーダルで選び、MainPresenter が ID ごとに台本を分岐する。
     public enum TutorialId
     {
+        // カードの見方：手札カードのアイコンとカード詳細モーダルの読み方を学ぶ（戦闘なし）。
+        CardReading,
         // きほんのあそびかた：カードの出し方・コストの払い方・ターン終了を体験する。
         BasicLoop,
         // 攻撃の仕方：召喚酔い・タップした相手にしか攻撃できないこと・反撃ダメージを受けないことを体験する。

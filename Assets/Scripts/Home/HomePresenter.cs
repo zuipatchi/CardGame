@@ -62,6 +62,7 @@ namespace Home
         private VisualElement _creditOverlay;
         private VisualElement _tutorialOverlay;
         private Button _tutorialCloseButton;
+        private Button _tutorialEntryCardReading;
         private Button _tutorialEntryBasic;
         private Button _tutorialEntryAttack;
         private Button _tutorialEntryDeckOut;
@@ -236,6 +237,7 @@ namespace Home
             _creditOverlay = root.Q<VisualElement>("CreditOverlay");
             _tutorialOverlay = root.Q<VisualElement>("TutorialOverlay");
             _tutorialCloseButton = root.Q<Button>("TutorialCloseButton");
+            _tutorialEntryCardReading = root.Q<Button>("TutorialEntryCardReading");
             _tutorialEntryBasic = root.Q<Button>("TutorialEntryBasic");
             _tutorialEntryAttack = root.Q<Button>("TutorialEntryAttack");
             _tutorialEntryDeckOut = root.Q<Button>("TutorialEntryDeckOut");
@@ -285,6 +287,7 @@ namespace Home
             };
             _tutorialButton.clicked += OnTutorialClicked;
             _tutorialCloseButton.clicked += OnTutorialCloseClicked;
+            _tutorialEntryCardReading.clicked += OnTutorialEntryCardReadingClicked;
             _tutorialEntryBasic.clicked += OnTutorialEntryBasicClicked;
             _tutorialEntryAttack.clicked += OnTutorialEntryAttackClicked;
             _tutorialEntryDeckOut.clicked += OnTutorialEntryDeckOutClicked;
@@ -341,6 +344,10 @@ namespace Home
             if (_tutorialCloseButton != null)
             {
                 _tutorialCloseButton.clicked -= OnTutorialCloseClicked;
+            }
+            if (_tutorialEntryCardReading != null)
+            {
+                _tutorialEntryCardReading.clicked -= OnTutorialEntryCardReadingClicked;
             }
             if (_tutorialEntryBasic != null)
             {
@@ -463,6 +470,7 @@ namespace Home
             _tutorialButton = null;
             _tutorialOverlay = null;
             _tutorialCloseButton = null;
+            _tutorialEntryCardReading = null;
             _tutorialEntryBasic = null;
             _tutorialEntryDeckOut = null;
             _tutorialEntryFieldChars = null;
@@ -804,6 +812,11 @@ namespace Home
         {
             PlayEnterSE();
             _tutorialOverlay.style.display = DisplayStyle.None;
+        }
+
+        private void OnTutorialEntryCardReadingClicked()
+        {
+            StartTutorial(TutorialId.CardReading);
         }
 
         private void OnTutorialEntryBasicClicked()

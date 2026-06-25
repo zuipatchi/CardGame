@@ -153,6 +153,10 @@
                 </ui:VisualElement>
                 <ui:ScrollView name="TutorialScroll" class="home-credit-scroll">
                     <ui:VisualElement name="TutorialPageBasic" class="home-rules-page">
+                        <ui:Button name="TutorialEntryCardReading" class="home-tutorial-entry">
+                            <ui:Label text="カードの見方" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="手札のカードのアイコンとカード詳細の見方を学びます" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
                         <ui:Button name="TutorialEntryBasic" class="home-tutorial-entry">
                             <ui:Label text="基本の遊び方" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="カードの出し方・コストの払い方・ターン終了を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>

@@ -15,6 +15,10 @@ namespace Main.Card
         private Label _keywordDescLabel;
         private VisualElement _activeKeywordBlock;
 
+        // 開いていた詳細が閉じられたとき（×ボタン・外側クリック）に呼ばれる。チュートリアルの誘導に使う。
+        // Show 内の先行 Hide では発火しない（実際に表示中のオーバーレイを閉じたときだけ通知する）。
+        public Action OnHidden { get; set; }
+
         public CardDetailModal(VisualElement root)
         {
             _root = root;
@@ -97,7 +101,7 @@ namespace Main.Card
                 if (charData.Guardian)
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--guardian", "守護",
-                        "守護を持つキャラを優先して攻撃しなければならない"));
+                        "相手は守護を持つキャラを優先して攻撃しなければならない"));
                 }
                 if (charData.Haste)
                 {
@@ -225,6 +229,7 @@ namespace Main.Card
 
             _overlay.RemoveFromHierarchy();
             _overlay = null;
+            OnHidden?.Invoke();
         }
 
         private static VisualElement CreateAttributeBadge(CardAttribute attribute)

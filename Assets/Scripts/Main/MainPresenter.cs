@@ -477,6 +477,13 @@ namespace Main
                 _handView.CanDrag = CanPlayerDragCard;
 
                 _cardDetailModal = new CardDetailModal(mainRoot);
+                _cardDetailModal.OnHidden = () =>
+                {
+                    if (_isTutorial)
+                    {
+                        TutorialOnLocalCardDetailClosed();
+                    }
+                };
                 _handView.OnCardClicked = card =>
                 {
                     if (_costSelectionTcs != null)
@@ -489,6 +496,10 @@ namespace Main
                         return;
                     }
                     _cardDetailModal.Show(card.Data);
+                    if (_isTutorial)
+                    {
+                        TutorialOnLocalCardDetailOpened();
+                    }
                 };
                 _playerFieldView.OnCardClicked = card =>
                 {
