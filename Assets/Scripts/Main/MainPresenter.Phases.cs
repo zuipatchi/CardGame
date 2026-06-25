@@ -60,6 +60,9 @@ namespace Main
             // ターン終了時：守護/防人を自動でタップ（横向き）にする（毎ターン終了時）
             await AutoTapGuardiansAndSakimoriAsync(_gameModel.IsLocalTurn, ct);
 
+            // ターン終了時：手番側の場のキャラの凍結（FreezeEnemyChars）を解除する（次の相手ターン1回ぶんを消費）
+            ClearFrozenChars(_gameModel.IsLocalTurn ? _playerFieldView : _opponentFieldView);
+
             // ExtraTurn 効果が発動していれば相手へターンを渡さず同じプレイヤーがもう一度ターンを行う。
             if (_extraTurnPending)
             {

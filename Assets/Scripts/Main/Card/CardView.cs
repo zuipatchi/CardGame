@@ -39,6 +39,10 @@ namespace Main.Card
         private bool _grantedAssault;
         private bool _grantedNoDeckAttack;
         private bool _grantedArcher;
+        // 凍結（FreezeEnemyChars）：true の間このキャラは攻撃を開始できない（次の相手ターン1回ぶん）。
+        private bool _frozen;
+        // 凍結中に表示する氷結オーバーレイ（水色フィルム＋FreezeIcon）。初回の SetFrozen(true) で遅延生成する。
+        private VisualElement _frozenOverlay;
         private CardDragManipulator _dragManipulator;
         public bool IsFaceDown { get; private set; }
         public bool IsOpponent { get; private set; }
@@ -58,6 +62,9 @@ namespace Main.Card
         public bool HasAssault => (Data is CharacterCardData assaultData && assaultData.Assault) || _grantedAssault;
         public bool HasNoDeckAttack => (Data is CharacterCardData noDeckAttackData && noDeckAttackData.NoDeckAttack) || _grantedNoDeckAttack;
         public bool HasArcher => (Data is CharacterCardData archerData && archerData.Archer) || _grantedArcher;
+
+        // 凍結中か（FreezeEnemyChars）。true の間は攻撃を開始できない（CanCharAttack が false を返す）。
+        public bool IsFrozen => _frozen;
 
         public CardView(VisualTreeAsset template, CardData data, Texture2D backImage = null, bool faceDown = false, bool isOpponent = false)
         {
@@ -159,6 +166,43 @@ namespace Main.Card
         // （外側の style.rotate は手札の扇・フィールド配置で使われるため不干渉）。
         private const float TappedAngle = 90f;
         public bool IsTapped { get; private set; }
+
+        // 凍結状態を設定する（FreezeEnemyChars）。攻撃可否（CanCharAttack）の判定に使い、
+        // 凍結中は水色の枠（frozen-char）＋氷結オーバーレイ（水色フィルム＋FreezeIcon）を表示する。
+        public void SetFrozen(bool frozen)
+        {
+            _frozen = frozen;
+            EnableInClassList("frozen-char", frozen);
+            if (frozen)
+            {
+                EnsureFrozenOverlay();
+                _frozenOverlay.style.display = DisplayStyle.Flex;
+            }
+            else if (_frozenOverlay != null)
+            {
+                _frozenOverlay.style.display = DisplayStyle.None;
+            }
+        }
+
+        // 氷結オーバーレイ（カードを覆う水色フィルム＋中央の FreezeIcon）を一度だけ生成する。
+        // カードの拡大・タップ回転に追従するよう _cardRoot の子として最前面に追加する。
+        private void EnsureFrozenOverlay()
+        {
+            if (_frozenOverlay != null)
+            {
+                return;
+            }
+            _frozenOverlay = new VisualElement();
+            _frozenOverlay.AddToClassList("frozen-overlay");
+            _frozenOverlay.pickingMode = PickingMode.Ignore;
+
+            VisualElement icon = new VisualElement();
+            icon.AddToClassList("frozen-icon");
+            icon.pickingMode = PickingMode.Ignore;
+            _frozenOverlay.Add(icon);
+
+            _cardRoot.Add(_frozenOverlay);
+        }
 
         // 即時にタップ/アンタップへ切り替える（演出なし）。ターン開始時の一括アンタップや
         // バウンスでの状態リセットに使う。
@@ -401,6 +445,8 @@ namespace Main.Card
             RefreshKeywordIcons();
             // タップ状態（横向き）も解除して縦に戻す
             SetTapped(false);
+            // 凍結状態も解除する（バウンスで手札に戻したら場の拘束を引き継がせない）
+            SetFrozen(false);
         }
 
         // 別キャラのランタイム状態（攻撃力バフ・HPバフ・現在HP）をこのカードへ複製する（演出なしで即時反映）。
@@ -420,6 +466,7 @@ namespace Main.Card
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
             RefreshKeywordIcons();
+            SetFrozen(source._frozen);
         }
 
         // キーワード能力アイコンの表示を現在の状態（SO 固有 OR 付与）に合わせて更新する。

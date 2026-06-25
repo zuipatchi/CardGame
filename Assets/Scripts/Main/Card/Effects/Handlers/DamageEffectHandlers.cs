@@ -59,6 +59,25 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 発動側が敵フィールドから値1体（0=敵全員）選び、「凍結」を付与して次の相手ターン中は攻撃できなくする。
+    [Preserve]
+    public sealed class FreezeEnemyCharsHandler : EffectHandler
+    {
+        public override EventType Type => EventType.FreezeEnemyChars;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（対象数）", false, "値2（未使用）",
+            "値1=攻撃できなくする相手の体数（0=敵全員・対象数が敵の数以上なら全員）。次の相手ターン中、通常攻撃もデッキ攻撃も不可になる。");
+
+        public override string BuildBody(EffectTextContext ctx) =>
+            $"{EnemiesTargetPrefix(ctx.Value1)}を次の相手のターン終了時まで攻撃できなくする";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyFreezeEnemyCharsAsync(inv.Value1, inv.IsLocal, ct);
+        }
+    }
+
     // 相手キャラを値1体（0=1体）選んで破壊する。対象数が敵の数以上なら全員。
     [Preserve]
     public sealed class BanishCharHandler : EffectHandler

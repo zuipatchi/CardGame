@@ -49,8 +49,8 @@ MonoBehaviour:
     _cardName: "\u30CF\u30FC\u30C8\u306E\u9A0E\u58EB"
     _cost: 2
     _image: {fileID: 21300000, guid: 96c4bc0b53464dc4db8947b4c700411b, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 86
+    _flavorText: "\u305A\u3044\u69D8\u306B\u5FE0\u8AA0\u3092\u8A93\u3063\u3066\u3044\u308B"
+    _voiceSpeaker: 51
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -77,10 +77,10 @@ MonoBehaviour:
     _description: 
   - _id: C7003
     _cardName: "\u30E9\u30A4\u30C8\u30CB\u30F3\u30B0\u30C9\u30E9\u30B4\u30F3"
-    _cost: 4
+    _cost: 3
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 86
+    _flavorText: "\u3042\u3001\u305A\u3044\u305A\u3044"
+    _voiceSpeaker: 53
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -89,8 +89,8 @@ MonoBehaviour:
     _set: 0
     _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
-    _attack: 4
-    _hp: 8
+    _attack: 2
+    _hp: 4
     _attribute: 5
     _effectTrigger: 0
     _effectType: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
     _effectValue2: 0
     _guardian: 0
     _haste: 0
-    _flying: 0
+    _flying: 1
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
@@ -107,10 +107,10 @@ MonoBehaviour:
     _description: 
   - _id: C7004
     _cardName: "\u9A0E\u58EB\u305A\u3044"
-    _cost: 0
+    _cost: 2
     _image: {fileID: 21300000, guid: a096cbb8040ed634faa688d95bec724b, type: 3}
     _flavorText: "\u8CB4\u6BBF\u304C\u3068\u308C\u3070\u3088\u304B\u308D\u3046"
-    _voiceSpeaker: 86
+    _voiceSpeaker: 45
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -119,12 +119,12 @@ MonoBehaviour:
     _set: 0
     _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
+    _attack: 2
+    _hp: 3
     _attribute: 5
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
+    _effectTrigger: 1
+    _effectType: 39
+    _effectValue: 1
     _effectValue2: 0
     _guardian: 0
     _haste: 0
@@ -134,13 +134,13 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _excludeFromDomination: 0
-    _description: 
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u3092\u6B21\u306E\u76F8\u624B\u306E\u30BF\u30FC\u30F3\u7D42\u4E86\u6642\u307E\u3067\u653B\u6483\u3067\u304D\u306A\u304F\u3059\u308B"
   - _id: C7005
     _cardName: "\u30A2\u30A6\u30C8\u30EC\u30F3\u30B8\u305A\u3044"
-    _cost: 0
+    _cost: 2
     _image: {fileID: 21300000, guid: c7d05765d24308a4f843934d165c1327, type: 3}
     _flavorText: "\u5F53\u305F\u3063\u3061\u3083\u3063\u305F\u306E\u3088"
-    _voiceSpeaker: 86
+    _voiceSpeaker: 45
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -149,13 +149,13 @@ MonoBehaviour:
     _set: 0
     _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
+    _attack: 1
+    _hp: 1
     _attribute: 5
-    _effectTrigger: 0
-    _effectType: 0
+    _effectTrigger: 1
+    _effectType: 36
     _effectValue: 0
-    _effectValue2: 0
+    _effectValue2: 1
     _guardian: 0
     _haste: 0
     _flying: 0
@@ -164,13 +164,13 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _excludeFromDomination: 0
-    _description: 
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E9\u5168\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0B\u3052\u308B"
   - _id: C7006
     _cardName: "\u30A4\u30F3\u30D5\u30A1\u30A4\u30BF\u30FC\u305A\u3044"
     _cost: 0
     _image: {fileID: 21300000, guid: ec624eee526e5aa40850f4dbb99209ea, type: 3}
-    _flavorText: "\u3088\u3044\u3057\u3087\u304A\u304A\u304A\uFF01"
-    _voiceSpeaker: 86
+    _flavorText: "\u8D64\u3044\u4E00\u6483\uFF01"
+    _voiceSpeaker: 45
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -199,8 +199,8 @@ MonoBehaviour:
     _cardName: "\u60AA\u9B54\u305A\u3044"
     _cost: 4
     _image: {fileID: 21300000, guid: 4ba41e8dc481a214d85fa0ce05da525c, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 86
+    _flavorText: "\u60AA\u9B54\u306B\u306A\u3063\u3061\u3083\u3063\u305F\u306E\u3088"
+    _voiceSpeaker: 45
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -230,7 +230,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: 7581c7e9040cc8e48a7adff3a2d708ff, type: 3}
     _flavorText: "\u3048\u30FC\u3044"
-    _voiceSpeaker: 86
+    _voiceSpeaker: 3
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
     _cost: 3
     _image: {fileID: 21300000, guid: fb0f9d78cb20b98419ee4e86e817b225, type: 3}
     _flavorText: "\u3088\u3044\u3057\u3087\u3001\u3088\u3044\u3057\u3087"
-    _voiceSpeaker: 86
+    _voiceSpeaker: 53
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -290,7 +290,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: e925653d04520524da5bc445ea6367ec, type: 3}
     _flavorText: "\u304A\u3063\u3071\u3063\u3074\u30FC"
-    _voiceSpeaker: 86
+    _voiceSpeaker: 89
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -301,36 +301,6 @@ MonoBehaviour:
     _triggerOnGrave: 1
     _attack: 1
     _hp: 2
-    _attribute: 5
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _sakimori: 0
-    _assault: 0
-    _noDeckAttack: 0
-    _archer: 0
-    _excludeFromDomination: 0
-    _description: 
-  - _id: C7011
-    _cardName: "\u304A\u90AA\u9B54\u866B"
-    _cost: 99
-    _image: {fileID: 21300000, guid: e925653d04520524da5bc445ea6367ec, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 86
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 0
-    _excludeFromDeckBuilder: 1
-    _set: 0
-    _cannotBeUsedAsCost: 0
-    _triggerOnGrave: 1
-    _attack: 0
-    _hp: 99
     _attribute: 5
     _effectTrigger: 0
     _effectType: 0

@@ -365,6 +365,30 @@
     display: none;
 }
 
+/* 氷結オーバーレイ：凍結中（FreezeEnemyChars）にカード全体を覆う半透明の水色フィルム（CardView が _cardRoot へ追加）。
+   角丸はカード（.game-card）に合わせる。中央に FreezeIcon を表示する。 */
+.frozen-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    background-color: rgba(130, 205, 255, 0.05);
+    align-items: center;
+    justify-content: center;
+}
+
+.frozen-icon {
+    width: 72px;
+    height: 72px;
+    background-image: url("../Icon/FreezeIcon.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .game-card__hp-icon {
     position: absolute;
     left: 0;

@@ -88,6 +88,10 @@ namespace Main.Card
         // 発動した（アクティブな）プレイヤーが、相手にターンを渡さずもう一度自分のターンを行う。
         // EventValue は不使用（0）。1ターン中に複数回発動しても追加ターンは1回（フラグ管理）。
         ExtraTurn = 18,
+        // 発動側から見た敵フィールドのキャラを EventValue / EffectValue 体（値1。0=敵全員）選び、
+        // 「凍結」状態を付与して**次の相手ターン中は攻撃できなくする**（通常攻撃・デッキ攻撃の両方。攻撃矢印も出ない）。
+        // 凍結はそのキャラの持ち主のターンが終わるときに自動解除される（1ターンのみ）。EventValue2 / EffectValue2 は不使用。
+        FreezeEnemyChars = 39,
         // 11 は欠番（旧 GainVictoryPoints）。勝利点の付与は CardData.VictoryPointBonus に統合した。
         // 発動した側の墓地にある緑属性カードの枚数だけ、自分の勝利点（勝利点の勝利条件への加点）に加算する。
         // EventValue / EffectValue は不使用（0）。墓地に緑カードがなければ加点 0。
