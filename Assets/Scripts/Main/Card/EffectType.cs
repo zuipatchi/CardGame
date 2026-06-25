@@ -72,6 +72,9 @@ namespace Main.Card
         // ハンデス：相手プレイヤーは手札を EventValue / EffectValue 枚（値1）捨てる（捨てるカードは手札の持ち主が選ぶ）。
         // 手札枚数が値1未満なら手札全部。手札が0枚なら空振り。EventValue2 / EffectValue2 は不使用。
         Discard = 33,
+        // 相手プレイヤーの勝利点を EventValue / EffectValue 分（値1）下げる（0未満にはならない＝0でクランプ）。
+        // 相手の勝利点が既に0なら空振り。固定値のためオンラインでも決定的に解決される（追加同期不要）。EventValue2 / EffectValue2 は不使用。
+        ReduceEnemyVP = 37,
         // デッキの上から EventValue / EffectValue 枚（値1）を手札に加える。
         // EventValue2 / EffectValue2（値2）＝1 でオーバーリミット指定：デッキが0枚でも敗北せず「オーバーリミット！」告知のみ行う（0=通常）。
         Draw = 3,

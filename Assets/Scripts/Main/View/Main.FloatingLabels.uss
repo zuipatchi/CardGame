@@ -163,6 +163,17 @@
     height: 60px;
 }
 
+.vp-reduce-label {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(235, 110, 110);
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+    -unity-text-align: middle-center;
+    width: 320px;
+    height: 60px;
+}
+
 /* ─── ダメージトリガー発動カットインラベル ─────────────────────────────────── */
 .grave-trigger-label {
     font-size: 40px;

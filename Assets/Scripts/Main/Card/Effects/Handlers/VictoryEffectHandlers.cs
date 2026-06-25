@@ -24,6 +24,24 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 相手プレイヤーの勝利点を EventValue / EffectValue（値1）分下げる（0未満にはならない＝0でクランプ）。
+    [Preserve]
+    public sealed class ReduceEnemyVPHandler : EffectHandler
+    {
+        public override EventType Type => EventType.ReduceEnemyVP;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（下げる勝利点）", false, "値2（未使用）",
+            "値1=相手の勝利点を下げる量（0未満にはならない）。値2は未使用（0 のままで可）。");
+
+        public override string BuildBody(EffectTextContext ctx) => $"相手の勝利点を{ctx.Value1}下げる";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ReduceEnemyVictoryPointsAsync(inv.Value1, inv.IsLocal, inv.SourceCard, ct);
+        }
+    }
+
     // 次に使うカード1枚のコストを0にする（使うまで持続）。
     [Preserve]
     public sealed class NextCardCostFreeHandler : EffectHandler

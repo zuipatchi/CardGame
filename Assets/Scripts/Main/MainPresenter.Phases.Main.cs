@@ -712,6 +712,34 @@ namespace Main
             }
         }
 
+        // 相手の勝利点を amount 分下げる（ReduceEnemyVP の解決時に呼ぶ）。0未満にはしない（0でクランプ）。
+        // isLocal=発動側が自分側か。下げる対象は発動側から見た相手プレイヤーの勝利点。
+        // 固定値かつ同期済みの勝利点に対する操作のため、オンラインでも決定的に対称解決される（追加同期不要）。
+        internal async UniTask ReduceEnemyVictoryPointsAsync(int amount, bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            VictoryPointsView victoryPoints = isLocal ? _opponentVictoryPoints : _playerVictoryPoints;
+            int from = victoryPoints.Points;
+            // 勝利点は0未満にならないため、実際に下げられるのは現在値まで。相手が既に0点なら空振り。
+            int reduced = Math.Min(amount, from);
+            if (reduced <= 0)
+            {
+                return;
+            }
+
+            // 発動カード上に「勝利点低下 N」フローティングラベル（実際に下がった分を表示）
+            await PlayFloatingLabelAsync($"勝利点低下 {reduced}", "vp-reduce-label", sourceCard, ct);
+
+            victoryPoints.AddPoints(-reduced);
+
+            // 相手の勝利点カウンターを数字カウントダウン + 「-N」フローティング + メダルの弾み演出
+            await PlayVictoryPointLossAsync(victoryPoints, from, victoryPoints.Points, reduced, ct);
+        }
+
         // デッキ切れ勝利条件（オーバーリミット）：デッキが0枚の状態でカードを引く／ミルしようとした瞬間に、
         // その本人が敗北＝相手が勝利。カードを1枚引く／ミルする「直前」に呼び、デッキが空なら敗北を成立させる。
         // デッキを0枚にした引き／ミルそのものでは負けない（その時点ではまだ空ではないため false を返す）。

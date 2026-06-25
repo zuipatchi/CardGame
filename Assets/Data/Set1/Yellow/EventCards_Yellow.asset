@@ -32,7 +32,7 @@ MonoBehaviour:
     _eventType: 29
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u624B\u672D\u306B\u300C\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D\u300D\u300C\u30BF\u30ED\u30FC\u306E\u8155\u6BDB\u300D\u300C\u30BF\u30ED\u30FC\u306E\u8ECA\u300D\u300C\u30BF\u30ED\u30FC\u306E\u3071\u3093\u3064\u300D\u304C\u305D\u308D\u3063\u3066\u3044\u308C\u3070\u52DD\u5229\u3059\u308B"
+    _description: "\u624B\u672D\u306B\u300C\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D\u300D\u300C\u30BF\u30ED\u30FC\u306E\u8155\u6BDB\u300D\u300C\u30BF\u30ED\u30FC\u306E\u75DB\u8ECA\u300D\u300C\u30BF\u30ED\u30FC\u306E\u3071\u3093\u3064\u300D\u304C\u305D\u308D\u3063\u3066\u3044\u308C\u3070\u52DD\u5229\u3059\u308B"
     _attribute: 3
   - _id: E4002
     _cardName: "\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D"
@@ -57,7 +57,7 @@ MonoBehaviour:
     _cardName: "\u30BF\u30ED\u30FC\u306E\u8155\u6BDB"
     _cost: 2
     _image: {fileID: 21300000, guid: 0af77dd61518d8643abfb6523b26ba7e, type: 3}
-    _flavorText: "\u3059\u3063\u3054\u3044\u525B\u6BDB"
+    _flavorText: "\u3076\u3063\u3068\u3044\u306E\u304C\u597D\u304D"
     _voiceSpeaker: 17
     _keyword: "\u30BF\u30ED\u30FC"
     _effectParam: 
@@ -73,10 +73,10 @@ MonoBehaviour:
     _description: "\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
     _attribute: 3
   - _id: E4004
-    _cardName: "\u30BF\u30ED\u30FC\u306E\u8ECA"
+    _cardName: "\u30BF\u30ED\u30FC\u306E\u75DB\u8ECA"
     _cost: 2
-    _image: {fileID: 21300000, guid: 51c669653ef5dec488a0115fde6dcea3, type: 3}
-    _flavorText: "\u81EA\u6162\u306E\u304A\u3063\u3071\u3044\u306F\u3069\u3046\u304B\u3057\u3089\uFF1F"
+    _image: {fileID: 21300000, guid: 2cb52ca039120ca4cb2df240c1b2510a, type: 3}
+    _flavorText: "\u79C1\u306E\u75DB\u8ECA\u3060\u308F"
     _voiceSpeaker: 17
     _keyword: "\u30BF\u30ED\u30FC"
     _effectParam: 

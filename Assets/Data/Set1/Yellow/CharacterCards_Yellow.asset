@@ -44,7 +44,7 @@ MonoBehaviour:
     _archer: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9EC4\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C4002
-    _cardName: "\u3071\u3061\u3069\u3063\u304F"
+    _cardName: "\u3071\u3061\u3069\u3063\u3050"
     _cost: 3
     _image: {fileID: 21300000, guid: 78ea85ca8f236634ca913f38387400a0, type: 3}
     _flavorText: "\u3071\u3061\u3069\u3063\u304F\u3067\u3059"
@@ -72,12 +72,12 @@ MonoBehaviour:
     _archer: 0
     _description: 
   - _id: C4003
-    _cardName: "\u30C9\u30C3\u30B0"
+    _cardName: "\u30BF\u30ED\u30FC\u306E\u30EC\u30FC\u30B9\u30AF\u30A4\u30FC\u30F3"
     _cost: 2
-    _image: {fileID: 21300000, guid: 4ea4dc8ee98e85d4fa318babc4ed5bf5, type: 3}
-    _flavorText: "\u8210\u3081\u3093\u306A\u3088"
-    _voiceSpeaker: 7
-    _keyword: 
+    _image: {fileID: 21300000, guid: 51c669653ef5dec488a0115fde6dcea3, type: 3}
+    _flavorText: "\u81EA\u6162\u306E\u304A\u3063\u3071\u3044\u306F\u3069\u3046\u304B\u3057\u3089"
+    _voiceSpeaker: 17
+    _keyword: "\u30BF\u30ED\u30FC"
     _effectParam: 
     _victoryPointBonus: 0
     _excludeFromGame: 0

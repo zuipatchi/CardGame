@@ -228,6 +228,54 @@ namespace Main
             plus.RemoveFromHierarchy();
         }
 
+        // ─── 勝利点減少演出（ReduceEnemyVP で相手の勝利点を下げる）──────────────
+        // 数字を from→to へカウントダウン、「-N」を浮かび上がらせ、メダルを弾ませる（獲得演出の減算版）。
+        private async UniTask PlayVictoryPointLossAsync(VictoryPointsView view, int from, int to, int amount, CancellationToken ct)
+        {
+            // 「-N」フローティングラベルをメダル位置に生成
+            Label minus = new Label($"-{amount}");
+            minus.AddToClassList("victory-points-loss-label");
+            minus.pickingMode = PickingMode.Ignore;
+            minus.style.position = Position.Absolute;
+            Vector2 center = _dragLayer.WorldToLocal(view.worldBound.center);
+            float startTop = center.y;
+            minus.style.left = center.x;
+            minus.style.top = startTop;
+            minus.style.opacity = 0f;
+            _dragLayer.Add(minus);
+
+            // 勝利点が動くタイミングに合わせて獲得と同じ SE を再生
+            _soundPlayer.PlaySE(_soundStore.VictoryPointSE);
+
+            int shown = from;
+            float pulse = 1f;
+            float floatTop = startTop;
+
+            // 先に「-N」フローティングとメダルの弾みを同時、その後に数字カウントダウン
+            const float CountDownStart = 0.55f;
+            UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+            Sequence seq = DOTween.Sequence()
+                // メダルを弾ませる
+                .Append(DOTween.To(() => pulse, v => { pulse = v; view.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1.45f, 0.15f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => pulse, v => { pulse = v; view.style.scale = new Scale(new Vector3(v, v, 1f)); }, 1f, 0.4f).SetEase(Ease.OutBack))
+                // 「-N」を出現 → 上昇しながらフェードアウト
+                .Insert(0f, DOTween.To(() => minus.style.opacity.value, v => minus.style.opacity = v, 1f, 0.15f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => floatTop, v => { floatTop = v; minus.style.top = v; }, startTop - 64f, 0.4f).SetEase(Ease.OutQuad))
+                .Insert(0.15f, DOTween.To(() => minus.style.opacity.value, v => minus.style.opacity = v, 0f, 0.4f).SetEase(Ease.InQuad))
+                // 数字カウントダウン — フローティングとメダルが終わってから
+                .Insert(CountDownStart, DOTween.To(() => shown, v => { shown = v; view.SetDisplayedPoints(v); }, to, 0.5f).SetEase(Ease.OutQuad))
+                .OnComplete(() => tcs.TrySetResult());
+
+            ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+
+            try { await tcs.Task; }
+            catch (OperationCanceledException) { }
+
+            view.SetDisplayedPoints(to);
+            view.style.scale = new Scale(Vector3.one);
+            minus.RemoveFromHierarchy();
+        }
+
         // ─── Switch エフェクト（手札に戻す対象キャラ位置にパーティクルのみ）───────────────
 
         internal async UniTask PlaySwitchEffectAsync(CardView sacrificedChar, CancellationToken ct)

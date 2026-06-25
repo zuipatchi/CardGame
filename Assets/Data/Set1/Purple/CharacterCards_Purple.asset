@@ -215,7 +215,7 @@ MonoBehaviour:
     _cardName: "\u305A\u3044\u306E\u624B\u5148"
     _cost: 1
     _image: {fileID: 21300000, guid: 7581c7e9040cc8e48a7adff3a2d708ff, type: 3}
-    _flavorText: 
+    _flavorText: "\u3048\u30FC\u3044"
     _voiceSpeaker: 86
     _keyword: 
     _effectParam: 
@@ -243,7 +243,7 @@ MonoBehaviour:
     _cardName: "\u30D8\u30C9\u30ED\u9B54\u4EBA"
     _cost: 3
     _image: {fileID: 21300000, guid: fb0f9d78cb20b98419ee4e86e817b225, type: 3}
-    _flavorText: 
+    _flavorText: "\u3088\u3044\u3057\u3087\u3001\u3088\u3044\u3057\u3087"
     _voiceSpeaker: 86
     _keyword: 
     _effectParam: 
@@ -271,7 +271,7 @@ MonoBehaviour:
     _cardName: "\u30D9\u30D3\u30A3\u305A\u3044"
     _cost: 2
     _image: {fileID: 21300000, guid: e925653d04520524da5bc445ea6367ec, type: 3}
-    _flavorText: 
+    _flavorText: "\u304A\u3063\u3071\u3063\u3074\u30FC"
     _voiceSpeaker: 86
     _keyword: 
     _effectParam: 

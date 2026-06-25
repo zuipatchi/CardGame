@@ -339,6 +339,14 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.9);
 }
 
+.victory-points-loss-label {
+    font-size: 48px;
+    -unity-font-style: bold;
+    color: rgb(235, 110, 110);
+    -unity-text-outline-width: 4px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
 .turn-counter {
     position: absolute;
     bottom: 16px;
