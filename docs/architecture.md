@@ -595,7 +595,7 @@ CpuAgent.ChooseEventCardIndex(hand, canAfford)          使うイベントカー
 - **中級以上**: `CpuMayPlayToField()` が CostBoost（キャラ＝`OnUsedAsCost`＋`CostBoost`／イベント＝`CostBoost`）・ダメージトリガー（`CardData.TriggerOnGrave`）持ちのカードを場に出す候補から除外し、`ChooseCpuCostCards()`（`MainPresenter.Animations.CostFly.cs`）がそれらをコスト支払いに優先的に充てる。
 - **上級**: 当面は中級と同じ挙動（`_cpuDifficulty == Advanced` で将来分岐を追加できる構造）。
 
-キャラ攻撃・デッキ攻撃の対象選択は守護・飛行を考慮するため `MainPresenter.CpuChooseMainAction()` 側で `CanAttackChar` / `CanAttackDeck` を使って解決する（合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATK）。
+キャラ攻撃・デッキ攻撃の対象選択は守護・飛行を考慮するため `MainPresenter.CpuChooseMainAction()` 側で `CanAttackChar` / `CanAttackDeck` を使って解決する（合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATK）。攻撃力0のキャラは与ダメージ・ミルともに0で攻撃しても無意味なため、攻撃者候補（`availableAttackers`）から除外する（キャラ攻撃・デッキ攻撃・lethal判定すべての起点）。
 
 優先順位: lethal デッキ攻撃（ATK > 相手デッキ枚数で空デッキからさらにミルさせて敗北させられる） → キャラ攻撃（合法な対象があれば） → チップミル（デッキ攻撃。キャラ攻撃対象がない場合） → キャラ配置 → イベント使用 → パス
 
