@@ -709,6 +709,9 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_cost"), new GUIContent("コスト"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_image"), new GUIContent("画像"));
 
+            // コスト素材にできない（お邪魔トークン用）：手札からコスト支払いの素材に数えない（CostPaymentValue=0）。
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_cannotBeUsedAsCost"), new GUIContent("コスト素材にできない"));
+
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_victoryPointBonus"), new GUIContent("勝利点付帯値"));
 
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_description"), new GUIContent("効果テキスト"));
@@ -794,6 +797,8 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_noDeckAttack"), new GUIContent("デッキ攻撃×"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_archer"), new GUIContent("射手"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
+            // 制圧勝利（キャラ8体）のカウント対象外（お邪魔トークン用）。
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_excludeFromDomination"), new GUIContent("制圧勝利の対象外"));
         }
 
         private void DrawEventFields(SerializedProperty element)
@@ -899,6 +904,7 @@ namespace GameEditor
             element.FindPropertyRelative("_keyword").stringValue = string.Empty;
             element.FindPropertyRelative("_effectParam").stringValue = string.Empty;
             element.FindPropertyRelative("_triggerOnGrave").boolValue = false;
+            element.FindPropertyRelative("_cannotBeUsedAsCost").boolValue = false;
 
             if (isCharacter)
             {
@@ -915,6 +921,7 @@ namespace GameEditor
                 element.FindPropertyRelative("_assault").boolValue = false;
                 element.FindPropertyRelative("_noDeckAttack").boolValue = false;
                 element.FindPropertyRelative("_archer").boolValue = false;
+                element.FindPropertyRelative("_excludeFromDomination").boolValue = false;
             }
             else
             {

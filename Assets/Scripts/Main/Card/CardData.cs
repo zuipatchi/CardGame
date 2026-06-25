@@ -39,6 +39,10 @@ namespace Main.Card
         // ID 採番のブロック（属性×1000 +（弾-1）×100 + 連番）と、エディタ上の弾フィルタ・表示に使う。
         // 既定値 0＝第一弾扱い（既存アセットは未設定でも 0 になるため移行不要。Set プロパティで 0→1 に正規化）。
         [SerializeField] protected int _set;
+        // コスト素材にできない（お邪魔トークン用）：true のとき、手札からコスト支払いの素材として数えない（CostPaymentValue=0）。
+        // 引いても出せない高コストカードと組み合わせると、コストにも回せない「死に札」になる。
+        // 既定値 false（既存アセットは未設定でも false になるため移行不要）。キャラ・イベント共通。
+        [SerializeField] protected bool _cannotBeUsedAsCost;
         // ダメージトリガー：このカードが「デッキ」から墓地へ送られた場合（デッキ攻撃のミル・将来のデッキミル効果）、
         // デッキの持ち主がコストを支払わずにこのカードを使用する。
         // キャラは場に召喚（登場時効果も発動）、イベントは効果を解決してから墓地へ送る。
@@ -62,6 +66,8 @@ namespace Main.Card
         public bool InUse => !_excludeFromGame;
         // デッキ構築のプールに表示するか（対戦は可だがデッキに入れられないトークンは除外）。
         public bool InDeckPool => InUse && !_excludeFromDeckBuilder;
+        // コスト素材にできないか（お邪魔トークン用）。true ならコスト支払いの素材として数えない。キャラ・イベント共通。
+        public bool CannotBeUsedAsCost => _cannotBeUsedAsCost;
         // ダメージトリガーするか（デッキから墓地へ送られたときコストなしで使用）。キャラ・イベント共通。
         public bool TriggerOnGrave => _triggerOnGrave;
         // リリース弾（1始まり）。0（未設定）は第一弾として扱う。

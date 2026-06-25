@@ -25,6 +25,7 @@ namespace Main.Network
         private const string k_Rematch = "NGS_Rematch";
         private const string k_Mulligan = "NGS_Mulligan";
         private const string k_RecoverDeck = "NGS_RecoverDeck";
+        private const string k_JamDeck = "NGS_JamDeck";
         private const string k_CoinDraw = "NGS_CoinDraw";
         private const string k_DiceDraw = "NGS_DiceDraw";
         private const string k_Switch = "NGS_Switch";
@@ -47,6 +48,7 @@ namespace Main.Network
             k_Switch,
             k_Evolve,
             k_RecoverDeck,
+            k_JamDeck,
             k_CoinDraw,
             k_DiceDraw,
             k_DamageTarget,
@@ -512,6 +514,21 @@ namespace Main.Network
         public async UniTask<CardData[]> WaitForOpponentRecoverDeckOrderAsync(CancellationToken ct)
         {
             string json = await WaitJsonAsync(k_RecoverDeck, ct);
+            DeckOrderPayload payload = JsonUtility.FromJson<DeckOrderPayload>(json);
+            return _cardDatabase.BuildDeck(payload.deckIds);
+        }
+
+        // JamEnemyDeck（お邪魔トークン）：発動側がトークンを混ぜてシャッフルした後のデッキ順をミラー側へ伝える。
+        // Recover と同じくデッキ全体の ID 列を送り、受信側はそのまま組み直す（トークンも CardDatabase に登録済みのため解決できる）。
+        public void SendJamDeckOrder(string[] deckIds)
+        {
+            DeckOrderPayload payload = new DeckOrderPayload { deckIds = deckIds };
+            SendJson(k_JamDeck, JsonUtility.ToJson(payload));
+        }
+
+        public async UniTask<CardData[]> WaitForOpponentJamDeckOrderAsync(CancellationToken ct)
+        {
+            string json = await WaitJsonAsync(k_JamDeck, ct);
             DeckOrderPayload payload = JsonUtility.FromJson<DeckOrderPayload>(json);
             return _cardDatabase.BuildDeck(payload.deckIds);
         }

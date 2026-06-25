@@ -107,6 +107,11 @@ namespace Main.Card
         // EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
         // 旧 DefBoost（防御という独立ステータスは無いため HP ブーストへ統合。整数値 2 を継続使用）。
         HpBoost = 2,
+        // 相手のデッキに「お邪魔トークン」を EventValue / EffectValue 枚（値1）混ぜてシャッフルする。
+        // トークンは EventValue2 / EffectValue2（値2）が示すイベント（数字部分→"E###"）を参照する（SummonChar と同じ ID 指定方式）。
+        // 値1≤0／トークンIDが解決できない場合は空振り。トークンは相手の引きを薄め・手札枠を圧迫する（お邪魔カード）。
+        // デッキ順は同期済みのため、発動側がシャッフル結果（NGS_JamDeck）を送って両クライアントで対称に解決する。
+        JamEnemyDeck = 38,
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree = 15,
         Recover = 6,

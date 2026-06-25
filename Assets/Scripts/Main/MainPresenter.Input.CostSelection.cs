@@ -110,6 +110,11 @@ namespace Main
                 card.RemoveFromClassList("cost-selected");
                 _handView.RestoreCardOrder(card);
             }
+            // コスト素材にできないカード（お邪魔トークン等＝CostPaymentValue 0）は選べない。
+            else if (card.Data.CostPaymentValue(_playedCardAttribute) <= 0)
+            {
+                return;
+            }
             else if (SelectedCostValue() < _requiredCost)
             {
                 _selectedCostCards.Add(card);

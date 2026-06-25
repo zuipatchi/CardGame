@@ -262,6 +262,56 @@ namespace Main
             }
         }
 
+        // JamEnemyDeck 効果（JamEnemyDeckHandler から呼ぶ）：相手デッキに「お邪魔トークン」（"E{tokenIdNumber}"＝イベント）を
+        // count 枚混ぜてシャッフルする。count≤0／トークンIDが解決できない場合は空振り。
+        // 発動側(isLocal)から見た相手デッキ（!isLocal の持ち主）に混ぜる。
+        // オンラインは Recover と同じく発動側がシャッフル結果（NGS_JamDeck）を送り、ミラー側は受信した順で組み直す。
+        internal async UniTask ApplyJamEnemyDeckAsync(int count, int tokenIdNumber, bool isLocal, CardView sourceCard, CancellationToken ct)
+        {
+            if (count <= 0 || tokenIdNumber <= 0)
+            {
+                return;
+            }
+
+            string tokenId = $"E{tokenIdNumber}";
+            if (!_cardDatabase.TryGet(tokenId, out CardData tokenData))
+            {
+                return;
+            }
+
+            // 発動側(isLocal)から見た相手のデッキ＝ !isLocal の持ち主のデッキ
+            DeckView targetDeck = !isLocal ? _playerDeckView : _opponentDeckView;
+
+            List<CardData> tokens = new List<CardData>(count);
+            for (int i = 0; i < count; i++)
+            {
+                tokens.Add(tokenData);
+            }
+
+            // アニメーション前にハンドラを登録してメッセージのロストを防ぐ（Recover と同じ対策）
+            UniTask<CardData[]> jamReceiveTask = (_isOnline && !isLocal)
+                ? _networkGameService.WaitForOpponentJamDeckOrderAsync(ct)
+                : default;
+
+            await PlayFloatingLabelAsync($"お邪魔トークン {count}", "jam-label", sourceCard, ct);
+            await PlayJamTokensFlyAsync(tokens, sourceCard, targetDeck, ct);
+
+            if (!_isOnline || isLocal)
+            {
+                targetDeck.AddCardsAndShuffle(tokens);
+                if (_isOnline)
+                {
+                    _networkGameService.SendJamDeckOrder(targetDeck.GetCardIds());
+                }
+            }
+            else
+            {
+                CardData[] shuffledDeck = await jamReceiveTask;
+                targetDeck.Rebuild(shuffledDeck);
+            }
+            await PlayDeckShuffleAsync(targetDeck, ct);
+        }
+
         // 効果ハンドラ用：発動側の自フィールドを返す（Switch / Evolve の事前演出で使う）。
         internal FieldView FieldFor(bool isLocal)
         {

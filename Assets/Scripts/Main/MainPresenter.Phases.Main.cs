@@ -680,7 +680,8 @@ namespace Main
             }
 
             FieldView field = isLocalField ? _playerFieldView : _opponentFieldView;
-            if (!WinRule.IsFieldCharsWin(field.Characters.Count))
+            // お邪魔トークン（ExcludeFromDomination）はカウントに含めない。
+            if (!WinRule.IsFieldCharsWin(field.CountCharsForDominationWin()))
             {
                 return;
             }

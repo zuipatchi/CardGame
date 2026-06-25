@@ -298,6 +298,10 @@ namespace Main
                 // 場中央のカード中心で閃光を出す
                 await PlayGraveTriggerBurstAsync(cutIn, ct);
 
+                // カード使用としてフレーバー読み上げ等を発火する（通常プレイ・キャラのトリガーと同じ OnCardPlayed 経由）。
+                // イベントは場に出ないため CheckFieldCharsWin は実質 no-op（盤面のキャラ数は増えない）。
+                OnCardPlayed(eventData, playedByLocal: ownerIsLocal);
+
                 // 効果発動（cutIn.worldBound が有効な状態で、種別ごとの演出込みで解決）
                 await ResolveEventCardEffectAsync(eventData, cutIn, ownerIsLocal, ct);
 
@@ -433,6 +437,69 @@ namespace Main
             for (int i = 0; i < cards.Count; i++)
             {
                 CardView tempCard = new CardView(_cardStore.CardTemplate, cards[i], _cardStore.CardBack, faceDown: false);
+                tempCard.style.position = Position.Absolute;
+                tempCard.style.left = startLeft;
+                tempCard.style.top = startTop;
+                tempCard.style.width = StyleKeyword.Null;
+                tempCard.style.height = StyleKeyword.Null;
+                tempCard.style.scale = new Scale(Vector3.one);
+                _dragLayer.Add(tempCard);
+                tempCards.Add(tempCard);
+
+                UniTaskCompletionSource tcs = new UniTaskCompletionSource();
+                tcsList.Add(tcs);
+
+                float delay = i * CardInterval;
+                CardView captured = tempCard;
+                Sequence seq = DOTween.Sequence()
+                    .AppendInterval(delay)
+                    .Append(DOTween.To(() => captured.style.left.value.value, v => captured.style.left = v, targetLeft, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(() => captured.style.top.value.value, v => captured.style.top = v, targetTop, FlyDuration).SetEase(Ease.InQuad))
+                    .Join(DOTween.To(
+                        () => captured.style.scale.value.value.x,
+                        s => captured.style.scale = new Scale(new Vector3(s, s, 1f)),
+                        0f, FlyDuration).SetEase(Ease.InQuad))
+                    .OnComplete(() => tcs.TrySetResult());
+
+                ct.Register(() => { seq.Kill(); tcs.TrySetCanceled(); });
+            }
+
+            try
+            {
+                await UniTask.WhenAll(tcsList.Select(t => t.Task));
+            }
+            catch (OperationCanceledException) { }
+
+            foreach (CardView tempCard in tempCards)
+            {
+                if (tempCard.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(tempCard);
+                }
+            }
+        }
+
+        // ─── お邪魔トークン飛翔アニメーション（発動カード → 相手デッキへ裏向きで飛翔）─────────────
+        // JamEnemyDeck 用。発動カードの位置からトークンを相手デッキへ裏向きで飛ばす（Recover の墓地→デッキ版に対する発動元→デッキ版）。
+        private async UniTask PlayJamTokensFlyAsync(
+            IReadOnlyList<CardData> cards, CardView sourceCard, DeckView targetDeck, CancellationToken ct)
+        {
+            const float FlyDuration = 0.35f;
+            const float CardInterval = 0.05f;
+
+            Rect fromRect = sourceCard != null ? sourceCard.worldBound : targetDeck.worldBound;
+            float startLeft = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float startTop = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+            Rect destRect = targetDeck.worldBound;
+            float targetLeft = destRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = destRect.center.y - CardScaleConstants.CardHeight / 2f;
+
+            List<CardView> tempCards = new List<CardView>(cards.Count);
+            List<UniTaskCompletionSource> tcsList = new List<UniTaskCompletionSource>(cards.Count);
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CardView tempCard = new CardView(_cardStore.CardTemplate, cards[i], _cardStore.CardBack, faceDown: true);
                 tempCard.style.position = Position.Absolute;
                 tempCard.style.left = startLeft;
                 tempCard.style.top = startTop;
