@@ -13,6 +13,11 @@ namespace Main.Card
         // 候補が値1より多いときはプレイヤーがピッカーで選ぶ（CPU は高コスト順・オンラインはデッキ内インデックスで同期）。
         // 手札が上限（8枚）に達したら超過分は墓地へ送る（Draw と同じバーン）。EventValue2 / EffectValue2 は不使用。
         AddToHandFromDeckByKeyword = 30,
+        // 発動側自身の墓地から、カード（キャラ・イベント問わず）を EventValue / EffectValue 枚（値1。未設定=0 は1枚）選んで手札に加える。
+        // 墓地から消費する。候補が値1以下なら全部・墓地が空なら空振り。場には出さないため OnEnter は発動しない。
+        // 候補が値1より多いときはプレイヤーがピッカーで選ぶ（CPU は高コスト順・オンラインは墓地内インデックスで同期）。
+        // 手札が上限（8枚）に達したら超過分は墓地へ戻す（Draw と同じバーン）。EventValue2 / EffectValue2 は不使用。
+        AddToHandFromGrave = 38,
         // 発動側が自フィールドのキャラを EventValue / EffectValue 体（値1。未設定=0 は1体）選び、
         // それぞれの攻撃力を EventValue2 / EffectValue2（値2）分、永続的に上げる（発動時に一度だけ加算）。
         // 対象数が味方の数以上なら全員。対象はプレイヤーが選択（CPU は攻撃力上位・オンラインはフィールド内インデックスで同期）。
@@ -115,7 +120,8 @@ namespace Main.Card
         // トークンは EventValue2 / EffectValue2（値2）が示すイベント（数字部分→"E###"）を参照する（SummonChar と同じ ID 指定方式）。
         // 値1≤0／トークンIDが解決できない場合は空振り。トークンは相手の引きを薄め・手札枠を圧迫する（お邪魔カード）。
         // デッキ順は同期済みのため、発動側がシャッフル結果（NGS_JamDeck）を送って両クライアントで対称に解決する。
-        JamEnemyDeck = 38,
+        // ※整数値 38 は origin 側の AddToHandFromGrave と衝突したため 40 へ変更（マージ解消）。E7002 等の参照カードも更新済み。
+        JamEnemyDeck = 40,
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree = 15,
         Recover = 6,

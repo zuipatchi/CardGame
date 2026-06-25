@@ -26,4 +26,24 @@ namespace Main.Card.Effects.Handlers
             return p.ApplyDiscardAsync(inv.Value1, inv.IsLocal, ct);
         }
     }
+
+    // 発動側自身の墓地からカード（キャラ・イベント問わず）を値1枚（0=1枚）選んで手札に加える。
+    // 場には出さないため OnEnter は発動しない。墓地が空なら空振り。手札上限なら超過分は墓地へバーン。
+    [Preserve]
+    public sealed class AddToHandFromGraveHandler : EffectHandler
+    {
+        public override EventType Type => EventType.AddToHandFromGrave;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（加える枚数）", false, "値2（未使用）",
+            "自分の墓地からカードを値1枚選んで手札に加える（0=1枚）。墓地から消費する。手札上限なら超過分は墓地へ。");
+
+        public override string BuildBody(EffectTextContext ctx) =>
+            $"自分の墓地からカードを{(ctx.Value1 <= 0 ? 1 : ctx.Value1)}枚選んで手札に加える";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyAddToHandFromGraveAsync(inv.Value1, inv.IsLocal, ct);
+        }
+    }
 }

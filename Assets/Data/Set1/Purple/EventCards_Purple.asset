@@ -50,7 +50,7 @@ MonoBehaviour:
     _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 38
+    _eventType: 40
     _eventValue: 3
     _eventValue2: 7004
     _description: "\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u300C\u304A\u90AA\u9B54\u30AB\u30FC\u30C9\u300D\u30923\u679A\u6DF7\u305C\u308B"
