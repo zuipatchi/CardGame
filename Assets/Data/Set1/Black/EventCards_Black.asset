@@ -55,7 +55,7 @@ MonoBehaviour:
     _attribute: 4
   - _id: E6003
     _cardName: "\u8FBB\u65AC\u308A"
-    _cost: 2
+    _cost: 3
     _image: {fileID: 21300000, guid: 97e0cc61c3600f94a8ff344c54d44f05, type: 3}
     _flavorText: "\u5207\u308A\u6368\u3066\u3054\u3081\u3093"
     _voiceSpeaker: 100
