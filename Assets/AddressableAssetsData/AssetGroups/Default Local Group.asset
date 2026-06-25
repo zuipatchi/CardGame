@@ -689,6 +689,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e95a2347eaafda34fa04c7544cb1ce61
+    m_Address: Voice/C6009
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e9759c06cb417b14d97c772efcb80993
     m_Address: Voice/C6003
     m_ReadOnly: 0
