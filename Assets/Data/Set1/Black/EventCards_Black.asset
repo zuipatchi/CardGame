@@ -63,7 +63,7 @@ MonoBehaviour:
     _voiceSpeaker: 100
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
     _voiceSpeaker: 25
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 0
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0

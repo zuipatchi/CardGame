@@ -149,13 +149,13 @@ MonoBehaviour:
     _set: 0
     _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
-    _attack: 1
-    _hp: 1
+    _attack: 2
+    _hp: 3
     _attribute: 5
-    _effectTrigger: 1
-    _effectType: 36
-    _effectValue: 0
-    _effectValue2: 1
+    _effectTrigger: 2
+    _effectType: 40
+    _effectValue: 2
+    _effectValue2: 7004
     _guardian: 0
     _haste: 0
     _flying: 0
@@ -164,7 +164,7 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _excludeFromDomination: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E9\u5168\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0B\u3052\u308B"
+    _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u300C\u304A\u90AA\u9B54\u30AB\u30FC\u30C9\u300D\u30922\u679A\u6DF7\u305C\u308B"
   - _id: C7006
     _cardName: "\u30A4\u30F3\u30D5\u30A1\u30A4\u30BF\u30FC\u305A\u3044"
     _cost: 0
