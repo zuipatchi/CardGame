@@ -311,16 +311,38 @@ namespace Main
             }
         }
 
-        // EndButton：メインフェーズでターンを終了する（ステージ中・サブ選択中は無効）
+        // EndButton：メインフェーズでターンを終了する（ステージ中・サブ選択中は無効）。
+        // アイドル中は即終了。攻撃の解決アニメ中に押した場合は「ターン終了」を予約し、
+        // 予約済みの攻撃をすべて消化してからターンを終える（行動予約）。
         private void OnEndTurnClicked()
         {
-            if (_gameModel.Phase == TurnPhase.Main && _gameModel.IsLocalTurn
-                && _mainActionTcs != null && _mainStagedCard == null
-                && _evolveInput._tcs == null && _switchInput._tcs == null)
+            if (_gameModel.Phase != TurnPhase.Main || !_gameModel.IsLocalTurn)
             {
+                return;
+            }
+            if (_isGameOver || _endTurnQueued || _mainStagedCard != null || IsInteractiveSubInputActive())
+            {
+                return;
+            }
+
+            if (_mainActionTcs != null)
+            {
+                // アイドル：即ターン終了（従来）
                 HideActionButtons();
                 _mainActionTcs.TrySetResult(new MainPhaseAction { _actionType = MainPhaseActionType.Pass });
+                return;
             }
+
+            // チュートリアルは予約しない（台本ペース維持）
+            if (_isTutorial)
+            {
+                return;
+            }
+
+            // 解決アニメ中：ターン終了を予約。以降の攻撃予約を止め、キュー消化後に終了する。
+            _endTurnQueued = true;
+            TeardownAttackInput();
+            UpdateResolvingButtons();
         }
 
         // カードがステージ済み（ドラッグして場に出した後、OK/Return の確定待ち）かどうか。

@@ -50,8 +50,14 @@ namespace Main
         }
 
         // ─── メインフェーズ ループ（ローカル） ─────────────────────────────
+        // 行動予約：攻撃矢印はフェーズ中ずっと常駐し（RefreshAttackInput）、解決アニメ中でも
+        // 次の攻撃をドラッグすれば _queuedAttacks に積まれ、現在の解決が終わり次第順に処理する。
+        // 解決アニメ中に End を押すと _endTurnQueued が立ち、キュー消化後にターンを終える。
         private async UniTask RunLocalMainLoopAsync(CancellationToken ct)
         {
+            _queuedAttacks.Clear();
+            _endTurnQueued = false;
+
             // 手番の制限時間カウントダウンを開始する（ターン終了時に finally で停止）。
             // チュートリアル中は急かさないようタイマーを動かさない。
             using CancellationTokenSource timerCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -66,36 +72,38 @@ namespace Main
                 TutorialBeginPlayerMainPhase();
             }
 
+            // アクションボタン領域と攻撃入力（矢印・対象ハイライト）をフェーズ中ずっと常駐させる。
+            // 解決アニメ中も End（ターン終了予約）を押せるよう領域は出しっぱなしにする。
+            ShowActionButtons();
+            RefreshAttackInput();
+
             try
             {
                 while (!_isGameOver)
                 {
+                    // 1. 予約された攻撃を先に消化する（解決のたびに盤面を貼り直す）
+                    if (_queuedAttacks.Count > 0)
+                    {
+                        MainPhaseAction queued = _queuedAttacks.Dequeue();
+                        ShowActionButtons();
+                        UpdateResolvingButtons();
+                        await ResolveQueuedAttackAsync(queued, ct);
+                        RefreshAttackInput();
+                        continue;
+                    }
+
+                    // 2. ターン終了が予約されていれば、キューを消化しきった今ターンを終える
+                    if (_endTurnQueued)
+                    {
+                        await EndLocalTurnAsync(ct);
+                        break;
+                    }
+
+                    // 3. プレイヤー入力を待つ
                     MainPhaseAction action = await WaitForPlayerMainActionAsync(ct);
                     if (action._actionType == MainPhaseActionType.Pass)
                     {
-                        if (_isTutorial)
-                        {
-                            TutorialOnLocalPass();
-                        }
-
-                        // 時間切れによるパスは「時間切れ！」を告知してから終了する
-                        if (_turnTimedOut)
-                        {
-                            await PlayAnnouncementAsync("時間切れ！", "turn-announcement-label--enemy", ct);
-                        }
-
-                        // ターン終了。オンラインは Pass を終了の合図として相手へ送る
-                        if (_isOnline)
-                        {
-                            // 相手ターンのドロー通知をロストしないよう送信前に登録。
-                            // ただし ExtraTurn 発動時は次も自分のターンが続き相手のドローを待たないため登録しない。
-                            if (!_extraTurnPending)
-                            {
-                                _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
-                                _hasPreDrawTask = true;
-                            }
-                            _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
-                        }
+                        await EndLocalTurnAsync(ct);
                         break;
                     }
 
@@ -111,19 +119,103 @@ namespace Main
                         _attackedThisTurn.Add(action._attacker);
                     }
 
+                    // 即時アクションの解決中も攻撃入力を生かす（行動予約）。攻撃者の矢印を消し、
+                    // End ボタン（ターン終了予約）を出してから解決アニメを再生する。
+                    RefreshAttackInput();
+                    ShowActionButtons();
+                    UpdateResolvingButtons();
                     await ExecuteLocalMainResolveAsync(action, ct);
 
                     if (_isTutorial)
                     {
                         TutorialOnLocalActionResolved(action);
                     }
+
+                    RefreshAttackInput();
                 }
             }
             finally
             {
                 timerCts.Cancel();
                 _turnTimerView.Hide();
+                TeardownAttackInput();
+                HideActionButtons();
+                _queuedAttacks.Clear();
+                _endTurnQueued = false;
             }
+        }
+
+        // ローカルプレイヤーのターンを終了（パス）する。通常パスと予約ターン終了の両方から呼ぶ。
+        private async UniTask EndLocalTurnAsync(CancellationToken ct)
+        {
+            if (_isTutorial)
+            {
+                TutorialOnLocalPass();
+            }
+
+            // 時間切れによるパスは「時間切れ！」を告知してから終了する
+            if (_turnTimedOut)
+            {
+                await PlayAnnouncementAsync("時間切れ！", "turn-announcement-label--enemy", ct);
+            }
+
+            // ターン終了。オンラインは Pass を終了の合図として相手へ送る
+            if (_isOnline)
+            {
+                // 相手ターンのドロー通知をロストしないよう送信前に登録。
+                // ただし ExtraTurn 発動時は次も自分のターンが続き相手のドローを待たないため登録しない。
+                if (!_extraTurnPending)
+                {
+                    _preDrawReceiveTask = _networkGameService.WaitForOpponentDrawAsync(ct);
+                    _hasPreDrawTask = true;
+                }
+                _networkGameService.SendMainAction(NetworkGameService.MainActionData.Pass());
+            }
+        }
+
+        // 予約された攻撃を1件解決する。実行直前に盤面を再検証し、無効なら静かに破棄（送信もしない）。
+        private async UniTask ResolveQueuedAttackAsync(MainPhaseAction action, CancellationToken ct)
+        {
+            if (!IsQueuedAttackValid(action))
+            {
+                return;
+            }
+
+            // オンラインは実行直前に送る（インデックスはこの時点の盤面で算出するため、
+            // 相手側の逐次解決と攻守の並びが一致する）。
+            if (_isOnline)
+            {
+                _networkGameService.SendMainAction(ToNetworkAction(action, Array.Empty<string>()));
+            }
+
+            if (action._targetsDeck)
+            {
+                await ExecuteDeckAttackAsync(action._attacker, isLocal: true, ct);
+            }
+            else
+            {
+                await ExecuteAttackAsync(action._attacker, action._target, isLocal: true, ct);
+            }
+        }
+
+        // 予約攻撃が今も実行可能か（攻撃者が場に残っている・対象が今も合法か）。
+        private bool IsQueuedAttackValid(MainPhaseAction action)
+        {
+            CardView attacker = action._attacker;
+            if (attacker == null || !_playerFieldView.Contains(attacker))
+            {
+                return false;
+            }
+            if (action._targetsDeck)
+            {
+                return CanAttackDeck(attacker, _opponentFieldView);
+            }
+            CardView target = action._target;
+            if (target == null || !_opponentFieldView.Contains(target))
+            {
+                return false;
+            }
+            return CanAttackChar(attacker, target, _opponentFieldView);
         }
 
         // ─── メインフェーズ ループ（オンライン相手） ───────────────────────
@@ -876,8 +968,37 @@ namespace Main
             _mainStagedCard = null;
             _mainStagedType = MainPhaseActionType.None;
 
-            List<(CardView card, AttackArrowManipulator manip)> manipulators =
-                new List<(CardView, AttackArrowManipulator)>();
+            // 攻撃矢印・対象ハイライトはフェーズ中ずっと常駐している（RefreshAttackInput）。
+            // ここでは入力待ち中のボタン表示だけを整える。
+            ShowActionButtons();
+            UpdateStagedButtons(false);
+
+            try
+            {
+                return await _mainActionTcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                _mainActionTcs = null;
+                _mainStagedCard = null;
+                _mainStagedType = MainPhaseActionType.None;
+            }
+        }
+
+        // ─── 攻撃入力（行動予約） ─────────────────────────────────────────
+
+        // 攻撃矢印マニピュレータと対象ハイライトをローカルメインフェーズ中ずっと常駐させる。
+        // 解決アニメ中も生かしておくことで、次の攻撃をドラッグして予約できる（CommitOrQueueAttack）。
+        // 盤面が変わるたび（各解決の後・予約のたび）に呼び、攻撃可能なキャラ・対象を貼り直す。
+        private void RefreshAttackInput()
+        {
+            TeardownAttackInput();
+
+            // ターン終了予約済み・自分のターンでない・ゲーム終了時は攻撃入力を出さない
+            if (_isGameOver || !_gameModel.IsLocalTurn || _endTurnQueued)
+            {
+                return;
+            }
 
             foreach (CardView charCard in _playerFieldView.Characters)
             {
@@ -891,94 +1012,144 @@ namespace Main
                 charCard.SetAttackHighlighted(true);
                 CardView capturedChar = charCard;
                 AttackArrowManipulator arrowManip = new AttackArrowManipulator(_dragLayer);
-                arrowManip.CanStart = () => _gameModel.Phase == TurnPhase.Main && _mainStagedCard == null
+                arrowManip.CanStart = () => _gameModel.Phase == TurnPhase.Main
+                    && _gameModel.IsLocalTurn
+                    && !_endTurnQueued
+                    && _mainStagedCard == null
+                    && !IsInteractiveSubInputActive()
                     && CanCharAttack(capturedChar, _playerFieldView);
-                arrowManip.OnAttackTarget = (worldPos) =>
-                {
-                    CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
-                    if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
-                    {
-                        // タップ状態のキャラにしか攻撃できない（強襲を持つ攻撃者はこの制限を無視できる）
-                        if (!targetChar.IsTapped && !IsAssault(capturedChar))
-                        {
-                            ShowToast("タップ状態のキャラにしか攻撃できません");
-                            return false;
-                        }
-                        // 飛行を持つキャラは飛行・防人・射手を持つキャラからしか攻撃されない
-                        if (IsFlying(targetChar) && !IsFlying(capturedChar) && !IsSakimori(capturedChar) && !IsArcher(capturedChar))
-                        {
-                            ShowToast("飛行を持つキャラには飛行・防人・射手でしか攻撃できません");
-                            return false;
-                        }
-                        // 守護・防人による対象強制：飛行は防人を、非飛行は守護を優先して攻撃しなければならない（非飛行は防人を対象に取れない）
-                        if (!CanAttackChar(capturedChar, targetChar, _opponentFieldView))
-                        {
-                            ShowToast(ForcedTargetMessage(capturedChar, _opponentFieldView));
-                            return false;
-                        }
-                        _mainActionTcs?.TrySetResult(new MainPhaseAction
-                        {
-                            _actionType = MainPhaseActionType.Attack,
-                            _attacker = capturedChar,
-                            _target = targetChar
-                        });
-                        return true;
-                    }
-                    // 相手デッキへの直接攻撃（ATK 枚をミル）。オーバーリミットでは空デッキ（0枚）も対象にできる（ミル＝敗北）
-                    if (_opponentDeckView.worldBound.Contains(worldPos))
-                    {
-                        if (!CanAttackDeck(capturedChar, _opponentFieldView))
-                        {
-                            ShowToast(DeckAttackBlockedMessage(capturedChar, _opponentFieldView));
-                            return false;
-                        }
-                        _mainActionTcs?.TrySetResult(new MainPhaseAction
-                        {
-                            _actionType = MainPhaseActionType.Attack,
-                            _attacker = capturedChar,
-                            _targetsDeck = true
-                        });
-                        return true;
-                    }
-                    return false;
-                };
+                arrowManip.OnAttackTarget = (worldPos) => HandleAttackDrop(capturedChar, worldPos);
                 charCard.AddManipulator(arrowManip);
-                manipulators.Add((charCard, arrowManip));
+                _attackManipulators.Add((charCard, arrowManip));
             }
 
             // 攻撃できる自キャラが1体以上いる場合のみ、攻撃可能な相手キャラをハイライト
-            List<CardView> attackers = manipulators.Select(m => m.card).ToList();
-            List<CardView> highlightedTargets = attackers.Count > 0
+            List<CardView> attackers = _attackManipulators.Select(m => m.card).ToList();
+            _highlightedAttackTargets = attackers.Count > 0
                 ? HighlightAttackTargets(attackers)
                 : new List<CardView>();
+        }
 
-            ShowActionButtons();
-            UpdateStagedButtons(false);
+        // 常駐中の攻撃矢印マニピュレータ・対象ハイライトをすべて外す。
+        private void TeardownAttackInput()
+        {
+            foreach ((CardView card, AttackArrowManipulator manip) in _attackManipulators)
+            {
+                manip.ClearArrow();
+                card.RemoveManipulator(manip);
+                card.RemoveFromClassList("attackable-char");
+                card.SetAttackHighlighted(false);
+            }
+            _attackManipulators.Clear();
 
-            try
+            foreach (CardView target in _highlightedAttackTargets)
             {
-                return await _mainActionTcs.Task.AttachExternalCancellation(ct);
+                target.RemoveFromClassList("attack-target-char");
+                target.SetAttackHighlighted(false);
             }
-            finally
+            _highlightedAttackTargets.Clear();
+
+            _opponentDeckView.RemoveFromClassList("deck-view--attack-target");
+        }
+
+        // 攻撃矢印のドロップ処理。対象が合法なら攻撃アクションを生成し、アイドル中なら即実行・
+        // 解決アニメ中なら予約する（CommitOrQueueAttack）。戻り値は矢印を残すか（keepArrow）。
+        private bool HandleAttackDrop(CardView attacker, Vector2 worldPos)
+        {
+            CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
+            if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
             {
-                _mainActionTcs = null;
-                _mainStagedCard = null;
-                _mainStagedType = MainPhaseActionType.None;
-                HideActionButtons();
-                foreach ((CardView card, AttackArrowManipulator manip) in manipulators)
+                // タップ状態のキャラにしか攻撃できない（強襲を持つ攻撃者はこの制限を無視できる）
+                if (!targetChar.IsTapped && !IsAssault(attacker))
                 {
-                    manip.ClearArrow();
-                    card.RemoveManipulator(manip);
-                    card.RemoveFromClassList("attackable-char");
-                    card.SetAttackHighlighted(false);
+                    ShowToast("タップ状態のキャラにしか攻撃できません");
+                    return false;
                 }
-                foreach (CardView target in highlightedTargets)
+                // 飛行を持つキャラは飛行・防人・射手を持つキャラからしか攻撃されない
+                if (IsFlying(targetChar) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
                 {
-                    target.RemoveFromClassList("attack-target-char");
-                    target.SetAttackHighlighted(false);
+                    ShowToast("飛行を持つキャラには飛行・防人・射手でしか攻撃できません");
+                    return false;
                 }
-                _opponentDeckView.RemoveFromClassList("deck-view--attack-target");
+                // 守護・防人による対象強制：飛行は防人を、非飛行は守護を優先して攻撃しなければならない（非飛行は防人を対象に取れない）
+                if (!CanAttackChar(attacker, targetChar, _opponentFieldView))
+                {
+                    ShowToast(ForcedTargetMessage(attacker, _opponentFieldView));
+                    return false;
+                }
+                return CommitOrQueueAttack(attacker, new MainPhaseAction
+                {
+                    _actionType = MainPhaseActionType.Attack,
+                    _attacker = attacker,
+                    _target = targetChar
+                });
             }
+
+            // 相手デッキへの直接攻撃（ATK 枚をミル）。オーバーリミットでは空デッキ（0枚）も対象にできる（ミル＝敗北）
+            if (_opponentDeckView.worldBound.Contains(worldPos))
+            {
+                if (!CanAttackDeck(attacker, _opponentFieldView))
+                {
+                    ShowToast(DeckAttackBlockedMessage(attacker, _opponentFieldView));
+                    return false;
+                }
+                return CommitOrQueueAttack(attacker, new MainPhaseAction
+                {
+                    _actionType = MainPhaseActionType.Attack,
+                    _attacker = attacker,
+                    _targetsDeck = true
+                });
+            }
+
+            return false;
+        }
+
+        // アイドル中（入力待ち）なら即実行、解決アニメ中なら予約する。
+        private bool CommitOrQueueAttack(CardView attacker, MainPhaseAction action)
+        {
+            if (_mainActionTcs != null)
+            {
+                // アイドル：従来どおり即実行（描いた矢印は直後の再構築で消える）
+                _mainActionTcs.TrySetResult(action);
+                return false;
+            }
+
+            // チュートリアルは台本ペース維持のため予約しない（アニメ中のドラッグは無視）
+            if (_isTutorial)
+            {
+                return false;
+            }
+
+            // 解決アニメ中：予約。攻撃者を即「攻撃済み」にして矢印/ハイライトを消す（二重予約防止）。
+            _queuedAttacks.Enqueue(action);
+            _attackedThisTurn.Add(attacker);
+            RefreshAttackInput();
+            return false;
+        }
+
+        // 効果のターゲット選択など、攻撃ドラッグと競合する対話的サブ入力が待機中か。
+        // これらの最中は攻撃ドラッグの開始を抑止する（複数選択ピッカーは全画面オーバーレイが
+        // フィールドを覆うため、ここに含めなくてもドラッグ自体が始まらない）。
+        private bool IsInteractiveSubInputActive()
+        {
+            return _costSelectionTcs != null
+                || _evolveInput._tcs != null
+                || _switchInput._tcs != null
+                || _fieldCharSelectionTcs != null
+                || _deckCardSelectionTcs != null
+                || _enemyCharSelectionTcs != null
+                || _allyCharSelectionTcs != null
+                || _mulliganChoicePending;
+        }
+
+        // 解決アニメ中のボタン表示：End（ターン終了予約用）だけを出し、ステージ用ボタンは隠す。
+        private void UpdateResolvingButtons()
+        {
+            bool showEnd = !_endTurnQueued && _mainStagedCard == null && !IsInteractiveSubInputActive();
+            _endButton.style.display = showEnd ? DisplayStyle.Flex : DisplayStyle.None;
+            _okButton.style.display = DisplayStyle.None;
+            _backButton.style.display = DisplayStyle.None;
+            _passButton.style.display = DisplayStyle.None;
         }
 
         // 攻撃可能な相手キャラ・相手デッキをハイライトし、ハイライトした相手キャラのリストを返す（クリーンアップ用）。
