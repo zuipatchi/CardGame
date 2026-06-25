@@ -160,6 +160,16 @@ namespace Main
 
         // このターンすでに攻撃したキャラ（1キャラ1回まで）。各メインフェーズ開始時にクリア
         private readonly HashSet<CardView> _attackedThisTurn = new HashSet<CardView>();
+
+        // ─── 行動予約（解決アニメ中に次の攻撃・ターン終了を予約） ───────────
+        // 解決アニメ中にドラッグした攻撃を貯めるキュー。各解決の後に先頭から消化する。
+        private readonly Queue<MainPhaseAction> _queuedAttacks = new Queue<MainPhaseAction>();
+        // ターン終了（パス）の予約。解決アニメ中に End を押すと立ち、キュー消化後にターンを終える。
+        private bool _endTurnQueued;
+        // ローカルメインフェーズ中ずっと常駐する攻撃矢印マニピュレータ（解決アニメ中も生かして予約を受け付ける）。
+        private readonly List<(CardView card, AttackArrowManipulator manip)> _attackManipulators = new List<(CardView, AttackArrowManipulator)>();
+        // 現在ハイライト中の攻撃対象キャラ（クリーンアップ用）。
+        private List<CardView> _highlightedAttackTargets = new List<CardView>();
         // 召喚酔いしていない（自メインフェーズ開始時から場にいる）キャラ。場に新規登場したキャラは含まれず攻撃不可
         private readonly HashSet<CardView> _playerSeasonedChars = new HashSet<CardView>();
         private readonly HashSet<CardView> _opponentSeasonedChars = new HashSet<CardView>();
