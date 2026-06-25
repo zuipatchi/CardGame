@@ -218,8 +218,9 @@
 - **DrawSkipNext**: Draw と同じく `ApplyDrawEffectAsync` で即時ドローしたうえで、発動側のスキップフラグ（`_playerSkipNextDraw` / `_opponentSkipNextDraw`）を立てる（`SetSkipNextDraw`）。フラグは次に来るそのプレイヤーの `RunDrawPhaseAsync` で `drawCount=0` にして消費する。各クライアントは自分側（アクティブ側）のフラグを見るため drawCount は対称に 0 になり、ドロー0枚でも `SendDrawNotification` を送る既存仕様で lockstep が保たれる（追加同期不要）。EventValue / EffectValue = ドロー枚数（値2は不使用）。
 - **DrawNextTurnStart**: 発動時はドローせず、発動側の予約カウント（`_playerPendingNextDraw` / `_opponentPendingNextDraw`）に EventValue を加算する（`AddPendingNextDraw`・累積）。予約は次に来るそのプレイヤーの `RunDrawPhaseAsync` で `drawCount` に上乗せして消費する。各クライアントは自分側（アクティブ側）の予約を見るため drawCount は対称に決まり、追加ドローも既存の `SendDrawNotification` lockstep でそのまま同期される（追加同期不要）。EventValue / EffectValue = ドロー枚数（値2は不使用）。`DrawSkipNext` と同居した場合はスキップで base を 0 にした後に予約分を上乗せして引く。
 - **Discard（ハンデス）**: 発動側から見た相手プレイヤー（手札の持ち主）が手札を値1枚（未設定=0 は1枚）墓地へ捨てる（`ApplyDiscardAsync`）。**捨てるカードは手札の持ち主が選ぶ**。手札枚数が値1以下なら全部で選択不要・手札0枚なら空振り。手札→墓地のため**ダメージトリガー（`TriggerOnGrave`）は発動しない**（[event.md](event.md)「ダメージトリガー」のとおりデッキ→墓地のみ）。相手が CPU のときは `CpuAgent.ChooseDiscardIndices` が低コスト順に選ぶ。被害者（ローカル人間）が選ぶときは `WaitForPlayerHandDiscardSelectionAsync`（`deck-pick` ピッカー流用）。**オンライン同期**：相手の手札は同期されない（裏向き・枚数のみ。`OnlineInitialState.OpponentHandCount`）ため、**捨てる側（被害者）が選んだカードの完全 ID を発動側へ送る逆方向同期**（`NGS_Discard`）。発動側は受信した ID のカードを生成して相手の墓地へ送り、相手手札のプレースホルダを同数除去する。発動側＝自分（`isLocal=true`）は受信側・被害者＝自分（`isLocal=false`）は選択して送信側になる。
+- **CoinDraw / DiceDraw / HandCollectionWin（追加同期が必要な例外）**: 乱数・隠れ情報を含むため各クライアントで独立に解決できず、発動側で解決して結果のみ相手へ送る。`CoinDraw` は振った「表の回数」（`NGS_CoinDraw`）、`DiceDraw` は出目（`NGS_DiceDraw`）を送り、受信側は同期済みデッキの上から同じ枚数を引く（デッキ順が同期しているため同じカードになる）。`HandCollectionWin` は相手の手札が同期されない（裏向き）ため発動側が自分の手札で判定し、勝利したら相手へ通知して敗北確定させる（`NGS_SpecialWin`／`WatchForOpponentSpecialWinAsync`。投了と同じ一方向の確定メッセージ）。
 - 勝敗条件（共通の3条件＝デッキ切れ / 勝利点20 / キャラ8体）の挙動は [rules.md](rules.md)「勝敗条件」を参照。属性に依らず全プレイヤーに適用される。
-- オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
+- 上記の例外（`NGS_CoinDraw` / `NGS_DiceDraw` / `NGS_Discard` / `NGS_SpecialWin`）を除き、オンライン対戦では効果はカードデータと盤面から決定的に解決されるため、プレイ同期（`NGS_MainAction`）以外の追加同期は不要。
 
 ---
 
