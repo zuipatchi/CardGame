@@ -344,6 +344,8 @@ namespace Main
 
                 _waitingOverlay = new VisualElement();
                 _waitingOverlay.AddToClassList("waiting-overlay");
+                // 背景部分のクリックは下の手札・場のカードへ透過させ、相手待ちの間もカード詳細を開けるようにする
+                _waitingOverlay.pickingMode = PickingMode.Ignore;
                 Label waitingLabel = new Label("対戦相手を待っています...");
                 waitingLabel.AddToClassList("waiting-label");
                 waitingLabel.pickingMode = PickingMode.Ignore;
