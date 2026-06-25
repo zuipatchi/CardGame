@@ -13,6 +13,7 @@ namespace Main.Card
         Assault = 5,
         NoDeckAttack = 6,
         Archer = 7,
+        Deadly = 8,
     }
 
     public static class GrantableKeywordExtensions
@@ -36,6 +37,8 @@ namespace Main.Card
                     return GrantableKeyword.NoDeckAttack;
                 case 7:
                     return GrantableKeyword.Archer;
+                case 8:
+                    return GrantableKeyword.Deadly;
                 default:
                     return GrantableKeyword.None;
             }
@@ -60,6 +63,8 @@ namespace Main.Card
                     return "デッキ攻撃×";
                 case GrantableKeyword.Archer:
                     return "射手";
+                case GrantableKeyword.Deadly:
+                    return "必殺";
                 default:
                     return "";
             }

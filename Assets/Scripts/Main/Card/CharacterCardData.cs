@@ -28,6 +28,8 @@ namespace Main.Card
         [SerializeField] private bool _noDeckAttack;
         // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
         [SerializeField] private bool _archer;
+        // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
+        [SerializeField] private bool _deadly;
         // 制圧勝利の対象外（お邪魔トークン用）：true のとき、このキャラはキャラ8体勝利（制圧勝利）のカウントに含めない。
         // 相手デッキに混ぜたお邪魔キャラがダメージトリガー等で相手の場に出ても、相手の制圧勝利を進めないようにする。
         [SerializeField] private bool _excludeFromDomination;
@@ -36,7 +38,7 @@ namespace Main.Card
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool archer = false, bool excludeFromDomination = false)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool archer = false, bool deadly = false, bool excludeFromDomination = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -53,6 +55,7 @@ namespace Main.Card
             _assault = assault;
             _noDeckAttack = noDeckAttack;
             _archer = archer;
+            _deadly = deadly;
             _excludeFromDomination = excludeFromDomination;
             _description = description;
         }
@@ -79,6 +82,8 @@ namespace Main.Card
         public bool NoDeckAttack => _noDeckAttack;
         // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
         public bool Archer => _archer;
+        // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
+        public bool Deadly => _deadly;
         // 制圧勝利（キャラ8体）のカウント対象外か（お邪魔トークン用）。
         public bool ExcludeFromDomination => _excludeFromDomination;
         public string Description => _description;

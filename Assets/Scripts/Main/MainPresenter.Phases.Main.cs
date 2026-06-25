@@ -831,8 +831,9 @@ namespace Main
 
             // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢。
             // 攻撃力が 0 のキャラは攻撃しても意味がない（与ダメージ・ミルともに 0）ため、CPU は選ばない。
+            // ただし必殺持ちは ATK 0 でも相手キャラを破壊できるため攻撃者候補に含める。
             List<CardView> availableAttackers = cpuChars
-                .Where(c => CanCharAttack(c, _opponentFieldView) && c.CurrentAttack > 0)
+                .Where(c => CanCharAttack(c, _opponentFieldView) && (c.CurrentAttack > 0 || c.HasDeadly))
                 .ToList();
 
             // 相手デッキを直接攻撃できる攻撃者（守護・飛行を考慮）。
@@ -863,31 +864,36 @@ namespace Main
                 };
             }
 
-            // キャラ攻撃：飛行・守護を考慮し、合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATKを選ぶ
+            // キャラ攻撃：飛行・守護を考慮し、合法な対象を持つ攻撃者の中で最高ATK→対象は最低ATKを選ぶ。
+            // ただし必殺持ちは HP に関係なく対象を破壊できるため、最も脅威の大きい（最高ATKの）相手を狙う。
             CardView battleAttacker = null;
             CardView battleTarget = null;
             foreach (CardView attacker in availableAttackers)
             {
-                CardView lowestTarget = null;
+                bool attackerIsDeadly = attacker.HasDeadly;
+                CardView bestTarget = null;
                 foreach (CardView candidate in playerChars)
                 {
                     if (!CanAttackChar(attacker, candidate, _playerFieldView))
                     {
                         continue;
                     }
-                    if (lowestTarget == null || candidate.CurrentAttack < lowestTarget.CurrentAttack)
+                    if (bestTarget == null
+                        || (attackerIsDeadly
+                            ? candidate.CurrentAttack > bestTarget.CurrentAttack
+                            : candidate.CurrentAttack < bestTarget.CurrentAttack))
                     {
-                        lowestTarget = candidate;
+                        bestTarget = candidate;
                     }
                 }
-                if (lowestTarget == null)
+                if (bestTarget == null)
                 {
                     continue;
                 }
                 if (battleAttacker == null || attacker.CurrentAttack > battleAttacker.CurrentAttack)
                 {
                     battleAttacker = attacker;
-                    battleTarget = lowestTarget;
+                    battleTarget = bestTarget;
                 }
             }
             if (battleAttacker != null)

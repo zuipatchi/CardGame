@@ -133,6 +133,8 @@
                         <ui:Label text="相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
                         <ui:Label text="射手（しゃしゅ）" class="home-rules-subsection"/>
                         <ui:Label text="飛行を持つ相手キャラを攻撃できます。守護や防人は無視できません。" class="home-rules-entry"/>
+                        <ui:Label text="必殺（ひっさつ）" class="home-rules-subsection"/>
+                        <ui:Label text="相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊します。体力に関係なく破壊するため、攻撃力0でも相手キャラを倒せます（相手デッキへの攻撃には影響しません）" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageDeck" class="home-rules-page">
                         <ui:Label text="デッキ構築ルール" class="home-rules-section"/>

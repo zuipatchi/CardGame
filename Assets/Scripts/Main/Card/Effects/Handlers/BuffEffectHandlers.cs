@@ -87,8 +87,8 @@ namespace Main.Card.Effects.Handlers
         public override EventType Type => EventType.GrantKeyword;
 
         public override EffectValueInfo Values => new EffectValueInfo(
-            true, "値1（対象数）", true, "値2（付与する能力 1=守護/2=速攻/3=飛行/4=防人/5=強襲/6=デッキ攻撃×/7=射手）",
-            "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=付与するキーワード能力（1=守護・2=速攻・3=飛行・4=防人・5=強襲・6=デッキ攻撃×・7=射手。範囲外は空振り）。");
+            true, "値1（対象数）", true, "値2（付与する能力 1=守護/2=速攻/3=飛行/4=防人/5=強襲/6=デッキ攻撃×/7=射手/8=必殺）",
+            "値1=自フィールドから選ぶ味方の体数（0=場の味方全員・対象数が味方の数以上なら全員）/ 値2=付与するキーワード能力（1=守護・2=速攻・3=飛行・4=防人・5=強襲・6=デッキ攻撃×・7=射手・8=必殺。範囲外は空振り）。");
 
         public override string BuildBody(EffectTextContext ctx)
         {
