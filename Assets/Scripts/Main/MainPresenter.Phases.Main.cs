@@ -808,8 +808,11 @@ namespace Main
             IReadOnlyList<CardView> cpuChars = _opponentFieldView.Characters;
             IReadOnlyList<CardView> playerChars = _playerFieldView.Characters;
 
-            // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢
-            List<CardView> availableAttackers = cpuChars.Where(c => CanCharAttack(c, _opponentFieldView)).ToList();
+            // このターンまだ攻撃でき、召喚酔いしていないキャラのみが攻撃の選択肢。
+            // 攻撃力が 0 のキャラは攻撃しても意味がない（与ダメージ・ミルともに 0）ため、CPU は選ばない。
+            List<CardView> availableAttackers = cpuChars
+                .Where(c => CanCharAttack(c, _opponentFieldView) && c.CurrentAttack > 0)
+                .ToList();
 
             // 相手デッキを直接攻撃できる攻撃者（守護・飛行を考慮）。
             // オーバーリミットでは相手デッキが空（0枚）でもデッキ攻撃で finish できる（空デッキへのミル＝敗北）ため、
