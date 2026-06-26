@@ -113,7 +113,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: a096cbb8040ed634faa688d95bec724b, type: 3}
     _flavorText: "\u8CB4\u6BBF\u304C\u3068\u308C\u3070\u3088\u304B\u308D\u3046"
-    _voiceSpeaker: 45
+    _voiceSpeaker: 65
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
     _cost: 1
     _image: {fileID: 21300000, guid: c7d05765d24308a4f843934d165c1327, type: 3}
     _flavorText: "\u5F53\u305F\u3063\u3061\u3083\u3063\u305F\u306E\u3088"
-    _voiceSpeaker: 45
+    _voiceSpeaker: 65
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -175,7 +175,7 @@ MonoBehaviour:
     _cost: 2
     _image: {fileID: 21300000, guid: ec624eee526e5aa40850f4dbb99209ea, type: 3}
     _flavorText: "\u8D64\u3044\u4E00\u6483\uFF01"
-    _voiceSpeaker: 45
+    _voiceSpeaker: 65
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
@@ -206,7 +206,7 @@ MonoBehaviour:
     _cost: 4
     _image: {fileID: 21300000, guid: 4ba41e8dc481a214d85fa0ce05da525c, type: 3}
     _flavorText: "\u60AA\u9B54\u306B\u306A\u3063\u3061\u3083\u3063\u305F\u306E\u3088"
-    _voiceSpeaker: 45
+    _voiceSpeaker: 65
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
