@@ -35,6 +35,7 @@ WebGL unityroom
 ## 日本語フォント
 - UI Toolkit のデフォルトフォントを Noto Sans JP Bold に設定済みなので、uxml/uss で個別指定は不要（全テキストが自動でこのフォントになる）
 - 配線を作り直す場合はエディタメニュー Tools > UI > Setup Bold Japanese Font を実行する
+- NotoSansJP に無い記号（絵文字・鉛筆 ✎・✕・小三角 ▾ など）は使わない。エディタでは OS フォントにフォールバックして見えても WebGL では豆腐（□）になる。閉じる＝×、矢印＝▼ など収録済みグリフか画像アイコン／テキストに置き換える
 
 ## gitignore
 - Asset Storeからダウンロードした物は AssetStore ディレクトリに入れるとGitに管理されない
