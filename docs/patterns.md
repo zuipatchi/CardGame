@@ -297,7 +297,7 @@ public static int ChooseXxxCardIndex(IReadOnlyList<CardData> hand)
 難易度は相手ごとに `CpuRosterSO`（`CpuOpponentData.Difficulty`）で持ち、`MainPresenter` が対戦開始時に `_cpuDifficulty` へ確定する（`CpuAgent` 自体はステートレスのまま）。難易度依存の判断は `MainPresenter` 側のフックで分岐させる:
 
 - **出すカードの除外**: `CpuAgent.Choose...Index(hand, canAfford)` に渡す述語で `CpuMayPlayToField(hand[i])` を AND する（[MainPresenter.Phases.Main.cs](../Assets/Scripts/Main/MainPresenter.Phases.Main.cs)）。中級以上は `IsCostOnlyCard()`（CostBoost／`TriggerOnGrave`）を場に出す候補から除外する。
-- **コスト支払いの優先**: `ChooseCpuCostCards(played, hand, preferCostOnly)`（[MainPresenter.Animations.CostFly.cs](../Assets/Scripts/Main/MainPresenter.Animations.CostFly.cs)）に `preferCostOnly = _cpuDifficulty != Beginner` を渡し、コスト専用カードを先に充てる。
+- **コスト支払いの優先**: `ChooseCpuCostCards(played, hand, preferCostOnly)`（[MainPresenter.Animations.CostFly.cs](../Assets/Scripts/Main/MainPresenter.Animations.CostFly.cs)）に `preferCostOnly = _cpuDifficulty != Beginner` を渡し、コスト専用カードを先に充てる。**素材の選択ループは3つとも（同属性確保／コスト専用優先／残り穴埋め）先頭で `CostPaymentValue<=0`（お邪魔トークン等）をスキップすること。** お邪魔トークンは `TriggerOnGrave` 持ちで `IsCostOnlyCard` が true になるため、このガードを欠くとコスト専用ループが `paid+=0` のままトークンをコストに混ぜ、本来以上にカードを捨ててしまう。
 
 上級は当面中級と同じ。独自ロジックは `_cpuDifficulty == CpuDifficulty.Advanced` の分岐を上記フックに足して拡張する。
 
