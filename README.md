@@ -30,7 +30,7 @@ Multiplayer play mode を使用してオンライン対戦を行う
 - 配布時は使用した話者分のクレジット表記（例 `VOICEVOX:ずんだもん`）が必要
 
 ## プラットフォーム
-Windows MacOS
+WebGL unityroom
 
 ## 日本語フォント
 - uxmlで日本語フォントを使用したい場合は /Assets/Font に入っている日本語フォントを使用する
