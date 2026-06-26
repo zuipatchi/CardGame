@@ -223,6 +223,15 @@ Assets/AddressableAssets/
 - `CardStore` がカードテンプレート（VisualTreeAsset）・裏面画像・盤面背景（Texture2D）をロード
 - ロード完了は `UniTask Loaded` プロパティで通知
 
+### 既知の課題：カード画像は Addressables 例外（全カード一括ロード）
+
+原則は「アセットは Addressables で遅延ロード」だが、**カード画像（`CardData._image`）だけは例外的に SO への直接参照（`Sprite`）**になっている。このため `CardDatabase`（→ 各 `CharacterCardSO`/`EventCardSO` → 全 `CardData`）を参照したシーンを開くと、**使う使わないに関わらず全カード画像がメモリに一括ロードされる**。
+
+これは特に WebGL モバイルで問題になった。モバイルの GPU は DXT(S3TC) 非対応のことが多く、圧縮テクスチャがランタイムで RGBA32 に展開されるため、全カードぶんのテクスチャがメモリを圧迫し、初回ロード後に OOM でタブが落ちていた（タイトル画面が [TitleCardSpherePresenter](../Assets/Scripts/Title/CardSphere/TitleCardSpherePresenter.cs) で `CardDatabase` を丸ごと参照しているため、6 枚しか表示しないタイトルでも全カードがロードされる）。
+
+- **暫定対処（実施済み）**：カード画像の WebGL 用 `maxTextureSize` を 512 に制限し、全カード同時展開でも収まるようにした（一括適用ツール [WebGLTextureSettingsApplier](../Assets/Scripts/Editor/WebGLTextureSettingsApplier.cs)、メニュー `Card → WebGL テクスチャ設定を適用`）。
+- **根本対応の方向性（未実施）**：カード画像を Addressables 化し、手札・場など**今表示するカードだけ**オンデマンドで読み込み・解放する。あわせてタイトル球は `CardDatabase` 全体ではなく**小さなサブセット参照**に変える。これにより画質を上げつつカード枚数も増やせる。
+
 ---
 
 ## Home シーン（ホーム画面）
