@@ -216,6 +216,11 @@
                             <ui:Label text="射手（しゃしゅ）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="飛行を持つ相手キャラを攻撃できるキーワード「射手」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
+                        <ui:Button name="TutorialEntryDeadly" class="home-tutorial-entry">
+                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--deadly" picking-mode="Ignore"/>
+                            <ui:Label text="必殺（ひっさつ）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="ダメージ計算をせず相手キャラを破壊するキーワード「必殺」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
                     </ui:VisualElement>
                 </ui:ScrollView>
                 <ui:Button name="TutorialCloseButton" text="✕" class="home-modal-close"/>

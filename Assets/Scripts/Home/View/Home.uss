@@ -700,6 +700,10 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/ArrowIcon.png");
 }
 
+.home-tutorial-entry-icon--deadly {
+    background-image: url("project://database/Assets/AddressableAssets/Icon/SlayerIcon.png");
+}
+
 /* チュートリアルボタン: あそびかたボタンの左に並べる */
 .home-tutorial-button {
     font-size: 18px;
