@@ -40,9 +40,11 @@ namespace Main
 
             if (deadly)
             {
-                if (_hitEffectPrefab != null)
+                // 必殺発動の専用演出（爆発）。未設定時は汎用ヒット演出にフォールバック。
+                GameObject deadlyEffect = _deadlyEffectPrefab != null ? _deadlyEffectPrefab : _hitEffectPrefab;
+                if (deadlyEffect != null)
                 {
-                    await PlayParticleAtCardAsync(target, _hitEffectPrefab, ct);
+                    await PlayParticleAtCardAsync(target, deadlyEffect, ct);
                 }
                 await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
                 // 攻撃を受けたキャラの OnAttacked を発動（ダメージは与えないが「攻撃を受けた」ため）。
