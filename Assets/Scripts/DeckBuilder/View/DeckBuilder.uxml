@@ -17,9 +17,12 @@
             </ui:VisualElement>
             <ui:VisualElement class="deckbuilder-deck-panel">
                 <ui:Label name="CostOverLabel" class="deckbuilder-cost-over" text="30枚を超えています" />
+                <ui:VisualElement class="deckbuilder-deck-name-row">
+                    <ui:Label name="DeckNameLabel" class="deckbuilder-deck-name" text="デッキ" />
+                    <ui:Button name="EditNameButton" class="deckbuilder-button--edit-name" text="✎" />
+                </ui:VisualElement>
                 <ui:VisualElement class="deckbuilder-deck-header">
                     <ui:VisualElement class="deckbuilder-deck-header-left">
-                        <ui:Label class="deckbuilder-panel-title" text="デッキ" />
                         <ui:Button name="UseDeckButton" class="deckbuilder-button--use-deck" text="使用する" />
                     </ui:VisualElement>
                     <ui:VisualElement class="deckbuilder-deck-header-right">

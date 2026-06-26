@@ -7,7 +7,7 @@
     flex-direction: column;
     padding-top: 100px;
     padding-right: 24px;
-    padding-bottom: 24px;
+    padding-bottom: 8px;
     padding-left: 24px;
     -unity-background-scale-mode: scale-and-crop;
 }
@@ -130,6 +130,29 @@
     margin-bottom: 8px;
 }
 
+/* デッキ名＋編集ボタンの行。ヘッダ上のスペースに絶対配置で浮かせ、
+   スクロールビューの高さに影響しないようにする（長い名前でも下のボタンを押し出さない）。 */
+.deckbuilder-deck-name-row {
+    position: absolute;
+    top: -34px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.deckbuilder-deck-name {
+    font-size: 18px;
+    color: rgba(180, 180, 210, 1);
+    -unity-font-style: bold;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    -unity-text-overflow-position: end;
+    text-overflow: ellipsis;
+    max-width: 460px;
+}
+
 .deckbuilder-deck-count {
     font-size: 28px;
     color: rgba(180, 180, 210, 1);
@@ -159,7 +182,6 @@
     border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    margin-bottom: 8px;
 }
 
 .deckbuilder-deck-row {
@@ -296,9 +318,9 @@
 }
 
 .deckbuilder-button {
-    height: 64px;
-    min-width: 110px;
-    font-size: 24px;
+    height: 44px;
+    min-width: 76px;
+    font-size: 18px;
     -unity-font-style: bold;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -332,6 +354,41 @@
 .deckbuilder-deck-header-left {
     flex-direction: row;
     align-items: center;
+}
+
+/* デッキ名見出しの横に置く名前変更ボタン（鉛筆アイコン）。 */
+.deckbuilder-button--edit-name {
+    width: 28px;
+    height: 28px;
+    margin-left: 10px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(180, 200, 240);
+    background-color: rgba(60, 120, 200, 0.25);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.deckbuilder-button--edit-name:hover {
+    background-color: rgba(60, 120, 200, 0.6);
+}
+
+.deckbuilder-button--edit-name:active {
+    background-color: rgba(60, 120, 200, 0.45);
+    scale: 0.9 0.9;
 }
 
 /* 「デッキ」見出しの横に置く「使用する」ボタン。未使用時（押せる）は暗め。 */
@@ -829,9 +886,9 @@
 }
 
 .deckbuilder-button--filter {
-    height: 64px;
-    min-width: 80px;
-    font-size: 20px;
+    height: 44px;
+    min-width: 76px;
+    font-size: 18px;
     -unity-font-style: bold;
     color: rgb(200, 200, 220);
     background-color: rgba(70, 70, 100, 1);
@@ -877,9 +934,9 @@
 }
 
 .deckbuilder-button--filter-attr {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -920,10 +977,10 @@
 }
 
 .deckbuilder-button--filter-cost {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    font-size: 22px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    font-size: 20px;
     -unity-font-style: bold;
     color: rgb(200, 200, 220);
     background-color: rgba(70, 70, 100, 1);
@@ -966,8 +1023,8 @@
 }
 
 .deckbuilder-filter-attr-icon {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     -unity-background-scale-mode: scale-to-fit;
 }
 

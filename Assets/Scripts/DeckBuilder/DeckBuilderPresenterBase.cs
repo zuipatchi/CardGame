@@ -62,7 +62,7 @@ namespace DeckBuilder
             CardAttribute.Purple,
         };
 
-        private VisualElement _deckBuilderRoot;
+        protected VisualElement _deckBuilderRoot;
         private ScrollView _cardListScrollView;
         private ScrollView _deckListScrollView;
         private Label _deckCountLabel;

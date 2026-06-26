@@ -19,6 +19,9 @@ namespace DeckBuilder
         private VisualElement _slotGrid;
         // 編集中デッキをその場で対戦用（SelectedIndex）にする「使用する」ボタン（編集画面ヘッダ）。
         private Button _useDeckButton;
+        // 編集画面ヘッダのデッキ名表示（見出し）と、その名前変更ボタン。
+        private Label _deckNameLabel;
+        private Button _editNameButton;
         // 使用デッキ（対戦に使う SelectedIndex）を選ぶ：上部ボタン＋ Home 風の一覧モーダル。
         private Button _deckSelectButton;
         private VisualElement _deckSelectOverlay;
@@ -99,6 +102,16 @@ namespace DeckBuilder
             _useDeckButton = root.Q<Button>("UseDeckButton");
             _useDeckButton.clicked += OnUseDeckClicked;
             UpdateUseDeckButton();
+
+            // 編集画面ヘッダのデッキ名表示と名前変更ボタン：編集中スロットの名前を表示・変更する。
+            _deckNameLabel = root.Q<Label>("DeckNameLabel");
+            _editNameButton = root.Q<Button>("EditNameButton");
+            _editNameButton.clicked += () =>
+            {
+                _soundPlayer.PlaySE(_soundStore.EnterSE);
+                BeginRename(_editingSlot);
+            };
+            UpdateDeckNameLabel();
 
             // 読み込み中に枠を開いていなければ、まだスロット一覧を表示中。カード裏面は読み込み後に
             // しか得られないため、ここで一覧を組み直してシンボル未設定スロットに裏面を反映する。
@@ -314,6 +327,16 @@ namespace DeckBuilder
             _useDeckButton.SetEnabled(!isSelected);
         }
 
+        // 編集画面ヘッダのデッキ名見出しを、編集中スロットの名前に合わせる。
+        private void UpdateDeckNameLabel()
+        {
+            if (_deckNameLabel == null)
+            {
+                return;
+            }
+            _deckNameLabel.text = _deckRepository.LoadName(_editingSlot);
+        }
+
         // 上部ボタンのラベルを現在の使用デッキ名に合わせる。
         private void UpdateDeckSelectButtonLabel()
         {
@@ -416,6 +439,7 @@ namespace DeckBuilder
                 _deckRepository.Load(_deckModel, slot);
                 RefreshDeckPanel();
                 UpdateUseDeckButton();
+                UpdateDeckNameLabel();
             }
             else
             {
@@ -468,6 +492,11 @@ namespace DeckBuilder
                 RebuildSlotGrid();
                 // 使用中スロットの名前を変えた場合は上部ボタンのラベルも更新する。
                 UpdateDeckSelectButtonLabel();
+                // 編集画面のデッキ名見出しも、編集中スロットを変更したなら更新する。
+                if (slot == _editingSlot)
+                {
+                    UpdateDeckNameLabel();
+                }
             };
 
             buttons.Add(cancelButton);
@@ -476,7 +505,8 @@ namespace DeckBuilder
             panel.Add(field);
             panel.Add(buttons);
             overlay.Add(panel);
-            _slotOverlay.Add(overlay);
+            // スロット一覧・編集画面のどちらからでも見えるよう、常時表示のルートに重ねる。
+            _deckBuilderRoot.Add(overlay);
 
             field.Focus();
         }
