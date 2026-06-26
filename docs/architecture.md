@@ -598,7 +598,7 @@ CpuAgent.ChooseCharacterSetCardIndex(hand, canAfford)   配置するキャラカ
 CpuAgent.ChooseEventCardIndex(hand, canAfford)          使うイベントカードのインデックスを返す（なければ -1）
 ```
 
-`canAfford(i)` は `hand[i]` のコストを支払えるかの判定。`MainPresenter.CpuCanAffordCost()` を渡し、自身を除いた手札の支払い可能量（`CostPaymentValue` 合計）がコストに満たないカードは選ばない（ローカルプレイヤーと同じくコストの踏み倒しを禁止）。
+`canAfford(i)` は `hand[i]` のコストを支払えるかの判定。`MainPresenter.CpuCanAffordCost()` を渡し、自身を除いた手札の支払い可能量（`CostPaymentValue` 合計）がコストに満たない、または同属性のコスト素材（`CostPaymentValue>0` の同属性カード）を1枚も持たないカードは選ばない（ローカルプレイヤーの `CostCapacityExcluding` / `IsCostAttributeSatisfied` と同じく、踏み倒しと属性制約違反の払い方を禁止）。
 
 **CPU 難易度**（相手ごとに `CpuRosterSO` の `Difficulty` で設定。初級/中級/上級）:
 - **初級**: 従来どおり、支払える順に手札先頭から出す。
