@@ -170,7 +170,10 @@ namespace Main
                     {
                         break;
                     }
-                    if (used.Contains(c) || !IsCostOnlyCard(c.Data))
+                    // コスト素材にできないカード（お邪魔トークン等＝CostPaymentValue 0）は選ばない。
+                    // お邪魔トークンは TriggerOnGrave 持ちのため IsCostOnlyCard が true になり、
+                    // このガードが無いと paid に 0 加算のままコストに混ぜられて本来以上に捨ててしまう。
+                    if (used.Contains(c) || c.Data.CostPaymentValue(neededAttr) <= 0 || !IsCostOnlyCard(c.Data))
                     {
                         continue;
                     }
