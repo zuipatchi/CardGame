@@ -81,7 +81,7 @@ MonoBehaviour:
     _cardName: "\u30E9\u30A4\u30C8\u30CB\u30F3\u30B0\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
-    _flavorText: "\u3042\u3001\u305A\u3044\u305A\u3044"
+    _flavorText: "\u3042\u3001\u305A\u3044 \u3042\u3001\u305A\u3044"
     _voiceSpeaker: 53
     _keyword: 
     _effectParam: 
