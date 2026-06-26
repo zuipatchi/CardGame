@@ -954,8 +954,11 @@ namespace Main
 
         // CPU が hand[playedIndex] のカードをプレイするコストを支払えるか。
         // 0コスト or NextCardCostFree 武装時は常に支払い可能。
-        // それ以外は、自身を除いた手札の支払い可能量（各カードの CostPaymentValue 合計）がコスト以上なら支払い可能。
-        // ローカルプレイヤーの CostCapacityExcluding と同じ判定で、コストの踏み倒しを防ぐ。
+        // それ以外は、自身を除いた手札の支払い可能量（各カードの CostPaymentValue 合計）がコスト以上で、
+        // かつ同属性のコスト素材を最低1枚持っていること（白も一般属性）。
+        // ローカルプレイヤーの CostCapacityExcluding / IsCostAttributeSatisfied と同じ判定で、
+        // コストの踏み倒し・属性制約違反の払い方を防ぐ。コスト素材にできないカード（CostPaymentValue=0）は
+        // 合計にも同属性素材にも数えないため、同属性が「コスト不可カードだけ」のときは支払い不可になる。
         private bool CpuCanAffordCost(IReadOnlyList<CardData> hand, int playedIndex)
         {
             CardData played = hand[playedIndex];
@@ -965,14 +968,21 @@ namespace Main
             }
 
             int capacity = 0;
+            bool hasSameAttributeMaterial = false;
             for (int i = 0; i < hand.Count; i++)
             {
-                if (i != playedIndex)
+                if (i == playedIndex)
                 {
-                    capacity += hand[i].CostPaymentValue(played.Attribute);
+                    continue;
+                }
+                int value = hand[i].CostPaymentValue(played.Attribute);
+                capacity += value;
+                if (value > 0 && hand[i].Attribute == played.Attribute)
+                {
+                    hasSameAttributeMaterial = true;
                 }
             }
-            return capacity >= played.Cost;
+            return capacity >= played.Cost && hasSameAttributeMaterial;
         }
 
         // 中級以上の CPU は、CostBoost／ダメージトリガー持ちのカードを場に出さず、コスト支払いに回す。
