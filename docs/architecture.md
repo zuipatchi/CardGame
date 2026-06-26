@@ -155,6 +155,7 @@ public async UniTask StartAsync(CancellationToken cancellation = default)
   - 自動補正で合わない尖った単発音などは `SoundStore.ManualSeAdjust`（クリップ名 → 追加倍率）で耳に合わせて微調整する
 - **BGM 曲ごと音量調整**: BGM は曲数が少なく長尺なので自動正規化（全波形のRMS解析＝メモリ消費大）はせず、`SoundStore.ManualBgmAdjust`（クリップ名 → 音量倍率・未登録は1.0）で曲間の音量差を耳合わせで揃える。`SoundPlayer.PlayBGM` が `SoundStore.GetBgmVolumeScale(clip)` で倍率を取得し、`BGMVolume / 2 × 倍率` を AudioSource に設定する（再生中に BGM スライダーを動かしても倍率を保ったまま追従）。キーは `AudioClip.name`（アセットのファイル名。Addressable のアドレス名とは異なる点に注意）
 - 読み上げ音声は事前生成した WAV を Addressables アドレス `Voice/{CardId}` から `FlavorVoiceStore` がオンデマンドでロード・キャッシュ（未生成カードは null＝無音）
+- 読み上げの再生タイミングは **カードのプレイ時（`OnCardPlayed`）と攻撃の突撃開始時（`PlayCardChargeAsync`）の両方**。どちらも `PlayFlavorVoiceAsync(CardData)` を `Forget()` で発火し、同じ音声を鳴らす（自分・相手・CPU 問わず）
 - 読み上げの話者は `CardData._voiceSpeaker`（VOICEVOX speaker ID。0＝生成ツールの既定話者）でカードごとに指定でき、声は生成時に WAV へ焼き込まれる（ランタイムは話者を意識しない）
 
 > BGM/SE は `volume = v / 2` としている。OptionModel の値 1.0 がデフォルトの AudioSource
@@ -556,6 +557,7 @@ ExecuteAttackAsync  （Attack アクション実行時）
   → ResolveCharacterAttackEffectAsync: 攻撃キャラの OnAttack 効果を発動（Draw・BanishChar）
   → PlayCardChargeAsync: 攻撃キャラのコピーが「ウィンドアップ → 突撃 → ノックバック → 元位置へ戻る」演出
                           演出中は元カードを visibility: hidden で非表示
+                          突撃開始時に Attack SE と攻撃キャラのフレーバー読み上げボイス（PlayFlavorVoiceAsync）を鳴らす
   → TapAttackerAsync: 突進後に攻撃キャラをタップ（横向き）にする（デッキ攻撃 ExecuteDeckAttackAsync も同様）
   → ダメージ = ATK。0 なら "NO DAMAGE" 表示
   → damage > 0: PlayParticleAtCardAsync（ヒットエフェクト）→ TakeDamageAsync（HP アニメーション）
