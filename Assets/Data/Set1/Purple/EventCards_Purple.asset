@@ -90,8 +90,8 @@ MonoBehaviour:
     _cannotBeUsedAsCost: 1
     _triggerOnGrave: 1
     _eventTrigger: 0
-    _eventType: 0
-    _eventValue: 0
+    _eventType: 3
+    _eventValue: 1
     _eventValue2: 0
-    _description: "\u30B3\u30B9\u30C8\u7D20\u6750\u306B\u3067\u304D\u306A\u3044"
+    _description: "\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\u3001\u30B3\u30B9\u30C8\u7D20\u6750\u306B\u3067\u304D\u306A\u3044"
     _attribute: 5
