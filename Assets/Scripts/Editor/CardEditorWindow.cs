@@ -1132,8 +1132,16 @@ namespace GameEditor
                 parts.Add($"勝利点を{victoryPoint}得る");
             }
 
-            // 効果も勝利点も無いときは接頭辞だけ残さず空にする。
-            if (body.Length == 0 && victoryPoint <= 0)
+            // コスト素材にできない（お邪魔トークン用）のフラグはテキストに明記する。
+            // 発動タイミングを持たない常在の特性なので、接頭辞・効果本文とは独立した一文として末尾に足す。
+            bool cannotBeUsedAsCost = element.FindPropertyRelative("_cannotBeUsedAsCost").boolValue;
+            if (cannotBeUsedAsCost)
+            {
+                parts.Add("コスト素材にできない");
+            }
+
+            // 効果も勝利点もコスト素材制限も無いときは接頭辞だけ残さず空にする。
+            if (body.Length == 0 && victoryPoint <= 0 && !cannotBeUsedAsCost)
             {
                 return string.Empty;
             }
