@@ -614,14 +614,6 @@ namespace DeckBuilder
             }
         }
 
-        private bool ShouldShowCardInDeck(CardData cardData)
-        {
-            bool typeMatch = TypeMatches(cardData is CharacterCardData);
-            bool attributeMatch = AttributeMatches(cardData.Attribute);
-            bool costMatch = CostMatches(cardData.Cost);
-            return typeMatch && attributeMatch && costMatch;
-        }
-
         // 同一カード（ID 基準）の枚数制限を考慮して追加する。追加できたら true。
         private bool TryAddCard(string id, int cost)
         {
@@ -768,11 +760,7 @@ namespace DeckBuilder
                     continue;
                 }
 
-                if (!ShouldShowCardInDeck(cardData))
-                {
-                    continue;
-                }
-
+                // デッキ内のカードはフィルタ（種別・属性・コスト）の影響を受けず常に全件表示する。
                 _deckRowOrder.Add(id);
 
                 VisualElement row = new VisualElement();
