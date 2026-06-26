@@ -983,7 +983,8 @@ namespace Main
                     hasSameAttributeMaterial = true;
                 }
             }
-            return capacity >= played.Cost && hasSameAttributeMaterial;
+            // コストの色を無視するカード（お邪魔カード用）は同属性素材の要件を免除する（数だけ満たせばよい）。
+            return capacity >= played.Cost && (played.IgnoreCostColor || hasSameAttributeMaterial);
         }
 
         // 中級以上の CPU は、CostBoost／ダメージトリガー持ちのカードを場に出さず、コスト支払いに回す。

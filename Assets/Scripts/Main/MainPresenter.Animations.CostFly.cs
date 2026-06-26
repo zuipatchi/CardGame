@@ -58,7 +58,7 @@ namespace Main
 
             if (isLocalPlayer)
             {
-                List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, card.Data.Attribute, ct);
+                List<CardView> selected = await WaitForPlayerCostSelectionAsync(cost, card.Data.Attribute, card.Data.IgnoreCostColor, ct);
                 costEntries = new List<(CardView, Rect, Action)>();
                 foreach (CardView c in selected)
                 {

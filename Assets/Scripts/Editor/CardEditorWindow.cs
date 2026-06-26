@@ -710,7 +710,10 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_image"), new GUIContent("画像"));
 
             // コスト素材にできない（お邪魔トークン用）：手札からコスト支払いの素材に数えない（CostPaymentValue=0）。
-            EditorGUILayout.PropertyField(element.FindPropertyRelative("_cannotBeUsedAsCost"), new GUIContent("コスト素材にできない"));
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_cannotBeUsedAsCost"), new GUIContent("このカードはコストの支払いには使えない"));
+
+            // コストの色を無視（お邪魔カード用）：このカード自身のコスト支払いで同属性素材1枚の色制約を免除する。
+            EditorGUILayout.PropertyField(element.FindPropertyRelative("_ignoreCostColor"), new GUIContent("このカードを使用するときは色制限を無視できる"));
 
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_victoryPointBonus"), new GUIContent("勝利点付帯値"));
 
@@ -906,6 +909,7 @@ namespace GameEditor
             element.FindPropertyRelative("_effectParam").stringValue = string.Empty;
             element.FindPropertyRelative("_triggerOnGrave").boolValue = false;
             element.FindPropertyRelative("_cannotBeUsedAsCost").boolValue = false;
+            element.FindPropertyRelative("_ignoreCostColor").boolValue = false;
 
             if (isCharacter)
             {
@@ -1137,11 +1141,18 @@ namespace GameEditor
             bool cannotBeUsedAsCost = element.FindPropertyRelative("_cannotBeUsedAsCost").boolValue;
             if (cannotBeUsedAsCost)
             {
-                parts.Add("コスト素材にできない");
+                parts.Add("このカードはコストの支払いには使えない");
             }
 
-            // 効果も勝利点もコスト素材制限も無いときは接頭辞だけ残さず空にする。
-            if (body.Length == 0 && victoryPoint <= 0 && !cannotBeUsedAsCost)
+            // コストの色を無視（お邪魔カード用）のフラグもテキストに明記する。常在の特性なので末尾に一文として足す。
+            bool ignoreCostColor = element.FindPropertyRelative("_ignoreCostColor").boolValue;
+            if (ignoreCostColor)
+            {
+                parts.Add("このカードを使用するときは色制限を無視できる");
+            }
+
+            // 効果も勝利点もコスト素材制限も色無視も無いときは接頭辞だけ残さず空にする。
+            if (body.Length == 0 && victoryPoint <= 0 && !cannotBeUsedAsCost && !ignoreCostColor)
             {
                 return string.Empty;
             }

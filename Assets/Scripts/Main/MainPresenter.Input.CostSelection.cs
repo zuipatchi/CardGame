@@ -11,6 +11,8 @@ namespace Main
     public sealed partial class MainPresenter
     {
         private CardAttribute _playedCardAttribute;
+        // プレイ中のカードがコストの色制約を無視するか（お邪魔カード用）。true なら同属性素材1枚の要件を免除する。
+        private bool _playedCardIgnoresColor;
         private string _costBaseMessage;
 
         // ローカルプレイヤーがこのカードをプレイする際の実効コスト。
@@ -48,7 +50,7 @@ namespace Main
 
         // ─── コスト選択待ち ──────────────────────────────────────────────
 
-        private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CardAttribute playedAttribute, CancellationToken ct)
+        private async UniTask<List<CardView>> WaitForPlayerCostSelectionAsync(int cost, CardAttribute playedAttribute, bool ignoreColor, CancellationToken ct)
         {
             // BeginStagedCostSelection がドロップ時に先行して呼ばれた場合は TCS が既に存在する
             if (_costSelectionTcs == null)
@@ -61,6 +63,7 @@ namespace Main
 
                 _requiredCost = required;
                 _playedCardAttribute = playedAttribute;
+                _playedCardIgnoresColor = ignoreColor;
                 _costSelectionTcs = new UniTaskCompletionSource();
                 _selectedCostCards.Clear();
 
@@ -160,6 +163,7 @@ namespace Main
             int required = Mathf.Min(cost, CostCapacityExcluding(staged, staged.Data.Attribute));
             _requiredCost = required;
             _playedCardAttribute = staged.Data.Attribute;
+            _playedCardIgnoresColor = staged.Data.IgnoreCostColor;
             _costSelectionTcs = new UniTaskCompletionSource();
             _selectedCostCards.Clear();
 
@@ -206,6 +210,12 @@ namespace Main
         private bool IsCostAttributeSatisfied()
         {
             if (_requiredCost == 0)
+            {
+                return true;
+            }
+
+            // コストの色を無視するカード（お邪魔カード用）は同属性素材の要件を免除する（数だけ満たせばよい）。
+            if (_playedCardIgnoresColor)
             {
                 return true;
             }

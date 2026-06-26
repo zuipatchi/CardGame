@@ -28,6 +28,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 37
@@ -48,6 +49,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 40
@@ -68,6 +70,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 20
@@ -88,10 +91,11 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 1
     _set: 0
     _cannotBeUsedAsCost: 1
+    _ignoreCostColor: 1
     _triggerOnGrave: 1
     _eventTrigger: 0
-    _eventType: 3
+    _eventType: 27
     _eventValue: 1
     _eventValue2: 0
-    _description: "\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\u3001\u30B3\u30B9\u30C8\u7D20\u6750\u306B\u3067\u304D\u306A\u3044"
+    _description: "\u304A\u4E92\u3044\u306E\u30C7\u30C3\u30AD\u306B1\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3001\u3053\u306E\u30AB\u30FC\u30C9\u306F\u30B3\u30B9\u30C8\u306E\u652F\u6255\u3044\u306B\u306F\u4F7F\u3048\u306A\u3044\u3001\u3053\u306E\u30AB\u30FC\u30C9\u3092\u4F7F\u7528\u3059\u308B\u3068\u304D\u306F\u8272\u5236\u9650\u3092\u7121\u8996\u3067\u304D\u308B"
     _attribute: 5

@@ -43,6 +43,11 @@ namespace Main.Card
         // 引いても出せない高コストカードと組み合わせると、コストにも回せない「死に札」になる。
         // 既定値 false（既存アセットは未設定でも false になるため移行不要）。キャラ・イベント共通。
         [SerializeField] protected bool _cannotBeUsedAsCost;
+        // コストの色を無視（お邪魔カード用）：true のとき、このカード自身のコスト支払いで「同属性のコスト素材を最低1枚」の
+        // 色制約を免除する（数（CostPaymentValue 合計）の条件は通常どおり満たす必要がある）。
+        // 自分のデッキの色と合わないお邪魔カードでも手札の色を問わず支払えるようにするために使う。
+        // 既定値 false（既存アセットは未設定でも false になるため移行不要）。キャラ・イベント共通。
+        [SerializeField] protected bool _ignoreCostColor;
         // ダメージトリガー：このカードが「デッキ」から墓地へ送られた場合（デッキ攻撃のミル・将来のデッキミル効果）、
         // デッキの持ち主がコストを支払わずにこのカードを使用する。
         // キャラは場に召喚（登場時効果も発動）、イベントは効果を解決してから墓地へ送る。
@@ -68,6 +73,8 @@ namespace Main.Card
         public bool InDeckPool => InUse && !_excludeFromDeckBuilder;
         // コスト素材にできないか（お邪魔トークン用）。true ならコスト支払いの素材として数えない。キャラ・イベント共通。
         public bool CannotBeUsedAsCost => _cannotBeUsedAsCost;
+        // このカード自身のコスト支払いで色（同属性素材1枚）制約を無視するか（お邪魔カード用）。キャラ・イベント共通。
+        public bool IgnoreCostColor => _ignoreCostColor;
         // ダメージトリガーするか（デッキから墓地へ送られたときコストなしで使用）。キャラ・イベント共通。
         public bool TriggerOnGrave => _triggerOnGrave;
         // リリース弾（1始まり）。0（未設定）は第一弾として扱う。
