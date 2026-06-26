@@ -134,19 +134,38 @@ namespace Main
             return sorted;
         }
 
-        // 候補カードを並べたオーバーレイを表示し、プレイヤーが count 枚タップで選ぶのを待つ。
-        // タップで選択／再タップで解除、count 枚に達した時点で確定する。選んだデッキ内インデックスを返す。
+        // 候補カードを並べたオーバーレイを表示し、プレイヤーが count 枚選ぶのを待つ（共通実装へタイトルだけ渡す）。
+        // 選んだデッキ内インデックスを返す。
         private UniTask<List<int>> WaitForPlayerDeckCardsSelectionAsync(List<int> candidates, IReadOnlyList<CardData> deckCards, string keyword, int count, CancellationToken ct)
         {
-            string title = string.IsNullOrEmpty(keyword) ? "カードを選択" : $"『{keyword}』を選択";
-            return WaitForPlayerCardsPickAsync(candidates, deckCards, title, "デッキから手札に加えるカードを選ぶ", count, ct, "deck-pick-card--no-hover");
+            string title = string.IsNullOrEmpty(keyword) ? "デッキから手札に加える" : $"『{keyword}』を手札に加える";
+            return WaitForPlayerCardsPickAsync(candidates, deckCards, title, count, ct, "deck-pick-card--no-hover");
         }
 
-        // 複数選択ピッカーの共通実装：候補カードを並べたオーバーレイを表示し、count 枚タップで選ぶのを待つ。
-        // タップで選択／再タップで解除、count 枚に達した時点で確定する。選んだ candidates 由来のインデックスを返す。
-        // タイトル・サブタイトルだけ差し替えてデッキ／墓地など供給元の異なる選択で共用する。
+        // 複数選択ピッカーのカードをタップしたとき、詳細モーダルを開く。
+        // 詳細パネル下部の決定ボタンで選択／解除をトグルする。上限到達かつ未選択なら閲覧のみ（先に他を解除する必要がある）。
+        private void ShowPickerCardDetailForToggle(CardData data, bool isSelected, bool canSelect, Action toggle)
+        {
+            if (isSelected)
+            {
+                _cardDetailModal.Show(data, "選択を解除", _ => toggle());
+            }
+            else if (canSelect)
+            {
+                _cardDetailModal.Show(data, "選択する", _ => toggle());
+            }
+            else
+            {
+                _cardDetailModal.Show(data);
+            }
+        }
+
+        // 複数選択ピッカーの共通実装：候補カードを並べたオーバーレイを表示し、count 枚選ぶのを待つ。
+        // カードのタップは詳細モーダルを開き、詳細パネルの決定ボタンで選択／解除をトグルする。
+        // count 枚そろうと下部の「決定」ボタンが押せるようになり、押下で確定する。選んだ candidates 由来のインデックスを返す。
+        // タイトルだけ差し替えてデッキ／墓地など供給元の異なる選択で共用する。
         // cardExtraClass を渡すと各候補カードに追加クラスを付ける（呼び出し元ごとにホバー演出などを変えるため）。
-        private async UniTask<List<int>> WaitForPlayerCardsPickAsync(List<int> candidates, IReadOnlyList<CardData> sourceCards, string title, string subtitle, int count, CancellationToken ct, string cardExtraClass = null)
+        private async UniTask<List<int>> WaitForPlayerCardsPickAsync(List<int> candidates, IReadOnlyList<CardData> sourceCards, string title, int count, CancellationToken ct, string cardExtraClass = null)
         {
             UniTaskCompletionSource<List<int>> tcs = new UniTaskCompletionSource<List<int>>();
             List<int> selected = new List<int>();
@@ -164,10 +183,6 @@ namespace Main
             Label titleLabel = new Label(title);
             titleLabel.AddToClassList("deck-pick-title");
             header.Add(titleLabel);
-
-            Label subtitleLabel = new Label(subtitle);
-            subtitleLabel.AddToClassList("deck-pick-subtitle");
-            header.Add(subtitleLabel);
             panel.Add(header);
 
             VisualElement divider = new VisualElement();
@@ -185,7 +200,42 @@ namespace Main
             Label hint = new Label();
             hint.AddToClassList("deck-pick-hint");
             hint.pickingMode = PickingMode.Ignore;
-            hint.text = $"カードをタップして選択（あと {count} 枚）";
+            hint.text = $"カードをタップして詳細を開き選択（あと {count} 枚）";
+
+            // 必要枚数に達すると押せるようになる確定ボタン。
+            Button confirmButton = new Button();
+            confirmButton.AddToClassList("deck-pick-confirm");
+            confirmButton.text = $"決定（0 / {count}）";
+            confirmButton.SetEnabled(false);
+            confirmButton.clicked += () =>
+            {
+                if (selected.Count == count)
+                {
+                    tcs.TrySetResult(new List<int>(selected));
+                }
+            };
+
+            // カード1枚の選択/解除をトグルし、ヒントと決定ボタンの状態を更新する。
+            void Toggle(int captured, CardView card)
+            {
+                if (selected.Contains(captured))
+                {
+                    selected.Remove(captured);
+                    card.RemoveFromClassList("deck-pick-card--selected");
+                }
+                else
+                {
+                    if (selected.Count >= count)
+                    {
+                        return;
+                    }
+                    selected.Add(captured);
+                    card.AddToClassList("deck-pick-card--selected");
+                }
+                hint.text = $"カードをタップして詳細を開き選択（あと {count - selected.Count} 枚）";
+                confirmButton.text = $"決定（{selected.Count} / {count}）";
+                confirmButton.SetEnabled(selected.Count == count);
+            }
 
             foreach (int idx in candidates)
             {
@@ -197,33 +247,19 @@ namespace Main
                     card.AddToClassList(cardExtraClass);
                 }
                 int captured = idx;
+                // クリックは詳細モーダルを開く。選択／解除は詳細パネル下部の決定ボタンで行う（誤タップ防止）。
                 card.RegisterCallback<ClickEvent>(_ =>
                 {
-                    if (selected.Contains(captured))
-                    {
-                        selected.Remove(captured);
-                        card.RemoveFromClassList("deck-pick-card--selected");
-                    }
-                    else
-                    {
-                        if (selected.Count >= count)
-                        {
-                            return;
-                        }
-                        selected.Add(captured);
-                        card.AddToClassList("deck-pick-card--selected");
-                    }
-                    hint.text = $"カードをタップして選択（あと {count - selected.Count} 枚）";
-                    if (selected.Count == count)
-                    {
-                        tcs.TrySetResult(new List<int>(selected));
-                    }
+                    bool isSelected = selected.Contains(captured);
+                    bool canSelect = isSelected || selected.Count < count;
+                    ShowPickerCardDetailForToggle(data, isSelected, canSelect, () => Toggle(captured, card));
                 });
                 scroll.Add(card);
             }
             stage.Add(scroll);
             panel.Add(stage);
             panel.Add(hint);
+            panel.Add(confirmButton);
 
             overlay.Add(panel);
             _mainRoot.Add(overlay);

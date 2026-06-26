@@ -112,13 +112,9 @@ namespace Main
             header.AddToClassList("deck-pick-header");
             header.pickingMode = PickingMode.Ignore;
 
-            Label title = new Label(string.IsNullOrEmpty(keyword) ? "キャラを選択" : $"『{keyword}』を選択");
+            Label title = new Label(string.IsNullOrEmpty(keyword) ? "デッキから召喚" : $"『{keyword}』を召喚");
             title.AddToClassList("deck-pick-title");
             header.Add(title);
-
-            Label subtitle = new Label("デッキから1枚選んで場に出す");
-            subtitle.AddToClassList("deck-pick-subtitle");
-            header.Add(subtitle);
             panel.Add(header);
 
             VisualElement divider = new VisualElement();
@@ -140,13 +136,15 @@ namespace Main
                 CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: false);
                 card.AddToClassList("deck-pick-card");
                 int captured = idx;
-                card.RegisterCallback<ClickEvent>(_ => _deckCardSelectionTcs?.TrySetResult(captured));
+                // クリックは詳細モーダルを開く。決定は詳細パネル下部の「このキャラを召喚」ボタンで行う（誤タップ防止）。
+                card.RegisterCallback<ClickEvent>(_ =>
+                    _cardDetailModal.Show(data, "このキャラを召喚", _ => _deckCardSelectionTcs?.TrySetResult(captured)));
                 scroll.Add(card);
             }
             stage.Add(scroll);
             panel.Add(stage);
 
-            Label hint = new Label("カードをタップして選択");
+            Label hint = new Label("カードをタップして詳細を開き召喚");
             hint.AddToClassList("deck-pick-hint");
             hint.pickingMode = PickingMode.Ignore;
             panel.Add(hint);

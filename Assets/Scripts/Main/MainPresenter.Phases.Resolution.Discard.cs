@@ -149,8 +149,9 @@ namespace Main
             }
         }
 
-        // 手札から捨てるカードを count 枚タップで選ぶオーバーレイ（deck-pick スタイルを流用）。
-        // タップで選択／再タップで解除、count 枚に達した時点で確定し、選んだ手札内インデックスを返す。
+        // 手札から捨てるカードを count 枚選ぶオーバーレイ（deck-pick スタイルを流用）。
+        // カードのタップは詳細モーダルを開き、詳細パネルの決定ボタンで選択／解除をトグルする。
+        // count 枚そろうと下部の「決定」ボタンが押せるようになり、押下で確定し、選んだ手札内インデックスを返す。
         private async UniTask<List<int>> WaitForPlayerHandDiscardSelectionAsync(IReadOnlyList<CardData> handCards, int count, CancellationToken ct)
         {
             UniTaskCompletionSource<List<int>> tcs = new UniTaskCompletionSource<List<int>>();
@@ -166,13 +167,9 @@ namespace Main
             header.AddToClassList("deck-pick-header");
             header.pickingMode = PickingMode.Ignore;
 
-            Label title = new Label("捨てるカードを選択");
+            Label title = new Label("手札から捨てる");
             title.AddToClassList("deck-pick-title");
             header.Add(title);
-
-            Label subtitle = new Label("手札から捨てるカードを選ぶ");
-            subtitle.AddToClassList("deck-pick-subtitle");
-            header.Add(subtitle);
             panel.Add(header);
 
             VisualElement divider = new VisualElement();
@@ -190,7 +187,42 @@ namespace Main
             Label hint = new Label();
             hint.AddToClassList("deck-pick-hint");
             hint.pickingMode = PickingMode.Ignore;
-            hint.text = $"カードをタップして選択（あと {count} 枚）";
+            hint.text = $"カードをタップして詳細を開き選択（あと {count} 枚）";
+
+            // 必要枚数に達すると押せるようになる確定ボタン。
+            Button confirmButton = new Button();
+            confirmButton.AddToClassList("deck-pick-confirm");
+            confirmButton.text = $"決定（0 / {count}）";
+            confirmButton.SetEnabled(false);
+            confirmButton.clicked += () =>
+            {
+                if (selected.Count == count)
+                {
+                    tcs.TrySetResult(new List<int>(selected));
+                }
+            };
+
+            // カード1枚の選択/解除をトグルし、ヒントと決定ボタンの状態を更新する。
+            void Toggle(int captured, CardView card)
+            {
+                if (selected.Contains(captured))
+                {
+                    selected.Remove(captured);
+                    card.RemoveFromClassList("deck-pick-card--selected");
+                }
+                else
+                {
+                    if (selected.Count >= count)
+                    {
+                        return;
+                    }
+                    selected.Add(captured);
+                    card.AddToClassList("deck-pick-card--selected");
+                }
+                hint.text = $"カードをタップして詳細を開き選択（あと {count - selected.Count} 枚）";
+                confirmButton.text = $"決定（{selected.Count} / {count}）";
+                confirmButton.SetEnabled(selected.Count == count);
+            }
 
             for (int i = 0; i < handCards.Count; i++)
             {
@@ -199,33 +231,19 @@ namespace Main
                 card.AddToClassList("deck-pick-card");
                 card.AddToClassList("deck-pick-card--no-scale");
                 int captured = i;
+                // クリックは詳細モーダルを開く。選択／解除は詳細パネル下部の決定ボタンで行う（誤タップ防止）。
                 card.RegisterCallback<ClickEvent>(_ =>
                 {
-                    if (selected.Contains(captured))
-                    {
-                        selected.Remove(captured);
-                        card.RemoveFromClassList("deck-pick-card--selected");
-                    }
-                    else
-                    {
-                        if (selected.Count >= count)
-                        {
-                            return;
-                        }
-                        selected.Add(captured);
-                        card.AddToClassList("deck-pick-card--selected");
-                    }
-                    hint.text = $"カードをタップして選択（あと {count - selected.Count} 枚）";
-                    if (selected.Count == count)
-                    {
-                        tcs.TrySetResult(new List<int>(selected));
-                    }
+                    bool isSelected = selected.Contains(captured);
+                    bool canSelect = isSelected || selected.Count < count;
+                    ShowPickerCardDetailForToggle(data, isSelected, canSelect, () => Toggle(captured, card));
                 });
                 scroll.Add(card);
             }
             stage.Add(scroll);
             panel.Add(stage);
             panel.Add(hint);
+            panel.Add(confirmButton);
 
             overlay.Add(panel);
             _mainRoot.Add(overlay);

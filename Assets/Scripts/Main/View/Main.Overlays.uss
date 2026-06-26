@@ -192,6 +192,48 @@
     margin-bottom: 8px;
 }
 
+.graveyard-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(245, 230, 200);
+    background-color: rgba(70, 45, 20, 0.9);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(160, 100, 50, 0.8);
+    border-right-color: rgba(160, 100, 50, 0.8);
+    border-top-color: rgba(160, 100, 50, 0.8);
+    border-bottom-color: rgba(160, 100, 50, 0.8);
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.graveyard-modal-close:hover {
+    scale: 1.06 1.06;
+    background-color: rgba(110, 70, 30, 0.95);
+    color: rgb(255, 255, 255);
+}
+
+.graveyard-modal-close:active {
+    scale: 0.94 0.94;
+}
+
 .game-end-overlay {
     position: absolute;
     left: 0;
@@ -491,12 +533,6 @@
     -unity-text-outline-color: rgba(0, 0, 0, 0.6);
 }
 
-.deck-pick-subtitle {
-    font-size: 17px;
-    color: rgb(150, 160, 205);
-    margin-top: 8px;
-}
-
 .deck-pick-divider {
     height: 1px;
     width: 100%;
@@ -537,7 +573,16 @@
     padding-bottom: 28px;
 }
 
-.deck-pick-card {
+/* カードは常に一定サイズ。ホバー／選択での拡大はモーダルからはみ出るため行わない
+   （選択はタップではなく詳細モーダルの決定ボタンで行うため拡大は不要）。
+   タップ時のみ軽く縮めて押下フィードバックを出す。
+   --no-hover / --no-scale は旧仕様の名残で C# 側から付くが、拡大しなくなったため見た目の差はない。 */
+.deck-pick-card,
+.deck-pick-card:hover,
+.deck-pick-card--no-hover:hover,
+.deck-pick-card--no-hover.deck-pick-card--selected:hover,
+.deck-pick-card--no-scale,
+.deck-pick-card--no-scale:hover {
     scale: 1.18 1.18;
     margin-left: 36px;
     margin-right: 36px;
@@ -545,26 +590,12 @@
     transition-duration: 0.12s;
 }
 
-.deck-pick-card:hover {
-    scale: 1.28 1.28;
-}
-
 .deck-pick-card:active {
     scale: 1.12 1.12;
 }
 
-/* ホバーでの拡大を打ち消す（SummonFromGrave の墓地ピッカー）。選択済みの拡大は維持する */
-.deck-pick-card--no-hover:hover {
-    scale: 1.18 1.18;
-}
-
-.deck-pick-card--no-hover.deck-pick-card--selected:hover {
-    scale: 1.28 1.28;
-}
-
-/* 複数選択（AddToHandFromDeckByKeyword）で選択済みのカード */
+/* 選択済みは枠ハイライトのみで示す（拡大しない）。 */
 .deck-pick-card--selected {
-    scale: 1.28 1.28;
     border-left-width: 3px;
     border-right-width: 3px;
     border-top-width: 3px;
@@ -575,19 +606,49 @@
     border-bottom-color: rgb(120, 200, 255);
 }
 
-/* 拡大を一切させない（ハンデスの捨て札ピッカー）。選択済みの枠ハイライトは維持する */
-.deck-pick-card--no-scale,
-.deck-pick-card--no-scale:hover,
-.deck-pick-card--no-scale:active,
-.deck-pick-card--no-scale.deck-pick-card--selected,
-.deck-pick-card--no-scale.deck-pick-card--selected:hover {
-    scale: 1.18 1.18;
-}
-
 .deck-pick-hint {
     font-size: 15px;
     color: rgb(120, 130, 170);
     margin-top: 2px;
+}
+
+/* 複数選択ピッカーの確定ボタン。必要枚数に達するまでは無効（暗く）表示。 */
+.deck-pick-confirm {
+    margin-top: 12px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgb(240, 245, 255);
+    background-color: rgb(60, 110, 220);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.deck-pick-confirm:hover {
+    scale: 1.04 1.04;
+    background-color: rgb(80, 130, 240);
+}
+
+.deck-pick-confirm:active {
+    scale: 0.96 0.96;
+}
+
+.deck-pick-confirm:disabled {
+    background-color: rgba(70, 80, 110, 0.6);
+    color: rgba(200, 205, 225, 0.5);
+    opacity: 1;
 }
 
 /* ─── VS 演出 ─────────────────────────────────────────────────────── */

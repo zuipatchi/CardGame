@@ -109,7 +109,7 @@ namespace Main
             {
                 List<int> chosen = candidates.Count <= targetCount
                     ? new List<int>(candidates)
-                    : await WaitForPlayerCardsPickAsync(candidates, graveCards, "墓地から手札に加える", "墓地から手札に加えるカードを選ぶ", targetCount, ct, "deck-pick-card--no-hover");
+                    : await WaitForPlayerCardsPickAsync(candidates, graveCards, "墓地から手札に加える", targetCount, ct, "deck-pick-card--no-hover");
                 if (_isOnline)
                 {
                     _networkGameService.SendDamageTargets(chosen.ToArray());

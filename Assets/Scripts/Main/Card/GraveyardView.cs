@@ -147,6 +147,15 @@ namespace Main.Card
             }
 
             panel.Add(scrollView);
+
+            // 右上の × 閉じるボタン（外側クリックに頼らない確実な閉じ導線）。
+            // UI Toolkit は後から追加した兄弟が上に描画されるため、最後に追加して最前面に置く。
+            Button closeButton = new Button();
+            closeButton.text = "×";
+            closeButton.AddToClassList("graveyard-modal-close");
+            closeButton.clicked += () => overlay.RemoveFromHierarchy();
+            panel.Add(closeButton);
+
             overlay.Add(panel);
 
             overlay.RegisterCallback<ClickEvent>(evt =>
