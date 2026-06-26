@@ -113,6 +113,7 @@ namespace Main
             // コスト素材にできないカード（お邪魔トークン等＝CostPaymentValue 0）は選べない。
             else if (card.Data.CostPaymentValue(_playedCardAttribute) <= 0)
             {
+                ShowToast("コストに使用できません");
                 return;
             }
             else if (SelectedCostValue() < _requiredCost)
