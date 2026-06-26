@@ -27,6 +27,7 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 2
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _attack: 0
     _hp: 0
@@ -41,6 +42,9 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
+    _excludeFromDomination: 0
     _description: 
   - _id: C1102
     _cardName: "\u3071\u3063\u3061\u9053\u5316"
@@ -54,6 +58,7 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 2
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _attack: 0
     _hp: 0
@@ -68,6 +73,9 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
+    _excludeFromDomination: 0
     _description: 
   - _id: C1103
     _cardName: "\u3071\u3063\u3061\u529B\u58EB"
@@ -81,6 +89,7 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 2
+    _cannotBeUsedAsCost: 0
     _triggerOnGrave: 0
     _attack: 6
     _hp: 11
@@ -95,4 +104,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
+    _excludeFromDomination: 0
     _description: 
