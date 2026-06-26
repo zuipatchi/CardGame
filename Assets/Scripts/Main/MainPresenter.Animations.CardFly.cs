@@ -62,6 +62,66 @@ namespace Main
             _opponentHandView.AcceptCard(card);
         }
 
+        // ─── 相手が墓地（公開領域）から手札に加えるときの公開ドロー演出 ───────────────
+        // 通常の CPU ドロー（裏向きのまま手札へ）と違い、墓地は公開情報なので「何を取ったか」を
+        // こちらにも見せる。墓地 → 盤面中央寄りへ表向きで大きくせり出して見せ、小休止のあと
+        // 裏返して相手の手札へ送る。
+        private async UniTask PlayCpuRevealToHandAsync(CardData data, Rect fromRect, CancellationToken ct)
+        {
+            const float RevealDuration = 0.3f;
+            const float HoldDuration = 0.7f;
+            const float FlyDuration = 0.35f;
+            const float RevealScale = 1.2f;
+
+            // 中身を公開するため表向きで生成する（相手の手札へ入る直前に裏返す）。
+            CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: true);
+            card.style.position = Position.Absolute;
+            card.style.left = fromRect.center.x - CardScaleConstants.CardWidth / 2f;
+            card.style.top = fromRect.center.y - CardScaleConstants.CardHeight / 2f;
+            card.style.scale = new Scale(new Vector3(CardScaleConstants.HandDeck, CardScaleConstants.HandDeck, 1f));
+            card.pickingMode = PickingMode.Ignore;
+            _dragLayer.Add(card);
+
+            // 墓地 → 盤面中央寄りへ表向きで大きくせり出して見せる。
+            Rect rootRect = _mainRoot.worldBound;
+            float revealLeft = Mathf.Lerp(fromRect.center.x, rootRect.center.x, 0.5f) - CardScaleConstants.CardWidth / 2f;
+            float revealTop = Mathf.Lerp(fromRect.center.y, rootRect.center.y, 0.5f) - CardScaleConstants.CardHeight / 2f;
+            await TweenCardAbsoluteAsync(card, revealLeft, revealTop, RevealScale, RevealDuration, Ease.OutBack, ct);
+
+            // 何を取ったか見せるための小休止。
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(HoldDuration), cancellationToken: ct);
+            }
+            catch (OperationCanceledException)
+            {
+                if (card.parent == _dragLayer)
+                {
+                    _dragLayer.Remove(card);
+                }
+                return;
+            }
+
+            // 相手の手札へは裏向きで入るため、送る前に裏返す。
+            if (!card.IsFaceDown)
+            {
+                await card.FlipAsync(ct);
+            }
+
+            // 相手の手札位置へ縮小しながら飛ばす。
+            Rect handRect = _opponentHandView.worldBound;
+            float targetLeft = handRect.center.x - CardScaleConstants.CardWidth / 2f;
+            float targetTop = handRect.yMax - CardScaleConstants.CardHeight / 2f;
+            await TweenCardAbsoluteAsync(card, targetLeft, targetTop, CardScaleConstants.HandDeck, FlyDuration, Ease.InQuad, ct);
+
+            if (card.parent == _dragLayer)
+            {
+                _dragLayer.Remove(card);
+            }
+            card.pickingMode = PickingMode.Position;
+            _opponentHandView.AcceptCard(card);
+        }
+
         // ─── 配牌・マリガン時の1枚配り ──────────────────────────────────────
         // カードが飛び立つ瞬間にデッキを1枚減らして枚数バッジを更新する。
         // デッキは配る手札分を上に積んだ状態で構築されているため、DrawTop で配った分だけ正しく減り、

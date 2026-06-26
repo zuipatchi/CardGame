@@ -93,7 +93,8 @@ namespace Main
                 }
                 else
                 {
-                    await PlayCpuDrawAsync(data, graveRect, ct);
+                    // 墓地は公開領域なので、相手が何を取ったかこちらにも見えるよう表向きで見せてから手札へ送る。
+                    await PlayCpuRevealToHandAsync(data, graveRect, ct);
                 }
             }
 
