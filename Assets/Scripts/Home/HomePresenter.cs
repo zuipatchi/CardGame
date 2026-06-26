@@ -80,13 +80,13 @@ namespace Home
         {
             "TutorialEntryGuardian", "TutorialEntryHaste", "TutorialEntryFlying",
             "TutorialEntrySakimori", "TutorialEntryAssault", "TutorialEntryNoDeckAttack",
-            "TutorialEntryArcher",
+            "TutorialEntryArcher", "TutorialEntryDeadly",
         };
         private static readonly TutorialId[] _keywordTutorialIds =
         {
             TutorialId.GuardianKw, TutorialId.HasteKw, TutorialId.FlyingKw,
             TutorialId.SakimoriKw, TutorialId.AssaultKw, TutorialId.NoDeckAttackKw,
-            TutorialId.ArcherKw,
+            TutorialId.ArcherKw, TutorialId.DeadlyKw,
         };
         private Button _rulesButton;
         private Button _rulesCloseButton;

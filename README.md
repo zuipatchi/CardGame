@@ -33,7 +33,8 @@ Multiplayer play mode を使用してオンライン対戦を行う
 WebGL unityroom
 
 ## 日本語フォント
-- uxmlで日本語フォントを使用したい場合は /Assets/Font に入っている日本語フォントを使用する
+- UI Toolkit のデフォルトフォントを Noto Sans JP Bold に設定済みなので、uxml/uss で個別指定は不要（全テキストが自動でこのフォントになる）
+- 配線を作り直す場合はエディタメニュー Tools > UI > Setup Bold Japanese Font を実行する
 
 ## gitignore
 - Asset Storeからダウンロードした物は AssetStore ディレクトリに入れるとGitに管理されない

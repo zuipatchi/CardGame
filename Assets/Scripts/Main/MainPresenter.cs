@@ -105,6 +105,7 @@ namespace Main
         [SerializeField] private GameObject _switchEffectPrefab;
         [SerializeField] private GameObject _charDestroyEffectPrefab;
         [SerializeField] private GameObject _hitEffectPrefab;
+        [SerializeField] private GameObject _deadlyEffectPrefab;
         [SerializeField] private GameObject _evolveEffectPrefab;
         [SerializeField] private GameObject _bounceEffectPrefab;
         [SerializeField] private GameObject _bounceAllEffectPrefab;

@@ -81,7 +81,7 @@ MonoBehaviour:
     _cardName: "\u30E9\u30A4\u30C8\u30CB\u30F3\u30B0\u30C9\u30E9\u30B4\u30F3"
     _cost: 3
     _image: {fileID: 21300000, guid: e299302118e83f7468746f14b398531b, type: 3}
-    _flavorText: "\u3042\u3001\u305A\u3044\u305A\u3044"
+    _flavorText: "\u3042\u3001\u305A\u3044 \u3042\u3001\u305A\u3044"
     _voiceSpeaker: 53
     _keyword: 
     _effectParam: 
@@ -166,7 +166,7 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
+    _archer: 1
     _deadly: 0
     _excludeFromDomination: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u300C\u304A\u90AA\u9B54\u30AB\u30FC\u30C9\u300D\u30922\u679A\u6DF7\u305C\u308B"

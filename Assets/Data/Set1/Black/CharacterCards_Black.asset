@@ -55,7 +55,7 @@ MonoBehaviour:
     _keyword: 
     _effectParam: 
     _victoryPointBonus: 0
-    _excludeFromGame: 0
+    _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
@@ -109,10 +109,10 @@ MonoBehaviour:
     _excludeFromDomination: 0
     _description: 
   - _id: C6004
-    _cardName: "\u30D1\u30C3\u30C1\u306E\u30AB\u30E0\u8272\u5546\u4EBA"
+    _cardName: "\u30AB\u30E0\u30D5\u30A9\u30C7\u30EB\u306E\u3071\u3061\u8272\u5546\u4EBA"
     _cost: 2
     _image: {fileID: 21300000, guid: 630f1bfe61fbd2f42a74f3d3a76e64e7, type: 3}
-    _flavorText: "\u305F\u3042"
+    _flavorText: "\u305F\u3042\u3001\u305F\u3042"
     _voiceSpeaker: 73
     _keyword: 
     _effectParam: 
@@ -240,7 +240,7 @@ MonoBehaviour:
     _voiceSpeaker: 52
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 2
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
@@ -249,7 +249,7 @@ MonoBehaviour:
     _attack: 1
     _hp: 1
     _attribute: 4
-    _effectTrigger: 8
+    _effectTrigger: 3
     _effectType: 38
     _effectValue: 1
     _effectValue2: 1
@@ -262,4 +262,35 @@ MonoBehaviour:
     _archer: 0
     _deadly: 0
     _excludeFromDomination: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5893\u5730\u304B\u3089\u30AB\u30FC\u30C9\u30921\u679A\u9078\u3093\u3067\u624B\u672D\u306B\u52A0\u3048\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u7834\u58CA\u3055\u308C\u305F\u6642\u3001\u81EA\u5206\u306E\u5893\u5730\u304B\u3089\u30AB\u30FC\u30C9\u30921\u679A\u9078\u3093\u3067\u624B\u672D\u306B\u52A0\u3048\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+  - _id: C6009
+    _cardName: "\u30AB\u30E0\u30EC\u30AF\u30B7\u30A2\u306E\u3071\u3063\u3061\u3044\u8005"
+    _cost: 4
+    _image: {fileID: 21300000, guid: 7e84abe85fd31a243a707df6884815e1, type: 3}
+    _flavorText: "\u30CB\u30C3\u30B4\u30CB\u30C3\u30B4\u30CB\u30FC"
+    _voiceSpeaker: 89
+    _keyword: 
+    _effectParam: 
+    _victoryPointBonus: 0
+    _excludeFromGame: 0
+    _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _triggerOnGrave: 0
+    _attack: 5
+    _hp: 5
+    _attribute: 4
+    _effectTrigger: 6
+    _effectType: 33
+    _effectValue: 1
+    _effectValue2: 0
+    _guardian: 0
+    _haste: 0
+    _flying: 0
+    _sakimori: 0
+    _assault: 0
+    _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
+    _excludeFromDomination: 0
+    _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u76F8\u624B\u306E\u624B\u672D\u30921\u679A\u6368\u3066\u3055\u305B\u308B"

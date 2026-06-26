@@ -27,7 +27,7 @@ namespace Main
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
         //   ＜キーワード能力＞ 攻撃役と的を盤面にプリセットし、そのキーワードを実際に持つ既存カードで
         //     1アクション（攻撃。速攻のみ「出す→攻撃」）を体験させてクリア（「チュートリアル完了」表示）。
-        //     守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007(守護兼) / 強襲・デッキ攻撃×=C3006(速攻兼)
+        //     守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007(守護兼) / 強襲・デッキ攻撃×=C3006(速攻兼) / 射手=C6002 / 必殺=C7006
 
         // 台本の固定デッキ・セットアップ用カードID（実在カードID。並びはそのまま使う＝シャッフルしない）。
         private static class TutorialScript
@@ -166,6 +166,7 @@ namespace Main
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
                 case TutorialId.ArcherKw:
+                case TutorialId.DeadlyKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
                 case TutorialId.BasicLoop:
@@ -193,6 +194,7 @@ namespace Main
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
                 case TutorialId.ArcherKw:
+                case TutorialId.DeadlyKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
                 case TutorialId.BasicLoop:
@@ -210,7 +212,8 @@ namespace Main
                 || _tutorialId == TutorialId.SakimoriKw
                 || _tutorialId == TutorialId.AssaultKw
                 || _tutorialId == TutorialId.NoDeckAttackKw
-                || _tutorialId == TutorialId.ArcherKw;
+                || _tutorialId == TutorialId.ArcherKw
+                || _tutorialId == TutorialId.DeadlyKw;
         }
 
         // 進行ステップ：0=キャラを出す / 1=ターン終了 / 2=相手の番（タップ） / 3=攻撃 / 4=完了
@@ -336,6 +339,10 @@ namespace Main
                 case TutorialId.ArcherKw:
                     _tutorialHeroCard = PresetCharacter("C6002", isOpponent: false, tapped: false);    // 射手（地上）
                     PresetCharacter("C5003", isOpponent: true, tapped: true);   // 飛行（通常は地上から狙えない）
+                    break;
+                case TutorialId.DeadlyKw:
+                    _tutorialHeroCard = PresetCharacter("C7006", isOpponent: false, tapped: false);    // 必殺（攻1）
+                    PresetCharacter("C2008", isOpponent: true, tapped: true);   // HP8 の壁（通常攻撃では1回で倒せない）
                     break;
             }
         }
@@ -515,6 +522,10 @@ namespace Main
                     break;
                 case TutorialId.ArcherKw:
                     ShowCoach("「射手（しゃしゅ）」を体験しよう。\n飛行や防人を持たないキャラは、飛行を持つ相手キャラを攻撃できない。しかし、射手を持っていれば飛行を持つ相手キャラを攻撃できる！\nさっそく攻撃してみよう！");
+                    ClearHighlights();
+                    break;
+                case TutorialId.DeadlyKw:
+                    ShowCoach("「必殺（ひっさつ）」を体験しよう。\n必殺を持つキャラが相手キャラを攻撃すると、ダメージ計算をせず相手を破壊する。\n相手はHP8の大型キャラだけど、こちらの攻撃力はたったの1。それでも必殺なら一撃で倒せる！\n相手キャラを攻撃してみよう！");
                     ClearHighlights();
                     break;
             }
