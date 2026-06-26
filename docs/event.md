@@ -69,7 +69,7 @@
 
 ### 効果テキストの自動生成
 
-メニュー `Card → 効果テキストを一括生成` は全カードについて、`発動タイミング + 効果本体 +（勝利点）` を「、」で連結して `Description` を生成する（守護/速攻/飛行/防人フラグはアイコン表示があるためテキストに含めない）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
+メニュー `Card → 効果テキストを一括生成` は全カードについて、`発動タイミング + 効果本体 +（勝利点）+（コスト素材にできない）` を「、」で連結して `Description` を生成する（守護/速攻/飛行/防人フラグはアイコン表示があるためテキストに含めない）。**コスト素材にできない**フラグ（`_cannotBeUsedAsCost`）が ON のカードは、発動タイミング・効果本体とは独立した常在の特性として末尾に「コスト素材にできない」を付記する（効果も勝利点も無いお邪魔トークンでもこの一文だけは生成される）。値プレースホルダは **n=値1 / m=値2**、`{属性}` はカードの属性名。接頭辞・連結は [CardEditorWindow.cs](../Assets/Scripts/Editor/CardEditorWindow.cs) の `BuildDescription` が組み立て、**効果本体のテキスト（下表）と値1/値2 のラベル・ヒントは各効果ハンドラ（`EffectHandler.BuildBody` / `Values`）が提供する**（[EffectCatalog](../Assets/Scripts/Main/Card/Effects/EffectCatalog.cs) 経由で取得）。効果テキストを変えたいときは対応するハンドラの `BuildBody` を編集する。
 
 発動タイミング（接頭辞）
 
