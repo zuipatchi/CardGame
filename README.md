@@ -30,7 +30,7 @@ Multiplayer play mode を使用してオンライン対戦を行う
 - 配布時は使用した話者分のクレジット表記（例 `VOICEVOX:ずんだもん`）が必要
 
 ## プラットフォーム
-Windows MacOS
+WebGL unityroom
 
 ## 日本語フォント
 - UI Toolkit のデフォルトフォントを Noto Sans JP Bold に設定済みなので、uxml/uss で個別指定は不要（全テキストが自動でこのフォントになる）

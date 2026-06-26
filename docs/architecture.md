@@ -232,6 +232,13 @@ Assets/AddressableAssets/
 - **暫定対処（実施済み）**：カード画像の WebGL 用 `maxTextureSize` を 512 に制限し、全カード同時展開でも収まるようにした（一括適用ツール [WebGLTextureSettingsApplier](../Assets/Scripts/Editor/WebGLTextureSettingsApplier.cs)、メニュー `Card → WebGL テクスチャ設定を適用`）。
 - **根本対応の方向性（未実施）**：カード画像を Addressables 化し、手札・場など**今表示するカードだけ**オンデマンドで読み込み・解放する。あわせてタイトル球は `CardDatabase` 全体ではなく**小さなサブセット参照**に変える。これにより画質を上げつつカード枚数も増やせる。
 
+### 既知の課題：スマホ（タッチ）でカードドラッグが効かない
+
+**根本原因はシーンに `EventSystem` が無いこと。** UI Toolkit は「マウス入力だけ」EventSystem 無しでも動く特別扱いがあるため、エディタや PC ビルドのマウス操作では問題が出ない。しかし**タッチ入力は `EventSystem` + `InputSystemUIInputModule` が無いと正しく処理されず**、ポインターキャプチャや連続した `PointerMove` が機能しない。その結果、スマホ（WebGL）では UI Toolkit のドラッグ（[CardDragManipulator](../Assets/Scripts/Main/Card/CardDragManipulator.cs)）が、指がカードの上にある間だけ少し動いて止まる／追従しない／`ScrollView` のスクロールと競合する、といった症状になる。
+
+- **対処（必須）**：常駐する `Common` シーンに `EventSystem` + `InputSystemUIInputModule` を1つ追加し、Pointer Behavior を **Single Unified Pointer**（マウスと各タッチを単一ポインターに統合）にする。これで UI Toolkit のドラッグがマウスと同じ挙動で安定する。エディタメニュー **`Card → Common シーンに EventSystem を追加（タッチ入力対応）`**（[TouchEventSystemSetup](../Assets/Scripts/Editor/TouchEventSystemSetup.cs)）で自動追加できる（手動で `Hierarchy → UI → Event System` 後に Pointer Behavior を変更してもよい）。
+- **補助（任意のモバイル向けハイジーン）**：WebGL の canvas に `touch-action: none` を実行時設定し、スマホでページ自体のスクロール/ピンチズームが誤発火しないようにしている（[TouchAction.jslib](../Assets/Plugins/WebGL/TouchAction.jslib) を起動時に [WebGLTouchAction](../Assets/Scripts/Common/Platform/WebGLTouchAction.cs) から呼ぶ）。Unityroom は Build / StreamingAssets だけをアップロードし canvas は Unityroom 側が生成するため、テンプレートの CSS ではなく実行時設定で対応する。これは上記ドラッグ不具合の直接原因ではないが、モバイルでの誤操作防止として残している。
+
 ---
 
 ## Home シーン（ホーム画面）
