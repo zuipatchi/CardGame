@@ -673,7 +673,8 @@ namespace Main
             PlayFlavorVoiceAsync(playedCard).Forget();
         }
 
-        // プレイされたカードのフレーバーテキスト読み上げ音声を再生する（自分・相手どちらのカードでも鳴らす）。
+        // カードのフレーバーテキスト読み上げ音声を再生する（自分・相手どちらのカードでも鳴らす）。
+        // カードのプレイ時（OnCardPlayed）と攻撃の突撃開始時（PlayCardChargeAsync）の両方から呼ぶ。
         // 音声は事前生成した WAV を Addressables からオンデマンドでロードする。
         // フレーバーが空、または音声が未生成のカードは無音（ロードは null を返す）。
         private async UniTaskVoid PlayFlavorVoiceAsync(CardData playedCard)

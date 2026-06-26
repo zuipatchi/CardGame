@@ -19,6 +19,9 @@ namespace Main
                 _soundPlayer.PlaySE(_soundStore.AttackSE);
             }
 
+            // 攻撃キャラのフレーバー読み上げボイスも鳴らす（カード使用時と同じ音声。未生成なら無音）
+            PlayFlavorVoiceAsync(attacker.Data).Forget();
+
             Rect fromRect = attacker.worldBound;
             float w = CardScaleConstants.CardWidth;
             float h = CardScaleConstants.CardHeight;
