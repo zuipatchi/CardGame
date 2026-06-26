@@ -211,11 +211,11 @@ namespace Main.Card
 
             panel.Add(stats);
 
-            // 右上の ✕ 閉じるボタン（外側クリックに頼らない確実な閉じ導線）。
+            // 右上の × 閉じるボタン（外側クリックに頼らない確実な閉じ導線）。
             // UI Toolkit は後から追加した兄弟が上に描画されるため、画像・スタットを追加した後に
             // 最後に追加して最前面に置く（先頭に追加するとラベル類に隠れてホバー/クリックを拾えない）。
             Button closeButton = new Button();
-            closeButton.text = "✕";
+            closeButton.text = "×";
             closeButton.AddToClassList("card-detail-close");
             closeButton.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
             closeButton.clicked += () => Hide();

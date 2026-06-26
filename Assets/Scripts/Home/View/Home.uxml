@@ -4,7 +4,7 @@
         <ui:VisualElement name="DarkOverlay" class="home-dark-overlay" picking-mode="Ignore" />
         <ui:VisualElement name="UsernameRow" class="home-username-row">
             <ui:Label name="UsernameLabel" class="home-username" picking-mode="Ignore" />
-            <ui:Button name="UsernameEditButton" text="✎" class="home-username-edit-button" />
+            <ui:Button name="UsernameEditButton" text="編集" class="home-username-edit-button" />
         </ui:VisualElement>
         <ui:Label name="CostOverToastLabel" class="home-cost-over-toast" />
         <ui:VisualElement class="home-buttons">
@@ -145,7 +145,7 @@
                         <ui:Label text="同じカードはデッキに3枚までしか入れられません" class="home-rules-entry"/>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:Button name="RulesCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="RulesCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="TutorialOverlay" class="home-credit-overlay">
@@ -225,7 +225,7 @@
                         </ui:Button>
                     </ui:VisualElement>
                 </ui:ScrollView>
-                <ui:Button name="TutorialCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="TutorialCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="OpponentSelectOverlay" class="home-credit-overlay">
@@ -243,14 +243,14 @@
                 <ui:VisualElement class="home-carousel-actions">
                     <ui:Button name="OpponentFightButton" text="この相手と戦う" class="home-carousel-fight"/>
                 </ui:VisualElement>
-                <ui:Button name="OpponentSelectCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="OpponentSelectCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="DeckSelectOverlay" class="home-credit-overlay">
             <ui:VisualElement class="home-credit-panel">
                 <ui:Label text="使用デッキをえらぶ" class="home-credit-title"/>
                 <ui:ScrollView name="DeckSelectList" class="home-credit-scroll home-deck-select-list"/>
-                <ui:Button name="DeckSelectCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="DeckSelectCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="CreditOverlay" class="home-credit-overlay">
@@ -275,7 +275,7 @@
                     <ui:Label text="Free Quick Effects Vol.1 / Gabriel Aguiar Productions" class="home-credit-entry"/>
                     <ui:Label text="Cartoon FX Remaster / Jean Moreno (JMO Assets)" class="home-credit-entry"/>
                 </ui:ScrollView>
-                <ui:Button name="CreditCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="CreditCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="UsernameEditOverlay" class="home-credit-overlay">
@@ -284,7 +284,7 @@
                 <ui:TextField name="UsernameEditField" class="home-username-edit-field"/>
                 <ui:Label name="UsernameEditError" class="home-username-edit-error" text=""/>
                 <ui:Button name="UsernameEditConfirmButton" text="決定" class="home-username-edit-confirm"/>
-                <ui:Button name="UsernameEditCloseButton" text="✕" class="home-modal-close"/>
+                <ui:Button name="UsernameEditCloseButton" text="×" class="home-modal-close"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

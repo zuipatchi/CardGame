@@ -195,7 +195,7 @@ namespace DeckBuilder
             panel.Add(_deckSelectList);
 
             Button closeButton = new Button();
-            closeButton.text = "✕";
+            closeButton.text = "×";
             closeButton.AddToClassList("deckbuilder-deck-modal-close");
             closeButton.clicked += () =>
             {
@@ -259,7 +259,7 @@ namespace DeckBuilder
                 nameRow.Add(nameLabel);
 
                 Button renameButton = new Button();
-                renameButton.text = "✎";
+                renameButton.text = "編集";
                 renameButton.AddToClassList("deckbuilder-slot-rename");
                 // カードのクリック（編集を開く）に伝播させないよう ClickEvent を止める。
                 renameButton.RegisterCallback<ClickEvent>(evt =>
@@ -344,7 +344,7 @@ namespace DeckBuilder
             {
                 return;
             }
-            _deckSelectButton.text = $"使用デッキ：{_deckRepository.LoadName(_deckRepository.SelectedIndex)} ▾";
+            _deckSelectButton.text = $"使用デッキ：{_deckRepository.LoadName(_deckRepository.SelectedIndex)} ▼";
         }
 
         private void OpenDeckSelectModal()
