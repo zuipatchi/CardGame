@@ -188,11 +188,8 @@ namespace Main
             ScrollView scroll = new ScrollView(ScrollViewMode.Horizontal);
             scroll.AddToClassList("deck-pick-scroll");
             scroll.contentContainer.AddToClassList("deck-pick-row");
-
-            Label hint = new Label();
-            hint.AddToClassList("deck-pick-hint");
-            hint.pickingMode = PickingMode.Ignore;
-            hint.text = $"カードをタップして詳細を開き選択（あと {count} 枚）";
+            // 横スクロールのみ。縦スライダーは出さない。
+            scroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
 
             // 必要枚数に達すると押せるようになる確定ボタン。
             Button confirmButton = new Button();
@@ -224,7 +221,6 @@ namespace Main
                     selected.Add(captured);
                     card.AddToClassList("deck-pick-card--selected");
                 }
-                hint.text = $"カードをタップして詳細を開き選択（あと {count - selected.Count} 枚）";
                 confirmButton.text = $"決定（{selected.Count} / {count}）";
                 confirmButton.SetEnabled(selected.Count == count);
             }
@@ -236,18 +232,16 @@ namespace Main
                 card.AddToClassList("deck-pick-card");
                 card.AddToClassList("deck-pick-card--no-scale");
                 int captured = i;
-                // クリックは詳細モーダルを開く。選択／解除は詳細パネル下部の決定ボタンで行う（誤タップ防止）。
-                card.RegisterCallback<ClickEvent>(_ =>
-                {
-                    bool isSelected = selected.Contains(captured);
-                    bool canSelect = isSelected || selected.Count < count;
-                    ShowPickerCardDetailForToggle(data, isSelected, canSelect, () => Toggle(captured, card));
-                });
-                scroll.Add(card);
+                // チェックボックスで選択／解除。カード本体タップは詳細モーダル（閲覧用）を開く。
+                AddPickerCardSelection(card, data, () => Toggle(captured, card));
+                // 拡大表示（scale）でカードの場所が確保されるよう、実寸スロットに入れて並べる。
+                VisualElement slot = new VisualElement();
+                slot.AddToClassList("deck-pick-card-slot");
+                slot.Add(card);
+                scroll.Add(slot);
             }
             stage.Add(scroll);
             panel.Add(stage);
-            panel.Add(hint);
             panel.Add(confirmButton);
 
             overlay.Add(panel);

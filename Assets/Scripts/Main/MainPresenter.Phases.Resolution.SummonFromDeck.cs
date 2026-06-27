@@ -129,6 +129,8 @@ namespace Main
             ScrollView scroll = new ScrollView(ScrollViewMode.Horizontal);
             scroll.AddToClassList("deck-pick-scroll");
             scroll.contentContainer.AddToClassList("deck-pick-row");
+            // 横スクロールのみ。縦スライダーは出さない。
+            scroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
 
             foreach (int idx in candidates)
             {
@@ -139,7 +141,11 @@ namespace Main
                 // クリックは詳細モーダルを開く。決定は詳細パネル下部の「このキャラを召喚」ボタンで行う（誤タップ防止）。
                 card.RegisterCallback<ClickEvent>(_ =>
                     _cardDetailModal.Show(data, "このキャラを召喚", _ => _deckCardSelectionTcs?.TrySetResult(captured)));
-                scroll.Add(card);
+                // 拡大表示（scale）でカードの場所が確保されるよう、実寸スロットに入れて並べる。
+                VisualElement slot = new VisualElement();
+                slot.AddToClassList("deck-pick-card-slot");
+                slot.Add(card);
+                scroll.Add(slot);
             }
             stage.Add(scroll);
             panel.Add(stage);

@@ -555,6 +555,7 @@
 
 .deck-pick-scroll {
     flex-grow: 0;
+    flex-shrink: 0;
     max-width: 100%;
 }
 
@@ -564,13 +565,24 @@
     justify-content: center;
     padding-left: 24px;
     padding-right: 24px;
-    padding-top: 28px;
-    padding-bottom: 28px;
 }
 
-/* カードは常に一定サイズ。ホバー／選択での拡大はモーダルからはみ出るため行わない
-   （選択はタップではなく詳細モーダルの決定ボタンで行うため拡大は不要）。
-   タップ時のみ軽く縮めて押下フィードバックを出す。
+/* 各カードを入れる枠。scale はレイアウト枠を広げないため、拡大後のカード見た目（約 244×308px）と
+   同じ実寸をこのスロットに持たせて場所を確保する。これでスクロール行の高さがカード見た目どおりになり、
+   横スクロールのビューポートで上下が見切れない。カードはこの枠の中央に scale 1.4 で表示する。 */
+.deck-pick-card-slot {
+    width: 244px;
+    height: 344px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+/* カードは常に一定サイズ。選択は左上のチェックボックス、カード本体タップは詳細モーダル。
+   ヒント文言を廃したぶん、カードを大きめに表示する（scale 1.4）。場所の確保はスロット側で行うため
+   ここではマージンを持たせない。タップ時のみ軽く縮めて押下フィードバックを出す。
    --no-hover / --no-scale は旧仕様の名残で C# 側から付くが、拡大しなくなったため見た目の差はない。 */
 .deck-pick-card,
 .deck-pick-card:hover,
@@ -578,15 +590,15 @@
 .deck-pick-card--no-hover.deck-pick-card--selected:hover,
 .deck-pick-card--no-scale,
 .deck-pick-card--no-scale:hover {
-    scale: 1.18 1.18;
-    margin-left: 36px;
-    margin-right: 36px;
+    scale: 1.4 1.4;
+    margin-left: 0;
+    margin-right: 0;
     transition-property: scale;
     transition-duration: 0.12s;
 }
 
 .deck-pick-card:active {
-    scale: 1.12 1.12;
+    scale: 1.32 1.32;
 }
 
 /* 選択済みは枠ハイライトのみで示す（拡大しない）。 */
@@ -599,6 +611,53 @@
     border-right-color: rgb(120, 200, 255);
     border-top-color: rgb(120, 200, 255);
     border-bottom-color: rgb(120, 200, 255);
+}
+
+/* カード左上の選択チェックボックス。タップで選択／解除。詳細モーダルとは別操作。 */
+.deck-pick-check {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(10, 12, 20, 0.85);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(255, 255, 255, 0.55);
+    border-right-color: rgba(255, 255, 255, 0.55);
+    border-top-color: rgba(255, 255, 255, 0.55);
+    border-bottom-color: rgba(255, 255, 255, 0.55);
+    align-items: center;
+    justify-content: center;
+    transition-property: background-color, border-color;
+    transition-duration: 0.1s, 0.1s;
+}
+
+/* 選択済みのチェックボックスは塗りつぶし＋枠を強調。 */
+.deck-pick-card--selected .deck-pick-check {
+    background-color: rgb(60, 110, 220);
+    border-left-color: rgb(150, 210, 255);
+    border-right-color: rgb(150, 210, 255);
+    border-top-color: rgb(150, 210, 255);
+    border-bottom-color: rgb(150, 210, 255);
+}
+
+/* チェックマークは選択時のみ表示。 */
+.deck-pick-check__mark {
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(245, 250, 255);
+    display: none;
+}
+
+.deck-pick-card--selected .deck-pick-check__mark {
+    display: flex;
 }
 
 .deck-pick-hint {

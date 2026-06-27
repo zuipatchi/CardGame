@@ -142,22 +142,25 @@ namespace Main
             return WaitForPlayerCardsPickAsync(candidates, deckCards, title, count, ct, "deck-pick-card--no-hover");
         }
 
-        // 複数選択ピッカーのカードをタップしたとき、詳細モーダルを開く。
-        // 詳細パネル下部の決定ボタンで選択／解除をトグルする。上限到達かつ未選択なら閲覧のみ（先に他を解除する必要がある）。
-        private void ShowPickerCardDetailForToggle(CardData data, bool isSelected, bool canSelect, Action toggle)
+        // 複数選択ピッカーのカードに、選択用チェックボックスと詳細表示を付ける。
+        // カード本体のタップは詳細モーダルを閲覧用に開く（選択はしない）。
+        // 左上のチェックボックスのタップで選択／解除をトグルする（カード本体への伝播は止め、詳細が開かないようにする）。
+        private void AddPickerCardSelection(CardView card, CardData data, Action toggle)
         {
-            if (isSelected)
+            card.RegisterCallback<ClickEvent>(_ => _cardDetailModal.Show(data));
+
+            VisualElement checkbox = new VisualElement();
+            checkbox.AddToClassList("deck-pick-check");
+            Label mark = new Label("✓");
+            mark.AddToClassList("deck-pick-check__mark");
+            mark.pickingMode = PickingMode.Ignore;
+            checkbox.Add(mark);
+            checkbox.RegisterCallback<ClickEvent>(evt =>
             {
-                _cardDetailModal.Show(data, "選択を解除", _ => toggle());
-            }
-            else if (canSelect)
-            {
-                _cardDetailModal.Show(data, "選択する", _ => toggle());
-            }
-            else
-            {
-                _cardDetailModal.Show(data);
-            }
+                evt.StopPropagation();
+                toggle();
+            });
+            card.Add(checkbox);
         }
 
         // ピッカー表示中に盤面を確認するためのトグルを付ける。モーダル（パネル）の右上に配置する。
@@ -215,11 +218,8 @@ namespace Main
             ScrollView scroll = new ScrollView(ScrollViewMode.Horizontal);
             scroll.AddToClassList("deck-pick-scroll");
             scroll.contentContainer.AddToClassList("deck-pick-row");
-
-            Label hint = new Label();
-            hint.AddToClassList("deck-pick-hint");
-            hint.pickingMode = PickingMode.Ignore;
-            hint.text = $"カードをタップして詳細を開き選択（あと {count} 枚）";
+            // 横スクロールのみ。縦スライダーは出さない。
+            scroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
 
             // 必要枚数に達すると押せるようになる確定ボタン。
             Button confirmButton = new Button();
@@ -251,7 +251,6 @@ namespace Main
                     selected.Add(captured);
                     card.AddToClassList("deck-pick-card--selected");
                 }
-                hint.text = $"カードをタップして詳細を開き選択（あと {count - selected.Count} 枚）";
                 confirmButton.text = $"決定（{selected.Count} / {count}）";
                 confirmButton.SetEnabled(selected.Count == count);
             }
@@ -266,18 +265,16 @@ namespace Main
                     card.AddToClassList(cardExtraClass);
                 }
                 int captured = idx;
-                // クリックは詳細モーダルを開く。選択／解除は詳細パネル下部の決定ボタンで行う（誤タップ防止）。
-                card.RegisterCallback<ClickEvent>(_ =>
-                {
-                    bool isSelected = selected.Contains(captured);
-                    bool canSelect = isSelected || selected.Count < count;
-                    ShowPickerCardDetailForToggle(data, isSelected, canSelect, () => Toggle(captured, card));
-                });
-                scroll.Add(card);
+                // チェックボックスで選択／解除。カード本体タップは詳細モーダル（閲覧用）を開く。
+                AddPickerCardSelection(card, data, () => Toggle(captured, card));
+                // 拡大表示（scale）でカードの場所が確保されるよう、実寸スロットに入れて並べる。
+                VisualElement slot = new VisualElement();
+                slot.AddToClassList("deck-pick-card-slot");
+                slot.Add(card);
+                scroll.Add(slot);
             }
             stage.Add(scroll);
             panel.Add(stage);
-            panel.Add(hint);
             panel.Add(confirmButton);
 
             overlay.Add(panel);
