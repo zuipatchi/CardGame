@@ -31,6 +31,7 @@ Multiplayer play mode を使用してオンライン対戦を行う
 
 ## プラットフォーム
 WebGL unityroom
+Windows
 
 ## 日本語フォント
 - UI Toolkit のデフォルトフォントを Noto Sans JP Bold に設定済みなので、uxml/uss で個別指定は不要（全テキストが自動でこのフォントになる）
