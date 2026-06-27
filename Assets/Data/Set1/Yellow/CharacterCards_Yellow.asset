@@ -44,7 +44,6 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9EC4\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C4002
     _cardName: "\u3071\u3061\u3069\u3063\u304F"
@@ -75,11 +74,10 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C4003
     _cardName: "\u8A98\u60D1\u3059\u308BR\u30AF\u30A4\u30FC\u30F3"
-    _cost: 2
+    _cost: 3
     _image: {fileID: 21300000, guid: 51c669653ef5dec488a0115fde6dcea3, type: 3}
     _flavorText: "\u81EA\u6162\u306E\u304A\u3063\u3071\u3044\u306F\u3069\u3046\u304B\u3057\u3089"
     _voiceSpeaker: 17
@@ -95,8 +93,8 @@ MonoBehaviour:
     _attack: 1
     _hp: 2
     _attribute: 3
-    _effectTrigger: 0
-    _effectType: 0
+    _effectTrigger: 1
+    _effectType: 31
     _effectValue: 0
     _effectValue2: 0
     _guardian: 0
@@ -106,5 +104,4 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 

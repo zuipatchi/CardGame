@@ -22,7 +22,7 @@ MonoBehaviour:
     _flavorText: "\u3053\u306E\u5F62\u304C\u597D\u304D"
     _voiceSpeaker: 17
     _keyword: "\u30BF\u30ED\u30FC"
-    _effectParam: E4002,E4003,E4004,E4007
+    _effectParam: E4002,E4003,E4004,E4007,E4006
     _victoryPointBonus: 0
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
     _eventType: 29
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u624B\u672D\u306B\u300C\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D\u300D\u300C\u30BF\u30ED\u30FC\u306E\u8155\u6BDB\u300D\u300C\u30BF\u30ED\u30FC\u306E\u75DB\u8ECA\u300D\u300C\u30BF\u30ED\u30FC\u306E\u3071\u3093\u3064\u300D\u304C\u305D\u308D\u3063\u3066\u3044\u308C\u3070\u52DD\u5229\u3059\u308B"
+    _description: "\u624B\u672D\u306B\u300C\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D\u300D\u300C\u30BF\u30ED\u30FC\u306E\u8155\u6BDB\u300D\u300C\u30BF\u30ED\u30FC\u306E\u75DB\u8ECA\u300D\u300C\u30BF\u30ED\u30FC\u306E\u3071\u3093\u3064\u300D\u300C\u30BF\u30ED\u30FC\u306ETE\u3007GA\u300D\u304C\u305D\u308D\u3063\u3066\u3044\u308C\u3070\u52DD\u5229\u3059\u308B"
     _attribute: 3
   - _id: E4002
     _cardName: "\u30BF\u30ED\u30FC\u306E\u3081\u304C\u306D"
@@ -121,8 +121,8 @@ MonoBehaviour:
     _description: "\u30B5\u30A4\u30B3\u30ED\u3092\u632F\u308A\u3001\u51FA\u305F\u76EE\u306E\u6570\u3060\u3051\u30AB\u30FC\u30C9\u3092\u5F15\u304F"
     _attribute: 3
   - _id: E4006
-    _cardName: "TE\u3007GA\u3092\u898B\u3064\u3051\u305F"
-    _cost: 2
+    _cardName: "\u30BF\u30ED\u30FC\u306ETE\u3007GA"
+    _cost: 3
     _image: {fileID: 21300000, guid: f8080adbdfe5f064c9e4936097e887f9, type: 3}
     _flavorText: "\u3042\u3042\u3093\u3001\u6C17\u6301\u3061\u3044"
     _voiceSpeaker: 17
@@ -136,10 +136,10 @@ MonoBehaviour:
     _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
-    _eventType: 30
+    _eventType: 3
     _eventValue: 1
     _eventValue2: 1
-    _description: "\u30C7\u30C3\u30AD\u304B\u3089\u7279\u5FB4\u300C\u30BF\u30ED\u30FC\u300D\u3092\u6301\u3064\u30AB\u30FC\u30C9\u30921\u679A\u9078\u3093\u3067\u624B\u672D\u306B\u52A0\u3048\u308B"
+    _description: "\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C0\u679A\u306E\u6642\u306B\u306F\u30AB\u30FC\u30C9\u3092\u5F15\u304B\u305A\u3001\u6557\u5317\u3082\u3057\u306A\u3044\uFF09"
     _attribute: 3
   - _id: E4007
     _cardName: "\u30BF\u30ED\u30FC\u306E\u3071\u3093\u3064"
