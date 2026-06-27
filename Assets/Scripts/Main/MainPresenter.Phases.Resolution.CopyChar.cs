@@ -31,7 +31,7 @@ namespace Main
             int copyCount = copies <= 0 ? 1 : copies;
             for (int i = 0; i < copyCount; i++)
             {
-                // フィールドが満杯（キャラ8体勝利成立含む）になったら打ち切る
+                // フィールドが満杯（上限9体）になったら、またはゲームが終了したら打ち切る
                 if (field.IsCharactersFull || _isGameOver)
                 {
                     break;

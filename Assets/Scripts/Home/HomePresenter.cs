@@ -66,7 +66,6 @@ namespace Home
         private Button _tutorialEntryBasic;
         private Button _tutorialEntryAttack;
         private Button _tutorialEntryDeckOut;
-        private Button _tutorialEntryFieldChars;
         private Button _tutorialEntryVictoryPoints;
         private Button[] _tutorialTabs;
         private VisualElement[] _tutorialPages;
@@ -241,7 +240,6 @@ namespace Home
             _tutorialEntryBasic = root.Q<Button>("TutorialEntryBasic");
             _tutorialEntryAttack = root.Q<Button>("TutorialEntryAttack");
             _tutorialEntryDeckOut = root.Q<Button>("TutorialEntryDeckOut");
-            _tutorialEntryFieldChars = root.Q<Button>("TutorialEntryFieldChars");
             _tutorialEntryVictoryPoints = root.Q<Button>("TutorialEntryVictoryPoints");
             _tutorialTabs = new Button[]
             {
@@ -291,7 +289,6 @@ namespace Home
             _tutorialEntryBasic.clicked += OnTutorialEntryBasicClicked;
             _tutorialEntryAttack.clicked += OnTutorialEntryAttackClicked;
             _tutorialEntryDeckOut.clicked += OnTutorialEntryDeckOutClicked;
-            _tutorialEntryFieldChars.clicked += OnTutorialEntryFieldCharsClicked;
             _tutorialEntryVictoryPoints.clicked += OnTutorialEntryVictoryPointsClicked;
             _tutorialTabHandlers = new Action[_tutorialTabs.Length];
             for (int i = 0; i < _tutorialTabs.Length; i++)
@@ -360,10 +357,6 @@ namespace Home
             if (_tutorialEntryDeckOut != null)
             {
                 _tutorialEntryDeckOut.clicked -= OnTutorialEntryDeckOutClicked;
-            }
-            if (_tutorialEntryFieldChars != null)
-            {
-                _tutorialEntryFieldChars.clicked -= OnTutorialEntryFieldCharsClicked;
             }
             if (_tutorialEntryVictoryPoints != null)
             {
@@ -473,7 +466,6 @@ namespace Home
             _tutorialEntryCardReading = null;
             _tutorialEntryBasic = null;
             _tutorialEntryDeckOut = null;
-            _tutorialEntryFieldChars = null;
             _tutorialEntryVictoryPoints = null;
             _tutorialTabs = null;
             _tutorialPages = null;
@@ -832,11 +824,6 @@ namespace Home
         private void OnTutorialEntryDeckOutClicked()
         {
             StartTutorial(TutorialId.DeckOutWin);
-        }
-
-        private void OnTutorialEntryFieldCharsClicked()
-        {
-            StartTutorial(TutorialId.FieldCharsWin);
         }
 
         private void OnTutorialEntryVictoryPointsClicked()

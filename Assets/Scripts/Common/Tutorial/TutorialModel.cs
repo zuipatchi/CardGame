@@ -11,8 +11,6 @@ namespace Common.Tutorial
         AttackBasics,
         // 勝ち方（デッキ切れ）：相手のデッキを0枚にして勝つ。
         DeckOutWin,
-        // 勝ち方（制圧）：自分の場にキャラを8体ならべて勝つ。
-        FieldCharsWin,
         // 勝ち方（勝利点）：勝利点を20点ためて勝つ。
         VictoryPointsWin,
 

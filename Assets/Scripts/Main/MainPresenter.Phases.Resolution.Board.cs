@@ -138,7 +138,7 @@ namespace Main
             int summonCount = count <= 0 ? 1 : count;
             for (int i = 0; i < summonCount; i++)
             {
-                // キャラ8体勝利が成立したら以降の召喚は打ち切る
+                // フィールドが満杯（上限9体）になったら、またはゲームが終了したら以降の召喚は打ち切る
                 if (field.IsCharactersFull || _isGameOver)
                 {
                     break;
@@ -147,7 +147,7 @@ namespace Main
             }
         }
 
-        // SummonChar の1体分：配置 → キャラ8体勝利判定（OnCardPlayed）→ 登場演出（その場で出現）→ 登場時効果（OnEnter）。
+        // SummonChar の1体分：配置 → カードプレイ通知（OnCardPlayed）→ 登場演出（その場で出現）→ 登場時効果（OnEnter）。
         // stateSource を渡すと、そのキャラのランタイム状態（バフ・現在HP）をコピーして生成する（CopyFieldChar 用）。
         private async UniTask SummonSingleCharAsync(CardData data, FieldView field, bool isLocal, CancellationToken ct, CardView stateSource = null)
         {
@@ -157,7 +157,7 @@ namespace Main
                 newChar.CopyRuntimeStateFrom(stateSource);
             }
             field.PlaceCard(newChar);
-            OnCardPlayed(data, playedByLocal: isLocal);
+            OnCardPlayed(data);
             await PlaySummonAppearAsync(newChar, ct);
 
             await ResolveCharacterEnterEffectAsync(newChar, isLocal, ct);
@@ -254,7 +254,7 @@ namespace Main
                 }
                 if (placed != null)
                 {
-                    OnCardPlayed(placed.Data, playedByLocal: true);
+                    OnCardPlayed(placed.Data);
                 }
                 if (placed != null && _evolveEffectPrefab != null)
                 {
@@ -280,7 +280,7 @@ namespace Main
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    OnCardPlayed(cardData, playedByLocal: false);
+                    OnCardPlayed(cardData);
                     if (_evolveEffectPrefab != null)
                     {
                         // PlaceCard 直後はレイアウト未確定で worldBound が(0,0)を返すため、
@@ -303,7 +303,7 @@ namespace Main
                     _opponentHandView.RemoveCard(newChar);
                     await FlyCardToDestAsync(newChar, charFromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    OnCardPlayed(newChar.Data, playedByLocal: false);
+                    OnCardPlayed(newChar.Data);
                     if (_evolveEffectPrefab != null)
                     {
                         // PlaceCard 直後はレイアウト未確定で worldBound が(0,0)を返すため、
@@ -372,7 +372,7 @@ namespace Main
                 }
                 if (newChar != null)
                 {
-                    OnCardPlayed(newChar.Data, playedByLocal: true);
+                    OnCardPlayed(newChar.Data);
                     // Switch で出し直したキャラも通常配置と同じく登場時効果（OnEnter）を発動する。
                     await ResolveCharacterEnterEffectAsync(newChar, isLocal: true, ct);
                 }
@@ -414,7 +414,7 @@ namespace Main
                     CardView newChar = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
                     await FlyCardToDestAsync(newChar, fromRect, _opponentFieldView, ct);
                     _opponentFieldView.PlaceCard(newChar);
-                    OnCardPlayed(cardData, playedByLocal: false);
+                    OnCardPlayed(cardData);
                     // Switch で出し直したキャラも登場時効果（OnEnter）を発動する（送信側と対称に解決）。
                     await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);
                 }
@@ -438,7 +438,7 @@ namespace Main
                     _opponentHandView.RemoveCard(newChar);
                     await FlyCardToDestAsync(newChar, fromRect, ownField, ct);
                     ownField.PlaceCard(newChar);
-                    OnCardPlayed(newChar.Data, playedByLocal: false);
+                    OnCardPlayed(newChar.Data);
                     await newChar.FlipAsync(ct);
                     // Switch で出し直したキャラも登場時効果（OnEnter）を発動する。
                     await ResolveCharacterEnterEffectAsync(newChar, isLocal: false, ct);

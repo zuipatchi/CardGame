@@ -801,8 +801,6 @@ namespace GameEditor
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_archer"), new GUIContent("射手"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_deadly"), new GUIContent("必殺"));
             EditorGUILayout.PropertyField(element.FindPropertyRelative("_triggerOnGrave"), new GUIContent("ダメージトリガー"));
-            // 制圧勝利（キャラ8体）のカウント対象外（お邪魔トークン用）。
-            EditorGUILayout.PropertyField(element.FindPropertyRelative("_excludeFromDomination"), new GUIContent("制圧勝利の対象外"));
         }
 
         private void DrawEventFields(SerializedProperty element)
@@ -927,7 +925,6 @@ namespace GameEditor
                 element.FindPropertyRelative("_noDeckAttack").boolValue = false;
                 element.FindPropertyRelative("_archer").boolValue = false;
                 element.FindPropertyRelative("_deadly").boolValue = false;
-                element.FindPropertyRelative("_excludeFromDomination").boolValue = false;
             }
             else
             {

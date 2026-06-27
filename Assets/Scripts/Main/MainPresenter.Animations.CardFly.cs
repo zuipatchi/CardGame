@@ -337,7 +337,7 @@ namespace Main
             if (data is CharacterCardData)
             {
                 // カットインのカードを持ち主の場の空きスロットへ飛翔・着地させてからコストなしで召喚
-                // （OnCardPlayed によるキャラ8体勝利判定・OnEnter 効果込み）
+                // （OnCardPlayed による登場時効果（OnEnter）込み）
                 FieldView field = ownerIsLocal ? _playerFieldView : _opponentFieldView;
                 await SummonGraveTriggerCharAsync(data, field, ownerIsLocal, cutIn, ct);
                 return;
@@ -359,8 +359,7 @@ namespace Main
                 await PlayGraveTriggerBurstAsync(cutIn, ct);
 
                 // カード使用としてフレーバー読み上げ等を発火する（通常プレイ・キャラのトリガーと同じ OnCardPlayed 経由）。
-                // イベントは場に出ないため CheckFieldCharsWin は実質 no-op（盤面のキャラ数は増えない）。
-                OnCardPlayed(eventData, playedByLocal: ownerIsLocal);
+                OnCardPlayed(eventData);
 
                 // 効果発動（cutIn.worldBound が有効な状態で、種別ごとの演出込みで解決）
                 await ResolveEventCardEffectAsync(eventData, cutIn, ownerIsLocal, ct);
@@ -379,7 +378,7 @@ namespace Main
 
         // ダメージトリガーのキャラ召喚：実カードを場へ隠して先に配置し、レイアウト確定後の空きスロット位置へ
         // カットインのカードを飛翔・着地させてから、実カードへシームレスに差し替える。
-        // （閃光と被るため登場ポップは省略。OnCardPlayed＝キャラ8体勝利判定・OnEnter 効果込み）
+        // （閃光と被るため登場ポップは省略。OnCardPlayed＝登場時効果（OnEnter）込み）
         private async UniTask SummonGraveTriggerCharAsync(CardData data, FieldView field, bool ownerIsLocal, CardView cutIn, CancellationToken ct)
         {
             // 実カードを場へ配置（着地まで visibility:Hidden で隠す。Hidden はレイアウトを占有するため worldBound は有効）。
@@ -401,7 +400,7 @@ namespace Main
             cutIn.RemoveFromHierarchy();
             newChar.style.visibility = Visibility.Visible;
 
-            OnCardPlayed(data, playedByLocal: ownerIsLocal);
+            OnCardPlayed(data);
             await ResolveCharacterEnterEffectAsync(newChar, ownerIsLocal, ct);
         }
 

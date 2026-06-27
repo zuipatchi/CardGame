@@ -263,11 +263,6 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
 }
 
-/* キャラ8体（制圧）勝利 */
-.game-end-emblem--fieldchars {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/AttackIcon.png");
-}
-
 /* 太郎勝利（HandCollectionWin：手札ぞろえ特殊勝利） */
 .game-end-emblem--handcollection {
     background-image: url("project://database/Assets/AddressableAssets/Icon/DiceIcon.png");

@@ -537,7 +537,7 @@ namespace Main
             switch (action._actionType)
             {
                 case MainPhaseActionType.PlayEvent:
-                    OnCardPlayed(action._card.Data, playedByLocal: true);
+                    OnCardPlayed(action._card.Data);
                     await ResolveSingleCardAsync(action._card, ct);
                     break;
                 case MainPhaseActionType.Attack:
@@ -551,7 +551,7 @@ namespace Main
                     }
                     break;
                 case MainPhaseActionType.PlaceChar:
-                    OnCardPlayed(action._card.Data, playedByLocal: true);
+                    OnCardPlayed(action._card.Data);
                     await ResolveCharacterEnterEffectAsync(action._card, isLocal: true, ct);
                     break;
                 default:
@@ -646,7 +646,7 @@ namespace Main
             CardView playedCard = new CardView(_cardStore.CardTemplate, cardData, _cardStore.CardBack, faceDown: false, isOpponent: true);
             await FlyCardToDestAsync(playedCard, fromRect, _opponentFieldView, ct);
             _opponentFieldView.PlaceCard(playedCard);
-            OnCardPlayed(cardData, playedByLocal: false);
+            OnCardPlayed(cardData);
             await PayHandCostAsync(playedCard, _opponentHandView, _opponentGraveyardView, isLocalPlayer: false, ct, costCardIds: costCardIds);
             if (isEvent)
             {
@@ -666,10 +666,9 @@ namespace Main
         // ─── 共通の勝利条件 ──────────────────────────────────────────────
 
         // カードのプレイ（キャラ配置 or イベント使用）時に呼ぶ。
-        // キャラを配置した直後にフィールドのキャラ数勝利（8体）を判定する。
-        private void OnCardPlayed(CardData playedCard, bool playedByLocal)
+        // フレーバーテキストの読み上げを発火する。
+        private void OnCardPlayed(CardData playedCard)
         {
-            CheckFieldCharsWin(playedByLocal);
             PlayFlavorVoiceAsync(playedCard).Forget();
         }
 
@@ -689,26 +688,6 @@ namespace Main
             {
                 _soundPlayer.PlayVoice(clip);
             }
-        }
-
-        // フィールドのキャラ数勝利条件：自フィールドにキャラを規定数（WinRule.FieldCharsToWin）
-        // 同時に並べた側の勝利。キャラ配置・召喚の直後（OnCardPlayed）に呼ぶ。
-        private void CheckFieldCharsWin(bool isLocalField)
-        {
-            if (_isGameOver)
-            {
-                return;
-            }
-
-            FieldView field = isLocalField ? _playerFieldView : _opponentFieldView;
-            // お邪魔トークン（ExcludeFromDomination）はカウントに含めない。
-            if (!WinRule.IsFieldCharsWin(field.CountCharsForDominationWin()))
-            {
-                return;
-            }
-
-            _isGameOver = true;
-            OnGameEnd(playerWins: isLocalField, winReason: WinReason.FieldChars);
         }
 
         // 勝利点勝利条件：加算した側の勝利点が規定値（WinRule.VictoryPointsToWin）に到達したら勝利。

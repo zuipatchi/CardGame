@@ -213,7 +213,7 @@ Assets/Scripts/<Scene>/<Feature>/
 ```
 Assets/AddressableAssets/
   ├── Card/        Card.uxml（カードテンプレート）
-  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ・キャラ8体勝利の紋章用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、Medal1Icon.png〜Medal5Icon.png（勝利点表示・勝利点勝利の紋章用。勝利点獲得フロートは得点数 1〜5 に対応する画像を表示し、0 や 6 以上は Medal1Icon。カウンター・紋章など固定箇所は Medal1Icon）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
+  ├── Icon/        HeartIcon.png（HP バッジ用）、AttackIcon.png（攻撃力バッジ用）、GraveIcon.png（墓地枚数バッジ・デッキ切れ勝利の紋章用）、Medal1Icon.png〜Medal5Icon.png（勝利点表示・勝利点勝利の紋章用。勝利点獲得フロートは得点数 1〜5 に対応する画像を表示し、0 や 6 以上は Medal1Icon。カウンター・紋章など固定箇所は Medal1Icon）、CharaIcon.png（キャラカード種別アイコン）、SkillIcon.png（技カード種別アイコン）
   ├── Image/       CardBack.png（カード裏面画像）、NamePlate.png（カード名プレート背景）、Card*.png（カードイラスト）、BattleField.png（盤面背景）、OKButton.png（OKボタン画像）、returnButton.png（戻るボタン画像）、PassButton.png（パスボタン画像）、HomeBackground.png（Home 画面背景・晴れ）、HomeBackgroundRain.png（Home 画面背景・雨）
   ├── Modal/       Modal.uxml
   └── Sound/       AudioClip
@@ -403,8 +403,8 @@ CardDatabase      ScriptableObject。属性 × 弾別 SO の配列 _characterCar
 CardStore         IStartable。Addressables から Card.uxml と CardBack.png を非同期ロード
 
 TurnPhase         enum。Draw / Main
-WinRule           static クラス。共通の勝利条件の純ロジック（デッキ切れ＝オーバーリミット: 空デッキから引く/ミルで敗北 / 勝利点20 / キャラ8体）と定数
-WinReason         enum。勝因の種別（DeckOut / VictoryPoints / FieldChars）。勝敗演出の勝因表示に使う
+WinRule           static クラス。共通の勝利条件の純ロジック（デッキ切れ＝オーバーリミット: 空デッキから引く/ミルで敗北 / 勝利点20）と定数
+WinReason         enum。勝因の種別（DeckOut / VictoryPoints / HandCollection）。勝敗演出の勝因表示に使う
 ```
 
 ### ビューコンポーネント
@@ -643,11 +643,11 @@ GameModel         フェーズ遷移と手番管理
 
 Home の「チュートリアル」選択モーダルから起動する**誘導つきスクリプト対戦**。通常のオフライン CPU 戦の仕組みをそのまま使い、決定的セットアップとコーチ層を上から被せて実現する（本番のゲームロジック・入力系は触らない）。実装は [MainPresenter.Tutorial.cs](../Assets/Scripts/Main/MainPresenter.Tutorial.cs)（partial class）と [Main.Tutorial.uss](../Assets/Scripts/Main/View/Main.Tutorial.uss)。
 
-- **起動・種別**: Home の `TutorialModel.IsActive` / `TutorialModel.Id`（Common 常駐）をセットして Main へ遷移。`MainPresenter.Construct` で読み取って `_isTutorial` / `_tutorialId` に確定し、**即 `IsActive=false`（消費型）**。中断しても通常 CPU 戦・オンライン戦に持ち越さない。`TutorialId` は `CardReading` / `BasicLoop` / `AttackBasics` / `DeckOutWin` / `FieldCharsWin` / `VictoryPointsWin` / `GuardianKw` / `HasteKw` / `FlyingKw` / `SakimoriKw` / `AssaultKw` / `NoDeckAttackKw` / `ArcherKw` / `DeadlyKw`。
+- **起動・種別**: Home の `TutorialModel.IsActive` / `TutorialModel.Id`（Common 常駐）をセットして Main へ遷移。`MainPresenter.Construct` で読み取って `_isTutorial` / `_tutorialId` に確定し、**即 `IsActive=false`（消費型）**。中断しても通常 CPU 戦・オンライン戦に持ち越さない。`TutorialId` は `CardReading` / `BasicLoop` / `AttackBasics` / `DeckOutWin` / `VictoryPointsWin` / `GuardianKw` / `HasteKw` / `FlyingKw` / `SakimoriKw` / `AssaultKw` / `NoDeckAttackKw` / `ArcherKw` / `DeadlyKw`。
 - **決定的セットアップ**: `_isTutorial` のとき BuildAsync で先攻プレイヤー固定・`TutorialId` 別の固定デッキ（`TutorialScript` の ID 配列）をシャッフルせず使用。VS告知（`PlayVsAnnouncementAsync`）・コイントス（`InitializeFirstTurnAsync` 内で early-return）・マリガンを省略。`SetupTutorial` でコーチ吹き出しを生成し、必要なら盤面をプリセット（`PresetCharacter` で攻撃役・的を配置し相手はタップ済みに、勝利点・場のキャラ数も調整）。
 - **本番への差し込み**: `if (_isTutorial)` のフックのみ。`RunLocalMainLoopAsync` で手番タイマー無効＋`TutorialBeginPlayerMainPhase`／`TutorialOnLocalPass`／`TutorialOnLocalActionResolved` 呼び出し、`HandlePlayerCardDrop` で `TutorialOnLocalStagedCost`（コスト選択開始時にコスト案内へ切替）、`RunMainPhaseAsync` の CPU 分岐で `RunTutorialOpponentMainLoopAsync`（台本どおりに動く相手）。手札カードの詳細モーダルを開いた/閉じた契機は `_handView.OnCardClicked`（`TutorialOnLocalCardDetailOpened`）と `CardDetailModal.OnHidden`（`TutorialOnLocalCardDetailClosed`）で拾う（`CardReading` 用）。
 - **カードの見方（`CardReading`）**: 戦闘しない練習。盤面プリセットなしで、手札・デッキは全てキーワード能力持ちの実在カード（守護/飛行/速攻/防人/強襲/射手）で構成しトークンを入れない。step0=手札アイコンを解説し先頭カード（C1005）をハイライト→手札カードを開いて閉じると step2=カード詳細の読み方を解説＋END をハイライト→END（パス）で `CompleteTutorial`。step0/1 のうちに END を押しても完了せず次の自分の番で解説へ戻る。
 - **コーチ吹き出し**: 画面上部のパネル（`tutorial-coach`）。タップで小さな「ヒントを見る」チップに畳み、再タップで展開（`SetCoachCollapsed`）。本文は左寄せ。ステップ進行は `ShowCoach` で差し替え、誘導は標準ハイライト（攻撃可能=シアン `attackable-char` / 攻撃対象=オレンジ `attack-target-char` / デッキ攻撃対象 `deck-view--attack-target`）＋手札・ボタンへの緑枠（`tutorial-highlight`）で行う。
-- **クリア演出**: 勝ち方系（`DeckOutWin` / `FieldCharsWin` / `VictoryPointsWin`）は通常の勝利条件（`winReason` 付き）で決着し「デッキ切れ勝利／制圧勝利／勝利点勝利」を表示。基本・キーワード系は `CompleteTutorial` が `_tutorialCompleted=true` を立てて `OnGameEnd(playerWins:true)` を呼び、`PlayGameEndAsync` が「YOU WIN」ではなく **「チュートリアル完了」** を表示する。チュートリアルは再戦（同じ台本の再ロード）に意味がないため、`PlayGameEndAsync` は `_isTutorial` のとき再戦ボタンを隠し「ホームに戻る」のみ表示する。
+- **クリア演出**: 勝ち方系（`DeckOutWin` / `VictoryPointsWin`）は通常の勝利条件（`winReason` 付き）で決着し「デッキ切れ勝利／勝利点勝利」を表示。基本・キーワード系は `CompleteTutorial` が `_tutorialCompleted=true` を立てて `OnGameEnd(playerWins:true)` を呼び、`PlayGameEndAsync` が「YOU WIN」ではなく **「チュートリアル完了」** を表示する。チュートリアルは再戦（同じ台本の再ロード）に意味がないため、`PlayGameEndAsync` は `_isTutorial` のとき再戦ボタンを隠し「ホームに戻る」のみ表示する。
 - **失敗演出**: 誤った操作をしたら `FailTutorial` が `_tutorialFailed=true` を立てて `OnGameEnd(playerWins:false)` を呼び、`PlayGameEndAsync` が **「チュートリアル失敗」**（lose 表示）を出す。現状は飛行チュートリアルで守護持ちを攻撃したときに発生する（飛行は守護を無視して奥のキャラを攻撃するのが正解）。`IsTutorialForbiddenAttackTarget` が「攻撃を禁じる相手」を判定し、`HighlightAttackTargets` ではその相手を攻撃対象として強調せず（茶色＝`attack-target-char` を付けない。ただし `CanAttackChar` 自体は変えないので攻撃自体は可能＝攻撃すると失敗）、`TutorialOnLocalActionResolved` の攻撃分岐で対象が禁止相手なら `FailTutorial` を呼ぶ。
 - **キーワード体験に使う実在カード**: 守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007（守護兼）/ 強襲・デッキ攻撃×=C3006（速攻兼）/ 射手=C6002 / 必殺=C7006。単一キーワードの専用カードが無いキーワードは複数キーワードを持つ既存カードで代用する。射手チュートリアルは攻撃役に射手の C6002、的に飛行の C5003（タップ済み）をプリセットし、地上キャラで飛行を攻撃する体験をさせる。必殺チュートリアルは攻撃役に必殺の C7006（攻1）、的に高HP（HP8）の C2008（タップ済み）をプリセットし、攻撃力1でも一撃で大型キャラを破壊する体験をさせる。
