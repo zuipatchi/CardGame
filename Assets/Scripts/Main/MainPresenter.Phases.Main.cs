@@ -1096,6 +1096,7 @@ namespace Main
                     && !IsInteractiveSubInputActive()
                     && CanCharAttack(capturedChar, _playerFieldView);
                 arrowManip.OnAttackTarget = (worldPos) => HandleAttackDrop(capturedChar, worldPos);
+                arrowManip.EvaluateTarget = (worldPos) => EvaluateAttackDrop(capturedChar, worldPos);
                 charCard.AddManipulator(arrowManip);
                 _attackManipulators.Add((charCard, arrowManip));
             }
@@ -1138,6 +1139,36 @@ namespace Main
             _highlightedAttackTargets.Clear();
 
             _opponentDeckView.RemoveFromClassList("deck-view--attack-target");
+        }
+
+        // ドラッグ中の矢印の色分け用に、ドロップ先の状態を静かに（トーストを出さず）判定する。
+        // 判定条件は HandleAttackDrop の合法性チェックと揃えること。
+        private ArrowTargetState EvaluateAttackDrop(CardView attacker, Vector2 worldPos)
+        {
+            CardView targetChar = _opponentFieldView.TryGetCardAt(worldPos);
+            if (targetChar != null && targetChar.Data is CharacterCardData && !targetChar.IsFaceDown)
+            {
+                if (!targetChar.IsTapped && !IsAssault(attacker))
+                {
+                    return ArrowTargetState.Invalid;
+                }
+                if (IsFlying(targetChar) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
+                {
+                    return ArrowTargetState.Invalid;
+                }
+                return CanAttackChar(attacker, targetChar, _opponentFieldView)
+                    ? ArrowTargetState.Valid
+                    : ArrowTargetState.Invalid;
+            }
+
+            if (_opponentDeckView.worldBound.Contains(worldPos))
+            {
+                return CanAttackDeck(attacker, _opponentFieldView)
+                    ? ArrowTargetState.Valid
+                    : ArrowTargetState.Invalid;
+            }
+
+            return ArrowTargetState.Neutral;
         }
 
         // 攻撃矢印のドロップ処理。対象が合法なら攻撃アクションを生成し、アイドル中なら即実行・

@@ -8,6 +8,8 @@ namespace Main.Card
     {
         public Func<Vector2, bool> OnAttackTarget;
         public Func<bool> CanStart;
+        // ドラッグ中の座標から、ドロップ先の状態（合法/非合法/中立）を返す。矢印の色分けに使う。
+        public Func<Vector2, ArrowTargetState> EvaluateTarget;
 
         private readonly VisualElement _dragLayer;
         private ArrowView _arrowView;
@@ -40,15 +42,26 @@ namespace Main.Card
 
         private void OnPointerDown(PointerDownEvent evt)
         {
+            // すでにドラッグ中（別ポインタ＝マルチタッチや重複イベント）なら無視する。
+            // ここでガードしないと _arrowView が上書きされ、前の矢印が _dragLayer に取り残されて消えなくなる。
+            if (_isDragging)
+            {
+                evt.StopPropagation();
+                return;
+            }
+
             if (CanStart != null && !CanStart())
             {
                 return;
             }
 
+            // 念のため、何らかの理由で前の矢印が残っていれば確実に消してから作り直す。
+            RemoveArrow();
             _isDragging = true;
             _arrowView = new ArrowView();
             _arrowView.StartPoint = target.worldBound.center;
             _arrowView.EndPoint = evt.position;
+            _arrowView.TargetState = EvaluateTarget?.Invoke(evt.position) ?? ArrowTargetState.Neutral;
             _dragLayer.Add(_arrowView);
             target.CapturePointer(evt.pointerId);
             evt.StopPropagation();
@@ -62,6 +75,7 @@ namespace Main.Card
             }
 
             _arrowView.EndPoint = evt.position;
+            _arrowView.TargetState = EvaluateTarget?.Invoke(evt.position) ?? ArrowTargetState.Neutral;
         }
 
         private void OnPointerUp(PointerUpEvent evt)
