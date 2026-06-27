@@ -244,6 +244,9 @@ namespace Main
             panel.Add(stage);
             panel.Add(confirmButton);
 
+            // ピッカー表示中に盤面を確認できるよう「盤面を見る」トグルを付ける。
+            AddPickerPeekToggle(overlay, panel);
+
             overlay.Add(panel);
             _mainRoot.Add(overlay);
 
