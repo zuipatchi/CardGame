@@ -74,6 +74,11 @@ namespace Main
             foreach (CardView target in targets)
             {
                 tasks.Add(isAttack ? target.BuffAttackAsync(amount, ct) : target.BuffHpAsync(amount, ct));
+                if (isAttack)
+                {
+                    // ATK 上昇パルスと「攻撃力 +N」フローティングラベルを同時に再生する
+                    tasks.Add(PlayFloatingLabelAsync($"攻撃力 +{amount}", "attack-buff-label", target, ct));
+                }
             }
             await UniTask.WhenAll(tasks);
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
@@ -109,6 +114,11 @@ namespace Main
             foreach (CardView target in targets)
             {
                 tasks.Add(isAttack ? target.BuffAttackAsync(amount, ct) : target.BuffHpAsync(amount, ct));
+                if (isAttack)
+                {
+                    // ATK 上昇パルスと「攻撃力 +N」フローティングラベルを同時に再生する
+                    tasks.Add(PlayFloatingLabelAsync($"攻撃力 +{amount}", "attack-buff-label", target, ct));
+                }
             }
             await UniTask.WhenAll(tasks);
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
