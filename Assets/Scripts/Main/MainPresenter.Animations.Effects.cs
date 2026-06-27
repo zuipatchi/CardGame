@@ -500,6 +500,62 @@ namespace Main
 
         // ─── 勝敗演出 ───────────────────────────────────────────────────────
 
+        // タロー敗北時に相手（勝者）の手札を全公開する。
+        // オフライン/CPU 戦では相手手札カードが実データを持つため、裏向きカードを表に返すだけ。
+        // オンラインでは相手手札が同期されない（裏向きプレースホルダ）ため、勝者から送られた手札ID
+        // （onlineWinnerHandIds）で表向きカードを作り直して並べ替える。
+        private async UniTask RevealOpponentHandAsync(string[] onlineWinnerHandIds, CancellationToken ct)
+        {
+            if (_opponentHandView == null)
+            {
+                return;
+            }
+
+            if (_isOnline)
+            {
+                // 中身を持たないプレースホルダを取り除き、勝者の実カードを表向きで並べ直す。
+                foreach (CardView placeholder in new List<CardView>(_opponentHandView.Cards))
+                {
+                    _opponentHandView.RemoveCard(placeholder);
+                }
+
+                CardData[] cards = _cardDatabase.BuildDeck(onlineWinnerHandIds ?? Array.Empty<string>());
+                foreach (CardData data in cards)
+                {
+                    CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: true);
+                    _opponentHandView.AcceptCard(card);
+                }
+            }
+            else
+            {
+                // CPU 戦：相手手札カードは実データを持つので、めくって表に返すだけ。
+                List<UniTask> flips = new List<UniTask>();
+                foreach (CardView card in _opponentHandView.Cards)
+                {
+                    if (card.IsFaceDown)
+                    {
+                        flips.Add(card.FlipAsync(ct));
+                    }
+                }
+                if (flips.Count > 0)
+                {
+                    await UniTask.WhenAll(flips);
+                }
+            }
+
+            // 勝敗オーバーレイ（半透明の黒・全画面）に隠れないよう、相手手札エリアを最前面へ持ち上げる。
+            // OpponentHandArea と _gameEndOverlay はどちらも MainRoot の直下にあるため、
+            // 手札エリアを最後の子にすればオーバーレイの上に常時表示され続ける（公開はゲーム終了まで持続）。
+            _opponentHandView.parent?.BringToFront();
+
+            // めくりの演出を見せてから勝敗演出へ進む（手札はこの後も最前面で出続ける）。
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(0.6f), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { }
+        }
+
         private async UniTask PlayGameEndAsync(bool? playerWins, bool isSurrenderWin, bool isPlayerSurrender, WinReason? winReason, CancellationToken ct)
         {
             if (_mulliganOverlay != null)
@@ -507,6 +563,13 @@ namespace Main
                 _mulliganOverlay.RemoveFromHierarchy();
                 _mulliganOverlay = null;
                 _mulliganChoicePending = false;
+            }
+
+            // タロー敗北（HandCollection で自分が負けた）ときは、勝敗演出の前に相手（勝者）の手札を全公開する。
+            if (winReason == WinReason.HandCollection && playerWins == false)
+            {
+                await RevealOpponentHandAsync(_taroDefeatRevealHandIds, ct);
+                _taroDefeatRevealHandIds = null;
             }
 
             if (playerWins == true && _fireworkPrefab != null)
@@ -655,7 +718,7 @@ namespace Main
                 case WinReason.VictoryPoints:
                     return isWin ? "勝利点勝利" : "勝利点敗北";
                 case WinReason.HandCollection:
-                    return isWin ? "太郎勝利" : "太郎敗北";
+                    return isWin ? "タロー勝利" : "タロー敗北";
                 default:
                     return "";
             }

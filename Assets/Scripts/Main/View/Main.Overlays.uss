@@ -263,7 +263,7 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/Medal1Icon.png");
 }
 
-/* 太郎勝利（HandCollectionWin：手札ぞろえ特殊勝利） */
+/* タロー勝利（HandCollectionWin：手札ぞろえ特殊勝利） */
 .game-end-emblem--handcollection {
     background-image: url("project://database/Assets/AddressableAssets/Icon/DiceIcon.png");
 }

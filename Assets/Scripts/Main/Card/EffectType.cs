@@ -105,7 +105,7 @@ namespace Main.Card
         // EventValue2 / EffectValue2（値2）で指定したキーワード能力を永続付与する。
         // 値2: 1=守護 / 2=速攻 / 3=飛行 / 4=防人 / 5=強襲 / 6=デッキ攻撃×（それ以外は空振り）。AtkBoost と同じ対象選択。
         GrantKeyword = 26,
-        // 太郎勝利（特殊勝利）。EffectParam（値1のテキスト）にカンマ区切りで書いた完全ID（例 "C1001,E2003"）の
+        // タロー勝利（特殊勝利）。EffectParam（値1のテキスト）にカンマ区切りで書いた完全ID（例 "C1001,E2003"）の
         // カードが、効果発動時に発動側プレイヤーの手札にすべて（重複指定は枚数分）そろっていれば、その場で勝利する。
         // そろっていなければ空振り。EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（値はテキストの EffectParam を使う）。
         HandCollectionWin = 29,

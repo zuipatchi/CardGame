@@ -58,6 +58,9 @@ namespace Main
 
         private HandView _handView;
         private HandView _opponentHandView;
+        // タロー敗北（HandCollection で敗北）時に公開する勝者の手札カードID。オンラインで相手手札が
+        // 同期されないため、勝者から受け取ったIDを終了演出まで持ち越す（オフラインでは未使用）。
+        private string[] _taroDefeatRevealHandIds;
         private FieldView _playerFieldView;
         private FieldView _opponentFieldView;
         private DeckView _playerDeckView;

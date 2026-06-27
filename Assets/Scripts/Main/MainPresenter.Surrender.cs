@@ -87,13 +87,14 @@ namespace Main
             OnGameEnd(playerWins: true, isSurrenderWin: true);
         }
 
-        // オンライン：相手が HandCollectionWin（太郎勝利）の条件を満たして勝利したことの通知を待ち、
+        // オンライン：相手が HandCollectionWin（タロー勝利）の条件を満たして勝利したことの通知を待ち、
         // 受信したら自分の敗北として終了する。相手の手札は同期されないため、発動側の判定結果を一方的に受け取る。
         private async UniTaskVoid WatchForOpponentSpecialWinAsync(CancellationToken ct)
         {
+            string[] winnerHandIds;
             try
             {
-                await _networkGameService.WaitForOpponentSpecialWinAsync(ct);
+                winnerHandIds = await _networkGameService.WaitForOpponentSpecialWinAsync(ct);
             }
             catch (OperationCanceledException)
             {
@@ -107,6 +108,8 @@ namespace Main
 
             _isGameOver = true;
             _surrenderCts?.Cancel();
+            // タロー敗北：勝者の手札を公開するため、受け取った手札IDを退避してから終了処理へ渡す。
+            _taroDefeatRevealHandIds = winnerHandIds;
             OnGameEnd(playerWins: false, winReason: WinReason.HandCollection);
         }
     }

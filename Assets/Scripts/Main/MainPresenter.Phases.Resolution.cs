@@ -387,7 +387,7 @@ namespace Main
             await PlayFloatingLabelAsync("コスト0", "cost-free-label", sourceCard, ct);
         }
 
-        // HandCollectionWin（太郎勝利）：requiredIds（完全ID）のカードが、発動側の手札に
+        // HandCollectionWin（タロー勝利）：requiredIds（完全ID）のカードが、発動側の手札に
         // すべて（重複指定は枚数分）そろっていれば発動側の勝利。そろっていなければ空振り。
         // 相手の手札は同期されない（裏向きプレースホルダー）ため、オンラインのミラー側（!isLocal）は
         // 判定せず、発動側からの通知（WatchForOpponentSpecialWinAsync）に任せる。
@@ -413,11 +413,29 @@ namespace Main
             _isGameOver = true;
             if (_isOnline)
             {
-                _networkGameService.SendSpecialWinNotification();
+                // 勝者の手札（勝利時点の全カードID）を添えて通知し、敗北側でタロー敗北時の手札公開に使う。
+                // オンラインのミラー側は上で return 済みのため、ここでの hand は常に発動側＝勝者の手札（_handView）。
+                _networkGameService.SendSpecialWinNotification(CollectHandCardIds(hand));
             }
 
             OnGameEnd(playerWins: isLocal, winReason: WinReason.HandCollection);
             return UniTask.CompletedTask;
+        }
+
+        // 手札の全カードIDを配列で返す（タロー敗北時の手札公開の送受信用）。
+        private static string[] CollectHandCardIds(HandView hand)
+        {
+            IReadOnlyList<CardView> cards = hand.Cards;
+            List<string> ids = new List<string>(cards.Count);
+            foreach (CardView card in cards)
+            {
+                string id = card.Data?.Id;
+                if (!string.IsNullOrEmpty(id))
+                {
+                    ids.Add(id);
+                }
+            }
+            return ids.ToArray();
         }
 
         // hand の中に requiredIds のカードが（重複指定は枚数分）すべて含まれるか。

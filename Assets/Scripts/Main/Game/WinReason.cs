@@ -5,6 +5,6 @@ namespace Main.Game
     {
         DeckOut,        // 相手がデッキを引き切って0枚になった（デッキ切れ）
         VictoryPoints,  // 勝利点が規定値（WinRule.VictoryPointsToWin）に到達した
-        HandCollection, // HandCollectionWin 効果で勝利条件カードを手札にそろえた（太郎勝利）
+        HandCollection, // HandCollectionWin 効果で勝利条件カードを手札にそろえた（タロー勝利）
     }
 }

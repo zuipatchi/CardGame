@@ -573,17 +573,22 @@ namespace Main.Network
             await WaitJsonAsync(k_Surrender, ct);
         }
 
-        // HandCollectionWin（太郎勝利）の発動側が、自分の手札で勝利条件を満たしたことを相手へ伝える。
+        // HandCollectionWin（タロー勝利）の発動側が、自分の手札で勝利条件を満たしたことを相手へ伝える。
         // 受信した相手は敗北として扱う（WatchForOpponentSpecialWinAsync）。相手の手札は同期されないため、
         // 投了と同じく「発動側が判定して通知する」一方向の確定メッセージにする。
-        public void SendSpecialWinNotification()
+        // 勝者の手札カードID（勝利時点の全カード）も添えて送り、敗北側が「タロー敗北時の手札公開」に使う。
+        public void SendSpecialWinNotification(string[] handIds)
         {
-            SendJson(k_SpecialWin, string.Empty);
+            SpecialWinPayload payload = new SpecialWinPayload { handIds = handIds ?? Array.Empty<string>() };
+            SendJson(k_SpecialWin, JsonUtility.ToJson(payload));
         }
 
-        public async UniTask WaitForOpponentSpecialWinAsync(CancellationToken ct)
+        // タロー敗北の通知を受信し、公開用に勝者の手札カードID配列を返す。
+        public async UniTask<string[]> WaitForOpponentSpecialWinAsync(CancellationToken ct)
         {
-            await WaitJsonAsync(k_SpecialWin, ct);
+            string json = await WaitJsonAsync(k_SpecialWin, ct);
+            SpecialWinPayload payload = JsonUtility.FromJson<SpecialWinPayload>(json);
+            return payload?.handIds ?? Array.Empty<string>();
         }
 
         public void SendRematchRequest()
@@ -719,6 +724,12 @@ namespace Main.Network
         private sealed class DiscardPayload
         {
             public string[] cardIds;
+        }
+
+        [Serializable]
+        private sealed class SpecialWinPayload
+        {
+            public string[] handIds;
         }
 
         [Serializable]

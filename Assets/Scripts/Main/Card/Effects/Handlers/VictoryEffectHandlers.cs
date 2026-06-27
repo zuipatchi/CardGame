@@ -59,7 +59,7 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
-    // 太郎勝利（特殊勝利）：値1（テキスト）に書いた完全ID（カンマ区切り）のカードが
+    // タロー勝利（特殊勝利）：値1（テキスト）に書いた完全ID（カンマ区切り）のカードが
     // 効果発動時に発動側の手札にすべてそろっていれば勝利する。
     [Preserve]
     public sealed class HandCollectionWinHandler : EffectHandler
