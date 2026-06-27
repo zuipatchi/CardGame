@@ -250,6 +250,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - default
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c8f4d2bae6035f7b9d1c2e3f40516273
+    m_Address: Deck/StarterDeck
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 50da16e8c4e01ba4b9fed8bdb92f6bc7
     m_Address: Sound/SE/Down
     m_ReadOnly: 0

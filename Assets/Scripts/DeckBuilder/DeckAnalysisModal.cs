@@ -76,9 +76,16 @@ namespace DeckBuilder
 
         private Dictionary<int, int> BuildCostDistribution(DeckModel deckModel)
         {
+            // コストは保存値ではなく CardDatabase の権威データから引く（属性・種類分布と同じ流儀）。
+            // これにより、コストを持たずに保存された初期デッキ（StarterDeckSeeder のシード）でも正しく集計できる。
             Dictionary<int, int> dist = new Dictionary<int, int>();
-            foreach ((string _, int cost) in deckModel.Entries)
+            foreach ((string id, int _) in deckModel.Entries)
             {
+                if (!_cardDatabase.TryGet(id, out CardData data))
+                {
+                    continue;
+                }
+                int cost = data.Cost;
                 if (dist.TryGetValue(cost, out int current))
                 {
                     dist[cost] = current + 1;

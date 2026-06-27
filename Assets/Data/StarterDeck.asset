@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e3c1a9d5f24e6a8c0b1d2e3f405162, type: 3}
+  m_Name: StarterDeck
+  m_EditorClassIdentifier: Common::Common.Deck.StarterDeckSO
+  CardIds:
+  - C1003
+  - C1003
+  - C1003
+  - C1004
+  - C1004
+  - C1004
+  - C1005
+  - C1005
+  - C1005
+  - C1008
+  - C1008
+  - C1008
+  - C1002
+  - C1002
+  - C1002
+  - C1010
+  - C1010
+  - C1010
+  - C1007
+  - C1007
+  - C1007
+  - C1001
+  - C1001
+  - C1001
+  - C1006
+  - C1006
+  - C1006
+  - E1001
+  - E1001
+  - E1001

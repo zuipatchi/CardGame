@@ -16,10 +16,56 @@ namespace Common.Deck
         private const string NameKeyPrefix = "DeckName_";
         private const string FavoriteKeyPrefix = "FavoriteCard_";
         private const string SelectedIndexKey = "SelectedDeckIndex";
+        private const string StarterSeededKey = "StarterDeckSeeded";
 
         public DeckRepository()
         {
             MigrateLegacyIfNeeded();
+        }
+
+        // 初期デッキの自動生成が一度でも行われたか。初回起動時に一度だけシードするためのフラグ。
+        public bool IsStarterSeeded => PlayerPrefs.GetInt(StarterSeededKey, 0) != 0;
+
+        // 初期デッキをシードせずにフラグだけ立てる（既にデッキを持つ既存プレイヤー向け）。
+        public void MarkStarterSeeded()
+        {
+            PlayerPrefs.SetInt(StarterSeededKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        // いずれかのスロットに保存済みデッキがあるか（既存プレイヤーへの初期デッキ上書きを防ぐ判定に使う）。
+        public bool HasAnyDeck()
+        {
+            for (int slot = 0; slot < SlotCount; slot++)
+            {
+                if (LoadCount(slot) > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // カードID配列だけからスロットへ直接保存する（初期デッキのシード用）。
+        // コストは対戦・表示のいずれでも使われず（カードIDから CardData で再解決される）ため 0 で保存する。
+        public void SeedSlotWithIds(int slot, IReadOnlyList<string> cardIds)
+        {
+            if (!IsValidSlot(slot) || cardIds == null)
+            {
+                return;
+            }
+
+            DeckSaveData data = new DeckSaveData();
+            foreach (string id in cardIds)
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    data.Cards.Add(new CardEntry { Id = id, Cost = 0 });
+                }
+            }
+            PlayerPrefs.SetString(CardsKeyPrefix + slot, JsonUtility.ToJson(data));
+            PlayerPrefs.SetInt(StarterSeededKey, 1);
+            PlayerPrefs.Save();
         }
 
         // 対戦に使う選択中スロット。範囲外は 0 にクランプして返す。
