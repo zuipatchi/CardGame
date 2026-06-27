@@ -454,11 +454,16 @@ CardDragManipulator  PointerManipulator サブクラス。DragLayer 対応のド
                      ドロップ成功判定は Func<Vector2, bool> OnDrop コールバックで外部委譲
 AttackArrowManipulator  PointerManipulator サブクラス。フィールドカードに装着する攻撃矢印マニピュレーター
                         PointerDown で ArrowView を DragLayer に追加、Move で先端を更新、Up/CaptureOut で削除
+                        PointerDown は再入ガードあり（ドラッグ中の別ポインタ＝マルチタッチ等は無視）。
+                        これがないと _arrowView が上書きされ、前の矢印が取り残されて消えなくなる
                         Func<bool> CanStart で開始可否を判定（false なら矢印を出さない）
                         Func<Vector2, bool> OnAttackTarget でドロップ座標を通知（true = 矢印を残す）
+                        Func<Vector2, ArrowTargetState> EvaluateTarget で Move 中の座標から色分け状態を取得
                         ClearArrow() で矢印を手動削除。IsDragging でドラッグ中か公開（盤面再構築で引いている矢印を消さない判定に使う）
-ArrowView            VisualElement サブクラス。Painter2D で攻撃矢印を描画（ベジェ曲線＋矢印先端）
-                     StartPoint / EndPoint を更新するたびに再描画。PickingMode.Ignore で操作を透過
+ArrowView            VisualElement サブクラス。Painter2D で攻撃矢印を描画（弧長ベースの流れるダッシュ＋矢印先端）
+                     ダッシュは Time.time で根元→先端へ流れる（schedule で毎フレーム再描画。パネル離脱で停止）
+                     TargetState（Neutral=黄橙 / Valid=緑 / Invalid=赤）でグラデーション色を切替
+                     StartPoint / EndPoint / TargetState を更新するたびに再描画。PickingMode.Ignore で操作を透過
 GraveyardView        VisualElement サブクラス。80×80px のアイコンボタン（GraveIcon.png + 枚数ラベル）
                      クリックで墓地カード一覧モーダルを開く（横スクロール・トップ/ボトムラベル付き）
                      AddCard(CardView) でカードを階層から切り離し、CardData を内部リストで管理
