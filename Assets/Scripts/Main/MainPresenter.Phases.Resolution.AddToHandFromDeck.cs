@@ -160,6 +160,25 @@ namespace Main
             }
         }
 
+        // ピッカー表示中に盤面を確認するためのトグルを付ける。モーダル（パネル）の右上に配置する。
+        // 押すとパネル本体と暗幕を隠して盤面を見せ、もう一度押すと選択に戻る。
+        // パネルは visibility:hidden で隠す（レイアウトは保つ）ことで、トグル自身はパネル右上の位置に残り続け押せる。
+        private void AddPickerPeekToggle(VisualElement overlay, VisualElement panel)
+        {
+            Button toggle = new Button();
+            toggle.AddToClassList("deck-pick-peek-toggle");
+            toggle.text = "盤面を見る";
+            bool peeking = false;
+            toggle.clicked += () =>
+            {
+                peeking = !peeking;
+                panel.EnableInClassList("deck-pick-panel--peek", peeking);
+                overlay.EnableInClassList("deck-pick-overlay--peek", peeking);
+                toggle.text = peeking ? "選択に戻る" : "盤面を見る";
+            };
+            panel.Add(toggle);
+        }
+
         // 複数選択ピッカーの共通実装：候補カードを並べたオーバーレイを表示し、count 枚選ぶのを待つ。
         // カードのタップは詳細モーダルを開き、詳細パネルの決定ボタンで選択／解除をトグルする。
         // count 枚そろうと下部の「決定」ボタンが押せるようになり、押下で確定する。選んだ candidates 由来のインデックスを返す。
@@ -262,6 +281,7 @@ namespace Main
             panel.Add(confirmButton);
 
             overlay.Add(panel);
+            AddPickerPeekToggle(overlay, panel);
             _mainRoot.Add(overlay);
 
             try

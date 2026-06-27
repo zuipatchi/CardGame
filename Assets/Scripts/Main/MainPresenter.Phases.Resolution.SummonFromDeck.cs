@@ -150,6 +150,7 @@ namespace Main
             panel.Add(hint);
 
             overlay.Add(panel);
+            AddPickerPeekToggle(overlay, panel);
             _mainRoot.Add(overlay);
 
             try

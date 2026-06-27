@@ -651,6 +651,60 @@
     opacity: 1;
 }
 
+/* ピッカー表示中に盤面を確認するトグル。モーダル（パネル）の右上に配置する。
+   押すとパネル本体と暗幕を隠す（再度押すと選択に戻る）。
+   パネルを visibility:hidden で隠してもトグルだけは visible で残り、右上の位置に留まる。 */
+.deck-pick-peek-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    visibility: visible;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(230, 238, 255);
+    background-color: rgba(40, 55, 110, 0.92);
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(120, 150, 240, 0.7);
+    border-right-color: rgba(120, 150, 240, 0.7);
+    border-top-color: rgba(120, 150, 240, 0.7);
+    border-bottom-color: rgba(120, 150, 240, 0.7);
+    margin: 0;
+    transition-property: scale, background-color;
+    transition-duration: 0.12s, 0.12s;
+    transition-timing-function: ease-out, ease-out;
+}
+
+.deck-pick-peek-toggle:hover {
+    scale: 1.05 1.05;
+    background-color: rgba(60, 80, 150, 0.95);
+}
+
+.deck-pick-peek-toggle:active {
+    scale: 0.95 0.95;
+}
+
+/* 盤面確認中：パネル本体（背景・枠・カードなど）を隠す。トグルは visible 指定で残る。
+   visibility:hidden はレイアウトを保つので、トグルはパネル右上の位置に留まる。 */
+.deck-pick-panel--peek {
+    visibility: hidden;
+}
+
+/* 盤面確認中：暗幕を透明にして盤面を見せる。 */
+.deck-pick-overlay--peek {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 /* ─── VS 演出 ─────────────────────────────────────────────────────── */
 
 .vs-overlay {
