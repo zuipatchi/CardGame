@@ -124,15 +124,13 @@
                         <ui:Label text="速攻（そっこう）" class="home-rules-subsection"/>
                         <ui:Label text="召喚酔いしません。場に出したターンからすぐ攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="飛行（ひこう）" class="home-rules-subsection"/>
-                        <ui:Label text="守護を無視して攻撃でき、さらに飛行か防人か射手を持つキャラからしか攻撃されません" class="home-rules-entry"/>
+                        <ui:Label text="相手に守護持ちがいても無視して、好きな相手キャラや相手デッキを攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="防人（さきもり）" class="home-rules-subsection"/>
-                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人自身は飛行キャラを攻撃できます。防人持ちは守護と同じく自分のターン終了時に自動でタップ（横向き）するので、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
+                        <ui:Label text="相手に防人がいる間、自分の飛行を持つキャラは防人を優先して攻撃しなければなりません。防人持ちは守護と同じく自分のターン終了時に自動でタップ（横向き）するので、相手のターン中は常に攻撃対象になります" class="home-rules-entry"/>
                         <ui:Label text="強襲（きょうしゅう）" class="home-rules-subsection"/>
                         <ui:Label text="「タップ済みにしか攻撃できない」ルールを無視し、まだ行動していない（アンタップの）相手キャラにも攻撃できます" class="home-rules-entry"/>
                         <ui:Label text="デッキ攻撃×（でっきこうげきばつ）" class="home-rules-subsection"/>
                         <ui:Label text="相手デッキを直接攻撃できません。相手キャラへの攻撃は通常どおり可能です" class="home-rules-entry"/>
-                        <ui:Label text="射手（しゃしゅ）" class="home-rules-subsection"/>
-                        <ui:Label text="飛行を持つ相手キャラを攻撃できます。守護や防人は無視できません。" class="home-rules-entry"/>
                         <ui:Label text="必殺（ひっさつ）" class="home-rules-subsection"/>
                         <ui:Label text="相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊します。体力に関係なく破壊するため、攻撃力0でも相手キャラを倒せます（相手デッキへの攻撃には影響しません）" class="home-rules-entry"/>
                     </ui:VisualElement>
@@ -206,11 +204,6 @@
                             <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--nodeckattack" picking-mode="Ignore"/>
                             <ui:Label text="デッキ攻撃×" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="相手デッキを直接攻撃できないキーワード「デッキ攻撃×」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
-                        </ui:Button>
-                        <ui:Button name="TutorialEntryArcher" class="home-tutorial-entry">
-                            <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--archer" picking-mode="Ignore"/>
-                            <ui:Label text="射手（しゃしゅ）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
-                            <ui:Label text="飛行を持つ相手キャラを攻撃できるキーワード「射手」を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
                         <ui:Button name="TutorialEntryDeadly" class="home-tutorial-entry">
                             <ui:VisualElement class="home-tutorial-entry-icon home-tutorial-entry-icon--deadly" picking-mode="Ignore"/>

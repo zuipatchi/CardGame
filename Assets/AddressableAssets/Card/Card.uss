@@ -350,17 +350,7 @@
     display: none;
 }
 
-/* 射手アイコン（デッキ攻撃×アイコンの下に表示。射手持ちキャラのみ CardView で display を切替） */
-.game-card__archer-icon {
-    width: 36px;
-    height: 36px;
-    margin-top: 4px;
-    background-image: url("../Icon/ArrowIcon.png");
-    -unity-background-scale-mode: scale-to-fit;
-    display: none;
-}
-
-/* 必殺アイコン（射手アイコンの下に表示。必殺持ちキャラのみ CardView で display を切替） */
+/* 必殺アイコン（デッキ攻撃×アイコンの下に表示。必殺持ちキャラのみ CardView で display を切替） */
 .game-card__deadly-icon {
     width: 36px;
     height: 36px;

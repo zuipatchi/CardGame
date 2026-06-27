@@ -26,8 +26,6 @@ namespace Main.Card
         [SerializeField] private bool _assault;
         // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない。制限を受けるのはこの能力を持つキャラだけ
         [SerializeField] private bool _noDeckAttack;
-        // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
-        [SerializeField] private bool _archer;
         // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
         [SerializeField] private bool _deadly;
         [SerializeField] private string _description;
@@ -35,7 +33,7 @@ namespace Main.Card
         public CharacterCardData() { }
 
         public CharacterCardData(string id, string name, int cost, int attack, int hp = 0, CardAttribute attribute = CardAttribute.White,
-            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool archer = false, bool deadly = false)
+            CharacterEffectTrigger effectTrigger = CharacterEffectTrigger.None, EventType effectType = EventType.None, int effectValue = 0, string description = "", int effectValue2 = 0, bool guardian = false, bool haste = false, bool flying = false, bool sakimori = false, bool assault = false, bool noDeckAttack = false, bool deadly = false)
             : base(id, name, cost)
         {
             _attack = attack;
@@ -51,7 +49,6 @@ namespace Main.Card
             _sakimori = sakimori;
             _assault = assault;
             _noDeckAttack = noDeckAttack;
-            _archer = archer;
             _deadly = deadly;
             _description = description;
         }
@@ -68,7 +65,7 @@ namespace Main.Card
         public bool Guardian => _guardian;
         // 速攻：召喚酔いせず、出したターンから攻撃できる
         public bool Haste => _haste;
-        // 飛行：守護を無視して攻撃対象を選べ、飛行を持つキャラからしか攻撃されない
+        // 飛行：守護を無視して攻撃対象を選べる（防御側としての被攻撃制限はない）
         public bool Flying => _flying;
         // 防人：飛行はこのキャラを優先して攻撃しなければならず、このキャラは飛行に攻撃できる
         public bool Sakimori => _sakimori;
@@ -76,8 +73,6 @@ namespace Main.Card
         public bool Assault => _assault;
         // デッキ攻撃×：このキャラ自身は相手デッキを直接攻撃（ミル）できない
         public bool NoDeckAttack => _noDeckAttack;
-        // 射手：飛行を持たない地上キャラながら、飛行を持つ相手キャラに攻撃できる（対空攻撃）
-        public bool Archer => _archer;
         // 必殺：相手キャラへの攻撃時、ダメージ計算を行わず対象を破壊する（HP に関係なく・ATK 0 でも破壊）
         public bool Deadly => _deadly;
         public string Description => _description;

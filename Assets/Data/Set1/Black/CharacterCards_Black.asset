@@ -43,7 +43,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C6002
@@ -74,7 +73,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 1
     _deadly: 0
     _description: 
   - _id: C6003
@@ -105,7 +103,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: 
   - _id: C6004
@@ -136,7 +133,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5834\u306E\u30AD\u30E3\u30E9\u306E\u6570\u3060\u3051\u5893\u5730\u306E\u4E0A\u306E\u30AB\u30FC\u30C9\u3092\u30C7\u30C3\u30AD\u306B\u623B\u3057\u3066\u30B7\u30E3\u30C3\u30D5\u30EB\u3059\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6005
@@ -167,7 +163,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: 
   - _id: C6006
@@ -198,7 +193,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: 
   - _id: C6007
@@ -229,7 +223,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: 
   - _id: C6008
@@ -260,7 +253,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6009
@@ -291,6 +283,5 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _archer: 0
     _deadly: 0
     _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u76F8\u624B\u306E\u624B\u672D\u30921\u679A\u6368\u3066\u3055\u305B\u308B"

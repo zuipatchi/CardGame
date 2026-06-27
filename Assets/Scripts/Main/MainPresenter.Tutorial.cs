@@ -26,7 +26,7 @@ namespace Main
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
         //   ＜キーワード能力＞ 攻撃役と的を盤面にプリセットし、そのキーワードを実際に持つ既存カードで
         //     1アクション（攻撃。速攻のみ「出す→攻撃」）を体験させてクリア（「チュートリアル完了」表示）。
-        //     守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007(守護兼) / 強襲・デッキ攻撃×=C3006(速攻兼) / 射手=C6002 / 必殺=C7006
+        //     守護=C1005 / 速攻=C1009 / 飛行=C5003 / 防人=C3007(守護兼) / 強襲・デッキ攻撃×=C3006(速攻兼) / 必殺=C7006
 
         // 台本の固定デッキ・セットアップ用カードID（実在カードID。並びはそのまま使う＝シャッフルしない）。
         private static class TutorialScript
@@ -102,15 +102,15 @@ namespace Main
             // ── CardReading（カードの見方） ──
             // 戦闘はしない。手札・デッキはすべてキーワード能力を持つ実在キャラにする（トークンは入れない）。
             // アイコン（コスト/属性/攻撃力/体力/キーワード）と詳細モーダルの読み方を学ぶため、
-            // 守護=C1005 / 飛行=C5003 / 速攻=C1009 / 防人=C3007 / 強襲=C3006 / 射手=C6002 を巡回させる。
+            // 守護=C1005 / 飛行=C5003 / 速攻=C1009 / 防人=C3007 / 強襲=C3006 / 必殺=C7006 を巡回させる。
             // 先頭は解説でハイライトする守護の C1005。END を何度か押してもデッキ切れで負けないよう多めに確保する。
             public static readonly string[] CardReadingPlayerDeckIds =
             {
                 "C1005", "C5003", "C1009",
-                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
-                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
-                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
-                "C3007", "C3006", "C6002", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C7006", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C7006", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C7006", "C1005", "C5003", "C1009",
+                "C3007", "C3006", "C7006", "C1005", "C5003", "C1009",
             };
 
             public static readonly string[] CardReadingCpuDeckIds =
@@ -142,7 +142,6 @@ namespace Main
                 case TutorialId.SakimoriKw:
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
-                case TutorialId.ArcherKw:
                 case TutorialId.DeadlyKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
@@ -168,7 +167,6 @@ namespace Main
                 case TutorialId.SakimoriKw:
                 case TutorialId.AssaultKw:
                 case TutorialId.NoDeckAttackKw:
-                case TutorialId.ArcherKw:
                 case TutorialId.DeadlyKw:
                     return TutorialScript.KeywordFillerDeckIds;
                 case TutorialId.AttackBasics:
@@ -187,7 +185,6 @@ namespace Main
                 || _tutorialId == TutorialId.SakimoriKw
                 || _tutorialId == TutorialId.AssaultKw
                 || _tutorialId == TutorialId.NoDeckAttackKw
-                || _tutorialId == TutorialId.ArcherKw
                 || _tutorialId == TutorialId.DeadlyKw;
         }
 
@@ -275,7 +272,7 @@ namespace Main
         }
 
         // キーワード能力チュートリアルの盤面をセットする。攻撃役と「的」を置き、必要なら相手キャラをタップ状態にする。
-        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3007 / 強襲・デッキ攻撃×=C3006 / 射手=C6002）。
+        // 使うカードはそのキーワードを実際に持つ既存カード（守護=C1005 / 飛行=C5003 / 防人=C3007 / 強襲・デッキ攻撃×=C3006 / 必殺=C7006）。
         private void PresetKeywordTutorial()
         {
             switch (_tutorialId)
@@ -306,10 +303,6 @@ namespace Main
                 case TutorialId.NoDeckAttackKw:
                     _tutorialHeroCard = PresetCharacter("C3006", isOpponent: false, tapped: false);    // デッキ攻撃×
                     PresetCharacter("C1011", isOpponent: true, tapped: true);   // 代わりに攻撃する的
-                    break;
-                case TutorialId.ArcherKw:
-                    _tutorialHeroCard = PresetCharacter("C6002", isOpponent: false, tapped: false);    // 射手（地上）
-                    PresetCharacter("C5003", isOpponent: true, tapped: true);   // 飛行（通常は地上から狙えない）
                     break;
                 case TutorialId.DeadlyKw:
                     _tutorialHeroCard = PresetCharacter("C7006", isOpponent: false, tapped: false);    // 必殺（攻1）
@@ -452,7 +445,7 @@ namespace Main
                     }
                     break;
                 case TutorialId.FlyingKw:
-                    ShowCoach("「飛行（ひこう）」を体験しよう。\n飛行は相手の守護を持つキャラを無視して攻撃できる。\n守護を持っていない相手キャラへ自分のキャラから矢印をドラッグして攻撃しよう！");
+                    ShowCoach("「飛行（ひこう）」を体験しよう。\n飛行は相手の守護を持つキャラを無視して攻撃できる。\n守護を持っていない相手キャラへ攻撃しよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.SakimoriKw:
@@ -465,10 +458,6 @@ namespace Main
                     break;
                 case TutorialId.NoDeckAttackKw:
                     ShowCoach("「デッキ攻撃×」を体験しよう。\nこの能力を持つキャラは相手デッキを直接攻撃できない。\nデッキへ攻撃できないことを確認してから代わりに相手キャラへ攻撃しよう！");
-                    ClearHighlights();
-                    break;
-                case TutorialId.ArcherKw:
-                    ShowCoach("「射手（しゃしゅ）」を体験しよう。\n飛行や防人を持たないキャラは、飛行を持つ相手キャラを攻撃できない。しかし、射手を持っていれば飛行を持つ相手キャラを攻撃できる！\nさっそく攻撃してみよう！");
                     ClearHighlights();
                     break;
                 case TutorialId.DeadlyKw:

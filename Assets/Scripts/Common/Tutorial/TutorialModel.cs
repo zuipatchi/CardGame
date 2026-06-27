@@ -21,7 +21,6 @@ namespace Common.Tutorial
         SakimoriKw,      // 防人
         AssaultKw,       // 強襲
         NoDeckAttackKw,  // デッキ攻撃×
-        ArcherKw,        // 射手
         DeadlyKw,        // 必殺（スレイヤー）
     }
 

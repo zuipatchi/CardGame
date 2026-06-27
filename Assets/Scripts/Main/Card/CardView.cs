@@ -25,7 +25,6 @@ namespace Main.Card
         private readonly VisualElement _sakimoriIcon;
         private readonly VisualElement _assaultIcon;
         private readonly VisualElement _noDeckAttackIcon;
-        private readonly VisualElement _archerIcon;
         private readonly VisualElement _deadlyIcon;
         private readonly VisualElement _triggerOnGraveIcon;
         private int _currentHp;
@@ -39,7 +38,6 @@ namespace Main.Card
         private bool _grantedSakimori;
         private bool _grantedAssault;
         private bool _grantedNoDeckAttack;
-        private bool _grantedArcher;
         private bool _grantedDeadly;
         // 凍結（FreezeEnemyChars）：true の間このキャラは攻撃を開始できない（次の相手ターン1回ぶん）。
         private bool _frozen;
@@ -63,7 +61,6 @@ namespace Main.Card
         public bool HasSakimori => (Data is CharacterCardData sakimoriData && sakimoriData.Sakimori) || _grantedSakimori;
         public bool HasAssault => (Data is CharacterCardData assaultData && assaultData.Assault) || _grantedAssault;
         public bool HasNoDeckAttack => (Data is CharacterCardData noDeckAttackData && noDeckAttackData.NoDeckAttack) || _grantedNoDeckAttack;
-        public bool HasArcher => (Data is CharacterCardData archerData && archerData.Archer) || _grantedArcher;
         public bool HasDeadly => (Data is CharacterCardData deadlyData && deadlyData.Deadly) || _grantedDeadly;
 
         // 凍結中か（FreezeEnemyChars）。true の間は攻撃を開始できない（CanCharAttack が false を返す）。
@@ -90,7 +87,6 @@ namespace Main.Card
             _sakimoriIcon = this.Q<VisualElement>("SakimoriIcon");
             _assaultIcon = this.Q<VisualElement>("AssaultIcon");
             _noDeckAttackIcon = this.Q<VisualElement>("NoDeckAttackIcon");
-            _archerIcon = this.Q<VisualElement>("ArcherIcon");
             _deadlyIcon = this.Q<VisualElement>("DeadlyIcon");
             _triggerOnGraveIcon = this.Q<VisualElement>("TriggerOnGraveIcon");
 
@@ -443,7 +439,6 @@ namespace Main.Card
             _grantedSakimori = false;
             _grantedAssault = false;
             _grantedNoDeckAttack = false;
-            _grantedArcher = false;
             _grantedDeadly = false;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = _currentHp.ToString();
@@ -467,7 +462,6 @@ namespace Main.Card
             _grantedSakimori = source._grantedSakimori;
             _grantedAssault = source._grantedAssault;
             _grantedNoDeckAttack = source._grantedNoDeckAttack;
-            _grantedArcher = source._grantedArcher;
             _grantedDeadly = source._grantedDeadly;
             _atkLabel.text = CurrentAttack.ToString();
             _hpLabel.text = Mathf.Max(0, _currentHp).ToString();
@@ -485,7 +479,6 @@ namespace Main.Card
             _sakimoriIcon.style.display = HasSakimori ? DisplayStyle.Flex : DisplayStyle.None;
             _assaultIcon.style.display = HasAssault ? DisplayStyle.Flex : DisplayStyle.None;
             _noDeckAttackIcon.style.display = HasNoDeckAttack ? DisplayStyle.Flex : DisplayStyle.None;
-            _archerIcon.style.display = HasArcher ? DisplayStyle.Flex : DisplayStyle.None;
             _deadlyIcon.style.display = HasDeadly ? DisplayStyle.Flex : DisplayStyle.None;
             _triggerOnGraveIcon.style.display = Data.TriggerOnGrave ? DisplayStyle.Flex : DisplayStyle.None;
         }
@@ -520,10 +513,6 @@ namespace Main.Card
                 case GrantableKeyword.NoDeckAttack:
                     _grantedNoDeckAttack = true;
                     icon = _noDeckAttackIcon;
-                    break;
-                case GrantableKeyword.Archer:
-                    _grantedArcher = true;
-                    icon = _archerIcon;
                     break;
                 case GrantableKeyword.Deadly:
                     _grantedDeadly = true;

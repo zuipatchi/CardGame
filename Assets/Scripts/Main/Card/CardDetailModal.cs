@@ -111,12 +111,12 @@ namespace Main.Card
                 if (charData.Flying)
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--flying", "飛行",
-                        "飛行・防人からしか攻撃されず、守護を無視して攻撃できる"));
+                        "守護を無視して攻撃できる"));
                 }
                 if (charData.Sakimori)
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--sakimori", "防人",
-                        "飛行を持つキャラは防人を優先して攻撃しなければならない。防人は飛行を持つキャラに攻撃できる"));
+                        "相手の飛行を持つキャラは防人を持つキャラを優先して攻撃しなければならない"));
                 }
                 if (charData.Assault)
                 {
@@ -127,11 +127,6 @@ namespace Main.Card
                 {
                     statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--no-deck-attack", "デッキ攻撃×",
                         "相手デッキを直接攻撃できない"));
-                }
-                if (charData.Archer)
-                {
-                    statBlocks.Add(CreateKeywordStatBlock("card-detail-stat-icon--archer", "射手",
-                        "飛行を持つ相手キャラに攻撃できる"));
                 }
                 if (charData.Deadly)
                 {

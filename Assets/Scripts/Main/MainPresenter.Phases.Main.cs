@@ -391,7 +391,7 @@ namespace Main
 
         // ─── 飛行 ─────────────────────────────────────────────────────────
 
-        // 表向きの飛行持ちキャラかどうか：守護を無視して攻撃でき、飛行キャラからしか攻撃されない
+        // 表向きの飛行持ちキャラかどうか：守護を無視して攻撃できる（防御側としての被攻撃制限はない）
         private static bool IsFlying(CardView card)
         {
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasFlying;
@@ -414,19 +414,10 @@ namespace Main
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasNoDeckAttack;
         }
 
-        // ─── 射手 ─────────────────────────────────────────────────────────
-
-        // 表向きの射手持ちキャラかどうか：飛行を持たない地上キャラながら飛行を持つ相手キャラを攻撃できる（対空攻撃）。
-        // 防人と違い対空ガード（飛行に優先して狙われる壁）ではなく、純粋に飛行を殴れるだけの攻撃的能力。
-        private static bool IsArcher(CardView card)
-        {
-            return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasArcher;
-        }
-
         // ─── 防人（対空ガード）───────────────────────────────────────────
 
         // 表向きの防人持ちキャラかどうか。防人は対空ガード：飛行を持つ攻撃者はこのキャラを優先して攻撃せねばならない。
-        // 非飛行の攻撃者は防人だけでは強制されない（地上の壁にはならない）。さらにこのキャラ自身は飛行に攻撃できる
+        // 非飛行の攻撃者は防人だけでは強制されない（地上の壁にはならない）。
         private static bool IsSakimori(CardView card)
         {
             return card != null && !card.IsFaceDown && card.Data is CharacterCardData && card.HasSakimori;
@@ -445,8 +436,7 @@ namespace Main
             return false;
         }
 
-        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人・射手を考慮）。
-        // ・飛行を持つ target は、飛行か防人か射手を持つ attacker からしか攻撃されない
+        // 攻撃者 attacker が防御側フィールドのキャラ target を攻撃できるか（飛行・守護・防人を考慮）。
         // ・飛行を持つ attacker は、相手フィールドに防人がいる間は防人を優先して攻撃しなければならない（守護は無視）
         // ・飛行を持たない attacker は、相手フィールドに守護がいる間は守護を優先して攻撃しなければならない
         //   （防人だけでは地上攻撃者を縛らない。守護がいるときも狙えるのは守護のみで、防人は対象に取れない）
@@ -459,10 +449,6 @@ namespace Main
             // タップ状態のキャラにしか攻撃できない（未タップ＝未行動のキャラは攻撃対象にならない）。
             // ただし強襲を持つ攻撃者はこの制限を無視し、アンタップのキャラにも攻撃できる。
             if (!target.IsTapped && !IsAssault(attacker))
-            {
-                return false;
-            }
-            if (IsFlying(target) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
             {
                 return false;
             }
@@ -1131,10 +1117,6 @@ namespace Main
                 {
                     return ArrowTargetState.Invalid;
                 }
-                if (IsFlying(targetChar) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
-                {
-                    return ArrowTargetState.Invalid;
-                }
                 return CanAttackChar(attacker, targetChar, _opponentFieldView)
                     ? ArrowTargetState.Valid
                     : ArrowTargetState.Invalid;
@@ -1161,12 +1143,6 @@ namespace Main
                 if (!targetChar.IsTapped && !IsAssault(attacker))
                 {
                     ShowToast("タップ状態のキャラにしか攻撃できません");
-                    return false;
-                }
-                // 飛行を持つキャラは飛行・防人・射手を持つキャラからしか攻撃されない
-                if (IsFlying(targetChar) && !IsFlying(attacker) && !IsSakimori(attacker) && !IsArcher(attacker))
-                {
-                    ShowToast("飛行を持つキャラには飛行・防人・射手でしか攻撃できません");
                     return false;
                 }
                 // 守護・防人による対象強制：飛行は防人を、非飛行は守護を優先して攻撃しなければならない（非飛行は防人を対象に取れない）

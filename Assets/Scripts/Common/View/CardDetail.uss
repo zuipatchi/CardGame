@@ -294,12 +294,6 @@
     height: 53px;
 }
 
-.card-detail-stat-icon--archer {
-    background-image: url("../../../AddressableAssets/Icon/ArrowIcon.png");
-    width: 53px;
-    height: 53px;
-}
-
 .card-detail-stat-icon--deadly {
     background-image: url("../../../AddressableAssets/Icon/SlayerIcon.png");
     width: 53px;

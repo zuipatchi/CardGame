@@ -696,10 +696,6 @@
     background-image: url("project://database/Assets/AddressableAssets/Icon/NoDeckAttackIcon.png");
 }
 
-.home-tutorial-entry-icon--archer {
-    background-image: url("project://database/Assets/AddressableAssets/Icon/ArrowIcon.png");
-}
-
 .home-tutorial-entry-icon--deadly {
     background-image: url("project://database/Assets/AddressableAssets/Icon/SlayerIcon.png");
 }

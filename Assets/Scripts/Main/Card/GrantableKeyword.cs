@@ -2,7 +2,7 @@ namespace Main.Card
 {
     // GrantKeyword 効果で味方キャラに付与できるキーワード能力。
     // 効果の値2（EventValue2 / EffectValue2）の数値で指定する（FromValue で変換）。
-    // 整数値は .asset が参照するため、既存値を変えないこと。
+    // 整数値は .asset が参照するため、既存値を変えないこと（値7=射手は廃止済みの欠番）。
     public enum GrantableKeyword
     {
         None = 0,
@@ -12,7 +12,7 @@ namespace Main.Card
         Sakimori = 4,
         Assault = 5,
         NoDeckAttack = 6,
-        Archer = 7,
+        // 7 は廃止された「射手」の欠番（値7指定は None ＝空振りに劣化）
         Deadly = 8,
     }
 
@@ -35,8 +35,6 @@ namespace Main.Card
                     return GrantableKeyword.Assault;
                 case 6:
                     return GrantableKeyword.NoDeckAttack;
-                case 7:
-                    return GrantableKeyword.Archer;
                 case 8:
                     return GrantableKeyword.Deadly;
                 default:
@@ -44,7 +42,7 @@ namespace Main.Card
             }
         }
 
-        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人 / 強襲 / デッキ攻撃× / 射手）。None は空文字。
+        // 効果テキスト・トースト用の日本語名（守護 / 速攻 / 飛行 / 防人 / 強襲 / デッキ攻撃× / 必殺）。None は空文字。
         public static string DisplayName(this GrantableKeyword keyword)
         {
             switch (keyword)
@@ -61,8 +59,6 @@ namespace Main.Card
                     return "強襲";
                 case GrantableKeyword.NoDeckAttack:
                     return "デッキ攻撃×";
-                case GrantableKeyword.Archer:
-                    return "射手";
                 case GrantableKeyword.Deadly:
                     return "必殺";
                 default:
