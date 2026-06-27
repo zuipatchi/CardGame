@@ -272,7 +272,7 @@
 
 ## 勝敗条件
 
-属性に依らない**共通の3条件**で勝敗が決まる（ゲーム開始時から両プレイヤーに適用。`WinRule` / 勝因種別は `WinReason`）。いずれか1つでも満たした瞬間に決着する。これに加えて、カード効果による**特殊勝利**（`HandCollectionWin` ＝太郎勝利）でも決着する（後述「4. 特殊勝利」）。
+属性に依らない**共通の2条件**で勝敗が決まる（ゲーム開始時から両プレイヤーに適用。`WinRule` / 勝因種別は `WinReason`）。いずれか1つでも満たした瞬間に決着する。これに加えて、カード効果による**特殊勝利**（`HandCollectionWin` ＝太郎勝利）でも決着する（後述「3. 特殊勝利」）。
 
 ### 1. デッキ切れ＝オーバーリミット（`WinReason.DeckOut`）
 
@@ -306,22 +306,9 @@
 - 勝利点を**下げる手段**として `EventType.ReduceEnemyVP`（相手の勝利点を下げる）がある。相手のカウンターを値1分下げるが**0未満にはならない**（0でクランプ）。減算は勝利を発生させないため勝敗判定は走らない（効果詳細は [event.md](event.md)）
 - オンライン対戦では既存のプレイ同期（`NGS_MainAction`）で効果が両クライアントに伝わり、勝利点も決定的に加算・減算されるため追加のネットワークメッセージは不要
 
-### 3. キャラ8体（`WinReason.FieldChars`）
+### 3. 特殊勝利＝太郎勝利（`WinReason.HandCollection`）
 
-自フィールドにキャラを **8体（`WinRule.FieldCharsToWin`）同時**に並べた側が勝利する。
-
-| 項目 | 内容 |
-|---|---|
-| 勝敗 | 自フィールドのキャラ数が 8 体に達した瞬間にその側が勝利（破壊されて減ると再び 8 体並べ直す必要がある） |
-| 判定タイミング | キャラ配置・召喚（通常配置・SummonChar・SummonFromDeckByKeyword・SummonFromGrave・CopyFieldChar・Switch / Evolve での配置）の直後に `OnCardPlayed` → `CheckFieldCharsWin` で判定 |
-| フィールド上限 | フィールドのキャラ上限は 9 体（`FieldView.MaxCharacters`）のため 8 体は到達可能 |
-| カウント対象外 | 「制圧勝利の対象外」フラグ（`CharacterCardData.ExcludeFromDomination`）を持つキャラ（お邪魔トークン等）はこの8体カウントに含めない（`FieldView.CountCharsForDominationWin`）。フィールドの枠（9体上限）は通常どおり占有する |
-
-- オンライン対戦では配置・召喚が `NGS_MainAction` と決定的な召喚処理で両クライアントに同期されるため、キャラ数判定も対称に成立する（追加のネットワークメッセージ不要）
-
-### 4. 特殊勝利＝太郎勝利（`WinReason.HandCollection`）
-
-`EventType.HandCollectionWin` を持つカードの効果が発動したとき、**発動側プレイヤーの手札に指定カードがすべてそろっていれば**その場で勝利する（共通3条件とは独立したカード効果による勝利）。
+`EventType.HandCollectionWin` を持つカードの効果が発動したとき、**発動側プレイヤーの手札に指定カードがすべてそろっていれば**その場で勝利する（共通2条件とは独立したカード効果による勝利）。
 
 | 項目 | 内容 |
 |---|---|
@@ -341,7 +328,6 @@
 |---|---|---|---|
 | デッキ切れ（`WinReason.DeckOut`） | 「デッキ切れ勝利」「デッキ切れ敗北」 | GraveIcon | 青系（敗北側は暗め） |
 | 勝利点（`WinReason.VictoryPoints`） | 「勝利点勝利」「勝利点敗北」 | Medal1Icon | 金系（敗北側は暗め） |
-| キャラ8体（`WinReason.FieldChars`） | 「制圧勝利」「制圧敗北」 | AttackIcon | 橙系（敗北側は暗め） |
 | 特殊勝利（`WinReason.HandCollection`） | 「太郎勝利」「太郎敗北」 | DiceIcon | 紫系（敗北側は暗め） |
 | 降参・タイムアウト・引き分け | 「YOU WIN」「YOU LOSE」「DRAW」 | なし | 勝=金 / 敗=赤 / 分=灰 |
 
