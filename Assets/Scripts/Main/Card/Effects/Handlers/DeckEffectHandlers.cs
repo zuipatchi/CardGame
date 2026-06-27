@@ -23,6 +23,25 @@ namespace Main.Card.Effects.Handlers
         }
     }
 
+    // 発動側自身のデッキの上から値1枚を墓地へ送る（自分のデッキへのダメージ＝セルフミル）。
+    // ミルされたカードが「ダメージトリガー」なら持ち主（自分）がコストなしで使用する。自分のデッキも削れるため自滅リスクあり。
+    [Preserve]
+    public sealed class DamageOwnDeckHandler : EffectHandler
+    {
+        public override EventType Type => EventType.DamageOwnDeck;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（ミル枚数）", false, "値2（未使用）", "値1=自分のデッキの上から墓地へ送る枚数。");
+
+        public override string BuildBody(EffectTextContext ctx) => $"自分のデッキに{ctx.Value1}ダメージを与える";
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            // 発動側(inv.IsLocal)自身のデッキ＝ inv.IsLocal の持ち主
+            return p.MillDeckAsync(deckOwnerIsLocal: inv.IsLocal, inv.Value1, ct);
+        }
+    }
+
     // デッキから発動カード自身の特徴を持つカード（キャラ・イベント問わず）を値1枚選んで手札に加える。
     [Preserve]
     public sealed class AddToHandFromDeckByKeywordHandler : EffectHandler

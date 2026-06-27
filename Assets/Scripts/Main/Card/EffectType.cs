@@ -71,6 +71,11 @@ namespace Main.Card
         // ミルされたカードが「ダメージトリガー」なら持ち主（相手）がコストなしで使用する。
         // 相手デッキが0枚になればデッキ切れで相手が敗北。EventValue2 / EffectValue2 は不使用。
         DamageEnemyDeck = 28,
+        // 発動側自身のデッキの上から EventValue / EffectValue 枚（値1）を墓地へ送る（デッキへのダメージ＝セルフミル）。
+        // ミルされたカードが「ダメージトリガー」なら持ち主（自分）がコストなしで使用する。
+        // 自分のデッキが0枚の状態でさらにミルしようとすると自分がオーバーリミット敗北（自滅リスクのある効果）。
+        // 自分の墓地肥やしや自デッキのダメージトリガー起動コンボに使う（DamageEnemyDeck の自分版）。EventValue2 / EffectValue2 は不使用。
+        DamageOwnDeck = 41,
         // サイコロ（6面）を振り、出た目の数だけカードを引く。
         // EventValue / EffectValue・EventValue2 / EffectValue2 は不使用（0）。
         DiceDraw = 32,
