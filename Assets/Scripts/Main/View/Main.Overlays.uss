@@ -297,12 +297,19 @@
 }
 
 .game-end-button-row {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* 再戦・ホームの下段の行 */
+.game-end-action-row {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin-top: 24px;
 }
 
-.game-end-button-row .game-end-button {
+.game-end-action-row .game-end-button {
     margin-left: 8px;
     margin-right: 8px;
 }
@@ -332,6 +339,218 @@
 }
 
 .game-end-button:active {
+    background-color: rgba(45, 45, 80, 0.9);
+    scale: 0.96 0.96;
+}
+
+/* リザルトの使用デッキ変更ボタン：シンボル画像＋デッキ名を横並びにする */
+.game-end-deck-button {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 14px;
+    padding-right: 18px;
+}
+
+.game-end-deck-button-symbol {
+    width: 34px;
+    height: 46px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.game-end-deck-button-label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: rgb(200, 200, 240);
+    font-size: 22px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 下三角アイコン（ドロップダウンであることを示す） */
+.game-end-deck-button-caret {
+    flex-shrink: 0;
+    margin-left: 12px;
+    font-size: 16px;
+    color: rgb(170, 180, 220);
+    -unity-text-align: middle-center;
+}
+
+/* ─── 使用デッキ変更モーダル（リザルトから開く） ─────────────────────────── */
+
+.deck-select-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.deck-select-panel {
+    width: 560px;
+    max-height: 80%;
+    flex-direction: column;
+    background-color: rgb(22, 22, 35);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.15);
+    border-right-color: rgba(255, 255, 255, 0.15);
+    border-top-color: rgba(255, 255, 255, 0.15);
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-top: 28px;
+    padding-right: 28px;
+    padding-bottom: 28px;
+    padding-left: 28px;
+}
+
+.deck-select-title {
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 255);
+    -unity-text-align: upper-left;
+    margin-bottom: 16px;
+}
+
+.deck-select-scroll {
+    flex-grow: 1;
+    min-height: 320px;
+    margin-bottom: 16px;
+}
+
+.deck-select-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.1);
+    border-right-color: rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    padding-top: 12px;
+    padding-right: 14px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.deck-select-row:hover {
+    background-color: rgba(70, 90, 180, 0.2);
+    border-left-color: rgba(70, 90, 180, 0.5);
+    border-right-color: rgba(70, 90, 180, 0.5);
+    border-top-color: rgba(70, 90, 180, 0.5);
+    border-bottom-color: rgba(70, 90, 180, 0.5);
+}
+
+.deck-select-row:active {
+    scale: 0.97 0.97;
+}
+
+.deck-select-row--selected {
+    background-color: rgba(70, 90, 180, 0.32);
+    border-left-color: rgb(120, 150, 240);
+    border-right-color: rgb(120, 150, 240);
+    border-top-color: rgb(120, 150, 240);
+    border-bottom-color: rgb(120, 150, 240);
+}
+
+.deck-select-row__symbol {
+    width: 36px;
+    height: 48px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.deck-select-row__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: rgb(225, 225, 245);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.deck-select-row__badge {
+    flex-shrink: 0;
+    margin-left: 12px;
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.9);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding-top: 3px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    -unity-text-align: middle-center;
+}
+
+.deck-select-row__count {
+    flex-shrink: 0;
+    margin-left: 12px;
+    font-size: 15px;
+    color: rgb(255, 150, 150);
+    -unity-text-align: middle-center;
+}
+
+.deck-select-row__count--ready {
+    color: rgb(120, 230, 150);
+}
+
+.deck-select-close {
+    height: 56px;
+    align-self: center;
+    min-width: 200px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    background-color: rgba(60, 60, 100, 0.9);
+    color: rgb(200, 200, 240);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.deck-select-close:hover {
+    background-color: rgba(80, 80, 130, 0.9);
+}
+
+.deck-select-close:active {
     background-color: rgba(45, 45, 80, 0.9);
     scale: 0.96 0.96;
 }

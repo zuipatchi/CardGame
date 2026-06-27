@@ -137,10 +137,14 @@ namespace Main
 
         private void ShowOpponentLeft()
         {
-            // 再戦ボタンを消し、「ホームに戻る」のみ残す。待機表示中なら戻す。
+            // 再戦ボタンと使用デッキ変更を消し、「ホームに戻る」のみ残す。待機表示中なら戻す。
             if (_gameEndRematchButton != null)
             {
                 _gameEndRematchButton.style.display = DisplayStyle.None;
+            }
+            if (_gameEndDeckButton != null)
+            {
+                _gameEndDeckButton.style.display = DisplayStyle.None;
             }
             if (_gameEndButtonRow != null)
             {

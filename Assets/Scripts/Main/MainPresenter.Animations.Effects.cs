@@ -663,10 +663,20 @@ namespace Main
                 _soundPlayer.PlaySE(_soundStore.LoseSE);
             }
 
-            // チュートリアルは再戦（同じ台本の再ロード）に意味がないため「ホームに戻る」のみ表示する。
+            // チュートリアルは再戦（同じ台本の再ロード）に意味がないため「ホームに戻る」のみ表示し、
+            // 使用デッキ変更（固定デッキのため無意味）も隠す。通常戦では使用デッキボタンを更新する。
             if (_gameEndRematchButton != null)
             {
                 _gameEndRematchButton.style.display = _isTutorial ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+            if (_gameEndDeckButton != null)
+            {
+                _gameEndDeckButton.style.display = _isTutorial ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+            if (!_isTutorial)
+            {
+                UpdateGameEndDeckButtonLabel();
+                UpdateRematchAvailability();
             }
 
             _gameEndButtonRow.style.opacity = 0f;

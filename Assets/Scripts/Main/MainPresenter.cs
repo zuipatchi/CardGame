@@ -44,6 +44,8 @@ namespace Main
         private CardStore _cardStore;
         private CardDatabase _cardDatabase;
         private DeckModel _deckModel;
+        private DeckRepository _deckRepository;
+        private DeckRuleModel _deckRuleModel;
         private GameModel _gameModel;
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
@@ -90,8 +92,14 @@ namespace Main
         private Label _gameEndSubLabel;
         private VisualElement _gameEndButtonRow;
         private Button _gameEndRematchButton;
+        private Button _gameEndDeckButton;
         private Button _gameEndTitleButton;
         private Label _gameEndRematchStatusLabel;
+        // 使用デッキ変更モーダル（リザルト画面から開く）
+        private VisualElement _deckSelectOverlay;
+        private ScrollView _deckSelectList;
+        private VisualElement _deckSelectButtonSymbol;
+        private Label _deckSelectButtonLabel;
         private CancellationTokenSource _surrenderCts;
 
         // 再戦ハンドシェイク状態
@@ -247,6 +255,8 @@ namespace Main
             CardStore cardStore,
             CardDatabase cardDatabase,
             DeckModel deckModel,
+            DeckRepository deckRepository,
+            DeckRuleModel deckRuleModel,
             GameModel gameModel,
             SceneTransitioner sceneTransitioner,
             GameSessionModel gameSessionModel,
@@ -269,6 +279,8 @@ namespace Main
             _cardStore = cardStore;
             _cardDatabase = cardDatabase;
             _deckModel = deckModel;
+            _deckRepository = deckRepository;
+            _deckRuleModel = deckRuleModel;
             _gameModel = gameModel;
             _sceneTransitioner = sceneTransitioner;
             _gameSessionModel = gameSessionModel;
@@ -629,6 +641,34 @@ namespace Main
                 _gameEndButtonRow.AddToClassList("game-end-button-row");
                 _gameEndButtonRow.style.opacity = 0f;
 
+                // 使用デッキ変更ボタン（上段）：次の再戦で使うデッキをこの場で切り替えられる。
+                // シンボル画像＋デッキ名＋下三角アイコンを子要素で表示するため、ボタンのテキストは使わない。
+                _gameEndDeckButton = new Button();
+                _gameEndDeckButton.AddToClassList("game-end-button");
+                _gameEndDeckButton.AddToClassList("game-end-deck-button");
+                _deckSelectButtonSymbol = new VisualElement();
+                _deckSelectButtonSymbol.AddToClassList("game-end-deck-button-symbol");
+                _deckSelectButtonSymbol.pickingMode = PickingMode.Ignore;
+                _gameEndDeckButton.Add(_deckSelectButtonSymbol);
+                _deckSelectButtonLabel = new Label();
+                _deckSelectButtonLabel.AddToClassList("game-end-deck-button-label");
+                _deckSelectButtonLabel.pickingMode = PickingMode.Ignore;
+                _gameEndDeckButton.Add(_deckSelectButtonLabel);
+                Label deckCaret = new Label("▼");
+                deckCaret.AddToClassList("game-end-deck-button-caret");
+                deckCaret.pickingMode = PickingMode.Ignore;
+                _gameEndDeckButton.Add(deckCaret);
+                _gameEndDeckButton.clicked += () =>
+                {
+                    _soundPlayer.PlaySE(_soundStore.Enter3SE);
+                    OpenDeckSelectModal();
+                };
+                _gameEndButtonRow.Add(_gameEndDeckButton);
+
+                // 再戦・ホームの行（下段）
+                VisualElement gameEndActionRow = new VisualElement();
+                gameEndActionRow.AddToClassList("game-end-action-row");
+
                 _gameEndRematchButton = new Button();
                 _gameEndRematchButton.text = "再戦する";
                 _gameEndRematchButton.AddToClassList("game-end-button");
@@ -637,7 +677,7 @@ namespace Main
                     _soundPlayer.PlaySE(_soundStore.Enter3SE);
                     OnRematchClicked();
                 };
-                _gameEndButtonRow.Add(_gameEndRematchButton);
+                gameEndActionRow.Add(_gameEndRematchButton);
 
                 _gameEndTitleButton = new Button();
                 _gameEndTitleButton.text = "ホームに戻る";
@@ -647,8 +687,9 @@ namespace Main
                     _soundPlayer.PlaySE(_soundStore.Enter3SE);
                     LeaveSessionAndGoHomeAsync().Forget();
                 };
-                _gameEndButtonRow.Add(_gameEndTitleButton);
+                gameEndActionRow.Add(_gameEndTitleButton);
 
+                _gameEndButtonRow.Add(gameEndActionRow);
                 _gameEndOverlay.Add(_gameEndButtonRow);
                 mainRoot.Add(_gameEndOverlay);
 
