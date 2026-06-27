@@ -229,6 +229,8 @@ USS クラスの `:hover` / `:active` ルールは上書きできない（イン
 
 > マッチングシーンの暗幕（`.overlay-bg`）はモーダルの視認性を上げるため `rgba(0, 0, 0, 0.85)` と濃いめ。
 
+対戦リザルト画面（`MainPresenter.DeckSelect.cs`）にも同じ使い回しがある。ゲーム終了オーバーレイのボタン群 `.game-end-button-row` を縦並び（`flex-direction: column`）にして、上段に使用デッキ変更ボタン `.game-end-deck-button`（シンボル `.game-end-deck-button-symbol`＋デッキ名 `.game-end-deck-button-label`＋下三角アイコン `.game-end-deck-button-caret` の3子要素）、下段に再戦・ホームの行 `.game-end-action-row` を置く。使用デッキボタンは `align-items: stretch` で下段の行幅に揃って伸びる。タップで開くモーダルは `.deck-select-overlay` / `.deck-select-panel` で、各行 `.deck-select-row`（`__symbol` / `__name` / `__badge` / `__count`／`--ready` の緑・`--selected` で青強調）はマッチングの `.deck-row` と同系。シンボルはマッチングと違い `CardStore.CardBack` を裏面に使うため Main 側はインスペクタ割り当て不要。
+
 ---
 
 ## オーバーレイ
