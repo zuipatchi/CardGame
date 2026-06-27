@@ -422,7 +422,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 | `NGS_Switch` | Both | 解決フェーズ Switch 効果の新キャラ選択（passed / cardId） |
 | `NGS_Evolve` | Both | 解決フェーズ Evolve 効果の新キャラ選択（passed / cardId） |
 | `NGS_Surrender` | Both | 降参通知（ペイロードなし） |
-| `NGS_SpecialWin` | Sender → Other | 特殊勝利（`HandCollectionWin` ＝太郎勝利）通知（ペイロードなし）。発動側が自分の手札で勝利条件を満たしたとき送信し、受信側は敗北として終了する（相手手札は非同期のため一方向の確定メッセージ） |
+| `NGS_SpecialWin` | Sender → Other | 特殊勝利（`HandCollectionWin` ＝タロー勝利）通知（`handIds`＝発動側＝勝者の手札カードID）。発動側が自分の手札で勝利条件を満たしたとき送信し、受信側は敗北として終了する（相手手札は非同期のため一方向の確定メッセージ）。敗北側はこの `handIds` で相手手札を表向きに復元して全公開する（タロー敗北時の手札公開） |
 | `NGS_Rematch` | Both | 再戦希望通知（ペイロードなし）。双方が送信し合うと両者が Main シーンを再ロードして新規対戦を開始 |
 
 `Both` 方向のメッセージ（Draw 以降）はすべて対戦開始時に永続登録され、受信値が per-channel のキューにバッファされる（セクション 13）。送受信のタイミングに依存せず取りこぼさないため、各行に個別の登録タイミング注記は不要。
@@ -431,7 +431,7 @@ string cardId = await evolveReceiveTask;  // 後で受信を待つ
 
 ### 特殊勝利（NGS_SpecialWin）
 
-`HandCollectionWin`（太郎勝利）は、勝利条件が**発動側の手札**で決まる。相手の手札は同期されない（裏向きプレースホルダー）ため、ミラー側で再計算できない唯一の勝敗条件である。そこで投了と同じく**発動側が自分の手札で判定して一方向に通知する**方式をとる。発動側は `ApplyHandCollectionWinAsync` で条件成立を確認したら `SendSpecialWinNotification`（ペイロードなし）を送り、自分は `WinReason.HandCollection` で勝利終了する。受信側は `WatchForOpponentSpecialWinAsync`（`WatchForOpponentSurrenderAsync` と同様に対戦開始時から監視）で受信して敗北終了する。ミラー側の効果解決（`isLocal == false`）は判定をスキップし、通知だけに依存する。
+`HandCollectionWin`（タロー勝利）は、勝利条件が**発動側の手札**で決まる。相手の手札は同期されない（裏向きプレースホルダー）ため、ミラー側で再計算できない唯一の勝敗条件である。そこで投了と同じく**発動側が自分の手札で判定して一方向に通知する**方式をとる。発動側は `ApplyHandCollectionWinAsync` で条件成立を確認したら `SendSpecialWinNotification`（ペイロードなし）を送り、自分は `WinReason.HandCollection` で勝利終了する。受信側は `WatchForOpponentSpecialWinAsync`（`WatchForOpponentSurrenderAsync` と同様に対戦開始時から監視）で受信して敗北終了する。ミラー側の効果解決（`isLocal == false`）は判定をスキップし、通知だけに依存する。
 
 ### 再戦（NGS_Rematch）
 

@@ -115,7 +115,7 @@ namespace Main.Card.Effects.Handlers
 
 `EffectInvocation` は効果の入力を正規化したもの（`IsLocal`／`SourceCard`（演出アンカー）／`Value1`・`Value2`（=EventValue/EventValue2 または EffectValue/EffectValue2）／`Keyword`／`Param`）。キャラ・イベントどちらの経路でも同じ形で渡る。
 
-> **値1を文字列で入力する効果（カンマ区切りIDなど）**: 値1/値2 は int のため、ID列のような文字列は持てない。文字列が必要な効果は `CardData.EffectParam`（全カード共通の文字列フィールド）に保存し、`EffectInvocation.Param` / `EffectTextContext.Param` で受け取る。ハンドラの `Values` で `EffectValueInfo(..., value1IsText: true)` を返すと、カードエディタは値1欄を int ではなく**テキスト入力欄**として描画する（`DrawValueFields`）。例: `HandCollectionWin`（太郎勝利）の勝利条件カードID（完全ID をカンマ区切り）。`BuildBody` では `ctx.Param` を解析してテキスト生成する。
+> **値1を文字列で入力する効果（カンマ区切りIDなど）**: 値1/値2 は int のため、ID列のような文字列は持てない。文字列が必要な効果は `CardData.EffectParam`（全カード共通の文字列フィールド）に保存し、`EffectInvocation.Param` / `EffectTextContext.Param` で受け取る。ハンドラの `Values` で `EffectValueInfo(..., value1IsText: true)` を返すと、カードエディタは値1欄を int ではなく**テキスト入力欄**として描画する（`DrawValueFields`）。例: `HandCollectionWin`（タロー勝利）の勝利条件カードID（完全ID をカンマ区切り）。`BuildBody` では `ctx.Param` を解析してテキスト生成する。
 
 > **カード効果でゲームを勝利させる効果**: 効果から勝敗を決めるには `_isGameOver = true` にして `OnGameEnd(playerWins, winReason)` を呼ぶ（共通条件の `AddVictoryPoints` と同じ流れ）。新しい勝因は `WinReason` に追加し、`MainPresenter.Animations.Effects.cs` の `GetWinReasonText` / `GetWinReasonColor` / `ApplyEmblemReason` と紋章 USS（`Main.Overlays.uss` の `.game-end-emblem--*`）を足す。**手札など同期されない情報で勝敗が決まる**場合は、発動側が判定して相手へ一方向通知する（`HandCollectionWin` は `NGS_SpecialWin` ＋ `WatchForOpponentSpecialWinAsync`。投了と同じ方式。[networking.md](networking.md)「特殊勝利」参照）。
 
