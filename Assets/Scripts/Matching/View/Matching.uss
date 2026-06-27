@@ -5,6 +5,9 @@
 
 /* ─── Card ─── */
 .card {
+    /* 中央寄せのスタックが画面より高くなっても、カードが押し縮められて
+       内部の下部ボタン行がカード外へはみ出さないようにする。 */
+    flex-shrink: 0;
     background-color: rgb(22, 22, 35);
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
@@ -191,6 +194,131 @@
     margin-bottom: 32px;
 }
 
+/* ─── Deck select ─── */
+.deck-select-button {
+    width: 720px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.deck-select-symbol {
+    width: 34px;
+    height: 44px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.deck-select-label {
+    flex-grow: 1;
+    color: rgb(225, 225, 245);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+}
+
+.deck-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.1);
+    border-right-color: rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    padding-top: 12px;
+    padding-right: 14px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+    transition-property: background-color, scale;
+    transition-duration: 0.15s, 0.1s;
+    transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.deck-row:hover {
+    background-color: rgba(70, 90, 180, 0.2);
+    border-left-color: rgba(70, 90, 180, 0.5);
+    border-right-color: rgba(70, 90, 180, 0.5);
+    border-top-color: rgba(70, 90, 180, 0.5);
+    border-bottom-color: rgba(70, 90, 180, 0.5);
+}
+
+.deck-row:active {
+    scale: 0.97 0.97;
+}
+
+.deck-row--selected {
+    background-color: rgba(70, 90, 180, 0.32);
+    border-left-color: rgb(120, 150, 240);
+    border-right-color: rgb(120, 150, 240);
+    border-top-color: rgb(120, 150, 240);
+    border-bottom-color: rgb(120, 150, 240);
+}
+
+.deck-row__symbol {
+    width: 36px;
+    height: 48px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.deck-row__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: rgb(225, 225, 245);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.deck-row__badge {
+    flex-shrink: 0;
+    margin-left: 12px;
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 120, 200, 0.9);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding-top: 3px;
+    padding-right: 10px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    -unity-text-align: middle-center;
+}
+
+.deck-row__count {
+    flex-shrink: 0;
+    margin-left: 12px;
+    font-size: 14px;
+    color: rgb(255, 150, 150);
+    -unity-text-align: middle-center;
+}
+
+.deck-row__count--ready {
+    color: rgb(120, 230, 150);
+}
+
 /* ─── Overlay ─── */
 .overlay-bg {
     position: absolute;
@@ -198,7 +326,7 @@
     height: 100%;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.55);
+    background-color: rgba(0, 0, 0, 0.85);
 }
 
 .overlay-label {

@@ -2,11 +2,14 @@
     <Style src="Matching.uss" />
     <ui:VisualElement name="MatchingRoot" class="matching-root" style="flex-grow: 1; align-items: center; justify-content: center; padding-top: 40px; padding-bottom: 40px;">
 
+        <!-- 使用デッキ（ルーム選択カードの上） -->
+        <ui:Button name="DeckSelectButton" class="btn-secondary deck-select-button" />
+
         <!-- メインカード -->
         <ui:VisualElement class="card" style="width: 720px; flex-direction: column;">
             <ui:Label text="ルーム選択" class="card__title" />
             <ui:VisualElement class="divider" />
-            <ui:ScrollView name="RoomList" style="flex-grow: 1; min-height: 420px; margin-bottom: 20px;" />
+            <ui:ScrollView name="RoomList" style="flex-grow: 1; min-height: 360px; margin-bottom: 20px;" />
             <ui:VisualElement style="flex-direction: row; justify-content: space-between;">
                 <ui:Button name="BackButton" text="ホームへ" class="btn-secondary" style="width: 100px;" />
                 <ui:VisualElement style="flex-direction: row;">
@@ -37,6 +40,16 @@
             <ui:VisualElement class="card" style="min-width: 300px; align-items: center;">
                 <ui:Label name="ErrorLabel" text="ネットワークエラー" class="overlay-label overlay-label--error" />
                 <ui:Button name="ErrorCloseButton" text="閉じる" class="btn-secondary" style="width: 200px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 使用デッキ選択オーバーレイ -->
+        <ui:VisualElement name="DeckSelectOverlay" class="overlay-bg" style="display: none;">
+            <ui:VisualElement class="card" style="width: 520px; max-height: 80%; flex-direction: column;">
+                <ui:Label text="使用デッキをえらぶ" class="card__title" />
+                <ui:VisualElement class="divider" />
+                <ui:ScrollView name="DeckSelectList" style="flex-grow: 1; min-height: 300px; margin-bottom: 16px;" />
+                <ui:Button name="DeckSelectCloseButton" text="閉じる" class="btn-secondary" style="width: 200px; align-self: center;" />
             </ui:VisualElement>
         </ui:VisualElement>
 

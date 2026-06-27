@@ -1,10 +1,12 @@
 using System;
+using Common.Deck;
 using Common.GameSession;
 using Common.SceneManagement;
 using Common.SoundManagement;
 using Common.Store;
 using Common.Username;
 using Cysharp.Threading.Tasks;
+using Main.Card;
 using R3;
 using Unity.Services.Multiplayer;
 using UnityEngine;
@@ -21,12 +23,22 @@ namespace Matching
         private static readonly TimeSpan _createRoomTimeoutDuration = TimeSpan.FromSeconds(120);
         private static readonly TimeSpan _quickMatchReconcileDuration = TimeSpan.FromSeconds(6);
 
+        // 使用デッキ選択でデッキのシンボル（代表カード）画像を引くために使う。
+        // DeckBuilder/Home と同じ CardDatabase アセットをインスペクタで割り当てる（未割り当てなら背景は出ない）。
+        [SerializeField] private CardDatabase _cardDatabase;
+        // シンボル未設定デッキに表示するカード裏面（Addressable Image/CardBack の Texture2D）。
+        // 未割り当てなら裏面は出ない。
+        [SerializeField] private Texture2D _cardBack;
+
         private MatchingModel _model;
         private MatchingService _matchingService;
         private SceneTransitioner _sceneTransitioner;
         private GameSessionModel _gameSessionModel;
         private SoundPlayer _soundPlayer;
         private SoundStore _soundStore;
+        private DeckModel _deckModel;
+        private DeckRuleModel _deckRuleModel;
+        private DeckRepository _deckRepository;
         private string _username;
 
         private VisualElement _matchingRoot;
@@ -34,6 +46,12 @@ namespace Matching
         private ScrollView _roomList;
         private Button _quickMatchButton;
         private Button _createButton;
+        private Button _deckSelectButton;
+        private VisualElement _deckSelectSymbol;
+        private Label _deckSelectLabel;
+        private VisualElement _deckSelectOverlay;
+        private Button _deckSelectCloseButton;
+        private ScrollView _deckSelectList;
         private VisualElement _loadingOverlay;
         private System.Threading.CancellationTokenSource _autoRefreshCts;
         private Label _loadingLabel;
@@ -52,6 +70,9 @@ namespace Matching
             GameSessionModel gameSessionModel,
             SoundPlayer soundPlayer,
             SoundStore soundStore,
+            DeckModel deckModel,
+            DeckRuleModel deckRuleModel,
+            DeckRepository deckRepository,
             UsernameRepository usernameRepository)
         {
             _model = model;
@@ -60,6 +81,9 @@ namespace Matching
             _gameSessionModel = gameSessionModel;
             _soundPlayer = soundPlayer;
             _soundStore = soundStore;
+            _deckModel = deckModel;
+            _deckRuleModel = deckRuleModel;
+            _deckRepository = deckRepository;
             _username = usernameRepository.Load() ?? string.Empty;
         }
 
@@ -73,6 +97,10 @@ namespace Matching
             _roomList = root.Q<ScrollView>("RoomList");
             _quickMatchButton = root.Q<Button>("QuickMatchButton");
             _createButton = root.Q<Button>("CreateButton");
+            _deckSelectButton = root.Q<Button>("DeckSelectButton");
+            _deckSelectOverlay = root.Q<VisualElement>("DeckSelectOverlay");
+            _deckSelectCloseButton = root.Q<Button>("DeckSelectCloseButton");
+            _deckSelectList = root.Q<ScrollView>("DeckSelectList");
             _loadingOverlay = root.Q<VisualElement>("LoadingOverlay");
             _loadingLabel = root.Q<Label>("LoadingLabel");
             _waitingOverlay = root.Q<VisualElement>("WaitingOverlay");
@@ -109,6 +137,9 @@ namespace Matching
                 _soundPlayer.PlaySE(_soundStore.EnterSE);
                 OnCreateButtonClickedAsync().Forget();
             };
+            _deckSelectButton.clicked += OnDeckSelectClicked;
+            _deckSelectCloseButton.clicked += OnDeckSelectCloseClicked;
+            UpdateDeckSelectButtonLabel();
             _cancelWaitButton.clicked += () =>
             {
                 _soundPlayer.PlaySE(_soundStore.Cancel1SE);
@@ -179,8 +210,7 @@ namespace Matching
             _waitingOverlay.style.display = isWaiting ? DisplayStyle.Flex : DisplayStyle.None;
             _errorOverlay.style.display = isError ? DisplayStyle.Flex : DisplayStyle.None;
             _backButton.SetEnabled(state is MatchingState.BrowsingRooms or MatchingState.Error or MatchingState.TimedOut);
-            _quickMatchButton.SetEnabled(state == MatchingState.BrowsingRooms);
-            _createButton.SetEnabled(state == MatchingState.BrowsingRooms);
+            UpdateActionButtons();
 
             if (state == MatchingState.BrowsingRooms)
             {
