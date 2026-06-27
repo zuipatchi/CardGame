@@ -94,7 +94,7 @@ namespace Main
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: ct);
         }
 
-        // winReason: 共通の勝利条件で決着した場合の勝因（デッキ切れ / 勝利点 / キャラ8体）。
+        // winReason: 共通の勝利条件で決着した場合の勝因（デッキ切れ / 勝利点）。
         // 降参・タイムアウトなど勝因を区別しない決着では null。
         private void OnGameEnd(bool? playerWins, bool isSurrenderWin = false, bool isPlayerSurrender = false, WinReason? winReason = null)
         {

@@ -48,14 +48,12 @@
                 </ui:VisualElement>
                 <ui:ScrollView name="RulesScroll" class="home-rules-scroll">
                     <ui:VisualElement name="RulesPageGoal" class="home-rules-page">
-                        <ui:Label text="3つの勝ち方" class="home-rules-section"/>
+                        <ui:Label text="2つの勝ち方" class="home-rules-section"/>
                         <ui:Label text="次のどれか1つを満たした瞬間に勝利します" class="home-rules-entry"/>
                         <ui:Label text="① デッキ切れ" class="home-rules-subsection"/>
                         <ui:Label text="相手のデッキをマイナスにしたら勝ち。デッキを0枚にされただけでは負けず、オーバーリミット状態になります。詳しくはオーバーリミットの項を参照してください" class="home-rules-entry"/>
                         <ui:Label text="② 勝利点20点" class="home-rules-subsection"/>
                         <ui:Label text="一部のカードは勝利点を得られます。勝利点が20に達したら勝ち。勝利点カウンターは自分の左下・相手の右上に常に表示されます" class="home-rules-entry"/>
-                        <ui:Label text="③ 制圧" class="home-rules-subsection"/>
-                        <ui:Label text="自分の場にキャラを8体並べた瞬間に勝ち" class="home-rules-entry"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="RulesPageFlow" class="home-rules-page">
                         <ui:Label text="ゲーム開始時" class="home-rules-section"/>
@@ -172,10 +170,6 @@
                         <ui:Button name="TutorialEntryDeckOut" class="home-tutorial-entry">
                             <ui:Label text="勝ち方：デッキ切れ" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="相手のデッキをマイナスにして勝つ「デッキ切れ」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
-                        </ui:Button>
-                        <ui:Button name="TutorialEntryFieldChars" class="home-tutorial-entry">
-                            <ui:Label text="勝ち方：制圧（キャラ8体）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
-                            <ui:Label text="自分の場にキャラを8体ならべる「制圧」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
                         <ui:Button name="TutorialEntryVictoryPoints" class="home-tutorial-entry">
                             <ui:Label text="勝ち方：勝利点（20点）" class="home-tutorial-entry-title" picking-mode="Ignore"/>

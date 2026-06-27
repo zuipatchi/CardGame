@@ -23,7 +23,6 @@ namespace Main
         //   AttackBasics   攻撃の仕方: キャラを出す→召喚酔いで攻撃できないと知る→ターン終了→相手の番（速攻でデッキ攻撃＝タップ）
         //                  →次の自分の番でタップした相手を攻撃（アンタップには攻撃できない／反撃ダメージなし）→クリア
         //   DeckOutWin     勝ち方(デッキ切れ): 攻撃役を1体セット済み→相手デッキ(残1)へデッキ攻撃＝デッキ切れ勝利
-        //   FieldCharsWin  勝ち方(制圧): 場に7体セット済み→手札の0コストキャラを1体出して8体＝制圧勝利
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
         //   ＜キーワード能力＞ 攻撃役と的を盤面にプリセットし、そのキーワードを実際に持つ既存カードで
         //     1アクション（攻撃。速攻のみ「出す→攻撃」）を体験させてクリア（「チュートリアル完了」表示）。
@@ -70,26 +69,6 @@ namespace Main
             public static readonly string[] DeckOutCpuDeckIds =
             {
                 "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
-            };
-
-            // ── FieldCharsWin（制圧） ──
-            // 手札の先頭は0コストの魔法使いぱっちトークン（C1011）。これを出して8体目にする。
-            public static readonly string[] FieldCharsPlayerDeckIds =
-            {
-                "C1011", "C1011", "C1011",
-                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
-            };
-
-            // CPU はプレイヤーが1ターン目に勝つため事実上出番なし。最低限の枚数を持たせる。
-            public static readonly string[] FieldCharsCpuDeckIds =
-            {
-                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
-            };
-
-            // 開始時に自分の場へ並べておくキャラ（7体）。残り1体を出すと制圧勝利。
-            public static readonly string[] FieldCharsPresetIds =
-            {
-                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
 
             // ── VictoryPointsWin（勝利点） ──
@@ -154,8 +133,6 @@ namespace Main
                     return TutorialScript.CardReadingPlayerDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutPlayerDeckIds;
-                case TutorialId.FieldCharsWin:
-                    return TutorialScript.FieldCharsPlayerDeckIds;
                 case TutorialId.VictoryPointsWin:
                     return TutorialScript.VictoryPointsPlayerDeckIds;
                 case TutorialId.HasteKw:
@@ -183,8 +160,6 @@ namespace Main
                     return TutorialScript.CardReadingCpuDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutCpuDeckIds;
-                case TutorialId.FieldCharsWin:
-                    return TutorialScript.FieldCharsCpuDeckIds;
                 case TutorialId.VictoryPointsWin:
                     return TutorialScript.VictoryPointsCpuDeckIds;
                 case TutorialId.GuardianKw:
@@ -222,7 +197,7 @@ namespace Main
         private bool _tutorialCpuActed;
         private CardView _tutorialHeroCard;
         // CompleteTutorial で立てる。勝敗オーバーレイを「YOU WIN」ではなく「チュートリアル完了」表示にするためのフラグ。
-        // 勝ち方（デッキ切れ/制圧/勝利点）は winReason 付きで終わるためこのフラグは使わない。
+        // 勝ち方（デッキ切れ/勝利点）は winReason 付きで終わるためこのフラグは使わない。
         private bool _tutorialCompleted;
         // FailTutorial で立てる。誤った操作（例: 飛行チュートリアルで守護持ちを攻撃）をしたとき、
         // 勝敗オーバーレイを「チュートリアル失敗」表示にするためのフラグ。
@@ -276,10 +251,6 @@ namespace Main
             if (_tutorialId == TutorialId.DeckOutWin)
             {
                 PresetDeckOutTutorial();
-            }
-            else if (_tutorialId == TutorialId.FieldCharsWin)
-            {
-                PresetFieldCharsTutorial();
             }
             else if (_tutorialId == TutorialId.VictoryPointsWin)
             {
@@ -380,23 +351,6 @@ namespace Main
             }
         }
 
-        // 制圧チュートリアル：自分の場にあらかじめキャラを並べておく（あと1体で8体＝勝利）。
-        private void PresetFieldCharsTutorial()
-        {
-            foreach (string id in TutorialScript.FieldCharsPresetIds)
-            {
-                if (_playerFieldView.IsCharactersFull)
-                {
-                    break;
-                }
-                if (_cardDatabase.TryGet(id, out CardData data))
-                {
-                    CardView card = new CardView(_cardStore.CardTemplate, data, _cardStore.CardBack, faceDown: false, isOpponent: false);
-                    _playerFieldView.PlaceCard(card);
-                }
-            }
-        }
-
         // 勝利点チュートリアル：味方を1体だけ場に出し（E3002 のバフ対象。1体なので対象選択は自動）、
         // 自分の勝利点をあと VictoryPointsTutorialGain 点で勝てる値にプリセットする。
         private void PresetVictoryPointsTutorial()
@@ -435,13 +389,6 @@ namespace Main
             {
                 ShowCoach("勝ち方のひとつ「デッキ切れ」を体験しよう。\n相手のデッキをマイナスにすると勝ち（0枚では勝ちにならない）！相手の【デッキ】（左上のカードの山）へ自分のキャラから矢印をドラッグして、デッキに攻撃してとどめを刺そう！\nデッキに攻撃したキャラの攻撃力の値だけ相手のデッキを上から破棄できるよ");
                 ClearHighlights();
-                return;
-            }
-
-            if (_tutorialId == TutorialId.FieldCharsWin)
-            {
-                ShowCoach("勝ち方のひとつ「制圧」を体験しよう。\n自分の場にキャラを8体ならべると勝ち！今7体いるから、手札の緑に光っているキャラを場に出して8体にしよう");
-                HighlightHandCard("C1011");
                 return;
             }
 
@@ -627,7 +574,7 @@ namespace Main
                 return;
             }
 
-            // 勝ち方（デッキ切れ・制圧・勝利点）はエンジンが勝利を出すため何もしない。
+            // 勝ち方（デッキ切れ・勝利点）はエンジンが勝利を出すため何もしない。
         }
 
         // チュートリアルのクリア処理：勝敗オーバーレイ（YOU WIN）を出して終了する。
