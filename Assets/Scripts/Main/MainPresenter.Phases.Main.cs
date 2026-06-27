@@ -788,6 +788,45 @@ namespace Main
             return true;
         }
 
+        // 両者オーバーリミットの膠着で引き分けにするまでのターン数。
+        // 互いにデッキ0枚になってからこのターン数が経過しても決着しなければ引き分け。
+        private const int BothOverLimitDrawTurns = 2;
+
+        // 両者オーバーリミット（互いにデッキ0枚）状態が BothOverLimitDrawTurns ターン続いたら引き分けにする。
+        // ターン開始時に呼ぶ。決め手のない両者デッキ切れが延々と続くのを防ぐ安全弁。
+        // デッキ枚数は両クライアントで lockstep 同期され TurnNumber も決定的なため、特別な通信なしで両者同時に成立する。
+        private bool CheckBothOverLimitDraw()
+        {
+            if (_isGameOver)
+            {
+                return false;
+            }
+
+            bool bothOverLimit = WinRule.IsDeckOut(_playerDeckView.Count)
+                && WinRule.IsDeckOut(_opponentDeckView.Count);
+            if (!bothOverLimit)
+            {
+                // どちらかが Recover 等でデッキを回復したら膠着解消とみなしカウントをリセット。
+                _bothOverLimitSinceTurn = -1;
+                return false;
+            }
+
+            if (_bothOverLimitSinceTurn < 0)
+            {
+                _bothOverLimitSinceTurn = _gameModel.TurnNumber;
+                return false;
+            }
+
+            if (_gameModel.TurnNumber - _bothOverLimitSinceTurn < BothOverLimitDrawTurns)
+            {
+                return false;
+            }
+
+            _isGameOver = true;
+            OnGameEnd(playerWins: null);
+            return true;
+        }
+
         // ─── CPU アクション選択 ───────────────────────────────────────────
 
         private MainPhaseAction CpuChooseMainAction()

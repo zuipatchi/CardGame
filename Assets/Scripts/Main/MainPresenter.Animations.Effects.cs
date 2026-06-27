@@ -625,7 +625,7 @@ namespace Main
             else
             {
                 // 降参・タイムアウト・引き分けなど色に依らない決着
-                _gameEndLabel.text = playerWins == null ? "DRAW" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
+                _gameEndLabel.text = playerWins == null ? "引き分け" : playerWins.Value ? "YOU WIN" : "YOU LOSE";
                 _gameEndLabel.style.color = StyleKeyword.Null;
                 _gameEndLabel.AddToClassList(playerWins == null ? "game-end-label--draw"
                     : playerWins.Value ? "game-end-label--win" : "game-end-label--lose");

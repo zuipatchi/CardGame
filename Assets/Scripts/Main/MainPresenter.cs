@@ -210,6 +210,10 @@ namespace Main
         private bool _playerOverLimit;
         private bool _opponentOverLimit;
 
+        // 両者オーバーリミット（互いにデッキ0枚）状態が続いた最初のターン番号。-1 は未成立。
+        // この状態が一定ターン続いたら互いに決め手がなく停滞しているとみなし引き分けにする（CheckBothOverLimitDraw）。
+        private int _bothOverLimitSinceTurn = -1;
+
         // DrawNextTurnStart 効果: 発動側の次のターン開始時に追加でドローする予約枚数（累積）。
         // 発動時に加算し、そのプレイヤーの次の RunDrawPhaseAsync で通常ドローに上乗せして消費する。
         private int _playerPendingNextDraw;

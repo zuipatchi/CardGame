@@ -31,6 +31,12 @@ namespace Main
         {
             _turnCounter.SetTurn(_gameModel.TurnNumber);
 
+            // 両者オーバーリミット（互いにデッキ0枚）の膠着が一定ターン続いたら引き分けで終了する。
+            if (CheckBothOverLimitDraw())
+            {
+                return;
+            }
+
             // 召喚酔い判定の基準盤面を、ターン開始時効果（OnTurnStart 召喚など）より前にスナップショットする。
             // ここで記録したキャラだけが今ターン攻撃でき、ターン開始時に新規召喚されたキャラは召喚酔いする。
             ReseasonActivePlayerChars();
