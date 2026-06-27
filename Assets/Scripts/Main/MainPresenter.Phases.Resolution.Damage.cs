@@ -186,9 +186,9 @@ namespace Main
             List<UniTask> tasks = new List<UniTask>(targets.Count);
             foreach (CardView target in targets)
             {
-                // 各対象で ATK 減算パルスと「攻撃ダウンN」フローティングラベルを同時に再生する
+                // 各対象で ATK 減算パルスと「攻撃力 -N」フローティングラベルを同時に再生する
                 tasks.Add(target.DebuffAttackAsync(amount, ct));
-                tasks.Add(PlayFloatingLabelAsync($"攻撃ダウン{amount}", "debuff-attack-label", target, ct));
+                tasks.Add(PlayFloatingLabelAsync($"攻撃力 -{amount}", "debuff-attack-label", target, ct));
             }
             await UniTask.WhenAll(tasks);
             await UniTask.Delay(TimeSpan.FromSeconds(AnimationShortDelay), cancellationToken: ct);
