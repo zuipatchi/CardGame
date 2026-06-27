@@ -262,7 +262,7 @@
                     <ui:Label text="プログラム：Claude Code" class="home-credit-entry"/>
                     <ui:Label text="イラスト：Nano Banana 2" class="home-credit-entry"/>
                     <ui:Label text="テスター" class="home-credit-section"/>
-                    <ui:Label text="テトラマックス、有馬、どえむ、ザニザニマン" class="home-credit-entry"/>
+                    <ui:Label text="テトラマックス、ハ〇ルヤの店長有馬、どえむ、ザニザニマン" class="home-credit-entry"/>
                     <ui:Label text="サウンド" class="home-credit-section"/>
                     <ui:Label text="BGM：魔王魂、ぱっち、DOVA-SYNDROME" class="home-credit-entry"/>
                     <ui:Label text="効果音：効果音ラボ" class="home-credit-entry"/>
