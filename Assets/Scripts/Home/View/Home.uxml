@@ -92,7 +92,7 @@
                         <ui:Label text="緑" class="home-rules-subsection"/>
                         <ui:Label text="防御を固めるのが得意な色。守護・防人を持つ体力の高い大型キャラや強襲を持つキャラで盤面を固め、じっくりと勝利点を稼ぐのが得意です" class="home-rules-entry"/>
                         <ui:Label text="黒" class="home-rules-subsection"/>
-                        <ui:Label text="妨害と墓地利用が得意な色。相手の手札を捨てさせたりデッキを削ったりする効果に加え、自分の墓地からキャラを復活させるなど、墓地を活用して粘り強く戦います" class="home-rules-entry"/>
+                        <ui:Label text="墓地利用が得意な色。自分の墓地からカードを回収したり、墓地のカードをデッキに戻すなど、墓地を活用して粘り強く戦います" class="home-rules-entry"/>
                         <ui:Label text="紫" class="home-rules-subsection"/>
                         <ui:Label text="妨害が得意な色。相手キャラの攻撃を封じたり、相手デッキに「お邪魔カード」を混ぜたりと、相手の動きをかき乱しながら勝ち筋を通します" class="home-rules-entry"/>
                     </ui:VisualElement>

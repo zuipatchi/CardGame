@@ -231,6 +231,34 @@ namespace Main
             await ApplyRecoverEffectAsync(count, isLocal, ct);
         }
 
+        // RecoverByColorChars 効果（ハンドラから呼ぶ）：自フィールドの指定属性キャラ数 N を数え、
+        // 自分の墓地の上から N 枚をデッキへ戻してシャッフルする（DamageDeckRecoverByColorChars から相手デッキミルを除いた回収のみ版）。
+        // colorNumber は属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7）。0=属性を問わず自フィールドの全キャラを数える。範囲外なら空振り。
+        internal async UniTask ApplyRecoverByCharCountAsync(bool isLocal, int colorNumber, CardView sourceCard, CancellationToken ct)
+        {
+            int count;
+            if (colorNumber == 0)
+            {
+                // 値1=0：属性を問わず自フィールドの全キャラを数える
+                count = (isLocal ? _playerFieldView : _opponentFieldView).Characters.Count;
+            }
+            else
+            {
+                CardAttribute? attribute = CardAttributeNames.FromNumber(colorNumber);
+                if (attribute == null)
+                {
+                    return;
+                }
+                count = CountCharsOnFieldByAttribute(isLocal, attribute.Value);
+            }
+            if (count <= 0)
+            {
+                return;
+            }
+            await PlayRecoverEffectAsync(sourceCard, count, ct);
+            await ApplyRecoverEffectAsync(count, isLocal, ct);
+        }
+
         // Recover 効果（RecoverHandler から呼ぶ）：墓地の上から value 枚を回収してデッキへ戻し、シャッフルする。
         // オンラインでは戻したデッキ順をホスト基準で同期する（受信側はアニメ前にハンドラ登録してロストを防ぐ）。
         internal async UniTask ApplyRecoverEffectAsync(int value, bool isLocal, CancellationToken ct)

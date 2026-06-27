@@ -130,6 +130,11 @@ namespace Main.Card
         // 発動した側が次にプレイするカード1枚のコストを0にする（使うまで持続。EventValue は不使用）。
         NextCardCostFree = 15,
         Recover = 6,
+        // 発動側の自フィールドにいる、EventValue / EffectValue（値1）が示す属性のキャラの数 N を数え、
+        // 自分の墓地の上から N 枚を取り出してデッキへ戻しシャッフルする（Recover の動的枚数版・ミルなし）。
+        // 値1=属性番号（白1/青2/緑3/黄4/赤5/黒6/紫7。0=属性を問わず自フィールドの全キャラ）。範囲外なら空振り。
+        // N は同期済み盤面から決定的に算出され、回収のデッキ順は ApplyRecoverEffectAsync が同期する（追加同期不要）。EventValue2 / EffectValue2 は不使用（0）。
+        RecoverByColorChars = 42,
         // 発動側の自フィールドに、EventValue / EffectValue が示すキャラ（数字部分→"C###"）を
         // EventValue2 / EffectValue2 体（未設定=0 は1体）新規生成して配置する（手札・デッキは消費しない）。
         // 召喚キャラの OnEnter も発動する。

@@ -67,4 +67,31 @@ namespace Main.Card.Effects.Handlers
             await p.ApplyRecoverEffectAsync(inv.Value1, inv.IsLocal, ct);
         }
     }
+
+    // 自フィールドの指定属性キャラ数 N だけ、自分の墓地の上から N 枚をデッキへ戻してシャッフルする（Recover の動的枚数版）。
+    [Preserve]
+    public sealed class RecoverByColorCharsHandler : EffectHandler
+    {
+        public override EventType Type => EventType.RecoverByColorChars;
+
+        public override EffectValueInfo Values => new EffectValueInfo(
+            true, "値1（属性番号 / 0=全キャラ）", false, "値2（未使用）",
+            "値1=数える属性の番号（白1/青2/緑3/黄4/赤5/黒6/紫7。0=属性を問わず自分の場の全キャラ）。自分の場のそのキャラ数だけ自分の墓地の上のカードをデッキへ戻す。範囲外なら空振り。");
+
+        public override string BuildBody(EffectTextContext ctx)
+        {
+            if (ctx.Value1 == 0)
+            {
+                return "自分の場のキャラの数だけ墓地の上のカードをデッキに戻してシャッフルする";
+            }
+            CardAttribute? attribute = CardAttributeNames.FromNumber(ctx.Value1);
+            string color = attribute == null ? "指定属性" : CardAttributeNames.Short(attribute.Value);
+            return $"自分の場の{color}のキャラの数だけ墓地の上のカードをデッキに戻してシャッフルする";
+        }
+
+        public override UniTask ApplyAsync(MainPresenter p, EffectInvocation inv, CancellationToken ct)
+        {
+            return p.ApplyRecoverByCharCountAsync(inv.IsLocal, inv.Value1, inv.SourceCard, ct);
+        }
+    }
 }
