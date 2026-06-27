@@ -27,6 +27,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 7
@@ -46,12 +48,14 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 3
     _eventValue: 3
     _eventValue2: 1
-    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
+    _description: "\u30AB\u30FC\u30C9\u30923\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C0\u679A\u306E\u6642\u306B\u306F\u30AB\u30FC\u30C9\u3092\u5F15\u304B\u305A\u3001\u6557\u5317\u3082\u3057\u306A\u3044\uFF09"
     _attribute: 1
   - _id: E2003
     _cardName: "\u304A\u3044\u3001\u3061\u3087\u3063\u3068\u5F85\u3066\u3044"
@@ -65,6 +69,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 16
@@ -84,6 +90,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 18
@@ -103,6 +111,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 1
@@ -122,6 +132,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 3
@@ -141,6 +153,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 21
@@ -160,6 +174,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 20
