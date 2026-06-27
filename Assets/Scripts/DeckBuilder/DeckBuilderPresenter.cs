@@ -17,6 +17,9 @@ namespace DeckBuilder
 
         private VisualElement _slotOverlay;
         private VisualElement _slotGrid;
+        // パネル最上位ルート（rootVisualElement）。スロット一覧オーバーレイ（_slotOverlay）はここに
+        // 重ねられているため、一覧の手前に出したいモーダル（デッキ名編集）はここに追加する。
+        private VisualElement _panelRoot;
         // 編集中デッキをその場で対戦用（SelectedIndex）にする「使用する」ボタン（編集画面ヘッダ）。
         private Button _useDeckButton;
         // 編集画面ヘッダのデッキ名表示（見出し）と、その名前変更ボタン。
@@ -124,6 +127,7 @@ namespace DeckBuilder
 
         private void BuildSlotOverlay(VisualElement root)
         {
+            _panelRoot = root;
             _slotOverlay = new VisualElement();
             _slotOverlay.AddToClassList("deckbuilder-slot-overlay");
 
@@ -505,8 +509,9 @@ namespace DeckBuilder
             panel.Add(field);
             panel.Add(buttons);
             overlay.Add(panel);
-            // スロット一覧・編集画面のどちらからでも見えるよう、常時表示のルートに重ねる。
-            _deckBuilderRoot.Add(overlay);
+            // スロット一覧・編集画面のどちらからでも見えるよう、パネル最上位ルートに重ねる。
+            // （_deckBuilderRoot に重ねるとスロット一覧オーバーレイの裏に隠れてしまう）
+            _panelRoot.Add(overlay);
 
             field.Focus();
         }
