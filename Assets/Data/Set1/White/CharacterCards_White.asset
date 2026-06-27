@@ -210,7 +210,7 @@ MonoBehaviour:
     _cannotBeUsedAsCost: 0
     _ignoreCostColor: 0
     _triggerOnGrave: 0
-    _attack: 1
+    _attack: 2
     _hp: 2
     _attribute: 6
     _effectTrigger: 0

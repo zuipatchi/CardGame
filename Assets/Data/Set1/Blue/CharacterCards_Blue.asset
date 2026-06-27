@@ -181,7 +181,7 @@ MonoBehaviour:
     _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
-    _hp: 2
+    _hp: 4
     _attribute: 1
     _effectTrigger: 8
     _effectType: 3
