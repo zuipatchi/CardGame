@@ -253,7 +253,7 @@ USS クラスの `:hover` / `:active` ルールは上書きできない（イン
 
 ピッカー内のカードは `scale: 1.4` で拡大表示する。`scale` はレイアウト枠を広げないため、拡大後の見た目と同じ実寸を持つ枠（`deck-pick-card-slot`）に各カードを入れて場所を確保し、横スクロールのビューポートで上下が見切れないようにする。スクロールは横方向のみで、縦スライダーは出さない（`verticalScrollerVisibility = Hidden`）。
 
-デッキ/墓地のカード選択ピッカーには、パネル右上に**盤面確認トグル**（`deck-pick-peek-toggle`「盤面を見る」）を置く（共通ヘルパー `AddPickerPeekToggle`）。押すとパネル本体と暗幕を隠して背後の盤面を見せ、もう一度押す（「選択に戻る」）と選択状態を保ったまま戻る。パネルは `visibility: hidden`（`deck-pick-panel--peek`）でレイアウトを保ったまま隠すため、トグル自身（`visibility: visible` 指定）はパネル右上の位置に残り続ける。暗幕は `deck-pick-overlay--peek` で透明化する。
+カード選択ピッカー（デッキ/墓地から召喚・手札に加える・ハンデス）には、パネル右上に**盤面確認トグル**（`deck-pick-peek-toggle`「盤面を見る」）を置く（共通ヘルパー `AddPickerPeekToggle`）。押すとパネル本体と暗幕を隠して背後の盤面を見せ、もう一度押す（「選択に戻る」）と選択状態を保ったまま戻る。パネルは `visibility: hidden`（`deck-pick-panel--peek`）でレイアウトを保ったまま隠すため、トグル自身（`visibility: visible` 指定）はパネル右上の位置に残り続ける。暗幕は `deck-pick-overlay--peek` で透明化する。
 
 ---
 
