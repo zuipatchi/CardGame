@@ -27,6 +27,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 2
@@ -41,6 +43,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
   - _id: C2002
     _cardName: "\u3071\u3063\u3061\u306E\u5F1F"
@@ -54,6 +58,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 1
     _attack: 1
     _hp: 2
@@ -68,6 +74,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
   - _id: C2003
     _cardName: "\u6FC0\u6D41\u306E\u3071\u3063\u3061"
@@ -81,6 +89,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -95,6 +105,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9752\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C2004
     _cardName: "\u3071\u3063\u3061\u306E\u5144"
@@ -108,6 +120,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 4
@@ -122,6 +136,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
   - _id: C2005
     _cardName: "\u3071\u3063\u3061\u306E\u3044\u3068\u3053"
@@ -135,6 +151,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 1
@@ -149,6 +167,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
   - _id: C2006
     _cardName: "\u3071\u3063\u3061\u306E\u30DA\u30C3\u30C8"
@@ -162,6 +182,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 2
@@ -176,6 +198,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: "\u76F8\u624B\u30D7\u30EC\u30A4\u30E4\u30FC\u306B\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
   - _id: C2007
     _cardName: "\u3071\u3063\u3061\u306E\u59B9"
@@ -189,6 +213,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 6
@@ -203,6 +229,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
   - _id: C2008
     _cardName: "\u3071\u3063\u3061\u306E\u59C9"
@@ -216,6 +244,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 4
     _hp: 8
@@ -230,6 +260,8 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
   - _id: C2009
     _cardName: "\u3071\u3063\u3061\u306E\u5F7C\u5973"
@@ -243,6 +275,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -257,12 +291,14 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
   - _id: C2010
     _cardName: "\u3071\u3063\u3061\u306E\u7236"
     _cost: 4
     _image: {fileID: 21300000, guid: 390f922b378d9394bbffe32cc9666974, type: 3}
-    _flavorText: "\u3071\u3063\u3061\u306E\u7E6B\u6804\u306F\u6C38\u9060\u306A\u308A"
+    _flavorText: "\u3071\u3063\u3061\u306E\u6804\u5149\u306F\u6C38\u9060\u306A\u308A"
     _voiceSpeaker: 53
     _keyword: 
     _effectParam: 
@@ -270,6 +306,8 @@ MonoBehaviour:
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
     _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 9
@@ -284,4 +322,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u30AB\u30FC\u30C9\u30921\u679A\u5F15\u304F\uFF08\u30C7\u30C3\u30AD\u304C\u5C3D\u304D\u3066\u3082\u6557\u5317\u3057\u306A\u3044\uFF09"
