@@ -28,6 +28,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -44,7 +45,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u7D2B\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C7002
     _cardName: "\u30CF\u30FC\u30C8\u306E\u9A0E\u58EB"
@@ -59,6 +59,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 4
@@ -75,7 +76,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C7003
     _cardName: "\u30E9\u30A4\u30C8\u30CB\u30F3\u30B0\u30C9\u30E9\u30B4\u30F3"
@@ -90,6 +90,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 4
@@ -106,7 +107,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C7004
     _cardName: "\u9A0E\u58EB\u305A\u3044"
@@ -121,6 +121,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 2
     _hp: 3
@@ -137,7 +138,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u3092\u6B21\u306E\u76F8\u624B\u306E\u30BF\u30FC\u30F3\u7D42\u4E86\u6642\u307E\u3067\u653B\u6483\u3067\u304D\u306A\u304F\u3059\u308B"
   - _id: C7005
     _cardName: "\u30A2\u30A6\u30C8\u30EC\u30F3\u30B8\u305A\u3044"
@@ -152,6 +152,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -168,7 +169,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 1
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u653B\u6483\u3057\u305F\u6642\u3001\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u300C\u304A\u90AA\u9B54\u30AB\u30FC\u30C9\u300D\u30922\u679A\u6DF7\u305C\u308B"
   - _id: C7006
     _cardName: "\u30A4\u30F3\u30D5\u30A1\u30A4\u30BF\u30FC\u305A\u3044"
@@ -183,6 +183,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 1
@@ -199,7 +200,6 @@ MonoBehaviour:
     _noDeckAttack: 1
     _archer: 0
     _deadly: 1
-    _excludeFromDomination: 0
     _description: 
   - _id: C7007
     _cardName: "\u60AA\u9B54\u305A\u3044"
@@ -214,9 +214,10 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
-    _attack: 4
-    _hp: 8
+    _attack: 5
+    _hp: 9
     _attribute: 5
     _effectTrigger: 0
     _effectType: 0
@@ -230,7 +231,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C7008
     _cardName: "\u305A\u3044\u306E\u624B\u5148"
@@ -245,6 +245,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
     _hp: 2
@@ -261,7 +262,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C7009
     _cardName: "\u30D8\u30C9\u30ED\u9B54\u4EBA"
@@ -276,6 +276,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 3
     _hp: 6
@@ -292,7 +293,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C7010
     _cardName: "\u30D9\u30D3\u30A3\u305A\u3044"
@@ -307,6 +307,7 @@ MonoBehaviour:
     _excludeFromDeckBuilder: 0
     _set: 0
     _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 1
     _attack: 1
     _hp: 2
@@ -323,5 +324,4 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 

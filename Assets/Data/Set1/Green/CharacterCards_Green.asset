@@ -247,8 +247,8 @@ MonoBehaviour:
     _cannotBeUsedAsCost: 0
     _ignoreCostColor: 0
     _triggerOnGrave: 0
-    _attack: 4
-    _hp: 8
+    _attack: 5
+    _hp: 9
     _attribute: 2
     _effectTrigger: 0
     _effectType: 0

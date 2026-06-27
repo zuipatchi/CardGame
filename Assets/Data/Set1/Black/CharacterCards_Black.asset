@@ -45,7 +45,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u30B3\u30B9\u30C8\u3068\u3057\u3066\u4F7F\u7528\u3057\u305F\u6642\u3001\u9ED2\u30B3\u30B9\u30C82\u500B\u5206\u3068\u3057\u3066\u6271\u3046"
   - _id: C6002
     _cardName: "\u30CA\u30A4\u30C8\u30E1\u30A2\u30AD\u30E3\u30C3\u30C8"
@@ -77,7 +76,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 1
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C6003
     _cardName: "\u30D0\u30F3\u30C7\u30A3\u30C3\u30C8\u30E9\u30C3\u30C8"
@@ -109,7 +107,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C6004
     _cardName: "\u30AB\u30E0\u30D5\u30A9\u30C7\u30EB\u306E\u3071\u3061\u8272\u5546\u4EBA"
@@ -141,7 +138,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u81EA\u5206\u306E\u5834\u306E\u30AD\u30E3\u30E9\u306E\u6570\u3060\u3051\u76F8\u624B\u306E\u30C7\u30C3\u30AD\u306B\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u3001\u540C\u3058\u6570\u3060\u3051\u81EA\u5206\u306E\u5893\u5730\u306E\u4E0A\u306E\u30AB\u30FC\u30C9\u3092\u30C7\u30C3\u30AD\u306B\u623B\u3059\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6005
     _cardName: "\u30CA\u30A4\u30C8\u30D0\u30C3\u30C8"
@@ -173,13 +169,12 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C6006
     _cardName: "\u30EC\u30A4\u30B8\u30F3\u30B0\u30D6\u30EB"
     _cost: 3
     _image: {fileID: 21300000, guid: 8f3c9623e527e3f49a46bd4d98d66e5e, type: 3}
-    _flavorText: "\u6012\u3063\u305F\u305E\u30FC"
+    _flavorText: "\u3071\u3063\u3061\u306E\u305B\u3044\u3060"
     _voiceSpeaker: 82
     _keyword: 
     _effectParam: 
@@ -205,7 +200,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C6007
     _cardName: "\u30EC\u30C7\u30A3\u30B7\u30FC\u30D5"
@@ -237,7 +231,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: 
   - _id: C6008
     _cardName: "\u9ED2\u6CA2\u30DE\u30B9\u30BF\u30FC"
@@ -269,7 +262,6 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6009
     _cardName: "\u30AB\u30E0\u30EC\u30AF\u30B7\u30A2\u306E\u3071\u3063\u3061\u3044\u8005"
@@ -301,5 +293,4 @@ MonoBehaviour:
     _noDeckAttack: 0
     _archer: 0
     _deadly: 0
-    _excludeFromDomination: 0
     _description: "\u653B\u6483\u3055\u308C\u305F\u6642\u3001\u76F8\u624B\u306E\u624B\u672D\u30921\u679A\u6368\u3066\u3055\u305B\u308B"

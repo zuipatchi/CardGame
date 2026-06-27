@@ -16,33 +16,6 @@ MonoBehaviour:
   _set: 2
   _cards:
   - _id: C2101
-    _cardName: "\u3071\u3063\u3061\u306E\u5BB6\u306E\u5EAD\u5E2B"
-    _cost: 0
-    _image: {fileID: 21300000, guid: b79e5b3ccb006924eb6af51a31d88c81, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _set: 2
-    _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
-    _attribute: 1
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _sakimori: 0
-    _assault: 0
-    _noDeckAttack: 0
-    _description: 
-  - _id: C2102
     _cardName: "\u3071\u3063\u3061\u306E\u6BCD"
     _cost: 5
     _image: {fileID: 21300000, guid: 8f6cd594f4bea7d46b2d2e6ea4502071, type: 3}
@@ -54,6 +27,8 @@ MonoBehaviour:
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
     _set: 2
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 6
     _hp: 11
@@ -68,31 +43,6 @@ MonoBehaviour:
     _sakimori: 0
     _assault: 0
     _noDeckAttack: 0
-    _description: 
-  - _id: C2103
-    _cardName: "\u3071\u3063\u3061\u306E\u5BB6\u5EAD\u6559\u5E2B"
-    _cost: 0
-    _image: {fileID: 21300000, guid: b43b6b37a7d306b47a62f6101a1bb0bd, type: 3}
-    _flavorText: 
-    _voiceSpeaker: 0
-    _keyword: 
-    _effectParam: 
-    _victoryPointBonus: 0
-    _excludeFromGame: 1
-    _excludeFromDeckBuilder: 0
-    _set: 2
-    _triggerOnGrave: 0
-    _attack: 0
-    _hp: 0
-    _attribute: 1
-    _effectTrigger: 0
-    _effectType: 0
-    _effectValue: 0
-    _effectValue2: 0
-    _guardian: 0
-    _haste: 0
-    _flying: 0
-    _sakimori: 0
-    _assault: 0
-    _noDeckAttack: 0
+    _archer: 0
+    _deadly: 0
     _description: 
