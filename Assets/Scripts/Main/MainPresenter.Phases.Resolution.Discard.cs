@@ -35,7 +35,12 @@ namespace Main
                 if (_isOnline)
                 {
                     // オンライン相手：相手（被害者）が選んで送ってきた実カード ID を受信し、相手の墓地へ送る。
-                    string[] ids = await _networkGameService.WaitForOpponentDiscardedCardsAsync(ct);
+                    // 相手が捨て札を選んでいる間は自分のターン制限時間を止める。
+                    string[] ids;
+                    using (PauseTurnTimerForOpponentInput())
+                    {
+                        ids = await _networkGameService.WaitForOpponentDiscardedCardsAsync(ct);
+                    }
                     await DiscardOpponentPlaceholdersByIdsAsync(ids, targetHand, targetGraveyard, ct);
                 }
                 else
