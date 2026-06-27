@@ -372,7 +372,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a271afcc06ac28143a7f477abfd57dc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Matching::Matching.MatchingPresenter
-  _autoMatchmaking: 0
+  _cardDatabase: {fileID: 11400000, guid: d84503d125c0df7499d68ac2cd715f5a, type: 2}
+  _cardBack: {fileID: 2800000, guid: 3811412f7661ec640a60eb192332f10c, type: 3}
 --- !u!114 &1878651925
 MonoBehaviour:
   m_ObjectHideFlags: 0
