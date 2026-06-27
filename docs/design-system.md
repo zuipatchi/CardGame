@@ -211,6 +211,24 @@ USS クラスの `:hover` / `:active` ルールは上書きできない（イン
 }
 ```
 
+### 使用デッキ選択（`.deck-select-button` / `.deck-row`）
+
+マッチングシーンの使用デッキ選択（`MatchingPresenter.DeckSelect.cs`）で使う。`.deck-select-button` はルーム選択カードの上に置く `.btn-secondary` ベースの横並びボタンで、左にシンボル画像（`.deck-select-symbol`）、右にデッキ名（`.deck-select-label`）を Label/VisualElement の子要素としてコードで生成して並べる（ボタン自身のテキストは使わない）。モーダル内の各行 `.deck-row` は `.room-item` と同系の見た目で、シンボル（`.deck-row__symbol`）・デッキ名（`.deck-row__name`）・使用中バッジ（`.deck-row__badge`）・枚数（`.deck-row__count`、完成で `--ready` の緑）を横並びにし、選択中は `.deck-row--selected` で青く強調する。シンボルは `-unity-background-scale-mode: scale-to-fit` でカード全体を縮小表示する。
+
+```css
+.deck-select-button { /* btn-secondary ベース。シンボル＋ラベルを横並び */
+    width: 720px; flex-direction: row; align-items: center; justify-content: flex-start;
+    margin-bottom: 16px;
+}
+.deck-select-symbol { width: 34px; height: 44px; margin-right: 12px; flex-shrink: 0; -unity-background-scale-mode: scale-to-fit; }
+.deck-row { flex-direction: row; align-items: center; /* room-item と同系 */ }
+.deck-row--selected { background-color: rgba(70, 90, 180, 0.32); border-left-color: rgb(120, 150, 240); /* 他3辺も同じ */ }
+.deck-row__symbol { width: 36px; height: 48px; -unity-background-scale-mode: scale-to-fit; }
+.deck-row__count--ready { color: rgb(120, 230, 150); } /* 完成（規定枚数）は緑 */
+```
+
+> マッチングシーンの暗幕（`.overlay-bg`）はモーダルの視認性を上げるため `rgba(0, 0, 0, 0.85)` と濃いめ。
+
 ---
 
 ## オーバーレイ

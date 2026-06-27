@@ -97,7 +97,7 @@ Title → Matching → Main
 | クラス | 責務 |
 |---|---|
 | `MatchingModel` | マッチング状態を `ReactiveProperty` で管理 |
-| `MatchingPresenter` | UI とマッチング状態のバインド（`IStartable` 実装） |
+| `MatchingPresenter` | UI とマッチング状態のバインド（`IStartable` 実装）。`MatchingPresenter.RoomList.cs`（ルーム一覧）と `MatchingPresenter.DeckSelect.cs`（使用デッキ選択）に partial 分割 |
 | `MatchingService` | UGS Session API 呼び出し（検索・作成・参加・started フラグ管理）|
 | `MatchingAudioManager` | マッチングシーンの BGM 再生（`MaouCyber`。`IAsyncStartable` 実装）|
 | `MatchingLifetimeScope` | Matching シーン固有 DI 登録 |
@@ -176,6 +176,16 @@ Unity の `Start()` が先に呼ばれる。VContainer の `IStartable.Start()` 
 
 ---
 
+## 使用デッキ選択（MatchingPresenter.DeckSelect.cs）
+
+マッチングシーンでも、対戦に使うデッキを切り替えられる（Home と同じ仕組み）。ルーム選択カードの上に「使用デッキ：◯◯」ボタンを置き、選択中デッキのシンボル画像と名前を表示する。タップで `DeckSelectOverlay` を開き、9 スロットを名前・枚数・使用中マーク・シンボル画像つきで一覧表示する。行をタップすると `DeckRepository.SelectedIndex` を更新して `DeckModel`（Common 常駐の Singleton）をそのスロットで読み込み直すため、そのままオンライン対戦のデッキに反映される（Home / DeckBuilder と同じ `SelectedIndex` を共有）。
+
+- **変更可能なタイミング**: ルームを探している間（`BrowsingRooms`）だけデッキボタンとマッチング開始ボタンを有効化する。`UpdateActionButtons` が状態とデッキの有効性を見て一括制御する。
+- **不正デッキの抑止**: 有効な枚数のデッキ（`DeckModel.IsValid`。Editor 再生時に「デッキ枚数制限」トグル OFF の場合は 1 枚以上）でないとクイックマッチ／ルーム作成ボタンを押せない。空スロットへ切り替えても不正なデッキで対戦が始まらない。
+- **シンボル画像**: `DeckRepository.LoadFavorite` のカードIDを `CardData.Image` で解決して表示し、未設定のデッキはカード裏面で代替する。解決のため `MatchingPresenter` に `CardDatabase`（シンボル画像用）と `Texture2D _cardBack`（裏面用・`Image/CardBack` テクスチャ）をインスペクタで割り当てる（未割り当てなら該当画像が出ないだけ）。画像解決のため `Matching.asmdef` は `Main` アセンブリを参照する。
+
+---
+
 ## エディター MPM テスト
 
 `Window → Multiplayer → Multiplayer Play Mode` で Virtual Player を追加して Enter Play Mode。
@@ -203,9 +213,12 @@ Assets/Scripts/
       MatchingLifetimeScope.cs
     View/
       Matching.uxml
+      Matching.uss
     LobbyInfo.cs                # ルーム情報の値型
     MatchingModel.cs
     MatchingPresenter.cs
+    MatchingPresenter.RoomList.cs    # ルーム一覧（取得・自動更新・リスト構築）
+    MatchingPresenter.DeckSelect.cs  # 使用デッキ選択（ボタン＋モーダル・シンボル画像）
     MatchingService.cs
     MatchingState.cs
   Main/
