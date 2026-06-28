@@ -1506,31 +1506,6 @@
     white-space: nowrap;
 }
 
-/* デッキ名編集（リネーム）ボタン。デッキ名の右に置く */
-.deckbuilder-slot-rename {
-    flex-shrink: 0;
-    height: 26px;
-    margin-left: 8px;
-    padding-left: 11px;
-    padding-right: 11px;
-    font-size: 13px;
-    -unity-text-align: middle-center;
-    color: rgb(210, 215, 235);
-    background-color: rgba(70, 80, 120, 0.7);
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-.deckbuilder-slot-rename:hover {
-    background-color: rgba(90, 100, 150, 0.85);
-}
-
 .deckbuilder-slot-count {
     height: 28px;
     -unity-text-align: middle-left;

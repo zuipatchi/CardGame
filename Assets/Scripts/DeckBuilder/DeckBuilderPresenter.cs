@@ -254,25 +254,13 @@ namespace DeckBuilder
                 VisualElement info = new VisualElement();
                 info.AddToClassList("deckbuilder-slot-info");
 
-                // デッキ名（左・伸縮）と名前変更ボタン（右）を横並びにする。
+                // デッキ名（一覧では表示のみ。名前変更は編集画面ヘッダの「編集」ボタンから行う）。
                 VisualElement nameRow = new VisualElement();
                 nameRow.AddToClassList("deckbuilder-slot-name-row");
 
                 Label nameLabel = new Label(_deckRepository.LoadName(slot));
                 nameLabel.AddToClassList("deckbuilder-slot-name");
                 nameRow.Add(nameLabel);
-
-                Button renameButton = new Button();
-                renameButton.text = "編集";
-                renameButton.AddToClassList("deckbuilder-slot-rename");
-                // カードのクリック（編集を開く）に伝播させないよう ClickEvent を止める。
-                renameButton.RegisterCallback<ClickEvent>(evt =>
-                {
-                    evt.StopPropagation();
-                    _soundPlayer.PlaySE(_soundStore.EnterSE);
-                    BeginRename(slot);
-                });
-                nameRow.Add(renameButton);
 
                 info.Add(nameRow);
 
