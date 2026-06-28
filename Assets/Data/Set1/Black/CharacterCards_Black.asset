@@ -241,12 +241,12 @@ MonoBehaviour:
     _ignoreCostColor: 0
     _triggerOnGrave: 0
     _attack: 1
-    _hp: 2
+    _hp: 3
     _attribute: 4
     _effectTrigger: 1
     _effectType: 36
     _effectValue: 1
-    _effectValue2: 2
+    _effectValue2: 1
     _guardian: 0
     _haste: 0
     _flying: 1
@@ -254,7 +254,7 @@ MonoBehaviour:
     _assault: 0
     _noDeckAttack: 0
     _deadly: 0
-    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
+    _description: "\u5834\u306B\u51FA\u305F\u6642\u3001\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
   - _id: C6009
     _cardName: "\u30AB\u30E0\u30EC\u30AF\u30B7\u30A2\u306E\u3071\u3063\u3061\u3044\u8005"
     _cost: 4

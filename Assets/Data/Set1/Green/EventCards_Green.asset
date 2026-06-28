@@ -13,24 +13,28 @@ MonoBehaviour:
   m_Name: EventCards_Green
   m_EditorClassIdentifier: Main::Main.Card.EventCardSO
   _attribute: 2
+  _set: 1
   _cards:
   - _id: E3001
     _cardName: "\u3071\u3063\u3061\u306E\u6D99\u304C\u964D\u3063\u3066\u304D\u305F"
-    _cost: 1
+    _cost: 0
     _image: {fileID: 21300000, guid: 5387ab133d3670b459a16c72144c64c2, type: 3}
     _flavorText: "\u3042\u3041\u306A\u3093\u3066\u6C17\u6301\u3061\u3044\u3044\u3093\u3060"
     _voiceSpeaker: 17
     _keyword: 
     _effectParam: 
-    _victoryPointBonus: 2
+    _victoryPointBonus: 1
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 1
     _eventType: 0
     _eventValue: 0
     _eventValue2: 0
-    _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B\u6BCE\u30BF\u30FC\u30F3\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _description: "\u81EA\u5206\u306E\u30BF\u30FC\u30F3\u958B\u59CB\u6642\u306B\u6BCE\u30BF\u30FC\u30F3\u3001\u52DD\u5229\u70B9\u30921\u5F97\u308B"
     _attribute: 2
   - _id: E3002
     _cardName: "\u4E0D\u6B7B\u9CE5\u306E\u6075\u307F"
@@ -43,6 +47,9 @@ MonoBehaviour:
     _victoryPointBonus: 2
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 1
@@ -61,6 +68,9 @@ MonoBehaviour:
     _victoryPointBonus: 4
     _excludeFromGame: 0
     _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 0
@@ -79,6 +89,9 @@ MonoBehaviour:
     _victoryPointBonus: 1
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 13
@@ -97,6 +110,9 @@ MonoBehaviour:
     _victoryPointBonus: 0
     _excludeFromGame: 1
     _excludeFromDeckBuilder: 0
+    _set: 0
+    _cannotBeUsedAsCost: 0
+    _ignoreCostColor: 0
     _triggerOnGrave: 0
     _eventTrigger: 0
     _eventType: 12

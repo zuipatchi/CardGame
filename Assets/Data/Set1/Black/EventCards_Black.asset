@@ -96,8 +96,8 @@ MonoBehaviour:
     _eventTrigger: 0
     _eventType: 36
     _eventValue: 1
-    _eventValue2: 2
-    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30922\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
+    _eventValue2: 1
+    _description: "\u76F8\u624B\u30AD\u30E3\u30E91\u4F53\u306E\u653B\u6483\u529B\u30921\u4E0B\u3052\u308B\u3001\u52DD\u5229\u70B9\u30922\u5F97\u308B"
     _attribute: 4
   - _id: E6005
     _cardName: "\u4E0D\u8001\u85AC\u3092\u98F2\u3093\u3060"
