@@ -11,6 +11,8 @@ namespace Common.Tutorial
         AttackBasics,
         // 勝ち方（デッキ切れ）：相手のデッキを0枚にして勝つ。
         DeckOutWin,
+        // 勝ち方（オーバーリミット）：相手デッキを0枚（オーバーリミット状態）にしてから、次のターンにもう一度削ってとどめを刺す。
+        OverLimitWin,
         // 勝ち方（勝利点）：勝利点を20点ためて勝つ。
         VictoryPointsWin,
 

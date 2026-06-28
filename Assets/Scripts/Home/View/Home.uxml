@@ -169,6 +169,10 @@
                             <ui:Label text="勝ち方：デッキ切れ" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="相手のデッキをマイナスにして勝つ「デッキ切れ」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
                         </ui:Button>
+                        <ui:Button name="TutorialEntryOverLimit" class="home-tutorial-entry">
+                            <ui:Label text="ルール：オーバーリミット" class="home-tutorial-entry-title" picking-mode="Ignore"/>
+                            <ui:Label text="デッキが0枚になるとオーバーリミット状態になることを体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>
+                        </ui:Button>
                         <ui:Button name="TutorialEntryVictoryPoints" class="home-tutorial-entry">
                             <ui:Label text="勝ち方：勝利点（20点）" class="home-tutorial-entry-title" picking-mode="Ignore"/>
                             <ui:Label text="勝利点を20点ためて勝つ「勝利点」での勝ち方を体験します" class="home-tutorial-entry-desc" picking-mode="Ignore"/>

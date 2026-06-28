@@ -23,6 +23,8 @@ namespace Main
         //   AttackBasics   攻撃の仕方: キャラを出す→召喚酔いで攻撃できないと知る→ターン終了→相手の番（速攻でデッキ攻撃＝タップ）
         //                  →次の自分の番でタップした相手を攻撃（アンタップには攻撃できない／反撃ダメージなし）→クリア
         //   DeckOutWin     勝ち方(デッキ切れ): 攻撃役を1体セット済み→相手デッキ(残1)へデッキ攻撃＝デッキ切れ勝利
+        //   OverLimitWin   勝ち方(オーバーリミット): 攻撃役を1体セット済み→相手デッキ(残2)を攻2で0枚にしても勝てず
+        //                  (オーバーリミット状態)→ターン終了→次の自分の番でもう一度デッキ攻撃＝とどめでデッキ切れ勝利
         //   VictoryPointsWin 勝ち方(勝利点): 勝利点18＋味方1体セット済み→E3002 を使って20点＝勝利点勝利
         //   ＜キーワード能力＞ 攻撃役と的を盤面にプリセットし、そのキーワードを実際に持つ既存カードで
         //     1アクション（攻撃。速攻のみ「出す→攻撃」）を体験させてクリア（「チュートリアル完了」表示）。
@@ -70,6 +72,23 @@ namespace Main
             public static readonly string[] DeckOutCpuDeckIds =
             {
                 "C1011", "C1011", "C1011", "C1011", "C1011",
+            };
+
+            // ── OverLimitWin（オーバーリミット） ──
+            // DeckOut と同じく攻撃役（ぱっち少年・攻2）を1体プリセット。ただし相手デッキを残り2枚にして、
+            // 1ターン目のデッキ攻撃（攻2）では0枚（オーバーリミット状態）にとどめて勝てず、
+            // 次のターンにもう一度デッキ攻撃してとどめを刺す＝「0枚にしただけでは勝てない」を体験させる。
+            public static readonly string[] OverLimitPlayerDeckIds =
+            {
+                "C1011", "C1011", "C1011",
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
+            };
+
+            // CPU は6枚（後攻の手札4＋デッキ2）。守護なし＝デッキ攻撃が通る。1ターン目に攻2でちょうど2枚ミルして
+            // デッキ0枚（オーバーリミット状態）になるが敗北せず、次のターンに空デッキへミルした瞬間にデッキ切れ勝利。
+            public static readonly string[] OverLimitCpuDeckIds =
+            {
+                "C1011", "C1011", "C1011", "C1011", "C1011", "C1011",
             };
 
             // ── VictoryPointsWin（勝利点） ──
@@ -134,6 +153,8 @@ namespace Main
                     return TutorialScript.CardReadingPlayerDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutPlayerDeckIds;
+                case TutorialId.OverLimitWin:
+                    return TutorialScript.OverLimitPlayerDeckIds;
                 case TutorialId.VictoryPointsWin:
                     return TutorialScript.VictoryPointsPlayerDeckIds;
                 case TutorialId.HasteKw:
@@ -160,6 +181,8 @@ namespace Main
                     return TutorialScript.CardReadingCpuDeckIds;
                 case TutorialId.DeckOutWin:
                     return TutorialScript.DeckOutCpuDeckIds;
+                case TutorialId.OverLimitWin:
+                    return TutorialScript.OverLimitCpuDeckIds;
                 case TutorialId.VictoryPointsWin:
                     return TutorialScript.VictoryPointsCpuDeckIds;
                 case TutorialId.GuardianKw:
@@ -246,7 +269,7 @@ namespace Main
 
             mainRoot.Add(_tutorialCoach);
 
-            if (_tutorialId == TutorialId.DeckOutWin)
+            if (_tutorialId == TutorialId.DeckOutWin || _tutorialId == TutorialId.OverLimitWin)
             {
                 PresetDeckOutTutorial();
             }
@@ -333,8 +356,9 @@ namespace Main
             return card;
         }
 
-        // デッキ切れチュートリアル：攻撃役（ぱっち少年・攻2）を1体だけ場に出しておく。
-        // この1体で相手デッキ（残り1枚）へデッキ攻撃するとデッキ切れ勝利になる。
+        // デッキ切れ／オーバーリミットチュートリアル：攻撃役（ぱっち少年・攻2）を1体だけ場に出しておく。
+        // DeckOut はこの1体で相手デッキ（残り1枚）へデッキ攻撃すると即デッキ切れ勝利。
+        // OverLimit は相手デッキ（残り2枚）を攻2で0枚にしても勝てず、次のターンにもう一度攻撃してとどめを刺す。
         private void PresetDeckOutTutorial()
         {
             if (_cardDatabase.TryGet("C1001", out CardData attacker))
@@ -382,6 +406,22 @@ namespace Main
             if (_tutorialId == TutorialId.DeckOutWin)
             {
                 ShowCoach("勝ち方のひとつ「デッキ切れ」を体験しよう。\n相手のデッキをマイナスにすると勝ち（0枚では勝ちにならない）！相手の【デッキ】（左上のカードの山）へ自分のキャラから矢印をドラッグして、デッキに攻撃してとどめを刺そう！\nデッキに攻撃したキャラの攻撃力の値だけ相手のデッキを上から破棄できるよ");
+                ClearHighlights();
+                return;
+            }
+
+            if (_tutorialId == TutorialId.OverLimitWin)
+            {
+                if (_tutorialStep == 0)
+                {
+                    // 1ターン目：デッキを0枚にしても勝てない＝オーバーリミット状態をまず作らせる。
+                    ShowCoach("「オーバーリミット」を体験しよう。\n相手のデッキは残り2枚。あなたのキャラの攻撃力は2だから、相手のデッキを攻撃すると、ちょうど2枚削れて0枚になるよ。\nでも0枚にしただけでは勝てない！まずはデッキを攻撃してみよう");
+                }
+                else
+                {
+                    // 2ターン目：0枚（オーバーリミット状態）のデッキをもう一度削ってとどめ。
+                    ShowCoach("相手のデッキは0枚（オーバーリミット状態）のまま。\n相手のデッキへもう一度攻撃しよう");
+                }
                 ClearHighlights();
                 return;
             }
@@ -560,6 +600,21 @@ namespace Main
                     {
                         CompleteTutorial();
                     }
+                }
+                return;
+            }
+
+            // オーバーリミット：1ターン目のデッキ攻撃で相手デッキが0枚になった（まだ勝っていない）瞬間に、
+            // 「0枚にしただけでは勝てない＝オーバーリミット状態」を説明し、ターン終了→次のターンのとどめへ誘導する。
+            // 2ターン目のとどめはエンジンが勝利を出す（DeckOut）ため、ここでは step 0 のみ扱う。
+            if (_tutorialId == TutorialId.OverLimitWin)
+            {
+                if (_tutorialStep == 0 && !_isGameOver
+                    && action._actionType == MainPhaseActionType.Attack && action._targetsDeck)
+                {
+                    _tutorialStep = 1;
+                    ShowCoach("相手のデッキを0枚にできた＝これが「オーバーリミット状態」だよ。（自分のターンにカードが引けなくても負けにならない）\nでもまだ勝ちじゃない！0枚の相手がデッキを削られると、そこで初めて負けになるんだ。（1度の攻撃でマイナスまでデッキが削られても負けになる）\n右側の【END】ボタンでターンを終了して、次の自分の番でとどめを刺そう");
+                    Highlight(_endButton);
                 }
                 return;
             }
