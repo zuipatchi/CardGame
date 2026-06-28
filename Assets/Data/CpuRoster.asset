@@ -32,9 +32,6 @@ MonoBehaviour:
     - C2004
     - C2004
     - C2004
-    - C2005
-    - C2005
-    - C2005
     - C2006
     - C2006
     - C2006
@@ -47,6 +44,9 @@ MonoBehaviour:
     - E2001
     - E2001
     - E2001
+    - C2010
+    - C2010
+    - C2010
   - Name: "\u5927\u6A39\u306E\u3071\u3063\u3061 \u521D\u7D1A"
     Portrait: {fileID: 2800000, guid: cede9ecc373ca214c8c8e5eac9d19542, type: 3}
     Difficulty: 0
@@ -221,36 +221,36 @@ MonoBehaviour:
     Portrait: {fileID: 2800000, guid: b23c64f36839a6f40a22f2554d895e8d, type: 3}
     Difficulty: 1
     CardIds:
-    - E2003
-    - E2003
-    - E2003
-    - E2002
-    - E2002
-    - E2002
-    - E2001
-    - E2001
-    - E2001
-    - C2010
-    - C2010
-    - C2010
-    - C2006
-    - C2006
-    - C2006
-    - C2005
-    - C2005
-    - C2005
-    - C2004
-    - C2004
-    - C2004
-    - C2002
-    - C2002
-    - C2002
-    - C2009
-    - C2009
-    - C2009
     - C2003
     - C2003
     - C2003
+    - C2002
+    - C2002
+    - C2002
+    - C2004
+    - C2004
+    - C2004
+    - C2005
+    - C2005
+    - C2005
+    - C2006
+    - C2006
+    - C2006
+    - C2009
+    - C2009
+    - C2009
+    - C2010
+    - C2010
+    - E2001
+    - E2001
+    - E2001
+    - E2002
+    - E2002
+    - E2002
+    - E2003
+    - E2003
+    - E2003
+    - C2008
   - Name: "\u5927\u6A39\u306E\u3071\u3063\u3061 \u4E2D\u7D1A"
     Portrait: {fileID: 2800000, guid: cede9ecc373ca214c8c8e5eac9d19542, type: 3}
     Difficulty: 1
